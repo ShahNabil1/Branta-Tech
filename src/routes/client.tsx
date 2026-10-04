@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/layout/SiteShell";
 import { SiteContainer } from "@/components/layout/primitives";
 import { ensureClientProfile } from "@/lib/client-auth";
+import { myRoles } from "@/lib/applicant-auth";
 
 export const Route = createFileRoute("/client")({
   ssr: false,
@@ -12,6 +13,8 @@ export const Route = createFileRoute("/client")({
     const { data } = await supabase.auth.getUser();
     if (!data.user) throw redirect({ to: "/sign-in", search: { next: location.pathname } });
     await ensureClientProfile();
+    const roles = await myRoles(data.user.id);
+    if (roles.includes("applicant") && !roles.includes("client")) throw redirect({ to: "/careers/account" });
     return { user: data.user };
   },
   head: () => ({ meta: [{ title: "Client dashboard | Branta Tech" }, { name: "robots", content: "noindex" }] }),
