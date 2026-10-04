@@ -51,14 +51,14 @@ export function parseMediaItems(raw: unknown): HeroMediaItem[] {
   return raw
     .filter((x): x is Record<string, unknown> => !!x && typeof x === "object")
     .map((x, i) => ({
-      role: (str(x.role) || "product") as HeroMediaRole,
-      type: (str(x.type) || "image") as HeroMediaItem["type"],
-      url: str(x.url),
-      poster_url: str(x.poster_url),
-      label: str(x.label),
-      alt: str(x.alt),
-      size_variant: (str(x.size_variant) || "small") as HeroMediaItem["size_variant"],
-      sort_order: typeof x.sort_order === "number" ? x.sort_order : (i + 1) * 10,
+      role: (str(x["role"]) || "product") as HeroMediaRole,
+      type: (str(x["type"]) || "image") as HeroMediaItem["type"],
+      url: str(x["url"]),
+      poster_url: str(x["poster_url"]),
+      label: str(x["label"]),
+      alt: str(x["alt"]),
+      size_variant: (str(x["size_variant"]) || "small") as HeroMediaItem["size_variant"],
+      sort_order: typeof x["sort_order"] === "number" ? x["sort_order"] : (i + 1) * 10,
     }))
     .sort((a, b) => a.sort_order - b.sort_order);
 }
@@ -75,16 +75,16 @@ export type HeroSectionRow = {
 export function heroFromSection(s: HeroSectionRow | null): HeroContent {
   if (!s) return HERO_FALLBACK;
   const c = (s.config && typeof s.config === "object" ? s.config : {}) as Record<string, unknown>;
-  const sec = (c.secondary_cta ?? {}) as Record<string, unknown>;
-  const caps = Array.isArray(c.capabilities) ? c.capabilities.filter((x): x is string => typeof x === "string" && !!x.trim()) : [];
+  const sec = (c["secondary_cta"] ?? {}) as Record<string, unknown>;
+  const caps = Array.isArray(c["capabilities"]) ? c["capabilities"].filter((x): x is string => typeof x === "string" && !!x.trim()) : [];
   return {
     eyebrow: s.eyebrow ?? "",
     title: s.title ?? "",
     body: s.body ?? "",
     primary: { label: s.cta_label ?? "", url: s.cta_url ?? "" },
-    secondary: { label: str(sec.label), url: str(sec.url) },
+    secondary: { label: str(sec["label"]), url: str(sec["url"]) },
     capabilities: caps,
-    media: parseMediaItems(c.media_items)
+    media: parseMediaItems(c["media_items"])
       .map((m) => ({ ...m, url: safeMediaUrl(m.url), poster_url: safeMediaUrl(m.poster_url) }))
       .filter((m) => m.url),
   };

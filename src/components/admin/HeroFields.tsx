@@ -14,9 +14,9 @@ export function HeroFields({ config, onChange }: { config: string; onChange: (js
   } catch {
     return <p className="text-caption text-destructive md:col-span-2">Hero settings unavailable: advanced config is not valid JSON.</p>;
   }
-  const sec = (obj.secondary_cta ?? {}) as { label?: string; url?: string };
-  const caps = Array.isArray(obj.capabilities) ? (obj.capabilities as string[]) : [];
-  const items = parseMediaItems(obj.media_items);
+  const sec = (obj["secondary_cta"] ?? {}) as { label?: string; url?: string };
+  const caps = Array.isArray(obj["capabilities"]) ? (obj["capabilities"] as string[]) : [];
+  const items = parseMediaItems(obj["media_items"]);
 
   const write = (patch: Record<string, unknown>) => onChange(JSON.stringify({ ...obj, ...patch }, null, 2));
   const writeItems = (list: HeroMediaItem[]) => write({ media_items: list.map((m, i) => ({ ...m, sort_order: (i + 1) * 10 })) });
