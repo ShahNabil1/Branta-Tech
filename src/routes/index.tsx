@@ -32,6 +32,13 @@ export const Route = createFileRoute("/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify([
+        { "@context": "https://schema.org", "@type": "Organization", name: "Branta Tech", url: "https://brantatech.com/" },
+        { "@context": "https://schema.org", "@type": "WebSite", name: "Branta Tech", url: "https://brantatech.com/" },
+      ]),
+    }],
   }),
   loader: ({ context }) =>
     Promise.all([
