@@ -58,7 +58,7 @@ export function ProjectTeam({ projectId }: { projectId: string }) {
               <AdminButton size="sm" variant="ghost" aria-label="Move down" disabled={i === rows.length - 1} onClick={() => move(i, 1)}><ArrowDown className="size-3.5" /></AdminButton>
               <AdminButton size="sm" variant="ghost" aria-label={r.is_visible ? "Hide" : "Show"} onClick={() => toggle(r)}>{r.is_visible ? <Eye className="size-3.5" /> : <EyeOff className="size-3.5" />}</AdminButton>
               <AdminButton size="sm" onClick={() => setOpen(open === r.id ? null : r.id)}>{open === r.id ? "Close" : "Edit"}</AdminButton>
-              <ConfirmButton title="Remove this credit?" confirmLabel="Remove" onConfirm={() => remove(r.id)}>Remove</ConfirmButton>
+              <ConfirmButton title="Remove this credit?" description="It disappears from the public case study." confirmLabel="Remove" onConfirm={() => remove(r.id)}>Remove</ConfirmButton>
             </div>
             {open === r.id && <CreditForm projectId={projectId} row={r} order={r.sort_order} onDone={() => { setOpen(null); refresh(); }} />}
           </li>

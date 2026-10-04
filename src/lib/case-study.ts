@@ -91,7 +91,8 @@ export function editableConfig(raw: unknown): CaseConfig {
     ...p,
     media: (Array.isArray(c["media"]) ? c["media"] : []).map((m) => {
       const o = obj(m);
-      return { type: (["image", "video", "vimeo"].includes(o["type"] as string) ? o["type"] : "image") as CaseMedia["type"], url: str(o["url"]), poster: str(o["poster"]), alt: str(o["alt"]), caption: str(o["caption"]) };
+      const type: CaseMedia["type"] = o["type"] === "vimeo" || o["type"] === "video" ? o["type"] : "image";
+      return { type, url: str(o["url"]), poster: str(o["poster"]), alt: str(o["alt"]), caption: str(o["caption"]) };
     }),
     items: (Array.isArray(c["items"]) ? c["items"] : []).map((i) => ({ label: str(obj(i)["label"]), value: str(obj(i)["value"]) })),
     quote_avatar: s("quote_avatar"), before_url: s("before_url"), after_url: s("after_url"),

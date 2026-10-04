@@ -25,7 +25,8 @@ export function MediaFigure({ m, title, className, ratio = "aspect-video" }: { m
 
 function Shell({ s, children, bleed }: { s: CaseSection; children: ReactNode; bleed?: boolean }) {
   const Tag = s.config.tone === "dark" ? DarkSection : Section;
-  return <Tag bleed={bleed} aria-label={s.title || s.eyebrow || DEFAULT_EYEBROW[s.type] || undefined}>{children}</Tag>;
+  const label = s.title || s.eyebrow || DEFAULT_EYEBROW[s.type];
+  return <Tag bleed={!!bleed} {...(label ? { "aria-label": label } : {})}>{children}</Tag>;
 }
 
 function Intro({ s, wide }: { s: CaseSection; wide?: boolean }) {
