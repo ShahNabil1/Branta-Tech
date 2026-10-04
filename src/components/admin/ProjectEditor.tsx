@@ -11,6 +11,9 @@ import {
   STATUS_OPTIONS, MEDIA_TYPE_OPTIONS, SLUG_RE, useAutoSlug, useFormState, useUnsavedWarning, friendlyError, isSafeUrl, nullIfEmpty,
   swapped,
 } from "@/components/admin/cms";
+import { UploadImageButton } from "@/components/admin/UploadImageButton";
+import { CaseStudyBuilder } from "@/components/admin/CaseStudyBuilder";
+import { ProjectTeam } from "@/components/admin/ProjectTeam";
 import { SeoFields, seoFrom, seoPayload, seoErrors, emptySeo, type SeoValues } from "@/components/admin/SeoFields";
 
 export function ProjectEditorLoader({ id }: { id: string | null }) {
@@ -25,7 +28,7 @@ export function ProjectEditorLoader({ id }: { id: string | null }) {
 type Form = {
   title: string; client_name: string; category_id: string; industry: string; project_year: string;
   short_description: string; overview: string; challenge: string; approach: string; execution: string; result: string;
-  cover_url: string; cover_type: string; is_featured: boolean; status: string; sort_order: string; seo: SeoValues;
+  cover_url: string; cover_type: string; cover_poster_url: string; timeline: string; is_featured: boolean; status: string; sort_order: string; seo: SeoValues;
 };
 
 function ProjectEditor({ project, categories }: { project: Tables<"portfolio_projects"> | null; categories: { id: string; name: string }[] }) {
@@ -38,7 +41,7 @@ function ProjectEditor({ project, categories }: { project: Tables<"portfolio_pro
     project_year: project?.project_year ? String(project.project_year) : "",
     short_description: s(project?.short_description), overview: s(project?.overview), challenge: s(project?.challenge),
     approach: s(project?.approach), execution: s(project?.execution), result: s(project?.result),
-    cover_url: s(project?.cover_url), cover_type: s(project?.cover_type), is_featured: project?.is_featured ?? false,
+    cover_url: s(project?.cover_url), cover_type: s(project?.cover_type), cover_poster_url: s(project?.cover_poster_url), timeline: s(project?.timeline), is_featured: project?.is_featured ?? false,
     status: project?.status ?? "draft", sort_order: String(project?.sort_order ?? 0), seo: project ? seoFrom(project) : emptySeo,
   });
   const slug = useAutoSlug(project?.slug ?? "", isNew);
@@ -48,6 +51,8 @@ function ProjectEditor({ project, categories }: { project: Tables<"portfolio_pro
   const v = f.values;
   const slugError = slug.slug && !SLUG_RE.test(slug.slug) ? "Use lowercase letters, numbers and hyphens." : null;
   const coverError = isSafeUrl(v.cover_url) ? null : "Unsafe or invalid URL.";
+  const posterError = isSafeUrl(v.cover_poster_url, { allowInternal: false }) ? null : "Use a full https:// URL.";
+  const [tab, setTab] = useState<Tab>("overview");
   const year = v.project_year ? Number(v.project_year) : null;
   const yearError = year !== null && (!Number.isInteger(year) || year < 1990 || year > 2100) ? "Year must be between 1990 and 2100." : null;
 
@@ -56,7 +61,7 @@ function ProjectEditor({ project, categories }: { project: Tables<"portfolio_pro
     if (f.state === "saving") return;
     if (!v.title.trim()) return f.fail("Title is required.");
     if (!slug.slug || slugError) return f.fail(slugError ?? "Slug is required.");
-    if (coverError || yearError) return f.fail(coverError ?? yearError!);
+    if (coverError || yearError || posterError) return f.fail(coverError ?? yearError ?? posterError!);
     const se = seoErrors(v.seo);
     if (se.canonical_url || se.og_image_url) return f.fail("Fix the SEO URL fields.");
     f.begin();
@@ -65,7 +70,7 @@ function ProjectEditor({ project, categories }: { project: Tables<"portfolio_pro
       industry: nullIfEmpty(v.industry), project_year: year, short_description: nullIfEmpty(v.short_description),
       overview: nullIfEmpty(v.overview), challenge: nullIfEmpty(v.challenge), approach: nullIfEmpty(v.approach),
       execution: nullIfEmpty(v.execution), result: nullIfEmpty(v.result), cover_url: nullIfEmpty(v.cover_url),
-      cover_type: v.cover_type || null, is_featured: v.is_featured, status: v.status, sort_order: Math.round(Number(v.sort_order) || 0),
+      cover_type: v.cover_type || null, cover_poster_url: nullIfEmpty(v.cover_poster_url), timeline: nullIfEmpty(v.timeline), is_featured: v.is_featured, status: v.status, sort_order: Math.round(Number(v.sort_order) || 0),
       ...seoPayload(v.seo),
     };
     const res = isNew
@@ -93,50 +98,89 @@ function ProjectEditor({ project, categories }: { project: Tables<"portfolio_pro
         title={isNew ? "Create project" : project.title}
         actions={!isNew && <a href={`/work/${savedSlug}`} target="_blank" rel="noreferrer"><AdminButton><ExternalLink className="size-4" aria-hidden /> Preview</AdminButton></a>}
       />
-      <form onSubmit={save} className="grid gap-6">
-        <Panel title="Details">
-          <div className="grid gap-4 md:grid-cols-2">
-            <TextInput label="Title" required value={v.title} onChange={(e) => { f.set("title", e.target.value); slug.syncFrom(e.target.value); }} />
-            <TextInput label="Slug" required value={slug.slug} error={slugError} hint="Generated from the title until you edit it." onChange={(e) => slug.setSlug(e.target.value)} />
-            <TextInput label="Client name" value={v.client_name} onChange={(e) => f.set("client_name", e.target.value)} />
-            <SelectInput label="Category" value={v.category_id} options={[{ value: "", label: "Uncategorised" }, ...categories.map((c) => ({ value: c.id, label: c.name }))]} onChange={(e) => f.set("category_id", e.target.value)} />
-            <TextInput label="Industry" value={v.industry} onChange={(e) => f.set("industry", e.target.value)} />
-            <TextInput label="Project year" type="number" value={v.project_year} error={yearError} onChange={(e) => f.set("project_year", e.target.value)} />
-            {text("short_description", "Short description", 3)}
-          </div>
-        </Panel>
-        <Panel title="Case study" description="All optional.">
-          <div className="grid gap-4 md:grid-cols-2">
-            {text("overview", "Overview")}
-            {text("challenge", "Challenge")}
-            {text("approach", "Approach")}
-            {text("execution", "Execution")}
-            {text("result", "Result")}
-          </div>
-        </Panel>
-        <Panel title="Cover & display">
-          <div className="grid gap-4 md:grid-cols-[1fr_12rem]">
-            <TextInput label="Cover URL" value={v.cover_url} error={coverError} onChange={(e) => f.set("cover_url", e.target.value)} />
-            <SelectInput label="Cover type" value={v.cover_type} options={MEDIA_TYPE_OPTIONS} onChange={(e) => f.set("cover_type", e.target.value)} />
-            <SelectInput label="Status" value={v.status} options={STATUS_OPTIONS} onChange={(e) => f.set("status", e.target.value)} />
-            <TextInput label="Sort order" type="number" value={v.sort_order} onChange={(e) => f.set("sort_order", e.target.value)} />
-            <CheckboxInput label="Featured" checked={v.is_featured} onChange={(b) => f.set("is_featured", b)} />
-          </div>
-        </Panel>
-        <SeoFields values={v.seo} onChange={(k, val) => f.set("seo", { ...v.seo, [k]: val })} />
+      <div role="tablist" aria-label="Project sections" className="mb-6 flex flex-wrap gap-1 border-b border-border">
+        {TABS.map((t) => {
+          const disabled = isNew && t.needsSaved;
+          return (
+            <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} disabled={disabled} onClick={() => setTab(t.key)}
+              className={`text-small -mb-px border-b-2 px-3 py-2 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${tab === t.key ? "border-accent text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+              {t.label}
+            </button>
+          );
+        })}
+      </div>
+      {isNew && <p className="text-caption mb-4 text-muted-foreground">Save the project first to add services, media, case-study sections and credits.</p>}
+      <form onSubmit={save} className={tab === "case" || tab === "team" ? "hidden" : "grid gap-6"}>
+        <div className={tab === "overview" ? "grid gap-6" : "hidden"}>
+          <Panel title="Details">
+            <div className="grid gap-4 md:grid-cols-2">
+              <TextInput label="Title" required value={v.title} onChange={(e) => { f.set("title", e.target.value); slug.syncFrom(e.target.value); }} />
+              <TextInput label="Slug" required value={slug.slug} error={slugError} hint="Generated from the title until you edit it. Public address: /work/slug" onChange={(e) => slug.setSlug(e.target.value)} />
+              <TextInput label="Client name" value={v.client_name} onChange={(e) => f.set("client_name", e.target.value)} />
+              <SelectInput label="Category" value={v.category_id} options={[{ value: "", label: "Uncategorised" }, ...categories.map((c) => ({ value: c.id, label: c.name }))]} onChange={(e) => f.set("category_id", e.target.value)} />
+              <TextInput label="Industry" value={v.industry} onChange={(e) => f.set("industry", e.target.value)} />
+              <TextInput label="Project year" type="number" value={v.project_year} error={yearError} onChange={(e) => f.set("project_year", e.target.value)} />
+              <TextInput label="Timeline" placeholder="e.g. 6 weeks" value={v.timeline} onChange={(e) => f.set("timeline", e.target.value)} />
+              <TextInput label="Sort order" type="number" value={v.sort_order} onChange={(e) => f.set("sort_order", e.target.value)} />
+              {text("short_description", "Short description (case-study introduction)", 3)}
+              <SelectInput label="Status" value={v.status} options={STATUS_OPTIONS} hint="Only published projects are public." onChange={(e) => f.set("status", e.target.value)} />
+              <CheckboxInput label="Featured" checked={v.is_featured} onChange={(b) => f.set("is_featured", b)} />
+            </div>
+          </Panel>
+          <Panel title="Basic case-study text" description="Optional. Used only while the Case study tab has no sections.">
+            <div className="grid gap-4 md:grid-cols-2">
+              {text("overview", "Overview")}
+              {text("challenge", "Challenge")}
+              {text("approach", "Approach")}
+              {text("execution", "Execution")}
+              {text("result", "Result")}
+            </div>
+          </Panel>
+        </div>
+        <div className={tab === "media" ? "grid gap-6" : "hidden"}>
+          <Panel title="Cover" description="Shown on the Work page, homepage cards and the case-study hero. For a film, paste the Vimeo link and choose vimeo.">
+            <div className="grid gap-4 md:grid-cols-[1fr_12rem]">
+              <div className="flex items-end gap-2">
+                <TextInput label="Cover URL" className="flex-1" value={v.cover_url} error={coverError} onChange={(e) => f.set("cover_url", e.target.value)} />
+                <UploadImageButton label="Upload" onUploaded={(u) => { f.set("cover_url", u); f.set("cover_type", "image"); }} />
+              </div>
+              <SelectInput label="Cover type" value={v.cover_type} options={MEDIA_TYPE_OPTIONS} onChange={(e) => f.set("cover_type", e.target.value)} />
+              <div className="flex items-end gap-2">
+                <TextInput label="Poster image (for video covers)" hint="Optional — Vimeo's own thumbnail is used if empty." className="flex-1" value={v.cover_poster_url} error={posterError} onChange={(e) => f.set("cover_poster_url", e.target.value)} />
+                <UploadImageButton label="Upload" onUploaded={(u) => f.set("cover_poster_url", u)} />
+              </div>
+              {(v.cover_type === "image" ? v.cover_url : v.cover_poster_url) && /^https:\/\//.test(v.cover_type === "image" ? v.cover_url : v.cover_poster_url) && (
+                <img src={v.cover_type === "image" ? v.cover_url : v.cover_poster_url} alt="Cover preview" className="aspect-video w-full rounded-sm bg-muted object-cover" />
+              )}
+            </div>
+          </Panel>
+        </div>
+        <div className={tab === "seo" ? "grid gap-6" : "hidden"}>
+          <SeoFields values={v.seo} onChange={(k, val) => f.set("seo", { ...v.seo, [k]: val })} />
+          <p className="text-caption text-muted-foreground">If empty, the page title is "Project title | Branta Tech" and the description is the short description.</p>
+        </div>
         <SaveBar state={f.state} dirty={dirty} error={f.error} />
       </form>
-      {isNew ? (
-        <p className="text-small mt-8 text-muted-foreground">Save the project first to add services and media.</p>
-      ) : (
+      {!isNew && (
         <div className="mt-10 grid gap-6">
-          <ProjectServices projectId={project.id} />
-          <ProjectMedia projectId={project.id} />
+          {tab === "overview" && <ProjectServices projectId={project.id} />}
+          {tab === "media" && <ProjectMedia projectId={project.id} />}
+          {tab === "case" && <CaseStudyBuilder projectId={project.id} />}
+          {tab === "team" && <ProjectTeam projectId={project.id} />}
         </div>
       )}
     </div>
   );
 }
+
+type Tab = "overview" | "media" | "case" | "team" | "seo";
+const TABS: { key: Tab; label: string; needsSaved?: boolean }[] = [
+  { key: "overview", label: "Overview" },
+  { key: "media", label: "Media" },
+  { key: "case", label: "Case study", needsSaved: true },
+  { key: "team", label: "Team & credits", needsSaved: true },
+  { key: "seo", label: "SEO" },
+];
 
 /* ---------------- services assignment ---------------- */
 
@@ -301,7 +345,11 @@ function MediaForm({ projectId, media, defaultOrder, onDone }: { projectId: stri
     <div className="grid gap-4 border-t border-border bg-background/60 p-4 md:grid-cols-2">
       <SelectInput label="Media type" value={v.media_type} options={MEDIA_TYPE_OPTIONS.filter((o) => o.value)} onChange={(e) => f.set("media_type", e.target.value)} />
       <SelectInput label="Orientation" value={v.orientation} options={ORIENTATIONS} onChange={(e) => f.set("orientation", e.target.value)} />
-      <TextInput label="URL" required value={v.url} error={urlErr} hint={v.media_type === "vimeo" ? "Vimeo video link" : "Copy a URL from the Media library"} onChange={(e) => f.set("url", e.target.value)} className="md:col-span-2" />
+      <div className="flex items-end gap-2 md:col-span-2">
+        <TextInput label="URL" required className="flex-1" value={v.url} error={urlErr} hint={v.media_type === "vimeo" ? "Vimeo video link" : "Upload, or copy a URL from the Media library"} onChange={(e) => f.set("url", e.target.value)} />
+        {v.media_type === "image" && <UploadImageButton label="Upload" onUploaded={(u) => f.set("url", u)} />}
+      </div>
+      {v.media_type === "image" && /^https:\/\//.test(v.url) && <img src={v.url} alt="Preview" className="max-h-48 rounded-sm bg-muted object-contain md:col-span-2" />}
       <TextInput label="Poster URL" value={v.poster_url} error={posterErr} onChange={(e) => f.set("poster_url", e.target.value)} />
       <TextInput label="Sort order" type="number" value={v.sort_order} onChange={(e) => f.set("sort_order", e.target.value)} />
       <TextInput label="Alt text" value={v.alt_text} onChange={(e) => f.set("alt_text", e.target.value)} />

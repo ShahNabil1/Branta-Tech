@@ -76,6 +76,56 @@ export type Database = {
           },
         ]
       }
+      portfolio_case_sections: {
+        Row: {
+          body: string | null
+          config: Json
+          created_at: string
+          eyebrow: string | null
+          id: string
+          is_visible: boolean
+          project_id: string
+          section_type: string
+          sort_order: number
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          config?: Json
+          created_at?: string
+          eyebrow?: string | null
+          id?: string
+          is_visible?: boolean
+          project_id: string
+          section_type: string
+          sort_order?: number
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          config?: Json
+          created_at?: string
+          eyebrow?: string | null
+          id?: string
+          is_visible?: boolean
+          project_id?: string
+          section_type?: string
+          sort_order?: number
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_case_sections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       portfolio_categories: {
         Row: {
           created_at: string
@@ -198,6 +248,53 @@ export type Database = {
           },
         ]
       }
+      portfolio_project_team: {
+        Row: {
+          created_at: string
+          id: string
+          is_visible: boolean
+          member_name: string
+          photo_url: string | null
+          profile_url: string | null
+          project_id: string
+          role: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          member_name: string
+          photo_url?: string | null
+          profile_url?: string | null
+          project_id: string
+          role: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          member_name?: string
+          photo_url?: string | null
+          profile_url?: string | null
+          project_id?: string
+          role?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_project_team_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       portfolio_projects: {
         Row: {
           approach: string | null
@@ -205,6 +302,7 @@ export type Database = {
           category_id: string | null
           challenge: string | null
           client_name: string | null
+          cover_poster_url: string | null
           cover_type: string | null
           cover_url: string | null
           created_at: string
@@ -223,6 +321,7 @@ export type Database = {
           slug: string
           sort_order: number
           status: string
+          timeline: string | null
           title: string
           updated_at: string
         }
@@ -232,6 +331,7 @@ export type Database = {
           category_id?: string | null
           challenge?: string | null
           client_name?: string | null
+          cover_poster_url?: string | null
           cover_type?: string | null
           cover_url?: string | null
           created_at?: string
@@ -250,6 +350,7 @@ export type Database = {
           slug: string
           sort_order?: number
           status?: string
+          timeline?: string | null
           title: string
           updated_at?: string
         }
@@ -259,6 +360,7 @@ export type Database = {
           category_id?: string | null
           challenge?: string | null
           client_name?: string | null
+          cover_poster_url?: string | null
           cover_type?: string | null
           cover_url?: string | null
           created_at?: string
@@ -277,6 +379,7 @@ export type Database = {
           slug?: string
           sort_order?: number
           status?: string
+          timeline?: string | null
           title?: string
           updated_at?: string
         }

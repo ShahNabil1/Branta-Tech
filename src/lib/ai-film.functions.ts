@@ -15,6 +15,7 @@ const FILM_RE = /film|video|commercial|tvc|ovc|ugc|fashion|motion|vfx|reel|anima
 
 export type FilmItem = {
   id: string;
+  slug: string;
   title: string;
   client: string | null;
   format: string | null;
@@ -67,7 +68,7 @@ export const getAiFilm = createServerFn({ method: "GET" }).handler(async (): Pro
 
     let q = sb
       .from("portfolio_projects")
-      .select("id,title,client_name,cover_type,cover_url,category_id,is_featured,sort_order,updated_at")
+      .select("id,slug,title,client_name,cover_type,cover_url,category_id,is_featured,sort_order,updated_at")
       .eq("status", "published");
     if (cfg.project_ids.length) q = q.in("id", cfg.project_ids);
     if (cfg.sort_mode === "featured") q = q.order("is_featured", { ascending: false }).order("sort_order");
@@ -108,6 +109,7 @@ export const getAiFilm = createServerFn({ method: "GET" }).handler(async (): Pro
       if (!cfg.project_ids.length && tags.length && !tags.some((t) => FILM_RE.test(t))) continue;
       items.push({
         id: p.id,
+        slug: p.slug,
         title: p.title,
         client: p.client_name,
         format: cat ?? svc[0] ?? null,

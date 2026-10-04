@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import { DarkSection, Eyebrow, SiteContainer } from "@/components/layout/primitives";
 import { HeroAction } from "@/components/home/Hero";
 import { vimeoId } from "@/lib/hero";
@@ -75,7 +75,6 @@ function Card({ item, slot, index, playing, onHover, show }: {
 
   const meta = [show.showClient && item.client, show.showCategory && item.category, item.year].filter(Boolean).join(" · ");
   const services = show.showServices ? item.services.join(" · ") : "";
-  const path = `/work/${item.slug}`;
   const linkable = "/work/$slug" in router.routesByPath;
 
   const body = (
@@ -101,8 +100,10 @@ function Card({ item, slot, index, playing, onHover, show }: {
   };
   const cls = cn("group block min-w-0", slot.split(" ").filter((c) => !c.includes("aspect")).join(" "));
 
-  // Case-study pages aren't built yet: cards render as non-linking articles until /work/$slug exists.
-  return <article className={cls} {...handlers} data-href={path}>{body}</article>;
+  if (linkable && item.slug) {
+    return <Link to="/work/$slug" params={{ slug: item.slug }} className={cn(cls, "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent")} {...handlers} onFocus={handlers.onMouseEnter} onBlur={handlers.onMouseLeave}>{body}</Link>;
+  }
+  return <article className={cls} {...handlers}>{body}</article>;
 }
 
 export function FeaturedWork({ content }: { content: NonNullable<FW> }) {
