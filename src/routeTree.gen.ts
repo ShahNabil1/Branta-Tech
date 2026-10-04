@@ -10,8 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AiStudioRouteImport } from './routes/ai-studio'
 import { Route as ControlCentreRouteImport } from './routes/control-centre'
+import { Route as TeamRouteImport } from './routes/team'
+import { Route as CareersIndexRouteImport } from './routes/careers.index'
 import { Route as ControlCentreIndexRouteImport } from './routes/control-centre.index'
 import { Route as ControlCentreAdminRouteImport } from './routes/control-centre._admin'
 import { Route as ControlCentreForgotPasswordRouteImport } from './routes/control-centre.forgot-password'
@@ -42,6 +45,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AiStudioRoute = AiStudioRouteImport.update({
   id: '/ai-studio',
   path: '/ai-studio',
@@ -50,6 +58,16 @@ const AiStudioRoute = AiStudioRouteImport.update({
 const ControlCentreRoute = ControlCentreRouteImport.update({
   id: '/control-centre',
   path: '/control-centre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamRoute = TeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersIndexRoute = CareersIndexRouteImport.update({
+  id: '/careers/',
+  path: '/careers/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ControlCentreIndexRoute = ControlCentreIndexRouteImport.update({
@@ -189,13 +207,16 @@ const ControlCentreAdminWebsitePagesIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/ai-studio': typeof AiStudioRoute
   '/control-centre': typeof ControlCentreRouteWithChildren
+  '/team': typeof TeamRoute
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
   '/insights/$slug': typeof InsightsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/work/$slug': typeof WorkSlugRoute
+  '/careers/': typeof CareersIndexRoute
   '/control-centre/': typeof ControlCentreIndexRoute
   '/insights/': typeof InsightsIndexRoute
   '/services/': typeof ServicesIndexRoute
@@ -217,13 +238,16 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/ai-studio': typeof AiStudioRoute
+  '/team': typeof TeamRoute
   '/control-centre': typeof ControlCentreIndexRoute
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
   '/insights/$slug': typeof InsightsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/work/$slug': typeof WorkSlugRoute
+  '/careers': typeof CareersIndexRoute
   '/insights': typeof InsightsIndexRoute
   '/services': typeof ServicesIndexRoute
   '/work': typeof WorkIndexRoute
@@ -245,14 +269,17 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/ai-studio': typeof AiStudioRoute
   '/control-centre': typeof ControlCentreRouteWithChildren
+  '/team': typeof TeamRoute
   '/control-centre/_admin': typeof ControlCentreAdminRouteWithChildren
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
   '/insights/$slug': typeof InsightsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/work/$slug': typeof WorkSlugRoute
+  '/careers/': typeof CareersIndexRoute
   '/control-centre/': typeof ControlCentreIndexRoute
   '/insights/': typeof InsightsIndexRoute
   '/services/': typeof ServicesIndexRoute
@@ -276,13 +303,16 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/ai-studio'
     | '/control-centre'
+    | '/team'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
     | '/insights/$slug'
     | '/services/$slug'
     | '/work/$slug'
+    | '/careers/'
     | '/control-centre/'
     | '/insights/'
     | '/services/'
@@ -304,13 +334,16 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/ai-studio'
+    | '/team'
     | '/control-centre'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
     | '/insights/$slug'
     | '/services/$slug'
     | '/work/$slug'
+    | '/careers'
     | '/insights'
     | '/services'
     | '/work'
@@ -331,14 +364,17 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/ai-studio'
     | '/control-centre'
+    | '/team'
     | '/control-centre/_admin'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
     | '/insights/$slug'
     | '/services/$slug'
     | '/work/$slug'
+    | '/careers/'
     | '/control-centre/'
     | '/insights/'
     | '/services/'
@@ -361,11 +397,14 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   AiStudioRoute: typeof AiStudioRoute
   ControlCentreRoute: typeof ControlCentreRouteWithChildren
+  TeamRoute: typeof TeamRoute
   InsightsSlugRoute: typeof InsightsSlugRoute
   ServicesSlugRoute: typeof ServicesSlugRoute
   WorkSlugRoute: typeof WorkSlugRoute
+  CareersIndexRoute: typeof CareersIndexRoute
   InsightsIndexRoute: typeof InsightsIndexRoute
   ServicesIndexRoute: typeof ServicesIndexRoute
   WorkIndexRoute: typeof WorkIndexRoute
@@ -380,6 +419,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ai-studio': {
       id: '/ai-studio'
       path: '/ai-studio'
@@ -392,6 +438,20 @@ declare module '@tanstack/react-router' {
       path: '/control-centre'
       fullPath: '/control-centre'
       preLoaderRoute: typeof ControlCentreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/team': {
+      id: '/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof TeamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/': {
+      id: '/careers/'
+      path: '/careers'
+      fullPath: '/careers/'
+      preLoaderRoute: typeof CareersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/control-centre/': {
@@ -627,11 +687,14 @@ const ControlCentreRouteWithChildren = ControlCentreRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   AiStudioRoute: AiStudioRoute,
   ControlCentreRoute: ControlCentreRouteWithChildren,
+  TeamRoute: TeamRoute,
   InsightsSlugRoute: InsightsSlugRoute,
   ServicesSlugRoute: ServicesSlugRoute,
   WorkSlugRoute: WorkSlugRoute,
+  CareersIndexRoute: CareersIndexRoute,
   InsightsIndexRoute: InsightsIndexRoute,
   ServicesIndexRoute: ServicesIndexRoute,
   WorkIndexRoute: WorkIndexRoute,
