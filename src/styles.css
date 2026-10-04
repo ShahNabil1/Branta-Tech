@@ -298,3 +298,35 @@
 @keyframes fade-in-soft { from { opacity: 0; } to { opacity: 1; } }
 @utility animate-fade-in { animation: fade-in-soft 450ms ease-out both; }
 @media (prefers-reduced-motion: reduce) { .animate-fade-in { animation: none; } }
+
+/* Homepage Hero: warm dark base with soft orange light behind the media side (background only). */
+.hero-glow {
+  --hero-base: oklch(0.155 0.018 50); /* ~#120A05 */
+  background-color: var(--hero-base);
+  background-image:
+    linear-gradient(to bottom, var(--background) 0, transparent 120px),
+    radial-gradient(60% 70% at 80% 45%, color-mix(in oklab, #FF5D00 30%, transparent) 0%, color-mix(in oklab, #A82E00 18%, transparent) 45%, transparent 75%),
+    radial-gradient(40% 45% at 8% 100%, color-mix(in oklab, #D94800 16%, transparent) 0%, transparent 70%),
+    radial-gradient(35% 30% at 50% 0%, color-mix(in oklab, #5A1700 35%, transparent) 0%, transparent 70%),
+    radial-gradient(120% 100% at 100% 100%, color-mix(in oklab, #5A1700 25%, transparent) 0%, transparent 60%);
+}
+.hero-glow::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.hero-glow::after {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  width: 55vw; height: 55vw; right: -10vw; top: 10%;
+  background: radial-gradient(closest-side, color-mix(in oklab, #FF5D00 14%, transparent), transparent);
+  animation: hero-drift 40s ease-in-out infinite alternate;
+}
+@keyframes hero-drift { to { transform: translate3d(-4vw, 3vh, 0); } }
+@media (max-width: 767px) {
+  .hero-glow {
+    background-image:
+      linear-gradient(to bottom, var(--background) 0, transparent 80px),
+      radial-gradient(90% 45% at 70% 78%, color-mix(in oklab, #FF5D00 24%, transparent) 0%, color-mix(in oklab, #A82E00 12%, transparent) 50%, transparent 80%);
+  }
+  .hero-glow::after { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .hero-glow::after { animation: none; } }
