@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/seo";
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -11,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/work/")({
   validateSearch: z.object({ filter: z.string().regex(/^[a-z0-9-]+$/).optional().catch(undefined) }),
-  head: () => ({
+  head: () => ({ links: canonical("/work"),
     meta: [
       { title: "Work — Branta Tech" },
       { name: "description", content: "Films, campaigns, AI visuals, brands, websites and digital products created by Branta Tech." },

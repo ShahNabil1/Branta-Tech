@@ -5,7 +5,7 @@ import { Eyebrow, Section } from "@/components/layout/primitives";
 import { CompanySections, TeamGrid } from "@/components/content/CompanyBlocks";
 import { siteChromeQuery } from "@/lib/navigation";
 import { companyPageQuery, teamQuery } from "@/lib/company.functions";
-import { pageMeta } from "@/lib/seo";
+import { pageMeta, canonical } from "@/lib/seo";
 
 const DESC = "Meet the creative directors, designers, engineers and AI specialists at Branta.";
 
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/team")({
     const [, page] = await Promise.all([context.queryClient.ensureQueryData(siteChromeQuery), context.queryClient.ensureQueryData(companyPageQuery("team")), context.queryClient.ensureQueryData(teamQuery)]);
     return { seo: page.seo };
   },
-  head: ({ loaderData }) => ({
+  head: ({ loaderData }) => ({ links: canonical("/team"),
     meta: pageMeta({ title: loaderData?.seo.title || "Team | Branta Tech", description: loaderData?.seo.description || DESC, image: loaderData?.seo.ogImage, noindex: loaderData?.seo.noindex }),
   }),
   errorComponent: () => <p className="p-8">Something went wrong loading the team.</p>,

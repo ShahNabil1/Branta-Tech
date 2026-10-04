@@ -9,12 +9,12 @@ import { buttonVariants } from "@/components/ui/brand-button";
 import { siteChromeQuery } from "@/lib/navigation";
 import { submitBooking } from "@/lib/inquiry.functions";
 import { useClientSession } from "@/lib/client-session";
-import { pageMeta } from "@/lib/seo";
+import { pageMeta, canonical } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/book-a-call")({
   loader: ({ context }) => context.queryClient.ensureQueryData(siteChromeQuery),
-  head: () => ({ meta: pageMeta({ title: "Book a Call | Branta Tech", description: "Request a call with the Branta team. Pick a time that suits you and we'll confirm it." }) }),
+  head: () => ({ links: canonical("/book-a-call"), meta: pageMeta({ title: "Book a Call | Branta Tech", description: "Request a call with the Branta team. Pick a time that suits you and we'll confirm it." }) }),
   component: BookCall,
 });
 

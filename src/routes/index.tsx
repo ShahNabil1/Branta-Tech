@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/seo";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { SiteShell } from "@/components/layout/SiteShell";
@@ -22,7 +23,7 @@ import { homeClosingQuery } from "@/lib/home-closing.functions";
 import { ProcessSection, ClientLogos, InsightsTeaser, CareersTeaser, FinalCta } from "@/components/home/HomeClosing";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
+  head: () => ({ links: canonical("/"),
     meta: [
       { title: "Branta Tech — Creative. AI. Technology." },
       { name: "description", content: "AI films, product visuals, campaigns, digital products and automation, built by one integrated creative technology team." },

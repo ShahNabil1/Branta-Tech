@@ -12,3 +12,11 @@ export function pageMeta({ title, description, image, noindex, type = "website" 
   if (noindex) meta.push({ name: "robots", content: "noindex" });
   return meta;
 }
+
+export const SITE_URL = "https://brantatech.com";
+
+/** Self-referencing canonical link for a leaf route (absolute https URLs from the CMS win). */
+export function canonical(path: string, override?: string | null) {
+  const href = override && /^https:\/\//.test(override) ? override : `${SITE_URL}${path === "/" ? "/" : path}`;
+  return [{ rel: "canonical", href }];
+}

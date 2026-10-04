@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/seo";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { SiteShell } from "@/components/layout/SiteShell";
@@ -19,10 +20,11 @@ export const Route = createFileRoute("/work/$slug")({
     if (!cs) throw notFound();
     return { seo: seoOf(cs) };
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     if (!loaderData) return { meta: [{ title: "Project not found — Branta Tech" }, { name: "robots", content: "noindex" }] };
     const s = loaderData.seo;
     return {
+      links: canonical(`/work/${params.slug}`, (s as { canonical?: string | null }).canonical),
       meta: [
         { title: s.title },
         ...(s.description ? [{ name: "description", content: s.description }, { property: "og:description", content: s.description }] : []),
