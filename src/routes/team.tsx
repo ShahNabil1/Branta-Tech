@@ -31,7 +31,7 @@ function TeamPage() {
     <SiteShell>
       <Section tone="warm" aria-labelledby="team-title" className="py-20 md:py-24">
         <div className="mx-auto max-w-3xl text-center">
-          <Eyebrow>{h?.eyebrow || "PEOPLE BEHIND BRANTA"}</Eyebrow>
+          <div className="flex justify-center"><Eyebrow>{h?.eyebrow || "PEOPLE BEHIND BRANTA"}</Eyebrow></div>
           <h1 id="team-title" className="mt-5 text-[2.5rem] font-medium leading-[1.05] tracking-tight text-foreground md:text-[3.25rem] lg:text-[3.75rem]">{h?.title || "Meet the Team Behind the Work."}</h1>
           <p className="mx-auto mt-5 max-w-xl text-[1rem] text-muted-foreground md:text-[1.0625rem]">{h?.body || DESC}</p>
           <p className="text-caption mt-4 text-muted-foreground">Creative. AI. Technology.</p>
@@ -42,7 +42,7 @@ function TeamPage() {
       <Section tone="warm" aria-labelledby="org-title" className="border-t border-border py-20 md:py-24">
         <div className="mx-auto max-w-[1400px]">
           <div className="mb-12 text-center">
-            <Eyebrow>HOW WE'RE ORGANISED</Eyebrow>
+            <div className="flex justify-center"><Eyebrow>HOW WE'RE ORGANISED</Eyebrow></div>
             <h2 id="org-title" className="mt-4 text-[2rem] font-medium leading-tight tracking-tight text-foreground md:text-[2.5rem]">Our Structure.</h2>
           </div>
           {team.length ? <OrgChart team={team} /> : <p className="text-body text-center text-muted-foreground">Team profiles are coming soon.</p>}
