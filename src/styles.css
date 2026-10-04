@@ -293,3 +293,8 @@
 @media (prefers-reduced-motion: reduce) {
   .cap-in, .cap-mask, .cap-flow, .cap-pulse { animation: none !important; }
 }
+
+/* Content crossfade for swapped panels (automation showcase). */
+@keyframes fade-in-soft { from { opacity: 0; } to { opacity: 1; } }
+@utility animate-fade-in { animation: fade-in-soft 450ms ease-out both; }
+@media (prefers-reduced-motion: reduce) { .animate-fade-in { animation: none; } }
