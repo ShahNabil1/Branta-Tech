@@ -5,7 +5,7 @@ import { ArrowDown, ArrowUp, Plus, CornerDownRight } from "lucide-react";
 import { adminHead, getSettingsGroup, saveSettingsGroup } from "@/lib/supabase/cms";
 import {
   PageHeader, Panel, TextInput, CheckboxInput, AdminButton, ConfirmButton, SaveBar, LoadingRow, ErrorNote, EmptyState,
-  useFormState, useUnsavedWarning, isSafeUrl, friendlyError,
+  useFormState, useUnsavedWarning, isSafeUrl, friendlyError, swapped,
 } from "@/components/admin/cms";
 
 export const Route = createFileRoute("/control-centre/_admin/website/navigation")({
@@ -147,7 +147,7 @@ function NavigationEditor({ initial }: { initial: NavItem[] }) {
                 ))}
               </div>
             )}
-            <AdminButton size="sm" variant="ghost" className="mt-3" onClick={() => update((d) => { d[i].children.push(blank(d[i].menu_group)); return d; })}>
+            <AdminButton size="sm" variant="ghost" className="mt-3" onClick={() => addChild(i)}>
               <CornerDownRight className="size-3.5" aria-hidden /> Add child link
             </AdminButton>
           </Panel>
