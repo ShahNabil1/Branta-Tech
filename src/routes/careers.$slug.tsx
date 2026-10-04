@@ -10,7 +10,7 @@ import { buttonVariants } from "@/components/ui/brand-button";
 import { siteChromeQuery } from "@/lib/navigation";
 import { jobQuery, type Job } from "@/lib/company.functions";
 import { RESUME_ACCEPT, RESUME_MAX, submitApplication } from "@/lib/careers.functions";
-import { pageMeta } from "@/lib/seo";
+import { pageMeta, canonical } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/careers/$slug")({
@@ -19,8 +19,8 @@ export const Route = createFileRoute("/careers/$slug")({
     if (!job) throw notFound();
     return { title: job.title, summary: job.summary };
   },
-  head: ({ loaderData }) => loaderData
-    ? { meta: pageMeta({ title: `${loaderData.title} | Careers | Branta Tech`, description: loaderData.summary || `Apply for the ${loaderData.title} role at Branta.` }) }
+  head: ({ loaderData, params }) => loaderData
+    ? { links: canonical(`/careers/${params.slug}`), meta: pageMeta({ title: `${loaderData.title} | Careers | Branta Tech`, description: loaderData.summary || `Apply for the ${loaderData.title} role at Branta.` }) }
     : { meta: [{ title: "Role not available | Branta Tech" }, { name: "robots", content: "noindex" }] },
   errorComponent: () => <p className="p-8">Something went wrong loading this role.</p>,
   notFoundComponent: () => (

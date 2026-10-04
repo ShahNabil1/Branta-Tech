@@ -5,12 +5,12 @@ import { Eyebrow, Section } from "@/components/layout/primitives";
 import { FeaturedPost, PostTile } from "@/components/content/PostCards";
 import { siteChromeQuery } from "@/lib/navigation";
 import { insightsQuery } from "@/lib/company.functions";
-import { pageMeta } from "@/lib/seo";
+import { pageMeta, canonical } from "@/lib/seo";
 
 const DESC = "Thoughts on AI, creative production, digital products and automation from the Branta team.";
 
 export const Route = createFileRoute("/insights/")({
-  head: () => ({ meta: pageMeta({ title: "Insights | Branta Tech", description: DESC }) }),
+  head: () => ({ links: canonical("/insights"), meta: pageMeta({ title: "Insights | Branta Tech", description: DESC }) }),
   loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(siteChromeQuery), context.queryClient.ensureQueryData(insightsQuery)]),
   errorComponent: () => <p className="p-8">Something went wrong loading Insights.</p>,
   notFoundComponent: () => <p className="p-8">Not found.</p>,

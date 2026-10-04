@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/seo";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { SiteShell } from "@/components/layout/SiteShell";
@@ -12,7 +13,7 @@ const TITLE = "AI Studio | Branta Tech";
 const DESC = "Visual experiments, prototypes and AI-native ideas from the Branta team.";
 
 export const Route = createFileRoute("/ai-studio")({
-  head: () => ({
+  head: () => ({ links: canonical("/ai-studio"),
     meta: [
       { title: TITLE },
       { name: "description", content: DESC },

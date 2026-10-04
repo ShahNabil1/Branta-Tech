@@ -5,7 +5,7 @@ import { Eyebrow, Section } from "@/components/layout/primitives";
 import { CompanySections } from "@/components/content/CompanyBlocks";
 import { siteChromeQuery } from "@/lib/navigation";
 import { companyPageQuery, isInternship, jobsQuery, type JobCard } from "@/lib/company.functions";
-import { pageMeta } from "@/lib/seo";
+import { pageMeta, canonical } from "@/lib/seo";
 
 const DESC = "Join a team working across creative, AI, design, software and automation.";
 
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/careers/")({
     const [, page] = await Promise.all([context.queryClient.ensureQueryData(siteChromeQuery), context.queryClient.ensureQueryData(companyPageQuery("careers")), context.queryClient.ensureQueryData(jobsQuery)]);
     return { seo: page.seo };
   },
-  head: ({ loaderData }) => ({
+  head: ({ loaderData }) => ({ links: canonical("/careers"),
     meta: pageMeta({ title: loaderData?.seo.title || "Careers | Branta Tech", description: loaderData?.seo.description || DESC, image: loaderData?.seo.ogImage, noindex: loaderData?.seo.noindex }),
   }),
   errorComponent: () => <p className="p-8">Something went wrong loading careers.</p>,

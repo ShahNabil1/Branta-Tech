@@ -10,12 +10,12 @@ import { siteChromeQuery } from "@/lib/navigation";
 import { submitLead } from "@/lib/inquiry.functions";
 import { ATTACH_ACCEPT, ATTACH_MAX, BUDGET_OPTIONS, SERVICE_OPTIONS, TIMELINE_OPTIONS } from "@/lib/inquiry";
 import { useClientSession } from "@/lib/client-session";
-import { pageMeta } from "@/lib/seo";
+import { pageMeta, canonical } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/start-a-project")({
   loader: ({ context }) => context.queryClient.ensureQueryData(siteChromeQuery),
-  head: () => ({ meta: pageMeta({ title: "Start a Project | Branta Tech", description: "Tell Branta about your film, visuals, brand, product, website, software or automation project." }) }),
+  head: () => ({ links: canonical("/start-a-project"), meta: pageMeta({ title: "Start a Project | Branta Tech", description: "Tell Branta about your film, visuals, brand, product, website, software or automation project." }) }),
   component: StartProject,
 });
 

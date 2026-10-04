@@ -16,23 +16,19 @@ import { SiteShell } from "@/components/layout/SiteShell";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Go home
-          </Link>
+    <SiteShell>
+      <section className="flex min-h-[70vh] items-center bg-background px-6 py-24">
+        <div className="mx-auto w-full max-w-3xl">
+          <p className="text-caption uppercase tracking-[0.2em] text-muted-foreground">404</p>
+          <h1 className="text-h1 mt-4 text-foreground">This page doesn't exist.</h1>
+          <p className="text-body mt-4 text-muted-foreground">It may have moved, or the link may be out of date.</p>
+          <div className="mt-8 flex flex-wrap gap-6">
+            <Link to="/" className="text-body underline underline-offset-4">Back to home</Link>
+            <Link to="/work" className="text-body underline underline-offset-4">See our work</Link>
+          </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </SiteShell>
   );
 }
 

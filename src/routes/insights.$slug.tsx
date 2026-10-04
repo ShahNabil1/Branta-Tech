@@ -7,7 +7,7 @@ import { PostTile } from "@/components/content/PostCards";
 import { siteChromeQuery } from "@/lib/navigation";
 import { formatPostDate, postQuery } from "@/lib/company.functions";
 import { readingMinutes } from "@/lib/rich-text";
-import { pageMeta } from "@/lib/seo";
+import { pageMeta, canonical } from "@/lib/seo";
 
 export const Route = createFileRoute("/insights/$slug")({
   loader: async ({ context, params }) => {
@@ -15,13 +15,13 @@ export const Route = createFileRoute("/insights/$slug")({
     if (!res.post) throw notFound();
     return res;
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     const p = loaderData?.post;
     if (!p) return { meta: [{ title: "Article not found | Branta Tech" }, { name: "robots", content: "noindex" }] };
     const title = p.seo.title || `${p.title} | Branta Tech`;
     return {
       meta: pageMeta({ title, description: p.seo.description || p.excerpt || "An article from the Branta team.", image: p.seo.ogImage || p.cover, noindex: p.seo.noindex, type: "article" }),
-      links: p.seo.canonical ? [{ rel: "canonical", href: p.seo.canonical }] : [],
+      links: canonical(`/insights/${params.slug}`, p.seo.canonical),
     };
   },
   errorComponent: () => <p className="p-8">Something went wrong loading this article.</p>,

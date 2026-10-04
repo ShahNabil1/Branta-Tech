@@ -7,7 +7,7 @@ import { ClientLogos, FinalCta } from "@/components/home/HomeClosing";
 import { siteChromeQuery } from "@/lib/navigation";
 import { companyPageQuery, teamQuery } from "@/lib/company.functions";
 import { homeClosingQuery } from "@/lib/home-closing.functions";
-import { pageMeta } from "@/lib/seo";
+import { pageMeta, canonical } from "@/lib/seo";
 
 const DESC = "Branta brings creative direction, AI-powered production and technology under one team to help brands create, build and move faster.";
 
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/about")({
     ]);
     return { seo: page.seo };
   },
-  head: ({ loaderData }) => ({
+  head: ({ loaderData }) => ({ links: canonical("/about"),
     meta: pageMeta({ title: loaderData?.seo.title || "About | Branta Tech", description: loaderData?.seo.description || DESC, image: loaderData?.seo.ogImage, noindex: loaderData?.seo.noindex }),
   }),
   errorComponent: () => <p className="p-8">Something went wrong loading this page.</p>,
