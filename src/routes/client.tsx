@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { LayoutGrid, Inbox, CalendarClock, FolderLock, UserRound, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteShell } from "@/components/layout/SiteShell";
@@ -25,18 +25,6 @@ const items = [
   { to: "/client/files" as const, label: "Shared files", icon: FolderLock },
   { to: "/client/profile" as const, label: "Profile", icon: UserRound },
 ];
-
-export function useMyProfile() {
-  const { user } = Route.useRouteContext();
-  return useQuery({
-    queryKey: ["client", "profile", user.id],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("profiles").select("full_name,phone,company,avatar_url,email").eq("id", user.id).maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
-}
 
 function ClientLayout() {
   const navigate = useNavigate();

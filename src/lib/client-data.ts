@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 /** Client-safe reads: requests/bookings come from self-only database functions without internal fields. */
@@ -41,4 +41,15 @@ export async function openSignedFile(path: string) {
   const { data, error } = await supabase.storage.from("client-private").createSignedUrl(path, 60);
   if (error || !data) throw error ?? new Error("No link");
   window.open(data.signedUrl, "_blank", "noopener");
+}
+
+export function useMyProfile(userId: string) {
+  return useQuery({
+    queryKey: ["client", "profile", userId],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("profiles").select("full_name,phone,company,avatar_url,email").eq("id", userId).maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
 }

@@ -3,17 +3,17 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useMyProfile } from "@/lib/client-data";
 import { ClientHeader, Card, Loading } from "@/components/client/ClientKit";
 import { Field, FormAlert, inputCls } from "@/components/forms/FormKit";
 import { buttonVariants } from "@/components/ui/brand-button";
 import { cn } from "@/lib/utils";
-import { useMyProfile } from "./client";
 
 export const Route = createFileRoute("/client/profile")({ component: Profile });
 
 function Profile() {
   const { user } = Route.useRouteContext();
-  const profile = useMyProfile();
+  const profile = useMyProfile(user.id);
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ tone: "error" | "info"; text: string } | null>(null);

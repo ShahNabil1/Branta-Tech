@@ -2,16 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { buttonVariants } from "@/components/ui/brand-button";
 import { Card, ClientHeader, Empty, Failed, Loading, Pill } from "@/components/client/ClientKit";
-import { myBookingsQuery, myFilesQuery, myRequestsQuery, formatDay, formatWhen } from "@/lib/client-data";
+import { myBookingsQuery, myFilesQuery, myRequestsQuery, formatDay, formatWhen, useMyProfile } from "@/lib/client-data";
 import { clientStatusLabel, statusLabel } from "@/lib/inquiry";
 import { displayName } from "@/lib/client-session";
-import { useMyProfile } from "./client";
 
 export const Route = createFileRoute("/client/")({ component: Overview });
 
 function Overview() {
   const { user } = Route.useRouteContext();
-  const profile = useMyProfile();
+  const profile = useMyProfile(user.id);
   const req = useQuery(myRequestsQuery);
   const book = useQuery(myBookingsQuery);
   const files = useQuery(myFilesQuery(user.id));

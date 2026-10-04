@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AiStudioRouteImport } from './routes/ai-studio'
+import { Route as ClientRouteImport } from './routes/client'
 import { Route as ControlCentreRouteImport } from './routes/control-centre'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -20,6 +21,11 @@ import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as CareersIndexRouteImport } from './routes/careers.index'
 import { Route as CareersSlugRouteImport } from './routes/careers.$slug'
+import { Route as ClientIndexRouteImport } from './routes/client.index'
+import { Route as ClientBookingsRouteImport } from './routes/client.bookings'
+import { Route as ClientFilesRouteImport } from './routes/client.files'
+import { Route as ClientProfileRouteImport } from './routes/client.profile'
+import { Route as ClientRequestsRouteImport } from './routes/client.requests'
 import { Route as ControlCentreIndexRouteImport } from './routes/control-centre.index'
 import { Route as ControlCentreAdminRouteImport } from './routes/control-centre._admin'
 import { Route as ControlCentreForgotPasswordRouteImport } from './routes/control-centre.forgot-password'
@@ -68,6 +74,11 @@ const AiStudioRoute = AiStudioRouteImport.update({
   path: '/ai-studio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClientRoute = ClientRouteImport.update({
+  id: '/client',
+  path: '/client',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ControlCentreRoute = ControlCentreRouteImport.update({
   id: '/control-centre',
   path: '/control-centre',
@@ -107,6 +118,31 @@ const CareersSlugRoute = CareersSlugRouteImport.update({
   id: '/careers/$slug',
   path: '/careers/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ClientIndexRoute = ClientIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ClientRoute,
+} as any)
+const ClientBookingsRoute = ClientBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => ClientRoute,
+} as any)
+const ClientFilesRoute = ClientFilesRouteImport.update({
+  id: '/files',
+  path: '/files',
+  getParentRoute: () => ClientRoute,
+} as any)
+const ClientProfileRoute = ClientProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => ClientRoute,
+} as any)
+const ClientRequestsRoute = ClientRequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
+  getParentRoute: () => ClientRoute,
 } as any)
 const ControlCentreIndexRoute = ControlCentreIndexRouteImport.update({
   id: '/',
@@ -294,6 +330,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/ai-studio': typeof AiStudioRoute
+  '/client': typeof ClientRouteWithChildren
   '/control-centre': typeof ControlCentreRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -301,12 +338,17 @@ export interface FileRoutesByFullPath {
   '/sign-up': typeof SignUpRoute
   '/team': typeof TeamRoute
   '/careers/$slug': typeof CareersSlugRoute
+  '/client/bookings': typeof ClientBookingsRoute
+  '/client/files': typeof ClientFilesRoute
+  '/client/profile': typeof ClientProfileRoute
+  '/client/requests': typeof ClientRequestsRoute
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
   '/insights/$slug': typeof InsightsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/work/$slug': typeof WorkSlugRoute
   '/careers/': typeof CareersIndexRoute
+  '/client/': typeof ClientIndexRoute
   '/control-centre/': typeof ControlCentreIndexRoute
   '/insights/': typeof InsightsIndexRoute
   '/services/': typeof ServicesIndexRoute
@@ -344,6 +386,10 @@ export interface FileRoutesByTo {
   '/sign-up': typeof SignUpRoute
   '/team': typeof TeamRoute
   '/careers/$slug': typeof CareersSlugRoute
+  '/client/bookings': typeof ClientBookingsRoute
+  '/client/files': typeof ClientFilesRoute
+  '/client/profile': typeof ClientProfileRoute
+  '/client/requests': typeof ClientRequestsRoute
   '/control-centre': typeof ControlCentreIndexRoute
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
@@ -351,6 +397,7 @@ export interface FileRoutesByTo {
   '/services/$slug': typeof ServicesSlugRoute
   '/work/$slug': typeof WorkSlugRoute
   '/careers': typeof CareersIndexRoute
+  '/client': typeof ClientIndexRoute
   '/insights': typeof InsightsIndexRoute
   '/services': typeof ServicesIndexRoute
   '/work': typeof WorkIndexRoute
@@ -382,6 +429,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/ai-studio': typeof AiStudioRoute
+  '/client': typeof ClientRouteWithChildren
   '/control-centre': typeof ControlCentreRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -389,6 +437,10 @@ export interface FileRoutesById {
   '/sign-up': typeof SignUpRoute
   '/team': typeof TeamRoute
   '/careers/$slug': typeof CareersSlugRoute
+  '/client/bookings': typeof ClientBookingsRoute
+  '/client/files': typeof ClientFilesRoute
+  '/client/profile': typeof ClientProfileRoute
+  '/client/requests': typeof ClientRequestsRoute
   '/control-centre/_admin': typeof ControlCentreAdminRouteWithChildren
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
@@ -396,6 +448,7 @@ export interface FileRoutesById {
   '/services/$slug': typeof ServicesSlugRoute
   '/work/$slug': typeof WorkSlugRoute
   '/careers/': typeof CareersIndexRoute
+  '/client/': typeof ClientIndexRoute
   '/control-centre/': typeof ControlCentreIndexRoute
   '/insights/': typeof InsightsIndexRoute
   '/services/': typeof ServicesIndexRoute
@@ -429,6 +482,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/ai-studio'
+    | '/client'
     | '/control-centre'
     | '/forgot-password'
     | '/reset-password'
@@ -436,12 +490,17 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/team'
     | '/careers/$slug'
+    | '/client/bookings'
+    | '/client/files'
+    | '/client/profile'
+    | '/client/requests'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
     | '/insights/$slug'
     | '/services/$slug'
     | '/work/$slug'
     | '/careers/'
+    | '/client/'
     | '/control-centre/'
     | '/insights/'
     | '/services/'
@@ -479,6 +538,10 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/team'
     | '/careers/$slug'
+    | '/client/bookings'
+    | '/client/files'
+    | '/client/profile'
+    | '/client/requests'
     | '/control-centre'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
@@ -486,6 +549,7 @@ export interface FileRouteTypes {
     | '/services/$slug'
     | '/work/$slug'
     | '/careers'
+    | '/client'
     | '/insights'
     | '/services'
     | '/work'
@@ -516,6 +580,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/ai-studio'
+    | '/client'
     | '/control-centre'
     | '/forgot-password'
     | '/reset-password'
@@ -523,6 +588,10 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/team'
     | '/careers/$slug'
+    | '/client/bookings'
+    | '/client/files'
+    | '/client/profile'
+    | '/client/requests'
     | '/control-centre/_admin'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
@@ -530,6 +599,7 @@ export interface FileRouteTypes {
     | '/services/$slug'
     | '/work/$slug'
     | '/careers/'
+    | '/client/'
     | '/control-centre/'
     | '/insights/'
     | '/services/'
@@ -562,6 +632,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AiStudioRoute: typeof AiStudioRoute
+  ClientRoute: typeof ClientRouteWithChildren
   ControlCentreRoute: typeof ControlCentreRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -599,6 +670,13 @@ declare module '@tanstack/react-router' {
       path: '/ai-studio'
       fullPath: '/ai-studio'
       preLoaderRoute: typeof AiStudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/client': {
+      id: '/client'
+      path: '/client'
+      fullPath: '/client'
+      preLoaderRoute: typeof ClientRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/control-centre': {
@@ -656,6 +734,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/careers/$slug'
       preLoaderRoute: typeof CareersSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/client/': {
+      id: '/client/'
+      path: '/'
+      fullPath: '/client/'
+      preLoaderRoute: typeof ClientIndexRouteImport
+      parentRoute: typeof ClientRoute
+    }
+    '/client/bookings': {
+      id: '/client/bookings'
+      path: '/bookings'
+      fullPath: '/client/bookings'
+      preLoaderRoute: typeof ClientBookingsRouteImport
+      parentRoute: typeof ClientRoute
+    }
+    '/client/files': {
+      id: '/client/files'
+      path: '/files'
+      fullPath: '/client/files'
+      preLoaderRoute: typeof ClientFilesRouteImport
+      parentRoute: typeof ClientRoute
+    }
+    '/client/profile': {
+      id: '/client/profile'
+      path: '/profile'
+      fullPath: '/client/profile'
+      preLoaderRoute: typeof ClientProfileRouteImport
+      parentRoute: typeof ClientRoute
+    }
+    '/client/requests': {
+      id: '/client/requests'
+      path: '/requests'
+      fullPath: '/client/requests'
+      preLoaderRoute: typeof ClientRequestsRouteImport
+      parentRoute: typeof ClientRoute
     }
     '/control-centre/': {
       id: '/control-centre/'
@@ -884,6 +997,25 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ClientRouteChildren {
+  ClientBookingsRoute: typeof ClientBookingsRoute
+  ClientFilesRoute: typeof ClientFilesRoute
+  ClientProfileRoute: typeof ClientProfileRoute
+  ClientRequestsRoute: typeof ClientRequestsRoute
+  ClientIndexRoute: typeof ClientIndexRoute
+}
+
+const ClientRouteChildren: ClientRouteChildren = {
+  ClientBookingsRoute: ClientBookingsRoute,
+  ClientFilesRoute: ClientFilesRoute,
+  ClientProfileRoute: ClientProfileRoute,
+  ClientRequestsRoute: ClientRequestsRoute,
+  ClientIndexRoute: ClientIndexRoute,
+}
+
+const ClientRouteWithChildren =
+  ClientRoute._addFileChildren(ClientRouteChildren)
+
 interface ControlCentreAdminRouteChildren {
   ControlCentreAdminAdminUsersRoute: typeof ControlCentreAdminAdminUsersRoute
   ControlCentreAdminDashboardRoute: typeof ControlCentreAdminDashboardRoute
@@ -968,6 +1100,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AiStudioRoute: AiStudioRoute,
+  ClientRoute: ClientRouteWithChildren,
   ControlCentreRoute: ControlCentreRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   ResetPasswordRoute: ResetPasswordRoute,
