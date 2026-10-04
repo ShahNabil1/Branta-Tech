@@ -16,16 +16,19 @@ function Logo({ l, decorative }: { l: ClientLogo; decorative?: boolean }) {
     : <span className="shrink-0">{img}</span>;
 }
 
-function Row({ logos, reverse }: { logos: ClientLogo[]; reverse?: boolean }) {
+function Row({ logos: items, reverse }: { logos: ClientLogo[]; reverse?: boolean }) {
+  // Each loop half must be wider than the viewport, so short rows repeat a few times (copies are aria-hidden).
+  const reps = Math.max(1, Math.ceil(8 / items.length));
+  const logos = Array.from({ length: reps }, () => items).flat();
   const set = (dup: boolean) => (
     <ul aria-hidden={dup || undefined} className="flex shrink-0 items-center gap-14 pr-14 md:gap-20 md:pr-20">
-      {logos.map((l, i) => <li key={i}><Logo l={l} decorative={dup} /></li>)}
+      {logos.map((l, i) => <li key={i}><Logo l={l} decorative={dup || i >= items.length} /></li>)}
     </ul>
   );
   return (
     <div className="overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
       <div className="animate-marquee flex w-max hover:[animation-play-state:paused]"
-        style={{ "--marquee-duration": `${Math.max(30, logos.length * 9)}s`, animationDirection: reverse ? "reverse" : "normal" } as React.CSSProperties}>
+        style={{ "--marquee-duration": `${Math.max(30, logos.length * 7)}s`, animationDirection: reverse ? "reverse" : "normal" } as React.CSSProperties}>
         {set(false)}{set(true)}
       </div>
     </div>
