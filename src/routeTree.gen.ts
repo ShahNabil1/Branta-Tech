@@ -47,6 +47,7 @@ import { Route as WorkSlugRouteImport } from './routes/work.$slug'
 import { Route as CareersAccountIndexRouteImport } from './routes/careers.account.index'
 import { Route as CareersAccountApplicationsRouteImport } from './routes/careers.account.applications'
 import { Route as CareersAccountInterviewsRouteImport } from './routes/careers.account.interviews'
+import { Route as CareersAccountProfileRouteImport } from './routes/careers.account.profile'
 import { Route as CareersAccountResumeRouteImport } from './routes/careers.account.resume'
 import { Route as ControlCentreAdminAdminUsersRouteImport } from './routes/control-centre._admin.admin-users'
 import { Route as ControlCentreAdminDashboardRouteImport } from './routes/control-centre._admin.dashboard'
@@ -268,6 +269,11 @@ const CareersAccountInterviewsRoute =
     path: '/interviews',
     getParentRoute: () => CareersAccountRoute,
   } as any)
+const CareersAccountProfileRoute = CareersAccountProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => CareersAccountRoute,
+} as any)
 const CareersAccountResumeRoute = CareersAccountResumeRouteImport.update({
   id: '/resume',
   path: '/resume',
@@ -465,6 +471,7 @@ export interface FileRoutesByFullPath {
   '/work/': typeof WorkIndexRoute
   '/careers/account/applications': typeof CareersAccountApplicationsRoute
   '/careers/account/interviews': typeof CareersAccountInterviewsRoute
+  '/careers/account/profile': typeof CareersAccountProfileRoute
   '/careers/account/resume': typeof CareersAccountResumeRoute
   '/control-centre/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
@@ -528,6 +535,7 @@ export interface FileRoutesByTo {
   '/work': typeof WorkIndexRoute
   '/careers/account/applications': typeof CareersAccountApplicationsRoute
   '/careers/account/interviews': typeof CareersAccountInterviewsRoute
+  '/careers/account/profile': typeof CareersAccountProfileRoute
   '/careers/account/resume': typeof CareersAccountResumeRoute
   '/control-centre/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
@@ -596,6 +604,7 @@ export interface FileRoutesById {
   '/work/': typeof WorkIndexRoute
   '/careers/account/applications': typeof CareersAccountApplicationsRoute
   '/careers/account/interviews': typeof CareersAccountInterviewsRoute
+  '/careers/account/profile': typeof CareersAccountProfileRoute
   '/careers/account/resume': typeof CareersAccountResumeRoute
   '/control-centre/_admin/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/_admin/dashboard': typeof ControlCentreAdminDashboardRoute
@@ -664,6 +673,7 @@ export interface FileRouteTypes {
     | '/work/'
     | '/careers/account/applications'
     | '/careers/account/interviews'
+    | '/careers/account/profile'
     | '/careers/account/resume'
     | '/control-centre/admin-users'
     | '/control-centre/dashboard'
@@ -727,6 +737,7 @@ export interface FileRouteTypes {
     | '/work'
     | '/careers/account/applications'
     | '/careers/account/interviews'
+    | '/careers/account/profile'
     | '/careers/account/resume'
     | '/control-centre/admin-users'
     | '/control-centre/dashboard'
@@ -794,6 +805,7 @@ export interface FileRouteTypes {
     | '/work/'
     | '/careers/account/applications'
     | '/careers/account/interviews'
+    | '/careers/account/profile'
     | '/careers/account/resume'
     | '/control-centre/_admin/admin-users'
     | '/control-centre/_admin/dashboard'
@@ -1121,6 +1133,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CareersAccountInterviewsRouteImport
       parentRoute: typeof CareersAccountRoute
     }
+    '/careers/account/profile': {
+      id: '/careers/account/profile'
+      path: '/profile'
+      fullPath: '/careers/account/profile'
+      preLoaderRoute: typeof CareersAccountProfileRouteImport
+      parentRoute: typeof CareersAccountRoute
+    }
     '/careers/account/resume': {
       id: '/careers/account/resume'
       path: '/resume'
@@ -1423,6 +1442,7 @@ const ControlCentreRouteWithChildren = ControlCentreRoute._addFileChildren(
 interface CareersAccountRouteChildren {
   CareersAccountApplicationsRoute: typeof CareersAccountApplicationsRoute
   CareersAccountInterviewsRoute: typeof CareersAccountInterviewsRoute
+  CareersAccountProfileRoute: typeof CareersAccountProfileRoute
   CareersAccountResumeRoute: typeof CareersAccountResumeRoute
   CareersAccountIndexRoute: typeof CareersAccountIndexRoute
 }
@@ -1430,6 +1450,7 @@ interface CareersAccountRouteChildren {
 const CareersAccountRouteChildren: CareersAccountRouteChildren = {
   CareersAccountApplicationsRoute: CareersAccountApplicationsRoute,
   CareersAccountInterviewsRoute: CareersAccountInterviewsRoute,
+  CareersAccountProfileRoute: CareersAccountProfileRoute,
   CareersAccountResumeRoute: CareersAccountResumeRoute,
   CareersAccountIndexRoute: CareersAccountIndexRoute,
 }
