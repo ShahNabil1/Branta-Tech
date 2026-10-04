@@ -1061,11 +1061,14 @@ export type Database = {
       team_members: {
         Row: {
           created_at: string
+          department: string | null
           email: string | null
           featured: boolean
           full_bio: string | null
           id: string
+          leadership_level: number
           linkedin_url: string | null
+          manager_id: string | null
           name: string
           photo_url: string | null
           role: string | null
@@ -1076,11 +1079,14 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          department?: string | null
           email?: string | null
           featured?: boolean
           full_bio?: string | null
           id?: string
+          leadership_level?: number
           linkedin_url?: string | null
+          manager_id?: string | null
           name: string
           photo_url?: string | null
           role?: string | null
@@ -1091,11 +1097,14 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          department?: string | null
           email?: string | null
           featured?: boolean
           full_bio?: string | null
           id?: string
+          leadership_level?: number
           linkedin_url?: string | null
+          manager_id?: string | null
           name?: string
           photo_url?: string | null
           role?: string | null
@@ -1104,7 +1113,15 @@ export type Database = {
           status?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "team_members_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
