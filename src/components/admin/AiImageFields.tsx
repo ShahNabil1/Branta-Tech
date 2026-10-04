@@ -39,7 +39,7 @@ export function AiImageFields({ config, onChange }: { config: string; onChange: 
         </div>
       ))}
       <datalist id="ai-image-labels">{LABELS.map((l) => <option key={l} value={l} />)}</datalist>
-      <AdminButton size="sm" variant="outline" onClick={() => writeItems([...items, { url: "", alt: "", label: "", project_id: null, size_variant: "medium", sort_order: 0 }])}>
+      <AdminButton size="sm" variant="secondary" onClick={() => writeItems([...items, { url: "", alt: "", label: "", project_id: null, size_variant: "medium", sort_order: 0 }])}>
         <Plus className="size-3.5" /> Add image
       </AdminButton>
       <details className="rounded-sm border border-border p-3">
