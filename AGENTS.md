@@ -31,3 +31,4 @@
 - Leads/bookings are inserted only by src/lib/inquiry.functions.ts (service role, honeypot, rate limit; optional verified bearer links client_user_id); clients read them only via my_requests()/my_bookings() (no internal fields); sales staff = private.is_sales_admin() (super_admin/admin/sales). Shared files live in private bucket client-private under files/<client id>/.
 - Public content route rules (work, services, AI Studio, insights/company) live in src/routes/AGENTS.md.
 - All public project previews render through src/components/work/PortfolioCard.tsx (16:9 frame, PORTFOLIO_GRID / PORTFOLIO_RAIL_W); never add context-specific card sizes — case-study inner media is exempt.
+- Public /team renders a single org chart (buildOrg in src/components/content/TeamStructure.tsx) from manager_id + department + leadership_level only; each person appears once and unlinked members fall under "Other Team Members" — never infer reporting lines from job titles.
