@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { adminHead, must } from "@/lib/supabase/cms";
 import { PageHeader, Panel, LoadingRow, ErrorNote, AdminButton, SelectInput, TextArea, ConfirmButton, EmptyState, formatDate, friendlyError } from "@/components/admin/cms";
 import { APPLICATION_STATUS_OPTIONS } from "@/lib/ats";
+import { InterviewsPanel } from "@/components/admin/InterviewsPanel";
 
 export const Route = createFileRoute("/control-centre/_admin/careers/applications/$id")({
   head: () => adminHead("Application"),
@@ -60,6 +61,7 @@ function ApplicationView() {
         <Panel title="Status">
           <div className="max-w-xs"><SelectInput label="Pipeline stage" value={a.status} options={APPLICATION_STATUS_OPTIONS} onChange={(e) => setStatus(e.target.value)} /></div>
         </Panel>
+        <InterviewsPanel applicationId={id} />
         <Panel title="Details">
           <dl className="grid gap-4 sm:grid-cols-2">
             <div><dt className="text-caption text-muted-foreground">Email</dt><dd className="text-small"><a href={`mailto:${a.email}`} className="underline underline-offset-4">{a.email}</a></dd></div>
