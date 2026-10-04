@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { Link, useRouter, useRouterState } from "@tanstack/react-router";
+import { Link, useHydrated, useRouter, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
 import { FALLBACK_NAV, navFromCms, safeImage, siteChromeQuery, type NavEntry, type NavLink } from "@/lib/navigation";
@@ -12,7 +12,9 @@ type Resolved = { kind: "internal"; to: string; hash?: string } | { kind: "exter
 function useResolveLink() {
   const router = useRouter();
   const { data: chrome } = useQuery(siteChromeQuery);
-  const slugs = chrome?.serviceSlugs;
+  // Before hydration both server and browser treat /services/* as live (no mismatch); afterwards drafts go inactive.
+  const hydrated = useHydrated();
+  const slugs = hydrated ? chrome?.serviceSlugs : undefined;
   return useCallback(
     (url: string | undefined): Resolved => {
       const v = (url ?? "").trim();
@@ -21,7 +23,7 @@ function useResolveLink() {
         const [rawPath = "/", hash] = v.split("#");
         const path = rawPath.length > 1 ? rawPath.replace(/\/+$/, "") : rawPath;
         const svc = /^\/services\/([a-z0-9-]+)$/.exec(path);
-        const exists = svc ? !!slugs?.includes(svc[1]!) : Boolean((router.routesByPath as unknown as Record<string, unknown>)[path]);
+        const exists = svc ? (slugs ? slugs.includes(svc[1]!) : true) : Boolean((router.routesByPath as unknown as Record<string, unknown>)[path]);
         if (svc && exists) return { kind: "internal", to: path, ...(hash ? { hash } : {}) };
         return exists ? { kind: "internal", to: path, ...(hash ? { hash } : {}) } : { kind: "pending" };
       }
