@@ -5,7 +5,8 @@ import { SiteShell } from "@/components/layout/SiteShell";
 import { DarkSection, Eyebrow, Section } from "@/components/layout/primitives";
 import { VideoPlayer } from "@/components/work/VideoPlayer";
 import { CaseSections, CreditsList, FactsList, MediaFigure, projectFacts } from "@/components/work/CaseSections";
-import { WorkMediaView } from "@/components/home/FeaturedWork";
+import { WorkMediaView, PortfolioCard, PORTFOLIO_GRID } from "@/components/work/PortfolioCard";
+import { useState } from "react";
 import { siteChromeQuery } from "@/lib/navigation";
 import { caseStudyQuery, type CaseStudy } from "@/lib/work.functions";
 import { buttonVariants } from "@/components/ui/brand-button";
@@ -125,6 +126,7 @@ function LegacyBody({ cs }: { cs: NonNullable<CaseStudy> }) {
 }
 
 function CaseStudyPage() {
+  const [relPlaying, setRelPlaying] = useState<string | null>(null);
   const { slug } = Route.useParams();
   const { data: cs } = useSuspenseQuery(caseStudyQuery(slug));
   if (!cs) return <NotFoundProject />;
