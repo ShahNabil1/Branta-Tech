@@ -268,7 +268,7 @@ export function HomeHero({ hero }: { hero: HeroContent }) {
   );
 
   return (
-    <section className="dark overflow-hidden bg-background pt-12 pb-[var(--section-y)] text-foreground md:pt-16 lg:pt-20">
+    <section className="dark hero-glow relative isolate overflow-hidden pt-12 pb-[var(--section-y)] text-foreground md:pt-16 lg:pt-20">
       <SiteContainer wide>
         <div className="grid gap-12 lg:grid-cols-[44fr_56fr] lg:items-center lg:gap-14 xl:gap-20">
           {/* Copy */}
