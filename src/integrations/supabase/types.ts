@@ -79,6 +79,33 @@ export type Database = {
           },
         ]
       }
+      applicant_resumes: {
+        Row: {
+          content_type: string
+          file_name: string
+          file_path: string
+          file_size: number
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          content_type: string
+          file_name: string
+          file_path: string
+          file_size: number
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          content_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          uploaded_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       application_notes: {
         Row: {
           application_id: string

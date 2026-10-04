@@ -9,7 +9,7 @@ import { RichText } from "@/components/content/RichText";
 import { buttonVariants } from "@/components/ui/brand-button";
 import { siteChromeQuery } from "@/lib/navigation";
 import { jobQuery, type Job } from "@/lib/company.functions";
-import { RESUME_ACCEPT, RESUME_MAX, submitApplication } from "@/lib/careers.functions";
+import { RESUME_ACCEPT, RESUME_MAX, submitApplication, getMyResume, type MyResume } from "@/lib/careers.functions";
 import { pageMeta, canonical } from "@/lib/seo";
 import { supabase } from "@/integrations/supabase/client";
 import { ensureApplicantProfile } from "@/lib/applicant-auth";
@@ -140,6 +140,9 @@ function ApplyFields({ job, prefill, email }: { job: Job; prefill: Record<string
   const [error, setError] = useState<string | null>(null);
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [file, setFile] = useState<File | null>(null);
+  const getSaved = useServerFn(getMyResume);
+  const [saved, setSaved] = useState<MyResume>(null);
+  useEffect(() => { getSaved().then(setSaved).catch(() => setSaved(null)); }, [getSaved]);
 
   function pick(f: File | undefined) {
     setErrs((e) => ({ ...e, resume: "" }));
@@ -155,8 +158,9 @@ function ApplyFields({ job, prefill, email }: { job: Job; prefill: Record<string
     const fd = new FormData(e.currentTarget);
     fd.set("job_slug", job.slug);
     fd.set("started_at", String(started.current));
-    if (!file) { setErrs({ resume: "Attach your CV" }); return setError("Please attach your CV."); }
-    fd.set("resume", file);
+    if (file) fd.set("resume", file);
+    else if (saved) fd.set("use_saved", "1");
+    else { setErrs({ resume: "Attach your CV" }); return setError("Please attach your CV."); }
     setBusy(true); setError(null); setErrs({});
     try {
       const r = await submit({ data: fd });
@@ -188,7 +192,8 @@ function ApplyFields({ job, prefill, email }: { job: Job; prefill: Record<string
         <Field id="resume" label="CV / résumé" required error={errs["resume"]} hint="PDF, DOC or DOCX, up to 5 MB">
           <input id="resume" type="file" accept={RESUME_ACCEPT} onChange={(e) => pick(e.target.files?.[0])}
             className="text-small block w-full file:mr-4 file:rounded-sm file:border file:border-input file:bg-surface file:px-3 file:py-2 file:text-foreground" {...a("resume")} />
-          {file && <p className="text-caption mt-1 text-foreground" aria-live="polite">Attached: {file.name} ({Math.ceil(file.size / 1024)} KB)</p>}
+          {file ? <p className="text-caption mt-1 text-foreground" aria-live="polite">Attached: {file.name} ({Math.ceil(file.size / 1024)} KB)</p>
+            : saved && <p className="text-caption mt-1 text-foreground" aria-live="polite">Using your saved CV: {saved.file_name}. Choose a file to send a different one.</p>}
         </Field>
         <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
           <label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
