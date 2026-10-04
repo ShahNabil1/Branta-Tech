@@ -13,6 +13,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AiStudioRouteImport } from './routes/ai-studio'
 import { Route as ControlCentreRouteImport } from './routes/control-centre'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as CareersIndexRouteImport } from './routes/careers.index'
 import { Route as CareersSlugRouteImport } from './routes/careers.$slug'
@@ -67,6 +71,26 @@ const AiStudioRoute = AiStudioRouteImport.update({
 const ControlCentreRoute = ControlCentreRouteImport.update({
   id: '/control-centre',
   path: '/control-centre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignUpRoute = SignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TeamRoute = TeamRouteImport.update({
@@ -271,6 +295,10 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/ai-studio': typeof AiStudioRoute
   '/control-centre': typeof ControlCentreRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/team': typeof TeamRoute
   '/careers/$slug': typeof CareersSlugRoute
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
@@ -310,6 +338,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/ai-studio': typeof AiStudioRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/team': typeof TeamRoute
   '/careers/$slug': typeof CareersSlugRoute
   '/control-centre': typeof ControlCentreIndexRoute
@@ -351,6 +383,10 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/ai-studio': typeof AiStudioRoute
   '/control-centre': typeof ControlCentreRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/team': typeof TeamRoute
   '/careers/$slug': typeof CareersSlugRoute
   '/control-centre/_admin': typeof ControlCentreAdminRouteWithChildren
@@ -394,6 +430,10 @@ export interface FileRouteTypes {
     | '/about'
     | '/ai-studio'
     | '/control-centre'
+    | '/forgot-password'
+    | '/reset-password'
+    | '/sign-in'
+    | '/sign-up'
     | '/team'
     | '/careers/$slug'
     | '/control-centre/forgot-password'
@@ -433,6 +473,10 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/ai-studio'
+    | '/forgot-password'
+    | '/reset-password'
+    | '/sign-in'
+    | '/sign-up'
     | '/team'
     | '/careers/$slug'
     | '/control-centre'
@@ -473,6 +517,10 @@ export interface FileRouteTypes {
     | '/about'
     | '/ai-studio'
     | '/control-centre'
+    | '/forgot-password'
+    | '/reset-password'
+    | '/sign-in'
+    | '/sign-up'
     | '/team'
     | '/careers/$slug'
     | '/control-centre/_admin'
@@ -515,6 +563,10 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AiStudioRoute: typeof AiStudioRoute
   ControlCentreRoute: typeof ControlCentreRouteWithChildren
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  SignInRoute: typeof SignInRoute
+  SignUpRoute: typeof SignUpRoute
   TeamRoute: typeof TeamRoute
   CareersSlugRoute: typeof CareersSlugRoute
   InsightsSlugRoute: typeof InsightsSlugRoute
@@ -554,6 +606,34 @@ declare module '@tanstack/react-router' {
       path: '/control-centre'
       fullPath: '/control-centre'
       preLoaderRoute: typeof ControlCentreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-up': {
+      id: '/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/team': {
@@ -889,6 +969,10 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AiStudioRoute: AiStudioRoute,
   ControlCentreRoute: ControlCentreRouteWithChildren,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  SignInRoute: SignInRoute,
+  SignUpRoute: SignUpRoute,
   TeamRoute: TeamRoute,
   CareersSlugRoute: CareersSlugRoute,
   InsightsSlugRoute: InsightsSlugRoute,
