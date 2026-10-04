@@ -12,12 +12,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AiStudioRouteImport } from './routes/ai-studio'
+import { Route as BookACallRouteImport } from './routes/book-a-call'
 import { Route as ClientRouteImport } from './routes/client'
 import { Route as ControlCentreRouteImport } from './routes/control-centre'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
+import { Route as StartAProjectRouteImport } from './routes/start-a-project'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as CareersIndexRouteImport } from './routes/careers.index'
 import { Route as CareersSlugRouteImport } from './routes/careers.$slug'
@@ -74,6 +76,11 @@ const AiStudioRoute = AiStudioRouteImport.update({
   path: '/ai-studio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookACallRoute = BookACallRouteImport.update({
+  id: '/book-a-call',
+  path: '/book-a-call',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ClientRoute = ClientRouteImport.update({
   id: '/client',
   path: '/client',
@@ -102,6 +109,11 @@ const SignInRoute = SignInRouteImport.update({
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StartAProjectRoute = StartAProjectRouteImport.update({
+  id: '/start-a-project',
+  path: '/start-a-project',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TeamRoute = TeamRouteImport.update({
@@ -330,12 +342,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/ai-studio': typeof AiStudioRoute
+  '/book-a-call': typeof BookACallRoute
   '/client': typeof ClientRouteWithChildren
   '/control-centre': typeof ControlCentreRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/start-a-project': typeof StartAProjectRoute
   '/team': typeof TeamRoute
   '/careers/$slug': typeof CareersSlugRoute
   '/client/bookings': typeof ClientBookingsRoute
@@ -380,10 +394,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/ai-studio': typeof AiStudioRoute
+  '/book-a-call': typeof BookACallRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/start-a-project': typeof StartAProjectRoute
   '/team': typeof TeamRoute
   '/careers/$slug': typeof CareersSlugRoute
   '/client/bookings': typeof ClientBookingsRoute
@@ -429,12 +445,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/ai-studio': typeof AiStudioRoute
+  '/book-a-call': typeof BookACallRoute
   '/client': typeof ClientRouteWithChildren
   '/control-centre': typeof ControlCentreRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/start-a-project': typeof StartAProjectRoute
   '/team': typeof TeamRoute
   '/careers/$slug': typeof CareersSlugRoute
   '/client/bookings': typeof ClientBookingsRoute
@@ -482,12 +500,14 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/ai-studio'
+    | '/book-a-call'
     | '/client'
     | '/control-centre'
     | '/forgot-password'
     | '/reset-password'
     | '/sign-in'
     | '/sign-up'
+    | '/start-a-project'
     | '/team'
     | '/careers/$slug'
     | '/client/bookings'
@@ -532,10 +552,12 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/ai-studio'
+    | '/book-a-call'
     | '/forgot-password'
     | '/reset-password'
     | '/sign-in'
     | '/sign-up'
+    | '/start-a-project'
     | '/team'
     | '/careers/$slug'
     | '/client/bookings'
@@ -580,12 +602,14 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/ai-studio'
+    | '/book-a-call'
     | '/client'
     | '/control-centre'
     | '/forgot-password'
     | '/reset-password'
     | '/sign-in'
     | '/sign-up'
+    | '/start-a-project'
     | '/team'
     | '/careers/$slug'
     | '/client/bookings'
@@ -632,12 +656,14 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AiStudioRoute: typeof AiStudioRoute
+  BookACallRoute: typeof BookACallRoute
   ClientRoute: typeof ClientRouteWithChildren
   ControlCentreRoute: typeof ControlCentreRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
+  StartAProjectRoute: typeof StartAProjectRoute
   TeamRoute: typeof TeamRoute
   CareersSlugRoute: typeof CareersSlugRoute
   InsightsSlugRoute: typeof InsightsSlugRoute
@@ -670,6 +696,13 @@ declare module '@tanstack/react-router' {
       path: '/ai-studio'
       fullPath: '/ai-studio'
       preLoaderRoute: typeof AiStudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/book-a-call': {
+      id: '/book-a-call'
+      path: '/book-a-call'
+      fullPath: '/book-a-call'
+      preLoaderRoute: typeof BookACallRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/client': {
@@ -712,6 +745,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-up'
       fullPath: '/sign-up'
       preLoaderRoute: typeof SignUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/start-a-project': {
+      id: '/start-a-project'
+      path: '/start-a-project'
+      fullPath: '/start-a-project'
+      preLoaderRoute: typeof StartAProjectRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/team': {
@@ -1100,12 +1140,14 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AiStudioRoute: AiStudioRoute,
+  BookACallRoute: BookACallRoute,
   ClientRoute: ClientRouteWithChildren,
   ControlCentreRoute: ControlCentreRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
+  StartAProjectRoute: StartAProjectRoute,
   TeamRoute: TeamRoute,
   CareersSlugRoute: CareersSlugRoute,
   InsightsSlugRoute: InsightsSlugRoute,
