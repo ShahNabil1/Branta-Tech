@@ -21,7 +21,7 @@ export function ProcessSection({ content }: P<"process">) {
   }, [content.steps.length]);
 
   return (
-    <Section aria-labelledby="process-title">
+    <Section tone="white" aria-labelledby="process-title">
       <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
         <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-28">
@@ -55,7 +55,7 @@ export function ProcessSection({ content }: P<"process">) {
 /* ---------- Clients: monochrome logo wall ---------- */
 export function ClientLogos({ content }: P<"clients">) {
   return (
-    <Section tone="white" aria-labelledby="clients-title">
+    <Section tone="muted" aria-labelledby="clients-title">
       <Eyebrow>{content.eyebrow || "SELECTED CLIENTS"}</Eyebrow>
       <h2 id="clients-title" className="text-h1 mt-4 max-w-2xl text-foreground">{content.title}</h2>
       <ul className="mt-12 grid grid-cols-2 border-l border-t border-border sm:grid-cols-3 lg:grid-cols-5">
@@ -80,7 +80,7 @@ export function ClientLogos({ content }: P<"clients">) {
 /* ---------- Insights teaser (no posts system yet → honest empty state) ---------- */
 export function InsightsTeaser({ content }: P<"insights">) {
   return (
-    <DarkSection aria-labelledby="insights-title">
+    <Section tone="white" aria-labelledby="insights-title">
       <div className="grid gap-8 md:grid-cols-12 md:items-end">
         <div className="md:col-span-7">
           <Eyebrow>{content.eyebrow || "INSIGHTS"}</Eyebrow>
@@ -98,14 +98,14 @@ export function InsightsTeaser({ content }: P<"insights">) {
           <p className="text-small text-muted-foreground">The first articles from the Branta team are on the way.</p>
         </div>
       )}
-    </DarkSection>
+    </Section>
   );
 }
 
 /* ---------- Careers teaser: real image if set, else typography ---------- */
 export function CareersTeaser({ content }: P<"careers">) {
   return (
-    <Section tone="muted" aria-labelledby="careers-title">
+    <Section tone="dark" aria-labelledby="careers-title" className="glow-soft">
       <div className={cn("grid gap-10", content.image && "lg:grid-cols-12 lg:items-center")}>
         <div className={cn(content.image ? "lg:col-span-6" : "max-w-4xl")}>
           <Eyebrow>{content.eyebrow || "CAREERS"}</Eyebrow>

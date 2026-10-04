@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
-import { DarkSection, Eyebrow, SiteContainer } from "@/components/layout/primitives";
+import { Eyebrow, Section, SiteContainer } from "@/components/layout/primitives";
 import { HeroAction } from "@/components/home/Hero";
 import type { WebSoftware, WebWork } from "@/lib/web-software.functions";
 import { cn } from "@/lib/utils";
@@ -74,7 +74,7 @@ function Promo({ id, poster, title }: { id: string | null; poster: string | null
 
 export function WebSoftwareShowcase({ content }: { content: NonNullable<WebSoftware> }) {
   return (
-    <DarkSection aria-labelledby="web-software-title">
+    <Section tone="warm" aria-labelledby="web-software-title">
       <SiteContainer>
         <div className="grid gap-8 md:grid-cols-12 md:items-end">
           <div className="md:col-span-7">
@@ -123,6 +123,6 @@ export function WebSoftwareShowcase({ content }: { content: NonNullable<WebSoftw
           )}
         </div>
       </SiteContainer>
-    </DarkSection>
+    </Section>
   );
 }

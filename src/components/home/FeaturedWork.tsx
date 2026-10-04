@@ -73,7 +73,7 @@ export function FeaturedWork({ content }: { content: NonNullable<FW> }) {
     on ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground");
 
   return (
-    <DarkSection bleed aria-labelledby="featured-work-title" className="overflow-hidden">
+    <DarkSection bleed aria-labelledby="featured-work-title" className="overflow-hidden bg-[var(--dark-alt)]">
       <SiteContainer>
         <div className="grid gap-8 md:grid-cols-12 md:items-end">
           <div className="md:col-span-7">

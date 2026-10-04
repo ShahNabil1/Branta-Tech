@@ -48,7 +48,7 @@ export function AiImageShowcase({ content }: { content: NonNullable<AiImage> }) 
   if (!content.items.length && !content.pair) return null;
   const lines = content.title.split("\n");
   return (
-    <Section aria-labelledby="ai-image-title">
+    <Section tone="white" aria-labelledby="ai-image-title">
       <SiteContainer>
         <div className="grid gap-8 md:grid-cols-12 md:items-end">
           <div className="md:col-span-7">

@@ -175,7 +175,7 @@ export function SiteHeader() {
     <header
       ref={headerRef}
       className={cn(
-        "sticky top-0 z-50 border-b border-border text-foreground transition-[background-color] duration-200",
+        "dark sticky top-0 z-50 border-b border-border text-foreground transition-[background-color] duration-200",
         !openEntry ? "bg-background/85 backdrop-blur-md" : "bg-background",
       )}
     >
@@ -262,7 +262,7 @@ export function SiteHeader() {
           aria-label={`${entry.label} menu`}
           onMouseEnter={keepOpen}
           onMouseLeave={hoverClose}
-          className={cn("absolute inset-x-0 top-full hidden border-b border-border bg-[var(--background-alt)] motion-safe:animate-[nav-in_200ms_var(--ease-out-expo)]", open === entry.id && "lg:block")}
+          className={cn("absolute inset-x-0 top-full hidden border-b border-border bg-[var(--dark-alt)] motion-safe:animate-[nav-in_200ms_var(--ease-out-expo)]", open === entry.id && "lg:block")}
         >
           {entry.kind === "mega" ? (
             <MegaPanel entry={entry} featured={entry.id === nav.find((n) => n.kind === "mega")?.id ? featured : null} onNavigate={() => setOpen(null)} />
@@ -448,7 +448,7 @@ function MobileMenu({ id, nav, logo, booking, isActive, onClose }: {
   const row = "text-h4 flex min-h-14 w-full items-center justify-between border-b border-border py-3 text-left font-medium";
 
   return (
-    <div id={id} role="dialog" aria-modal="true" aria-label="Site menu" className="fixed inset-0 z-[60] flex flex-col bg-background text-foreground">
+    <div id={id} role="dialog" aria-modal="true" aria-label="Site menu" className="dark fixed inset-0 z-[60] flex flex-col bg-background text-foreground">
       <div className="flex h-16 shrink-0 items-center justify-between border-b border-border px-5">
         <BrandLogo src={logo} onNavigate={onClose} />
         <button ref={closeRef} type="button" onClick={onClose} className="text-small flex h-10 items-center gap-2 rounded-sm px-2 font-medium">
