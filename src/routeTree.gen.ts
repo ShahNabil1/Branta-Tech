@@ -24,6 +24,7 @@ import { Route as StartAProjectRouteImport } from './routes/start-a-project'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as CareersIndexRouteImport } from './routes/careers.index'
 import { Route as CareersSlugRouteImport } from './routes/careers.$slug'
+import { Route as CareersAccountRouteImport } from './routes/careers.account'
 import { Route as CareersForgotPasswordRouteImport } from './routes/careers.forgot-password'
 import { Route as CareersResetPasswordRouteImport } from './routes/careers.reset-password'
 import { Route as CareersSignInRouteImport } from './routes/careers.sign-in'
@@ -43,6 +44,7 @@ import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
 import { Route as WorkIndexRouteImport } from './routes/work.index'
 import { Route as WorkSlugRouteImport } from './routes/work.$slug'
+import { Route as CareersAccountIndexRouteImport } from './routes/careers.account.index'
 import { Route as ControlCentreAdminAdminUsersRouteImport } from './routes/control-centre._admin.admin-users'
 import { Route as ControlCentreAdminDashboardRouteImport } from './routes/control-centre._admin.dashboard'
 import { Route as ControlCentreAdminMediaRouteImport } from './routes/control-centre._admin.media'
@@ -145,6 +147,11 @@ const CareersSlugRoute = CareersSlugRouteImport.update({
   path: '/careers/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CareersAccountRoute = CareersAccountRouteImport.update({
+  id: '/careers/account',
+  path: '/careers/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CareersForgotPasswordRoute = CareersForgotPasswordRouteImport.update({
   id: '/careers/forgot-password',
   path: '/careers/forgot-password',
@@ -240,6 +247,11 @@ const WorkSlugRoute = WorkSlugRouteImport.update({
   id: '/work/$slug',
   path: '/work/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const CareersAccountIndexRoute = CareersAccountIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CareersAccountRoute,
 } as any)
 const ControlCentreAdminAdminUsersRoute =
   ControlCentreAdminAdminUsersRouteImport.update({
@@ -411,6 +423,7 @@ export interface FileRoutesByFullPath {
   '/start-a-project': typeof StartAProjectRoute
   '/team': typeof TeamRoute
   '/careers/$slug': typeof CareersSlugRoute
+  '/careers/account': typeof CareersAccountRouteWithChildren
   '/careers/forgot-password': typeof CareersForgotPasswordRoute
   '/careers/reset-password': typeof CareersResetPasswordRoute
   '/careers/sign-in': typeof CareersSignInRoute
@@ -434,6 +447,7 @@ export interface FileRoutesByFullPath {
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/media': typeof ControlCentreAdminMediaRoute
   '/control-centre/team': typeof ControlCentreAdminTeamRoute
+  '/careers/account/': typeof CareersAccountIndexRoute
   '/control-centre/bookings/$id': typeof ControlCentreAdminBookingsIdRoute
   '/control-centre/insights/$id': typeof ControlCentreAdminInsightsIdRoute
   '/control-centre/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
@@ -493,6 +507,7 @@ export interface FileRoutesByTo {
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/media': typeof ControlCentreAdminMediaRoute
   '/control-centre/team': typeof ControlCentreAdminTeamRoute
+  '/careers/account': typeof CareersAccountIndexRoute
   '/control-centre/bookings/$id': typeof ControlCentreAdminBookingsIdRoute
   '/control-centre/insights/$id': typeof ControlCentreAdminInsightsIdRoute
   '/control-centre/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
@@ -532,6 +547,7 @@ export interface FileRoutesById {
   '/start-a-project': typeof StartAProjectRoute
   '/team': typeof TeamRoute
   '/careers/$slug': typeof CareersSlugRoute
+  '/careers/account': typeof CareersAccountRouteWithChildren
   '/careers/forgot-password': typeof CareersForgotPasswordRoute
   '/careers/reset-password': typeof CareersResetPasswordRoute
   '/careers/sign-in': typeof CareersSignInRoute
@@ -556,6 +572,7 @@ export interface FileRoutesById {
   '/control-centre/_admin/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/_admin/media': typeof ControlCentreAdminMediaRoute
   '/control-centre/_admin/team': typeof ControlCentreAdminTeamRoute
+  '/careers/account/': typeof CareersAccountIndexRoute
   '/control-centre/_admin/bookings/$id': typeof ControlCentreAdminBookingsIdRoute
   '/control-centre/_admin/insights/$id': typeof ControlCentreAdminInsightsIdRoute
   '/control-centre/_admin/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
@@ -596,6 +613,7 @@ export interface FileRouteTypes {
     | '/start-a-project'
     | '/team'
     | '/careers/$slug'
+    | '/careers/account'
     | '/careers/forgot-password'
     | '/careers/reset-password'
     | '/careers/sign-in'
@@ -619,6 +637,7 @@ export interface FileRouteTypes {
     | '/control-centre/dashboard'
     | '/control-centre/media'
     | '/control-centre/team'
+    | '/careers/account/'
     | '/control-centre/bookings/$id'
     | '/control-centre/insights/$id'
     | '/control-centre/insights/authors'
@@ -678,6 +697,7 @@ export interface FileRouteTypes {
     | '/control-centre/dashboard'
     | '/control-centre/media'
     | '/control-centre/team'
+    | '/careers/account'
     | '/control-centre/bookings/$id'
     | '/control-centre/insights/$id'
     | '/control-centre/insights/authors'
@@ -716,6 +736,7 @@ export interface FileRouteTypes {
     | '/start-a-project'
     | '/team'
     | '/careers/$slug'
+    | '/careers/account'
     | '/careers/forgot-password'
     | '/careers/reset-password'
     | '/careers/sign-in'
@@ -740,6 +761,7 @@ export interface FileRouteTypes {
     | '/control-centre/_admin/dashboard'
     | '/control-centre/_admin/media'
     | '/control-centre/_admin/team'
+    | '/careers/account/'
     | '/control-centre/_admin/bookings/$id'
     | '/control-centre/_admin/insights/$id'
     | '/control-centre/_admin/insights/authors'
@@ -779,6 +801,7 @@ export interface RootRouteChildren {
   StartAProjectRoute: typeof StartAProjectRoute
   TeamRoute: typeof TeamRoute
   CareersSlugRoute: typeof CareersSlugRoute
+  CareersAccountRoute: typeof CareersAccountRouteWithChildren
   CareersForgotPasswordRoute: typeof CareersForgotPasswordRoute
   CareersResetPasswordRoute: typeof CareersResetPasswordRoute
   CareersSignInRoute: typeof CareersSignInRoute
@@ -897,6 +920,13 @@ declare module '@tanstack/react-router' {
       path: '/careers/$slug'
       fullPath: '/careers/$slug'
       preLoaderRoute: typeof CareersSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/account': {
+      id: '/careers/account'
+      path: '/careers/account'
+      fullPath: '/careers/account'
+      preLoaderRoute: typeof CareersAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/careers/forgot-password': {
@@ -1031,6 +1061,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/work/$slug'
       preLoaderRoute: typeof WorkSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/careers/account/': {
+      id: '/careers/account/'
+      path: '/'
+      fullPath: '/careers/account/'
+      preLoaderRoute: typeof CareersAccountIndexRouteImport
+      parentRoute: typeof CareersAccountRoute
     }
     '/control-centre/_admin/admin-users': {
       id: '/control-centre/_admin/admin-users'
@@ -1324,6 +1361,18 @@ const ControlCentreRouteWithChildren = ControlCentreRoute._addFileChildren(
   ControlCentreRouteChildren,
 )
 
+interface CareersAccountRouteChildren {
+  CareersAccountIndexRoute: typeof CareersAccountIndexRoute
+}
+
+const CareersAccountRouteChildren: CareersAccountRouteChildren = {
+  CareersAccountIndexRoute: CareersAccountIndexRoute,
+}
+
+const CareersAccountRouteWithChildren = CareersAccountRoute._addFileChildren(
+  CareersAccountRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -1339,6 +1388,7 @@ const rootRouteChildren: RootRouteChildren = {
   StartAProjectRoute: StartAProjectRoute,
   TeamRoute: TeamRoute,
   CareersSlugRoute: CareersSlugRoute,
+  CareersAccountRoute: CareersAccountRouteWithChildren,
   CareersForgotPasswordRoute: CareersForgotPasswordRoute,
   CareersResetPasswordRoute: CareersResetPasswordRoute,
   CareersSignInRoute: CareersSignInRoute,
