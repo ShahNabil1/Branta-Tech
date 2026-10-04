@@ -97,7 +97,7 @@ export const submitApplication = createServerFn({ method: "POST" })
       await supabaseAdmin.storage.from("career-private").remove([path]);
       if (ins.error.code === "23505") {
         const again = await supabaseAdmin.from("job_applications").select("id").eq("job_id", job.id).eq("applicant_user_id", who.id).neq("status", "withdrawn").maybeSingle();
-        return { ok: false, error: "Application already submitted", duplicateId: again.data?.id };
+        return { ok: false, error: "Application already submitted", ...(again.data ? { duplicateId: again.data.id } : {}) };
       }
       console.error("application insert failed", ins.error.message);
       return { ok: false, error: "We couldn't send your application. Please try again." };
