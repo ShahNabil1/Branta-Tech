@@ -18,7 +18,7 @@ export function AiFilmFields({ config, onChange }: { config: string; onChange: (
     const p = JSON.parse(config || "{}");
     obj = p && typeof p === "object" && !Array.isArray(p) ? p : {};
   } catch {
-    return <p className="text-caption text-destructive md:col-span-2">AI Film settings unavailable: advanced config is not valid JSON.</p>;
+    return <p className="text-caption text-destructive md:col-span-2">AI Commercial settings unavailable: advanced config is not valid JSON.</p>;
   }
   const cfg = parseFilmConfig(obj);
   const write = (patch: Record<string, unknown>) => onChange(JSON.stringify({ ...obj, ...patch }, null, 2));
@@ -27,7 +27,7 @@ export function AiFilmFields({ config, onChange }: { config: string; onChange: (
 
   return (
     <div className="grid gap-4 rounded-sm border border-border p-4 md:col-span-2">
-      <p className="text-eyebrow text-muted-foreground">AI Film showcase</p>
+      <p className="text-eyebrow text-muted-foreground">AI Commercial showcase</p>
       <p className="text-caption text-muted-foreground">Eyebrow, Title, Body and the button above are the section intro. Use "Visible" to show or hide the section.</p>
       <div className="grid gap-4 md:grid-cols-2">
         <TextInput label="Max films (1–8)" type="number" min={1} max={8} value={cfg.max_items} onChange={(e) => write({ max_items: Number(e.target.value) })} />

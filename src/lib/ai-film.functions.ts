@@ -123,7 +123,7 @@ export const getAiFilm = createServerFn({ method: "GET" }).handler(async (): Pro
       eyebrow: sec.eyebrow || "AI FILM",
       title: sec.title || "Turn an Idea Into a World.",
       body: sec.body || "",
-      ctaLabel: sec.cta_label || "Explore AI Film",
+      ctaLabel: sec.cta_label || "Explore AI Commercial",
       ctaUrl: sec.cta_url || "/services/ai-video-film",
       filterEnabled: cfg.filter_enabled,
       items: items.slice(0, cfg.max_items),

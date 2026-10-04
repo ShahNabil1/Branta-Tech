@@ -26,7 +26,7 @@ export type HeroContent = {
 };
 
 export const HERO_ROLES: { value: HeroMediaRole; label: string }[] = [
-  { value: "film", label: "AI Film (main tile)" },
+  { value: "film", label: "AI Commercial (main tile)" },
   { value: "fashion", label: "AI Fashion (portrait)" },
   { value: "product", label: "AI Product" },
   { value: "campaign", label: "AI Campaign" },
@@ -47,7 +47,7 @@ export const HERO_FALLBACK: HeroContent = {
   body: "AI films, product visuals, campaigns, digital products and automation, built by one integrated creative technology team.",
   primary: { label: "Explore Our Work", url: "/work" },
   secondary: { label: "Start a Project", url: "/start-a-project" },
-  capabilities: ["AI Film", "AI Photography", "Creative", "Web", "Software", "Automation"],
+  capabilities: ["AI Commercial", "AI Photography", "Creative", "Web", "Software", "Automation"],
   media: [],
 };
 
