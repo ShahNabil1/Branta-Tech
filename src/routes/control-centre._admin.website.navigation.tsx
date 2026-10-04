@@ -53,25 +53,40 @@ function NavigationEditor({ initial }: { initial: NavItem[] }) {
   const items = f.values;
 
   const update = (fn: (draft: NavItem[]) => NavItem[]) => f.setAll((p) => fn(structuredClone(p)));
+  /** The list containing the item at path, plus the item's index in it. */
+  const locate = (d: NavItem[], path: number[]): [NavItem[], number] | null => {
+    const [i, c] = path;
+    if (i === undefined) return null;
+    if (c === undefined) return [d, i];
+    const parent = d[i];
+    return parent ? [parent.children, c] : null;
+  };
   const patch = (path: number[], changes: Partial<NavItem>) =>
     update((d) => {
-      const [i, c] = path;
-      if (c === undefined) d[i] = { ...d[i], ...changes };
-      else d[i].children[c] = { ...d[i].children[c], ...changes };
+      const loc = locate(d, path);
+      const cur = loc?.[0][loc[1]];
+      if (loc && cur) loc[0][loc[1]] = { ...cur, ...changes };
       return d;
     });
   const move = (path: number[], dir: -1 | 1) =>
     update((d) => {
-      const list = path.length === 1 ? d : d[path[0]].children;
-      const i = path[path.length - 1];
-      if (!list[i + dir]) return d;
-      [list[i], list[i + dir]] = [list[i + dir], list[i]];
+      const loc = locate(d, path);
+      if (!loc) return d;
+      const [list, i] = loc;
+      const next = swapped(list, i, i + dir);
+      list.splice(0, list.length, ...next);
       return d;
     });
   const remove = (path: number[]) =>
     update((d) => {
-      if (path.length === 1) d.splice(path[0], 1);
-      else d[path[0]].children.splice(path[1], 1);
+      const loc = locate(d, path);
+      if (loc) loc[0].splice(loc[1], 1);
+      return d;
+    });
+  const addChild = (i: number) =>
+    update((d) => {
+      const parent = d[i];
+      if (parent) parent.children.push(blank(parent.menu_group));
       return d;
     });
 
