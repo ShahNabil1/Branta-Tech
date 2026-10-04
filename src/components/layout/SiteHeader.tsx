@@ -159,8 +159,10 @@ export function SiteHeader() {
   const hoverAt = useRef(0);
   const hoverOpen = (id: string) => {
     window.clearTimeout(closeTimer.current);
-    if (open !== id) hoverAt.current = Date.now();
-    setOpen(id);
+    setOpen((o) => {
+      if (o !== id) hoverAt.current = Date.now();
+      return id;
+    });
   };
   const hoverClose = () => {
     window.clearTimeout(closeTimer.current);
@@ -211,8 +213,8 @@ export function SiteHeader() {
                     aria-controls={panelId}
                     onClick={() => {
                       // A click right after hover-open should not immediately close the panel.
-                      if (open === entry.id && Date.now() - hoverAt.current < 500) return;
-                      setOpen((o) => (o === entry.id ? null : entry.id));
+                      const recent = Date.now() - hoverAt.current < 500;
+                      setOpen((o) => (o === entry.id ? (recent ? o : null) : entry.id));
                     }}
                     onKeyDown={(e) => {
                       if (e.key === "ArrowDown") {
