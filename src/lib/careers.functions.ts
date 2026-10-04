@@ -57,13 +57,18 @@ export const submitApplication = createServerFn({ method: "POST" })
     if (!who) return { ok: false, error: "Please sign in to apply.", signIn: true };
     if (Date.now() - f.started_at < 3000) return { ok: false, error: "That was quick — please review your application and send it again." };
 
+    const useSaved = data.get("use_saved") === "1";
     const file = data.get("resume");
-    if (!(file instanceof File) || file.size === 0) return { ok: false, error: "Please attach your CV.", fields: { resume: "Attach a PDF, DOC or DOCX file" } };
-    if (file.size > RESUME_MAX) return { ok: false, error: "Your CV is too large.", fields: { resume: "Maximum size is 5 MB" } };
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    const kind = sniff(bytes);
-    const ext = file.name.toLowerCase().split(".").pop();
-    if (!kind || (ext !== kind && !(kind === "docx" && ext === "docx"))) return { ok: false, error: "That file type isn't accepted.", fields: { resume: "Use a PDF, DOC or DOCX file" } };
+    let bytes: Uint8Array | null = null;
+    let kind: "pdf" | "doc" | "docx" | null = null;
+    if (!useSaved) {
+      if (!(file instanceof File) || file.size === 0) return { ok: false, error: "Please attach your CV.", fields: { resume: "Attach a PDF, DOC or DOCX file" } };
+      if (file.size > RESUME_MAX) return { ok: false, error: "Your CV is too large.", fields: { resume: "Maximum size is 5 MB" } };
+      bytes = new Uint8Array(await file.arrayBuffer());
+      kind = sniff(bytes);
+      const ext = file.name.toLowerCase().split(".").pop();
+      if (!kind || ext !== kind) return { ok: false, error: "That file type isn't accepted.", fields: { resume: "Use a PDF, DOC or DOCX file" } };
+    }
 
     const { createHash, randomUUID } = await import("crypto");
     const ip = getRequestHeader("cf-connecting-ip") || getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
@@ -82,11 +87,18 @@ export const submitApplication = createServerFn({ method: "POST" })
     if (existing.data) return { ok: false, error: "Application already submitted", duplicateId: existing.data.id };
     if ((byIp.count ?? 0) >= 5 || (byUser.count ?? 0) >= 10) return { ok: false, error: "Too many applications right now. Please try again later." };
 
-    const path = `${job.id}/${randomUUID()}.${kind}`;
-    const up = await supabaseAdmin.storage.from("career-private").upload(path, bytes, { contentType: CT[kind], upsert: false });
-    if (up.error) {
-      console.error("resume upload failed", up.error.message);
-      return { ok: false, error: "We couldn't upload your CV. Please try again." };
+    let path: string;
+    if (useSaved) {
+      const copied = await copySavedResume(supabaseAdmin, who.id, job.id);
+      if (!copied) return { ok: false, error: "Your saved CV couldn't be attached. Please upload one.", fields: { resume: "Attach a PDF, DOC or DOCX file" } };
+      path = copied;
+    } else {
+      path = `${job.id}/${randomUUID()}.${kind}`;
+      const up = await supabaseAdmin.storage.from("career-private").upload(path, bytes!, { contentType: CT[kind!], upsert: false });
+      if (up.error) {
+        console.error("resume upload failed", up.error.message);
+        return { ok: false, error: "We couldn't upload your CV. Please try again." };
+      }
     }
     const n = (v: string) => (v ? v : null);
     const ins = await supabaseAdmin.from("job_applications").insert({
@@ -195,4 +207,3 @@ async function copySavedResume(supabaseAdmin: Awaited<ReturnType<typeof caller>>
   const cp = await supabaseAdmin.storage.from("career-private").copy(r.file_path, dest);
   return cp.error ? null : dest;
 }
-export { copySavedResume as _copySavedResume };
