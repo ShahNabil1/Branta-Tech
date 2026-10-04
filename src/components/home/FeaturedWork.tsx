@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useRouter } from "@tanstack/react-router";
+import { useRouter } from "@tanstack/react-router";
 import { DarkSection, Eyebrow, SiteContainer } from "@/components/layout/primitives";
 import { HeroAction } from "@/components/home/Hero";
 import { vimeoId } from "@/lib/hero";
@@ -82,7 +82,7 @@ function Card({ item, slot, index, playing, onHover, show }: {
       </div>
       <div className="mt-4 flex items-start justify-between gap-4">
         <div className="min-w-0 transition-transform duration-300 group-hover:translate-x-1">
-          <h3 className="text-title font-medium text-foreground">{item.title}</h3>
+          <h3 className="text-h4 font-medium text-foreground">{item.title}</h3>
           {meta && <p className="text-caption mt-1 text-muted-foreground">{meta}</p>}
           {services && <p className="text-caption mt-1 text-muted-foreground/80">{services}</p>}
         </div>
@@ -97,11 +97,8 @@ function Card({ item, slot, index, playing, onHover, show }: {
   };
   const cls = cn("group block min-w-0", slot.split(" ").filter((c) => !c.includes("aspect")).join(" "));
 
-  return linkable ? (
-    <Link to="/work/$slug" params={{ slug: item.slug } as never} className={cls} {...handlers} aria-label={item.title}>{body}</Link>
-  ) : (
-    <article className={cls} {...handlers} data-href={path}>{body}</article>
-  );
+  // Case-study pages aren't built yet: cards render as non-linking articles until /work/$slug exists.
+  return <article className={cls} {...handlers} data-href={path}>{body}</article>;
 }
 
 export function FeaturedWork({ content }: { content: NonNullable<FW> }) {
@@ -117,7 +114,7 @@ export function FeaturedWork({ content }: { content: NonNullable<FW> }) {
         <div className="grid gap-8 md:grid-cols-12 md:items-end">
           <div className="md:col-span-7">
             <Eyebrow>{content.eyebrow}</Eyebrow>
-            <h2 id="featured-work-title" className="text-display-lg mt-4 text-foreground">{content.title}</h2>
+            <h2 id="featured-work-title" className="text-display mt-4 text-foreground">{content.title}</h2>
           </div>
           <div className="md:col-span-5 md:pb-2">
             {content.body && <p className="text-body-lg max-w-md text-muted-foreground">{content.body}</p>}
