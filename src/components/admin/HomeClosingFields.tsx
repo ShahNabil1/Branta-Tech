@@ -1,5 +1,7 @@
 import { AdminButton, CheckboxInput, ConfirmButton, TextInput, TextArea } from "@/components/admin/cms";
 import { UploadImageButton } from "@/components/admin/UploadImageButton";
+import { SectionMediaEditor } from "@/components/admin/SectionMediaEditor";
+import { parseMediaItems, type SectionMediaItem } from "@/lib/section-media";
 import { asObj, maxItems, parseLogos, parseSteps, secondaryCta, type ClientLogo, type ProcessStep } from "@/lib/home-closing";
 
 type Props = { type: string; config: string; onChange: (json: string) => void };
@@ -12,6 +14,10 @@ export function HomeClosingFields({ type, config, onChange }: Props) {
     return <p className="text-caption text-destructive md:col-span-2">Settings unavailable: advanced config is not valid JSON.</p>;
   }
   const write = (patch: Record<string, unknown>) => onChange(JSON.stringify({ ...obj, ...patch }, null, 2));
+  const media = (title: string, hint: string, aspect: "4:3" | "full") => (
+    <SectionMediaEditor title={title} hint={hint} max={1} defaultAspect={aspect} items={parseMediaItems(obj, false, aspect)}
+      onChange={(n: SectionMediaItem[]) => write({ media_items: n })} />
+  );
   const box = (title: string, children: React.ReactNode) => (
     <div className="grid gap-4 rounded-sm border border-border p-4 md:col-span-2">
       <p className="text-eyebrow text-muted-foreground">{title}</p>
@@ -39,6 +45,7 @@ export function HomeClosingFields({ type, config, onChange }: Props) {
         </div>
       ))}
       {steps.length < 8 && <AdminButton size="sm" variant="ghost" onClick={() => set([...steps, { title: "", body: "" }])}>Add step</AdminButton>}
+      {media("Optional illustration", "Shown under the intro on desktop. Leave empty for text only.", "4:3")}
     </>);
   }
 
@@ -82,7 +89,10 @@ export function HomeClosingFields({ type, config, onChange }: Props) {
   }
 
   if (type === "careers_teaser") {
-    return box("Careers teaser", <p className="text-caption text-muted-foreground">Use Media URL above for a real team or work photo (https). Leave empty for a typography-only layout. No stock photos.</p>);
+    return box("Careers teaser", <>
+      <p className="text-caption text-muted-foreground">Add a real team or office photo or video. Leave empty for a typography-only layout. (An older Media URL above is used only when no media is added here.)</p>
+      {media("Team / office visual", "Image, direct video or Vimeo.", "4:3")}
+    </>);
   }
 
   if (type === "final_cta") {
@@ -93,6 +103,7 @@ export function HomeClosingFields({ type, config, onChange }: Props) {
         <TextInput label="Secondary button label" value={s.label} onChange={(e) => write({ secondary_cta_label: e.target.value })} />
         <TextInput label="Secondary button URL" value={s.url} placeholder="/book-a-call" onChange={(e) => write({ secondary_cta_url: e.target.value })} />
       </div>
+      {media("Optional background", "Fills the section behind the text with a dark overlay so text stays readable. Use 'Fill area' size.", "full")}
     </>);
   }
   return null;

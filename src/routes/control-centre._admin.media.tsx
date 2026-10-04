@@ -13,7 +13,7 @@ export const Route = createFileRoute("/control-centre/_admin/media")({
   component: MediaPage,
 });
 
-const FOLDERS = ["brand", "services", "portfolio"] as const;
+const FOLDERS = ["brand", "home", "services", "portfolio"] as const;
 const ALLOWED = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/avif": "avif" } as Record<string, string>;
 const MAX_BYTES = 10 * 1024 * 1024;
 

@@ -4,15 +4,16 @@ import { queryOptions } from "@tanstack/react-query";
 import type { Database } from "@/integrations/supabase/types";
 import { listPublishedPosts, type PostCard } from "./company.functions";
 import { httpsUrl, maxItems, parseLogos, parseSteps, secondaryCta, type ClientLogo, type ProcessStep } from "./home-closing";
+import { parseMediaItems, type SectionMediaItem } from "./section-media";
 import { parseStats, publicFundedBy, showLogos, type FundedBy, type TrustStat } from "./trust";
 
 type Intro = { eyebrow: string; title: string; body: string; ctaLabel: string; ctaUrl: string };
 export type HomeClosing = {
-  process: (Intro & { steps: ProcessStep[] }) | null;
+  process: (Intro & { steps: ProcessStep[]; media: SectionMediaItem | null }) | null;
   clients: (Intro & { logos: ClientLogo[] }) | null;
   insights: (Intro & { maxItems: number; posts: PostCard[] }) | null;
-  careers: (Intro & { image: string | null; imageAlt: string }) | null;
-  finalCta: (Intro & { secondary: { label: string; url: string } }) | null;
+  careers: (Intro & { media: SectionMediaItem | null }) | null;
+  finalCta: (Intro & { secondary: { label: string; url: string }; background: SectionMediaItem | null }) | null;
   /** trust_proof section; logos reuse the client_logos section data. */
   trust: (Intro & { logos: ClientLogo[]; stats: TrustStat[]; fundedBy: FundedBy | null }) | null;
 };
@@ -38,12 +39,14 @@ export const getHomeClosing = createServerFn({ method: "GET" }).handler(async ()
     const steps = p ? parseSteps(p.config) : [];
     const logos = c ? parseLogos(c.config, true) : [];
     return {
-      process: p && steps.length ? { ...intro(p), steps } : null,
+      process: p && steps.length ? { ...intro(p), steps, media: parseMediaItems(p.config, true, "4:3")[0] ?? null } : null,
       // No real logos yet → hide publicly (admin shows the empty state).
       clients: c && logos.length ? { ...intro(c), logos } : null,
       insights: i ? { ...intro(i), maxItems: maxItems(i.config), posts: await listPublishedPosts(maxItems(i.config)).catch(() => []) } : null,
-      careers: k ? { ...intro(k), image: httpsUrl(k.media_url) || null, imageAlt: k.title ?? "Branta team" } : null,
-      finalCta: f ? { ...intro(f), secondary: secondaryCta(f.config) } : null,
+      careers: k ? { ...intro(k), media: parseMediaItems(k.config, true, "4:3")[0] ?? (httpsUrl(k.media_url)
+        ? { id: "legacy", type: "image", url: httpsUrl(k.media_url), poster_url: "", alt: k.title ?? "Branta team", label: "", caption: "", enabled: true, sort_order: 0, autoplay: false, muted: true, loop: false, aspect: "4:3", position: "center" }
+        : null) } : null,
+      finalCta: f ? { ...intro(f), secondary: secondaryCta(f.config), background: parseMediaItems(f.config, true, "full")[0] ?? null } : null,
       trust: (() => {
         const t = get("trust_proof");
         if (!t) return null;
