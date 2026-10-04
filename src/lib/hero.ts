@@ -69,7 +69,7 @@ export type HeroSectionRow = {
   body: string | null;
   cta_label: string | null;
   cta_url: string | null;
-  config: unknown;
+  config: import("@/integrations/supabase/types").Json;
 };
 
 export function heroFromSection(s: HeroSectionRow | null): HeroContent {
