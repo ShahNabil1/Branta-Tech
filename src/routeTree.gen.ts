@@ -24,6 +24,10 @@ import { Route as StartAProjectRouteImport } from './routes/start-a-project'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as CareersIndexRouteImport } from './routes/careers.index'
 import { Route as CareersSlugRouteImport } from './routes/careers.$slug'
+import { Route as CareersForgotPasswordRouteImport } from './routes/careers.forgot-password'
+import { Route as CareersResetPasswordRouteImport } from './routes/careers.reset-password'
+import { Route as CareersSignInRouteImport } from './routes/careers.sign-in'
+import { Route as CareersSignUpRouteImport } from './routes/careers.sign-up'
 import { Route as ClientIndexRouteImport } from './routes/client.index'
 import { Route as ClientBookingsRouteImport } from './routes/client.bookings'
 import { Route as ClientFilesRouteImport } from './routes/client.files'
@@ -139,6 +143,26 @@ const CareersIndexRoute = CareersIndexRouteImport.update({
 const CareersSlugRoute = CareersSlugRouteImport.update({
   id: '/careers/$slug',
   path: '/careers/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersForgotPasswordRoute = CareersForgotPasswordRouteImport.update({
+  id: '/careers/forgot-password',
+  path: '/careers/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersResetPasswordRoute = CareersResetPasswordRouteImport.update({
+  id: '/careers/reset-password',
+  path: '/careers/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersSignInRoute = CareersSignInRouteImport.update({
+  id: '/careers/sign-in',
+  path: '/careers/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersSignUpRoute = CareersSignUpRouteImport.update({
+  id: '/careers/sign-up',
+  path: '/careers/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClientIndexRoute = ClientIndexRouteImport.update({
@@ -387,6 +411,10 @@ export interface FileRoutesByFullPath {
   '/start-a-project': typeof StartAProjectRoute
   '/team': typeof TeamRoute
   '/careers/$slug': typeof CareersSlugRoute
+  '/careers/forgot-password': typeof CareersForgotPasswordRoute
+  '/careers/reset-password': typeof CareersResetPasswordRoute
+  '/careers/sign-in': typeof CareersSignInRoute
+  '/careers/sign-up': typeof CareersSignUpRoute
   '/client/bookings': typeof ClientBookingsRoute
   '/client/files': typeof ClientFilesRoute
   '/client/profile': typeof ClientProfileRoute
@@ -442,6 +470,10 @@ export interface FileRoutesByTo {
   '/start-a-project': typeof StartAProjectRoute
   '/team': typeof TeamRoute
   '/careers/$slug': typeof CareersSlugRoute
+  '/careers/forgot-password': typeof CareersForgotPasswordRoute
+  '/careers/reset-password': typeof CareersResetPasswordRoute
+  '/careers/sign-in': typeof CareersSignInRoute
+  '/careers/sign-up': typeof CareersSignUpRoute
   '/client/bookings': typeof ClientBookingsRoute
   '/client/files': typeof ClientFilesRoute
   '/client/profile': typeof ClientProfileRoute
@@ -500,6 +532,10 @@ export interface FileRoutesById {
   '/start-a-project': typeof StartAProjectRoute
   '/team': typeof TeamRoute
   '/careers/$slug': typeof CareersSlugRoute
+  '/careers/forgot-password': typeof CareersForgotPasswordRoute
+  '/careers/reset-password': typeof CareersResetPasswordRoute
+  '/careers/sign-in': typeof CareersSignInRoute
+  '/careers/sign-up': typeof CareersSignUpRoute
   '/client/bookings': typeof ClientBookingsRoute
   '/client/files': typeof ClientFilesRoute
   '/client/profile': typeof ClientProfileRoute
@@ -560,6 +596,10 @@ export interface FileRouteTypes {
     | '/start-a-project'
     | '/team'
     | '/careers/$slug'
+    | '/careers/forgot-password'
+    | '/careers/reset-password'
+    | '/careers/sign-in'
+    | '/careers/sign-up'
     | '/client/bookings'
     | '/client/files'
     | '/client/profile'
@@ -615,6 +655,10 @@ export interface FileRouteTypes {
     | '/start-a-project'
     | '/team'
     | '/careers/$slug'
+    | '/careers/forgot-password'
+    | '/careers/reset-password'
+    | '/careers/sign-in'
+    | '/careers/sign-up'
     | '/client/bookings'
     | '/client/files'
     | '/client/profile'
@@ -672,6 +716,10 @@ export interface FileRouteTypes {
     | '/start-a-project'
     | '/team'
     | '/careers/$slug'
+    | '/careers/forgot-password'
+    | '/careers/reset-password'
+    | '/careers/sign-in'
+    | '/careers/sign-up'
     | '/client/bookings'
     | '/client/files'
     | '/client/profile'
@@ -731,6 +779,10 @@ export interface RootRouteChildren {
   StartAProjectRoute: typeof StartAProjectRoute
   TeamRoute: typeof TeamRoute
   CareersSlugRoute: typeof CareersSlugRoute
+  CareersForgotPasswordRoute: typeof CareersForgotPasswordRoute
+  CareersResetPasswordRoute: typeof CareersResetPasswordRoute
+  CareersSignInRoute: typeof CareersSignInRoute
+  CareersSignUpRoute: typeof CareersSignUpRoute
   InsightsSlugRoute: typeof InsightsSlugRoute
   ServicesSlugRoute: typeof ServicesSlugRoute
   WorkSlugRoute: typeof WorkSlugRoute
@@ -845,6 +897,34 @@ declare module '@tanstack/react-router' {
       path: '/careers/$slug'
       fullPath: '/careers/$slug'
       preLoaderRoute: typeof CareersSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/forgot-password': {
+      id: '/careers/forgot-password'
+      path: '/careers/forgot-password'
+      fullPath: '/careers/forgot-password'
+      preLoaderRoute: typeof CareersForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/reset-password': {
+      id: '/careers/reset-password'
+      path: '/careers/reset-password'
+      fullPath: '/careers/reset-password'
+      preLoaderRoute: typeof CareersResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/sign-in': {
+      id: '/careers/sign-in'
+      path: '/careers/sign-in'
+      fullPath: '/careers/sign-in'
+      preLoaderRoute: typeof CareersSignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/sign-up': {
+      id: '/careers/sign-up'
+      path: '/careers/sign-up'
+      fullPath: '/careers/sign-up'
+      preLoaderRoute: typeof CareersSignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/client/': {
@@ -1259,6 +1339,10 @@ const rootRouteChildren: RootRouteChildren = {
   StartAProjectRoute: StartAProjectRoute,
   TeamRoute: TeamRoute,
   CareersSlugRoute: CareersSlugRoute,
+  CareersForgotPasswordRoute: CareersForgotPasswordRoute,
+  CareersResetPasswordRoute: CareersResetPasswordRoute,
+  CareersSignInRoute: CareersSignInRoute,
+  CareersSignUpRoute: CareersSignUpRoute,
   InsightsSlugRoute: InsightsSlugRoute,
   ServicesSlugRoute: ServicesSlugRoute,
   WorkSlugRoute: WorkSlugRoute,
