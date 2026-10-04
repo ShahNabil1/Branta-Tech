@@ -106,7 +106,7 @@ function WorkflowLayer({ item, active }: { item: Item; active: boolean }) {
           <g key={label} transform={`translate(${80 + i * 160} 180)`}>
             <rect x={-52} y={-26} width={104} height={52} rx={6} className={cn("fill-background stroke-border", i === 1 && "stroke-accent")} strokeWidth={1.2} />
             <circle cx={-38} cy={-12} r={3} className={cn("cap-pulse", i === 1 ? "fill-accent" : "fill-foreground/50")} style={{ animationDelay: `${i * 400}ms` }} />
-            <text textAnchor="middle" y={5} className="fill-foreground text-[13px] font-medium">{label}</text>
+            <text textAnchor="middle" y={5} className="fill-foreground text-[15px] font-medium">{label}</text>
           </g>
         ))}
       </svg>

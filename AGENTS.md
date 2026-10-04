@@ -22,3 +22,4 @@
 - Public header (src/components/layout/SiteHeader.tsx) renders CMS navigation via navFromCms, falling back to FALLBACK_NAV in src/lib/navigation.ts only when CMS is empty; links to routes not in the router render as inactive labels — never create placeholder routes to satisfy nav.
 - Public data for site chrome is read by the getSiteChrome server fn with the publishable key (anon RLS); route loaders ensure siteChromeQuery so SSR has the header.
 - Homepage hero content lives in the Home page's hero page_section (config: secondary_cta, capabilities, media_items by role), read via getHomeHero with the publishable key; src/lib/hero.ts holds shared parsing — no hero table.
+- Homepage Capability Explorer lives in the Home page's capability_explorer page_section (config: default_key, items[] with media, service_ids, related_labels fallback); src/lib/capabilities.ts holds parsing — no capability table.
