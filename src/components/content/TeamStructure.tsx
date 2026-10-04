@@ -141,7 +141,7 @@ export function OrgChart({ team }: { team: TeamMember[] }) {
         <>
           {org.roots.length > 0 && <VLine />}
           <div className="w-full overflow-x-auto [scrollbar-width:thin]">
-            <ul aria-label="Leadership and teams" className="mx-auto flex w-max max-w-full flex-col items-center gap-8 md:max-w-none md:flex-row md:items-start md:gap-0">
+            <ul aria-label="Leadership and teams" className="mx-auto flex w-max max-w-full flex-col items-center gap-0 md:max-w-none md:flex-row md:items-start md:gap-0">
               {org.execs.map((e, i) => <Col key={e.lead.id} i={i} n={cols}><ExecColumn e={e} /></Col>)}
               {org.rootBranches.map((b, i) => <Col key={b.dept} i={org.execs.length + i} n={cols}><ul><BranchBlock b={b} /></ul></Col>)}
             </ul>
