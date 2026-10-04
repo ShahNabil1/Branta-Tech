@@ -23,3 +23,4 @@
 - Public data for site chrome is read by the getSiteChrome server fn with the publishable key (anon RLS); route loaders ensure siteChromeQuery so SSR has the header.
 - Homepage hero content lives in the Home page's hero page_section (config: secondary_cta, capabilities, media_items by role), read via getHomeHero with the publishable key; src/lib/hero.ts holds shared parsing — no hero table.
 - Homepage Capability Explorer lives in the Home page's capability_explorer page_section (config: default_key, items[] with media, service_ids, related_labels fallback); src/lib/capabilities.ts holds parsing — no capability table.
+- Homepage Featured Work reads published portfolio_projects (featured first, then sort_order/recency) via getFeaturedWork with the publishable key; presentation options live in the Home page's featured_work page_section config — never copy project data into config.
