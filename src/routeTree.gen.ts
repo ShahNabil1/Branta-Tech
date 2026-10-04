@@ -15,6 +15,7 @@ import { Route as AiStudioRouteImport } from './routes/ai-studio'
 import { Route as ControlCentreRouteImport } from './routes/control-centre'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as CareersIndexRouteImport } from './routes/careers.index'
+import { Route as CareersSlugRouteImport } from './routes/careers.$slug'
 import { Route as ControlCentreIndexRouteImport } from './routes/control-centre.index'
 import { Route as ControlCentreAdminRouteImport } from './routes/control-centre._admin'
 import { Route as ControlCentreForgotPasswordRouteImport } from './routes/control-centre.forgot-password'
@@ -68,6 +69,11 @@ const TeamRoute = TeamRouteImport.update({
 const CareersIndexRoute = CareersIndexRouteImport.update({
   id: '/careers/',
   path: '/careers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersSlugRoute = CareersSlugRouteImport.update({
+  id: '/careers/$slug',
+  path: '/careers/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ControlCentreIndexRoute = ControlCentreIndexRouteImport.update({
@@ -211,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/ai-studio': typeof AiStudioRoute
   '/control-centre': typeof ControlCentreRouteWithChildren
   '/team': typeof TeamRoute
+  '/careers/$slug': typeof CareersSlugRoute
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
   '/insights/$slug': typeof InsightsSlugRoute
@@ -241,6 +248,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/ai-studio': typeof AiStudioRoute
   '/team': typeof TeamRoute
+  '/careers/$slug': typeof CareersSlugRoute
   '/control-centre': typeof ControlCentreIndexRoute
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
@@ -273,6 +281,7 @@ export interface FileRoutesById {
   '/ai-studio': typeof AiStudioRoute
   '/control-centre': typeof ControlCentreRouteWithChildren
   '/team': typeof TeamRoute
+  '/careers/$slug': typeof CareersSlugRoute
   '/control-centre/_admin': typeof ControlCentreAdminRouteWithChildren
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
@@ -307,6 +316,7 @@ export interface FileRouteTypes {
     | '/ai-studio'
     | '/control-centre'
     | '/team'
+    | '/careers/$slug'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
     | '/insights/$slug'
@@ -337,6 +347,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/ai-studio'
     | '/team'
+    | '/careers/$slug'
     | '/control-centre'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
@@ -368,6 +379,7 @@ export interface FileRouteTypes {
     | '/ai-studio'
     | '/control-centre'
     | '/team'
+    | '/careers/$slug'
     | '/control-centre/_admin'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
@@ -401,6 +413,7 @@ export interface RootRouteChildren {
   AiStudioRoute: typeof AiStudioRoute
   ControlCentreRoute: typeof ControlCentreRouteWithChildren
   TeamRoute: typeof TeamRoute
+  CareersSlugRoute: typeof CareersSlugRoute
   InsightsSlugRoute: typeof InsightsSlugRoute
   ServicesSlugRoute: typeof ServicesSlugRoute
   WorkSlugRoute: typeof WorkSlugRoute
@@ -452,6 +465,13 @@ declare module '@tanstack/react-router' {
       path: '/careers'
       fullPath: '/careers/'
       preLoaderRoute: typeof CareersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/$slug': {
+      id: '/careers/$slug'
+      path: '/careers/$slug'
+      fullPath: '/careers/$slug'
+      preLoaderRoute: typeof CareersSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/control-centre/': {
@@ -691,6 +711,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiStudioRoute: AiStudioRoute,
   ControlCentreRoute: ControlCentreRouteWithChildren,
   TeamRoute: TeamRoute,
+  CareersSlugRoute: CareersSlugRoute,
   InsightsSlugRoute: InsightsSlugRoute,
   ServicesSlugRoute: ServicesSlugRoute,
   WorkSlugRoute: WorkSlugRoute,

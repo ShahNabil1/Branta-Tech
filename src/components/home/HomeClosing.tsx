@@ -1,3 +1,4 @@
+import { PostTile } from "@/components/content/PostCards";
 import { useEffect, useRef, useState } from "react";
 import { DarkSection, Eyebrow, Section } from "@/components/layout/primitives";
 import { HeroAction } from "@/components/home/Hero";
@@ -90,9 +91,13 @@ export function InsightsTeaser({ content }: P<"insights">) {
           <div className="mt-6"><HeroAction label={content.ctaLabel} url={content.ctaUrl} variant="secondary" /></div>
         </div>
       </div>
-      <div className="mt-12 border-t border-border pt-8">
-        <p className="text-small text-muted-foreground">The first articles from the Branta team are on the way.</p>
-      </div>
+      {content.posts.length ? (
+        <div className="mt-12 grid gap-10 md:grid-cols-3">{content.posts.map((p) => <PostTile key={p.slug} p={p} />)}</div>
+      ) : (
+        <div className="mt-12 border-t border-border pt-8">
+          <p className="text-small text-muted-foreground">The first articles from the Branta team are on the way.</p>
+        </div>
+      )}
     </DarkSection>
   );
 }
