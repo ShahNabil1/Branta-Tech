@@ -45,6 +45,7 @@ import { Route as ControlCentreAdminTeamRouteImport } from './routes/control-cen
 import { Route as ControlCentreAdminInsightsIndexRouteImport } from './routes/control-centre._admin.insights.index'
 import { Route as ControlCentreAdminInsightsIdRouteImport } from './routes/control-centre._admin.insights.$id'
 import { Route as ControlCentreAdminInsightsAuthorsRouteImport } from './routes/control-centre._admin.insights.authors'
+import { Route as ControlCentreAdminLeadsIndexRouteImport } from './routes/control-centre._admin.leads.index'
 import { Route as ControlCentreAdminPortfolioIndexRouteImport } from './routes/control-centre._admin.portfolio.index'
 import { Route as ControlCentreAdminPortfolioCategoriesRouteImport } from './routes/control-centre._admin.portfolio.categories'
 import { Route as ControlCentreAdminServicesIndexRouteImport } from './routes/control-centre._admin.services.index'
@@ -247,6 +248,12 @@ const ControlCentreAdminInsightsAuthorsRoute =
     path: '/insights/authors',
     getParentRoute: () => ControlCentreAdminRoute,
   } as any)
+const ControlCentreAdminLeadsIndexRoute =
+  ControlCentreAdminLeadsIndexRouteImport.update({
+    id: '/leads/',
+    path: '/leads/',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
 const ControlCentreAdminPortfolioIndexRoute =
   ControlCentreAdminPortfolioIndexRouteImport.update({
     id: '/portfolio/',
@@ -379,6 +386,7 @@ export interface FileRoutesByFullPath {
   '/control-centre/settings/site': typeof ControlCentreAdminSettingsSiteRoute
   '/control-centre/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
   '/control-centre/insights/': typeof ControlCentreAdminInsightsIndexRoute
+  '/control-centre/leads/': typeof ControlCentreAdminLeadsIndexRoute
   '/control-centre/portfolio/': typeof ControlCentreAdminPortfolioIndexRoute
   '/control-centre/services/': typeof ControlCentreAdminServicesIndexRoute
   '/control-centre/careers/applications/$id': typeof ControlCentreAdminCareersApplicationsIdRoute
@@ -429,6 +437,7 @@ export interface FileRoutesByTo {
   '/control-centre/settings/site': typeof ControlCentreAdminSettingsSiteRoute
   '/control-centre/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
   '/control-centre/insights': typeof ControlCentreAdminInsightsIndexRoute
+  '/control-centre/leads': typeof ControlCentreAdminLeadsIndexRoute
   '/control-centre/portfolio': typeof ControlCentreAdminPortfolioIndexRoute
   '/control-centre/services': typeof ControlCentreAdminServicesIndexRoute
   '/control-centre/careers/applications/$id': typeof ControlCentreAdminCareersApplicationsIdRoute
@@ -483,6 +492,7 @@ export interface FileRoutesById {
   '/control-centre/_admin/settings/site': typeof ControlCentreAdminSettingsSiteRoute
   '/control-centre/_admin/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
   '/control-centre/_admin/insights/': typeof ControlCentreAdminInsightsIndexRoute
+  '/control-centre/_admin/leads/': typeof ControlCentreAdminLeadsIndexRoute
   '/control-centre/_admin/portfolio/': typeof ControlCentreAdminPortfolioIndexRoute
   '/control-centre/_admin/services/': typeof ControlCentreAdminServicesIndexRoute
   '/control-centre/_admin/careers/applications/$id': typeof ControlCentreAdminCareersApplicationsIdRoute
@@ -537,6 +547,7 @@ export interface FileRouteTypes {
     | '/control-centre/settings/site'
     | '/control-centre/website/navigation'
     | '/control-centre/insights/'
+    | '/control-centre/leads/'
     | '/control-centre/portfolio/'
     | '/control-centre/services/'
     | '/control-centre/careers/applications/$id'
@@ -587,6 +598,7 @@ export interface FileRouteTypes {
     | '/control-centre/settings/site'
     | '/control-centre/website/navigation'
     | '/control-centre/insights'
+    | '/control-centre/leads'
     | '/control-centre/portfolio'
     | '/control-centre/services'
     | '/control-centre/careers/applications/$id'
@@ -640,6 +652,7 @@ export interface FileRouteTypes {
     | '/control-centre/_admin/settings/site'
     | '/control-centre/_admin/website/navigation'
     | '/control-centre/_admin/insights/'
+    | '/control-centre/_admin/leads/'
     | '/control-centre/_admin/portfolio/'
     | '/control-centre/_admin/services/'
     | '/control-centre/_admin/careers/applications/$id'
@@ -929,6 +942,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlCentreAdminInsightsAuthorsRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
+    '/control-centre/_admin/leads/': {
+      id: '/control-centre/_admin/leads/'
+      path: '/leads'
+      fullPath: '/control-centre/leads/'
+      preLoaderRoute: typeof ControlCentreAdminLeadsIndexRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
     '/control-centre/_admin/portfolio/': {
       id: '/control-centre/_admin/portfolio/'
       path: '/portfolio'
@@ -1069,6 +1089,7 @@ interface ControlCentreAdminRouteChildren {
   ControlCentreAdminSettingsSiteRoute: typeof ControlCentreAdminSettingsSiteRoute
   ControlCentreAdminWebsiteNavigationRoute: typeof ControlCentreAdminWebsiteNavigationRoute
   ControlCentreAdminInsightsIndexRoute: typeof ControlCentreAdminInsightsIndexRoute
+  ControlCentreAdminLeadsIndexRoute: typeof ControlCentreAdminLeadsIndexRoute
   ControlCentreAdminPortfolioIndexRoute: typeof ControlCentreAdminPortfolioIndexRoute
   ControlCentreAdminServicesIndexRoute: typeof ControlCentreAdminServicesIndexRoute
   ControlCentreAdminCareersApplicationsIdRoute: typeof ControlCentreAdminCareersApplicationsIdRoute
@@ -1097,6 +1118,7 @@ const ControlCentreAdminRouteChildren: ControlCentreAdminRouteChildren = {
   ControlCentreAdminWebsiteNavigationRoute:
     ControlCentreAdminWebsiteNavigationRoute,
   ControlCentreAdminInsightsIndexRoute: ControlCentreAdminInsightsIndexRoute,
+  ControlCentreAdminLeadsIndexRoute: ControlCentreAdminLeadsIndexRoute,
   ControlCentreAdminPortfolioIndexRoute: ControlCentreAdminPortfolioIndexRoute,
   ControlCentreAdminServicesIndexRoute: ControlCentreAdminServicesIndexRoute,
   ControlCentreAdminCareersApplicationsIdRoute:
