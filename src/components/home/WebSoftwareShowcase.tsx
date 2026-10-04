@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import { DarkSection, Eyebrow, SiteContainer } from "@/components/layout/primitives";
@@ -81,7 +82,7 @@ function WorkCard({ w, i }: { w: WebWork; i: number }) {
           ? <img src={w.image} alt={w.alt} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover object-top" />
           : <div className="text-caption flex h-full items-center justify-center text-muted-foreground">Media coming soon</div>}
       </div>
-      <h4 className="text-h4 mt-4 text-foreground">{w.title}</h4>
+      <h4 className="text-h4 mt-4 text-foreground"><Link to="/work/$slug" params={{ slug: w.slug }} className="hover:text-accent focus-visible:outline-2 focus-visible:outline-accent">{w.title} <span aria-hidden className="text-accent">→</span></Link></h4>
       {(w.client || w.services.length > 0) && <p className="text-caption mt-1 text-muted-foreground">{[w.client, w.services.join(" · ")].filter(Boolean).join(" · ")}</p>}
     </article>
   );

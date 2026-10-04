@@ -15,6 +15,8 @@ import { Route as ControlCentreIndexRouteImport } from './routes/control-centre.
 import { Route as ControlCentreAdminRouteImport } from './routes/control-centre._admin'
 import { Route as ControlCentreForgotPasswordRouteImport } from './routes/control-centre.forgot-password'
 import { Route as ControlCentreResetPasswordRouteImport } from './routes/control-centre.reset-password'
+import { Route as WorkIndexRouteImport } from './routes/work.index'
+import { Route as WorkSlugRouteImport } from './routes/work.$slug'
 import { Route as ControlCentreAdminAdminUsersRouteImport } from './routes/control-centre._admin.admin-users'
 import { Route as ControlCentreAdminDashboardRouteImport } from './routes/control-centre._admin.dashboard'
 import { Route as ControlCentreAdminMediaRouteImport } from './routes/control-centre._admin.media'
@@ -61,6 +63,16 @@ const ControlCentreResetPasswordRoute =
     path: '/reset-password',
     getParentRoute: () => ControlCentreRoute,
   } as any)
+const WorkIndexRoute = WorkIndexRouteImport.update({
+  id: '/work/',
+  path: '/work/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkSlugRoute = WorkSlugRouteImport.update({
+  id: '/work/$slug',
+  path: '/work/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ControlCentreAdminAdminUsersRoute =
   ControlCentreAdminAdminUsersRouteImport.update({
     id: '/admin-users',
@@ -150,7 +162,9 @@ export interface FileRoutesByFullPath {
   '/control-centre': typeof ControlCentreRouteWithChildren
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
+  '/work/$slug': typeof WorkSlugRoute
   '/control-centre/': typeof ControlCentreIndexRoute
+  '/work/': typeof WorkIndexRoute
   '/control-centre/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/media': typeof ControlCentreAdminMediaRoute
@@ -171,6 +185,8 @@ export interface FileRoutesByTo {
   '/control-centre': typeof ControlCentreIndexRoute
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
+  '/work/$slug': typeof WorkSlugRoute
+  '/work': typeof WorkIndexRoute
   '/control-centre/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/media': typeof ControlCentreAdminMediaRoute
@@ -193,7 +209,9 @@ export interface FileRoutesById {
   '/control-centre/_admin': typeof ControlCentreAdminRouteWithChildren
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
+  '/work/$slug': typeof WorkSlugRoute
   '/control-centre/': typeof ControlCentreIndexRoute
+  '/work/': typeof WorkIndexRoute
   '/control-centre/_admin/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/_admin/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/_admin/media': typeof ControlCentreAdminMediaRoute
@@ -216,7 +234,9 @@ export interface FileRouteTypes {
     | '/control-centre'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
+    | '/work/$slug'
     | '/control-centre/'
+    | '/work/'
     | '/control-centre/admin-users'
     | '/control-centre/dashboard'
     | '/control-centre/media'
@@ -237,6 +257,8 @@ export interface FileRouteTypes {
     | '/control-centre'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
+    | '/work/$slug'
+    | '/work'
     | '/control-centre/admin-users'
     | '/control-centre/dashboard'
     | '/control-centre/media'
@@ -258,7 +280,9 @@ export interface FileRouteTypes {
     | '/control-centre/_admin'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
+    | '/work/$slug'
     | '/control-centre/'
+    | '/work/'
     | '/control-centre/_admin/admin-users'
     | '/control-centre/_admin/dashboard'
     | '/control-centre/_admin/media'
@@ -278,6 +302,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ControlCentreRoute: typeof ControlCentreRouteWithChildren
+  WorkSlugRoute: typeof WorkSlugRoute
+  WorkIndexRoute: typeof WorkIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -323,6 +349,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/control-centre/reset-password'
       preLoaderRoute: typeof ControlCentreResetPasswordRouteImport
       parentRoute: typeof ControlCentreRoute
+    }
+    '/work/': {
+      id: '/work/'
+      path: '/work'
+      fullPath: '/work/'
+      preLoaderRoute: typeof WorkIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/work/$slug': {
+      id: '/work/$slug'
+      path: '/work/$slug'
+      fullPath: '/work/$slug'
+      preLoaderRoute: typeof WorkSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/control-centre/_admin/admin-users': {
       id: '/control-centre/_admin/admin-users'
@@ -488,6 +528,8 @@ const ControlCentreRouteWithChildren = ControlCentreRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ControlCentreRoute: ControlCentreRouteWithChildren,
+  WorkSlugRoute: WorkSlugRoute,
+  WorkIndexRoute: WorkIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

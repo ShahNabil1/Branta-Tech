@@ -4,7 +4,7 @@ import { queryOptions } from "@tanstack/react-query";
 import type { Database } from "@/integrations/supabase/types";
 import { vimeoId } from "./hero";
 
-export type WebWork = { id: string; title: string; client: string | null; image: string | null; alt: string; services: string[] };
+export type WebWork = { id: string; slug: string; title: string; client: string | null; image: string | null; alt: string; services: string[] };
 export type WebSoftware = {
   eyebrow: string; title: string; body: string; statement: string; ctaLabel: string; ctaUrl: string;
   promoVimeo: string | null; promoPoster: string | null; capabilities: string[]; workHeading: string; work: WebWork[];
@@ -56,7 +56,7 @@ export const getWebSoftware = createServerFn({ method: "GET" }).handler(async ()
 
     let work: WebWork[] = [];
     if (ids.length) {
-      const { data: projects } = await sb.from("portfolio_projects").select("id,title,client_name,cover_type,cover_url,sort_order")
+      const { data: projects } = await sb.from("portfolio_projects").select("id,slug,title,client_name,cover_type,cover_url,sort_order")
         .in("id", ids).eq("status", "published").order("sort_order");
       const pids = (projects ?? []).map((p) => p.id);
       const media = pids.length ? (await sb.from("portfolio_media").select("project_id,media_type,url,poster_url,alt_text,sort_order").in("project_id", pids).order("sort_order")).data ?? [] : [];
@@ -66,7 +66,7 @@ export const getWebSoftware = createServerFn({ method: "GET" }).handler(async ()
           const pm = media.filter((m) => m.project_id === p.id);
           const img = p.cover_type === "image" && p.cover_url ? p.cover_url : pm.find((m) => m.media_type === "image")?.url ?? pm[0]?.poster_url ?? null;
           return {
-            id: p.id, title: p.title, client: p.client_name, image: img, alt: pm[0]?.alt_text || p.title,
+            id: p.id, slug: p.slug, title: p.title, client: p.client_name, image: img, alt: pm[0]?.alt_text || p.title,
             services: links.filter((l) => l.project_id === p.id).map((l) => svcNames.get(l.service_id)).filter((x): x is string => !!x).slice(0, 3),
           };
         });

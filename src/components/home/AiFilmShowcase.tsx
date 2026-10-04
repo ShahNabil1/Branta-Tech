@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DarkSection, Eyebrow, SiteContainer } from "@/components/layout/primitives";
@@ -46,7 +47,9 @@ function FilmCard({ item, index, playing, setPlaying }: { item: FilmItem; index:
           {playing && <span aria-hidden className="absolute right-3 top-3 z-10 size-1.5 rounded-full bg-accent" />}
         </div>
         <div className="mt-3">
-          <p className="text-small font-medium text-foreground">{item.title}</p>
+          <p className="text-small font-medium text-foreground">
+            <Link to="/work/$slug" params={{ slug: item.slug }} draggable={false} className="hover:text-accent focus-visible:outline-2 focus-visible:outline-accent">{item.title}<span aria-hidden className="ml-1 text-accent opacity-0 transition-opacity group-hover:opacity-100">→</span></Link>
+          </p>
           {meta && <p className="text-caption mt-0.5 text-muted-foreground">{meta}</p>}
         </div>
       </div>
