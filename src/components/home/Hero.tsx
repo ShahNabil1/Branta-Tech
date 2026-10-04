@@ -68,7 +68,7 @@ function Placeholder() {
   return <div aria-hidden className="absolute inset-0 bg-muted" />;
 }
 
-function SafeImg({ src, alt, priority, className, onFail }: { src: string; alt: string; priority?: boolean; className?: string; onFail?: () => void }) {
+function SafeImg({ src, alt, priority, className, onFail }: { src: string; alt: string; priority?: boolean | undefined; className?: string | undefined; onFail?: (() => void) | undefined }) {
   const [ok, setOk] = useState(true);
   const [loaded, setLoaded] = useState(false);
   const ref = useRef<HTMLImageElement>(null);
@@ -93,7 +93,7 @@ function SafeImg({ src, alt, priority, className, onFail }: { src: string; alt: 
  * One tile for any media type. Slot (ratio) comes from the role; type only changes what renders inside.
  * Videos are poster-first: player mounts only when allowed, fades in once actually playing, pauses off-screen.
  */
-function MediaTile({ item, ratio, priority, className }: { item: HeroMediaItem; ratio: string; priority?: boolean; className?: string }) {
+function MediaTile({ item, ratio, priority, className }: { item: HeroMediaItem; ratio: string; priority?: boolean | undefined; className?: string | undefined }) {
   const wrap = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
   const vid = useRef<HTMLVideoElement>(null);
