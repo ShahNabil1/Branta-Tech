@@ -12,6 +12,8 @@ import { featuredWorkQuery } from "@/lib/featured-work.functions";
 import { FeaturedWork } from "@/components/home/FeaturedWork";
 import { aiFilmQuery } from "@/lib/ai-film.functions";
 import { AiFilmShowcase } from "@/components/home/AiFilmShowcase";
+import { aiImageQuery } from "@/lib/ai-image.functions";
+import { AiImageShowcase } from "@/components/home/AiImageShowcase";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,6 +33,7 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(capabilityExplorerQuery),
       context.queryClient.ensureQueryData(featuredWorkQuery),
       context.queryClient.ensureQueryData(aiFilmQuery),
+      context.queryClient.ensureQueryData(aiImageQuery),
     ]),
   errorComponent: () => <p className="p-8">Something went wrong loading this page.</p>,
   notFoundComponent: () => <p className="p-8">Not found.</p>,
@@ -42,6 +45,7 @@ function Index() {
   const { data: cap } = useSuspenseQuery(capabilityExplorerQuery);
   const { data: work } = useSuspenseQuery(featuredWorkQuery);
   const { data: film } = useSuspenseQuery(aiFilmQuery);
+  const { data: image } = useSuspenseQuery(aiImageQuery);
   const explorer = capExplorerFrom(cap.section, cap.services);
   return (
     <SiteShell>
@@ -49,6 +53,7 @@ function Index() {
       {explorer && <CapabilityExplorer content={explorer} />}
       {work && <FeaturedWork content={work} />}
       {film && <AiFilmShowcase content={film} />}
+      {image && <AiImageShowcase content={image} />}
     </SiteShell>
   );
 }
