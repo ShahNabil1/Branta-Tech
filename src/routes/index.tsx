@@ -16,6 +16,8 @@ import { aiImageQuery } from "@/lib/ai-image.functions";
 import { AiImageShowcase } from "@/components/home/AiImageShowcase";
 import { webSoftwareQuery } from "@/lib/web-software.functions";
 import { WebSoftwareShowcase } from "@/components/home/WebSoftwareShowcase";
+import { automationQuery } from "@/lib/automation.functions";
+import { AutomationShowcase } from "@/components/home/AutomationShowcase";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -37,6 +39,7 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(aiFilmQuery),
       context.queryClient.ensureQueryData(aiImageQuery),
       context.queryClient.ensureQueryData(webSoftwareQuery),
+      context.queryClient.ensureQueryData(automationQuery),
     ]),
   errorComponent: () => <p className="p-8">Something went wrong loading this page.</p>,
   notFoundComponent: () => <p className="p-8">Not found.</p>,
@@ -50,6 +53,7 @@ function Index() {
   const { data: film } = useSuspenseQuery(aiFilmQuery);
   const { data: image } = useSuspenseQuery(aiImageQuery);
   const { data: web } = useSuspenseQuery(webSoftwareQuery);
+  const { data: auto } = useSuspenseQuery(automationQuery);
   const explorer = capExplorerFrom(cap.section, cap.services);
   return (
     <SiteShell>
@@ -59,6 +63,7 @@ function Index() {
       {film && <AiFilmShowcase content={film} />}
       {image && <AiImageShowcase content={image} />}
       {web && <WebSoftwareShowcase content={web} />}
+      {auto && <AutomationShowcase content={auto} />}
     </SiteShell>
   );
 }
