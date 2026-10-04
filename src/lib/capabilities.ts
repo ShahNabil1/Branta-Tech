@@ -68,7 +68,7 @@ export function parseCapConfig(raw: unknown): CapConfig {
   return { default_key: str(c["default_key"]), items };
 }
 
-export type CapSectionRow = { eyebrow: string | null; title: string | null; body: string | null; config: unknown };
+export type CapSectionRow = { eyebrow: string | null; title: string | null; body: string | null; config: import("@/integrations/supabase/types").Json };
 
 /** Public view: enabled items only; related names come from real services when linked, else config labels. */
 export function capExplorerFrom(s: CapSectionRow | null, services: CapService[]): CapExplorerContent | null {
