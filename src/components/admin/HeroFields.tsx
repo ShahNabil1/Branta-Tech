@@ -124,7 +124,7 @@ export function HeroFields({ config, onChange }: { config: string; onChange: (js
                     <div className="flex items-end"><UploadImageButton label="Upload poster" onUploaded={(url) => setItem(i, { poster_url: url })} /></div>
                     <CheckboxInput label="Autoplay" hint="Always muted when on." checked={m.autoplay} onChange={(v) => setItem(i, { autoplay: v, ...(v ? { muted: true } : {}) })} />
                     <CheckboxInput label="Loop" checked={m.loop} onChange={(v) => setItem(i, { loop: v })} />
-                    <CheckboxInput label="Muted" hint={m.autoplay ? "Required for autoplay." : undefined} checked={m.autoplay || m.muted} onChange={(v) => !m.autoplay && setItem(i, { muted: v })} />
+                    <CheckboxInput label="Muted" hint={m.autoplay ? "Required for autoplay." : ""} checked={m.autoplay || m.muted} onChange={(v) => !m.autoplay && setItem(i, { muted: v })} />
                   </>
                 )}
                 <TextInput label="Label" value={m.label} onChange={(e) => setItem(i, { label: e.target.value })} />
