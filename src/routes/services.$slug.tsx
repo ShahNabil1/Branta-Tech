@@ -24,7 +24,7 @@ export const Route = createFileRoute("/services/$slug")({
     if (!loaderData) return { meta: [{ title: "Service not found | Branta Tech" }, { name: "robots", content: "noindex" }] };
     const s = loaderData.seo;
     return {
-      links: canonical(`/services/${params.slug}`, (s as { canonical?: string | null }).canonical),
+      links: canonical(`/services/${params.slug}`, s.canonical),
       meta: [
         { title: s.title },
         ...(s.description ? [{ name: "description", content: s.description }, { property: "og:description", content: s.description }] : []),
@@ -34,7 +34,6 @@ export const Route = createFileRoute("/services/$slug")({
         ...(s.image ? [{ property: "og:image", content: s.image }, { name: "twitter:image", content: s.image }] : []),
         ...(s.noindex ? [{ name: "robots", content: "noindex" }] : []),
       ],
-      links: s.canonical ? [{ rel: "canonical", href: s.canonical }] : [],
     };
   },
   errorComponent: () => <p className="p-8">Something went wrong loading this service.</p>,
