@@ -12,6 +12,7 @@ import {
 import { MaskReveal, Reveal } from "@/components/motion/Reveal";
 import { Button, TextLink } from "@/components/ui/brand-button";
 import { SiteShell } from "@/components/layout/SiteShell";
+import { siteChromeQuery } from "@/lib/navigation";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,6 +25,9 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(siteChromeQuery),
+  errorComponent: () => <p className="p-8">Something went wrong loading this page.</p>,
+  notFoundComponent: () => <p className="p-8">Not found.</p>,
   component: Index,
 });
 

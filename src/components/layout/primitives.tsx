@@ -117,7 +117,7 @@ export function PageHero({
   children?: ReactNode;
 }) {
   return (
-    <section className="pt-32 pb-[var(--section-y)] md:pt-44">
+    <section className="pt-20 pb-[var(--section-y)] md:pt-28">
       <SiteContainer>
         {eyebrow && <Eyebrow className="mb-8">{eyebrow}</Eyebrow>}
         <DisplayHeading as="h1" size="display-xl" className="max-w-[14ch]">
