@@ -662,6 +662,7 @@ export type Database = {
           client_name: string | null
           cover_position: string
           cover_poster_url: string | null
+          cover_position: string
           cover_type: string | null
           cover_url: string | null
           created_at: string
@@ -692,6 +693,7 @@ export type Database = {
           client_name?: string | null
           cover_position?: string
           cover_poster_url?: string | null
+          cover_position?: string
           cover_type?: string | null
           cover_url?: string | null
           created_at?: string
@@ -722,6 +724,7 @@ export type Database = {
           client_name?: string | null
           cover_position?: string
           cover_poster_url?: string | null
+          cover_position?: string
           cover_type?: string | null
           cover_url?: string | null
           created_at?: string
