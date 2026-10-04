@@ -46,7 +46,7 @@ export function HomeClosingFields({ type, config, onChange }: Props) {
     const set = (n: ClientLogo[]) => write({ logos: n.map((l, i) => ({ ...l, sort_order: i })) });
     const upd = (i: number, p: Partial<ClientLogo>) => set(logos.map((l, j) => (j === i ? { ...l, ...p } : l)));
     return box("Client logos", <>
-      <p className="text-caption text-muted-foreground">Real clients only. The section stays hidden on the website until at least one enabled logo with a client name and an https logo URL exists.</p>
+      <p className="text-caption text-muted-foreground">Real clients only. These logos are shown in the Trust & Credibility band right after the Hero (not repeated later on the homepage). The band stays hidden on the website until at least one enabled logo with a client name and an https logo URL exists.</p>
       {logos.length === 0 && <p className="text-small rounded-sm border border-dashed border-border p-4 text-muted-foreground">No logos yet. Upload logos in Media, then add them here.</p>}
       {logos.map((l, i) => (
         <div key={i} className="grid gap-2 rounded-sm border border-border p-3 md:grid-cols-2">

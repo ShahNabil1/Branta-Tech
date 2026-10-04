@@ -65,9 +65,9 @@ export function TrustProof({ content }: { content: Content }) {
             {stats.length > 0 && (
               <dl className={cn("grid grid-cols-2 gap-x-6 gap-y-8 pt-10", fundedBy && "md:col-span-8", stats.length > 2 && "sm:grid-cols-3")}>
                 {stats.map((s, i) => (
-                  <div key={i} className="min-w-0">
-                    <dd className="text-display font-semibold leading-none tracking-tight">{s.value}</dd>
+                  <div key={i} className="flex min-w-0 flex-col-reverse">
                     <dt className="text-eyebrow mt-3 text-muted-foreground">{s.label}</dt>
+                    <dd className="text-display font-semibold leading-none tracking-tight">{s.value}</dd>
                   </div>
                 ))}
               </dl>
