@@ -3,7 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { SiteShell } from "@/components/layout/SiteShell";
 import { Eyebrow, Section } from "@/components/layout/primitives";
 import { HeroAction } from "@/components/home/Hero";
-import { DepartmentTeams, LeadershipHierarchy, TeamDirectory, groupDepartments, leadersOf } from "@/components/content/TeamStructure";
+import { OrgChart } from "@/components/content/TeamStructure";
 import { siteChromeQuery } from "@/lib/navigation";
 import { companyPageQuery, teamQuery } from "@/lib/company.functions";
 import { pageMeta, canonical } from "@/lib/seo";
@@ -27,51 +27,33 @@ function TeamPage() {
   const { data: page } = useSuspenseQuery(companyPageQuery("team"));
   const { data: team } = useSuspenseQuery(teamQuery);
   const h = page.hero;
-  const { top, leads } = leadersOf(team);
-  const depts = groupDepartments(team);
   return (
     <SiteShell>
-      <Section tone="warm" aria-labelledby="team-title">
-        <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
-          <div className="min-w-0 lg:col-span-8">
-            <Eyebrow>{h?.eyebrow || "PEOPLE BEHIND BRANTA"}</Eyebrow>
-            <h1 id="team-title" className="text-display-xl mt-6 max-w-[14ch] break-words text-foreground">{h?.title || "Meet the Team Behind the Work."}</h1>
-          </div>
-          <div className="min-w-0 lg:col-span-4">
-            <p className="text-body-lg text-muted-foreground">{h?.body || DESC}</p>
-            <p className="text-caption mt-6 text-muted-foreground">Creative. AI. Technology.</p>
-          </div>
+      <Section tone="warm" aria-labelledby="team-title" className="py-20 md:py-24">
+        <div className="mx-auto max-w-3xl text-center">
+          <Eyebrow>{h?.eyebrow || "PEOPLE BEHIND BRANTA"}</Eyebrow>
+          <h1 id="team-title" className="mt-5 text-[2.5rem] font-medium leading-[1.05] tracking-tight text-foreground md:text-[3.25rem] lg:text-[3.75rem]">{h?.title || "Meet the Team Behind the Work."}</h1>
+          <p className="mx-auto mt-5 max-w-xl text-[1rem] text-muted-foreground md:text-[1.0625rem]">{h?.body || DESC}</p>
+          <p className="text-caption mt-4 text-muted-foreground">Creative. AI. Technology.</p>
         </div>
-        {h?.media && <img src={h.media} alt="The Branta team" className="mt-14 aspect-[16/9] w-full rounded-[6px] object-cover" />}
+        {h?.media && <img src={h.media} alt="The Branta team" className="mx-auto mt-12 aspect-[16/9] w-full max-w-5xl rounded-[8px] object-cover" />}
       </Section>
 
-      {(top.length > 0 || leads.length > 0) && (
-        <Section tone="warm" aria-labelledby="lead-title" className="border-t border-border">
-          <Eyebrow>LEADERSHIP</Eyebrow>
-          <h2 id="lead-title" className="text-h1 mt-4 mb-14 text-foreground">Who Leads the Work.</h2>
-          <LeadershipHierarchy members={team} />
-        </Section>
-      )}
-
-      {depts.length > 0 && (
-        <Section tone="warm" aria-labelledby="dept-title" className="border-t border-border">
-          <Eyebrow>TEAMS</Eyebrow>
-          <h2 id="dept-title" className="text-h1 mt-4 mb-14 text-foreground">How We're Organised.</h2>
-          <DepartmentTeams departments={depts} />
-        </Section>
-      )}
-
-      <Section tone="warm" aria-labelledby="people-title" className="border-t border-border">
-        <Eyebrow>OUR PEOPLE</Eyebrow>
-        <h2 id="people-title" className="text-h1 mt-4 mb-14 text-foreground">The People Doing the Work.</h2>
-        {team.length ? <TeamDirectory members={team} departments={depts.map((d) => d.name)} /> : <p className="text-body text-muted-foreground">Team profiles are coming soon.</p>}
+      <Section tone="warm" aria-labelledby="org-title" className="border-t border-border py-20 md:py-24">
+        <div className="mx-auto max-w-[1400px]">
+          <div className="mb-12 text-center">
+            <Eyebrow>HOW WE'RE ORGANISED</Eyebrow>
+            <h2 id="org-title" className="mt-4 text-[2rem] font-medium leading-tight tracking-tight text-foreground md:text-[2.5rem]">Our Structure.</h2>
+          </div>
+          {team.length ? <OrgChart team={team} /> : <p className="text-body text-center text-muted-foreground">Team profiles are coming soon.</p>}
+        </div>
       </Section>
 
-      <Section tone="dark" aria-labelledby="join-title">
+      <Section tone="dark" aria-labelledby="join-title" className="py-20 md:py-24">
         <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
           <div className="min-w-0 lg:col-span-7">
             <Eyebrow>JOIN BRANTA</Eyebrow>
-            <h2 id="join-title" className="text-display mt-6 max-w-[12ch] text-foreground">Want to Build With Us?</h2>
+            <h2 id="join-title" className="mt-5 max-w-[14ch] text-[2.25rem] font-medium leading-[1.05] tracking-tight text-foreground md:text-[3rem] lg:text-[3.5rem]">Want to Build With Us?</h2>
           </div>
           <div className="min-w-0 lg:col-span-5">
             <p className="text-body-lg text-muted-foreground">Explore open roles and opportunities across creative, AI and technology.</p>

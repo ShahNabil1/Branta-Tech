@@ -99,34 +99,31 @@ function BranchBlock({ b }: { b: Branch }) {
   );
 }
 
-/** Horizontal row of children joined by a top rail (desktop); stacked with a left rail (mobile). */
-function Row({ children, count, label }: { children: React.ReactNode; count: number; label: string }) {
+/** Classic org-chart rail: each column draws its half of the top connector so lines meet exactly (md+). Mobile stacks with a centre line. */
+function Col({ children, i, n }: { children: React.ReactNode; i: number; n: number }) {
   return (
-    <div className="relative">
-      <VLine />
-      {count > 1 && <span aria-hidden className="absolute left-[var(--rail-inset)] right-[var(--rail-inset)] top-6 hidden h-px bg-border md:block" />}
-      <ul aria-label={label} className="flex flex-col items-center gap-6 md:flex-row md:flex-wrap md:items-start md:justify-center md:gap-5">
-        {children}
-      </ul>
-    </div>
+    <li className="relative flex flex-col items-center md:px-2.5">
+      {n > 1 && <span aria-hidden className={cn("absolute top-0 hidden h-px bg-border md:block", i === 0 ? "left-1/2 right-0" : i === n - 1 ? "left-0 right-1/2" : "inset-x-0")} />}
+      <span aria-hidden className="block h-6 w-px bg-border" />
+      <span aria-hidden className="block size-1.5 rounded-full bg-accent" />
+      {children}
+    </li>
   );
 }
 
 function ExecColumn({ e }: { e: ExecNode }) {
   return (
-    <li className="flex flex-col items-center">
-      <span aria-hidden className="hidden h-6 w-px bg-border md:block" />
-      <span aria-hidden className="mb-0 block size-1.5 rounded-full bg-accent" />
+    <>
       <PersonCard m={e.lead} tier="exec" />
       {e.branches.length > 0 && (
         <>
           <VLine />
-          <ul aria-label={`Reporting to ${e.lead.name}`} className="flex flex-col items-center gap-5 sm:flex-row sm:items-start sm:justify-center">
+          <ul aria-label={`Reporting to ${e.lead.name}`} className="flex flex-col items-center gap-5 lg:flex-row lg:items-start lg:justify-center">
             {e.branches.map((b) => <BranchBlock key={b.dept} b={b} />)}
           </ul>
         </>
       )}
-    </li>
+    </>
   );
 }
 
@@ -134,25 +131,22 @@ export function OrgChart({ team }: { team: TeamMember[] }) {
   const org = buildOrg(team);
   const cols = org.execs.length + org.rootBranches.length;
   return (
-    <div className="flex flex-col items-center" style={{ ["--rail-inset" as string]: cols > 1 ? `calc(50% / ${cols})` : "50%" }}>
+    <div className="flex flex-col items-center">
       {org.roots.length > 0 && (
         <ul aria-label="Top leadership" className="flex flex-col items-center gap-4 sm:flex-row">
           {org.roots.map((r) => <li key={r.id}><PersonCard m={r} tier="root" /></li>)}
         </ul>
       )}
       {cols > 0 && (
-        org.roots.length ? (
-          <div className="w-full"><Row count={cols} label="Leadership and teams">
-            {org.execs.map((e) => <ExecColumn key={e.lead.id} e={e} />)}
-            {org.rootBranches.map((b) => (
-              <li key={b.dept} className="flex flex-col items-center"><span aria-hidden className="hidden h-6 w-px bg-border md:block" /><span aria-hidden className="block size-1.5 rounded-full bg-accent" /><ul><BranchBlock b={b} /></ul></li>
-            ))}
-          </Row></div>
-        ) : (
-          <ul aria-label="Leadership and teams" className="flex flex-col items-center gap-8 md:flex-row md:flex-wrap md:items-start md:justify-center md:gap-5">
-            {org.execs.map((e) => <ExecColumn key={e.lead.id} e={e} />)}
-          </ul>
-        )
+        <>
+          {org.roots.length > 0 && <VLine />}
+          <div className="w-full overflow-x-auto [scrollbar-width:thin]">
+            <ul aria-label="Leadership and teams" className="mx-auto flex w-max max-w-full flex-col items-center gap-8 md:max-w-none md:flex-row md:items-start md:gap-0">
+              {org.execs.map((e, i) => <Col key={e.lead.id} i={i} n={cols}><ExecColumn e={e} /></Col>)}
+              {org.rootBranches.map((b, i) => <Col key={b.dept} i={org.execs.length + i} n={cols}><ul><BranchBlock b={b} /></ul></Col>)}
+            </ul>
+          </div>
+        </>
       )}
       {org.others.length > 0 && (
         <div className="mt-14 w-full border-t border-border pt-8">
