@@ -1,0 +1,5 @@
+revoke insert, update, delete, truncate, references, trigger on public.site_settings, public.site_pages, public.page_sections, public.service_groups, public.services, public.portfolio_categories, public.portfolio_projects, public.portfolio_project_services, public.portfolio_media from anon;
+revoke all on public.profiles, public.user_roles from anon;
+revoke insert, update, delete, truncate, references, trigger on public.user_roles from authenticated;
+revoke insert, delete, truncate, references, trigger on public.profiles from authenticated;
+revoke truncate, references, trigger on public.site_settings, public.site_pages, public.page_sections, public.service_groups, public.services, public.portfolio_categories, public.portfolio_projects, public.portfolio_project_services, public.portfolio_media from authenticated;
