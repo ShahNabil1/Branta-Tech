@@ -13,6 +13,7 @@ import {
   swapped,
 } from "@/components/admin/cms";
 import { HeroFields } from "@/components/admin/HeroFields";
+import { heroMediaErrors } from "@/lib/hero";
 import { CapabilityFields } from "@/components/admin/CapabilityFields";
 import { AiFilmFields } from "@/components/admin/AiFilmFields";
 import { AiImageFields } from "@/components/admin/AiImageFields";
@@ -234,6 +235,10 @@ function SectionForm({ section, onSaved }: { section: Section; onSaved: () => vo
     if (errs.media_url || errs.cta_url) return f.fail("Fix the URL fields.");
     let config: unknown;
     try { config = JSON.parse(v.config || "{}"); } catch { return f.fail("Advanced config must be valid JSON."); }
+    if (v.section_type === "hero") {
+      const bad = heroMediaErrors((config as Record<string, unknown>)?.["media_items"]);
+      if (bad) return f.fail(bad);
+    }
     if (!Number.isFinite(Number(v.sort_order))) return f.fail("Sort order must be a number.");
     f.begin();
     const { error } = await supabase.from("page_sections").update({
