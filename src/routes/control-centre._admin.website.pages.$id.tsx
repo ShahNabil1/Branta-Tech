@@ -19,6 +19,7 @@ import { AiImageFields } from "@/components/admin/AiImageFields";
 import { WebSoftwareFields } from "@/components/admin/WebSoftwareFields";
 import { AutomationFields } from "@/components/admin/AutomationFields";
 import { HomeClosingFields } from "@/components/admin/HomeClosingFields";
+import { TrustFields } from "@/components/admin/TrustFields";
 import { SeoFields, seoFrom, seoPayload, seoErrors, emptySeo, type SeoValues } from "@/components/admin/SeoFields";
 
 export const Route = createFileRoute("/control-centre/_admin/website/pages/$id")({
@@ -204,7 +205,7 @@ function Sections({ pageId }: { pageId: string }) {
   );
 }
 
-const SECTION_TYPES = ["hero", "capability_explorer", "featured_work", "ai_film_showcase", "ai_image_showcase", "web_software_showcase", "automation_showcase", "process", "client_logos", "insights_teaser", "careers_teaser", "final_cta", "studio_hero", "studio_entry", "text", "media", "cta", "services", "portfolio", "logos", "custom"].map((v) => ({ value: v, label: v }));
+const SECTION_TYPES = ["hero", "trust_proof", "capability_explorer", "featured_work", "ai_film_showcase", "ai_image_showcase", "web_software_showcase", "automation_showcase", "process", "client_logos", "insights_teaser", "careers_teaser", "final_cta", "studio_hero", "studio_entry", "text", "media", "cta", "services", "portfolio", "logos", "custom"].map((v) => ({ value: v, label: v }));
 
 function SectionForm({ section, onSaved }: { section: Section; onSaved: () => void }) {
   const init = {
@@ -266,6 +267,7 @@ function SectionForm({ section, onSaved }: { section: Section; onSaved: () => vo
       <TextInput label="CTA label" value={v.cta_label} onChange={(e) => f.set("cta_label", e.target.value)} />
       <TextInput label="CTA URL" value={v.cta_url} error={errs.cta_url} placeholder="/contact" onChange={(e) => f.set("cta_url", e.target.value)} />
       <CheckboxInput label="Visible" checked={v.is_visible} onChange={(b) => f.set("is_visible", b)} />
+      {v.section_type === "trust_proof" && <TrustFields config={v.config} onChange={(c) => f.set("config", c)} />}
       {v.section_type === "hero" && <HeroFields config={v.config} onChange={(c) => f.set("config", c)} />}
       {v.section_type === "web_software_showcase" && <WebSoftwareFields config={v.config} onChange={(c) => f.set("config", c)} />}
       {["process", "client_logos", "insights_teaser", "careers_teaser", "final_cta"].includes(v.section_type) && <HomeClosingFields type={v.section_type} config={v.config} onChange={(c) => f.set("config", c)} />}

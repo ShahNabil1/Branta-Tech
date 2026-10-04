@@ -4,6 +4,7 @@ import { queryOptions } from "@tanstack/react-query";
 import type { Database } from "@/integrations/supabase/types";
 import { listPublishedPosts, type PostCard } from "./company.functions";
 import { httpsUrl, maxItems, parseLogos, parseSteps, secondaryCta, type ClientLogo, type ProcessStep } from "./home-closing";
+import { parseStats, publicFundedBy, showLogos, type FundedBy, type TrustStat } from "./trust";
 
 type Intro = { eyebrow: string; title: string; body: string; ctaLabel: string; ctaUrl: string };
 export type HomeClosing = {
@@ -12,9 +13,11 @@ export type HomeClosing = {
   insights: (Intro & { maxItems: number; posts: PostCard[] }) | null;
   careers: (Intro & { image: string | null; imageAlt: string }) | null;
   finalCta: (Intro & { secondary: { label: string; url: string } }) | null;
+  /** trust_proof section; logos reuse the client_logos section data. */
+  trust: (Intro & { logos: ClientLogo[]; stats: TrustStat[]; fundedBy: FundedBy | null }) | null;
 };
-const EMPTY: HomeClosing = { process: null, clients: null, insights: null, careers: null, finalCta: null };
-const TYPES = ["process", "client_logos", "insights_teaser", "careers_teaser", "final_cta"];
+const EMPTY: HomeClosing = { process: null, clients: null, insights: null, careers: null, finalCta: null, trust: null };
+const TYPES = ["process", "client_logos", "insights_teaser", "careers_teaser", "final_cta", "trust_proof"];
 
 /** Closing homepage sections in one read (publishable key, anon RLS). Never throws. */
 export const getHomeClosing = createServerFn({ method: "GET" }).handler(async (): Promise<HomeClosing> => {
@@ -41,6 +44,12 @@ export const getHomeClosing = createServerFn({ method: "GET" }).handler(async ()
       insights: i ? { ...intro(i), maxItems: maxItems(i.config), posts: await listPublishedPosts(maxItems(i.config)).catch(() => []) } : null,
       careers: k ? { ...intro(k), image: httpsUrl(k.media_url) || null, imageAlt: k.title ?? "Branta team" } : null,
       finalCta: f ? { ...intro(f), secondary: secondaryCta(f.config) } : null,
+      trust: (() => {
+        const t = get("trust_proof");
+        if (!t) return null;
+        const tl = showLogos(t.config) ? logos : [], stats = parseStats(t.config, true), fundedBy = publicFundedBy(t.config);
+        return tl.length || stats.length || fundedBy ? { ...intro(t), logos: tl, stats, fundedBy } : null;
+      })(),
     };
   } catch {
     return EMPTY;

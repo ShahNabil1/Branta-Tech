@@ -20,7 +20,8 @@ import { WebSoftwareShowcase } from "@/components/home/WebSoftwareShowcase";
 import { automationQuery } from "@/lib/automation.functions";
 import { AutomationShowcase } from "@/components/home/AutomationShowcase";
 import { homeClosingQuery } from "@/lib/home-closing.functions";
-import { ProcessSection, ClientLogos, InsightsTeaser, CareersTeaser, FinalCta } from "@/components/home/HomeClosing";
+import { TrustProof } from "@/components/home/TrustProof";
+import { ProcessSection, InsightsTeaser, CareersTeaser, FinalCta } from "@/components/home/HomeClosing";
 
 export const Route = createFileRoute("/")({
   head: () => ({ links: canonical("/"),
@@ -70,6 +71,7 @@ function Index() {
   return (
     <SiteShell>
       <HomeHero hero={heroFromSection(data)} />
+      {closing.trust && <TrustProof content={closing.trust} />}
       {explorer && <CapabilityExplorer content={explorer} />}
       {work && <FeaturedWork content={work} />}
       {film && <AiFilmShowcase content={film} />}
@@ -77,7 +79,6 @@ function Index() {
       {web && <WebSoftwareShowcase content={web} />}
       {auto && <AutomationShowcase content={auto} />}
       {closing.process && <ProcessSection content={closing.process} />}
-      {closing.clients && <ClientLogos content={closing.clients} />}
       {closing.insights && <InsightsTeaser content={closing.insights} />}
       {closing.careers && <CareersTeaser content={closing.careers} />}
       {closing.finalCta && <FinalCta content={closing.finalCta} />}
