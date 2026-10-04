@@ -26,7 +26,7 @@ export function HeroFields({ config, onChange }: { config: string; onChange: (js
     <div className="grid gap-4 rounded-sm border border-border p-4 md:col-span-2 md:grid-cols-2">
       <p className="text-eyebrow text-muted-foreground md:col-span-2">Hero settings</p>
       <p className="text-caption text-muted-foreground md:col-span-2">
-        Headline: the last line's full stop shows in orange. Put each line on its own row with a line break, or leave it as one sentence to split into pairs of words.
+        The headline (Title) is split into lines of two words; a final full stop shows in orange.
       </p>
       <TextInput label="Secondary CTA label" value={sec.label ?? ""} onChange={(e) => write({ secondary_cta: { ...sec, label: e.target.value } })} />
       <TextInput
