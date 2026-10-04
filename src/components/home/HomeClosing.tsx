@@ -4,6 +4,7 @@ import { DarkSection, Eyebrow, Section } from "@/components/layout/primitives";
 import { HeroAction } from "@/components/home/Hero";
 import type { HomeClosing } from "@/lib/home-closing.functions";
 import { cn } from "@/lib/utils";
+import { SectionMedia } from "@/components/media/SectionMedia";
 
 type P<K extends keyof HomeClosing> = { content: NonNullable<HomeClosing[K]> };
 
@@ -28,6 +29,7 @@ export function ProcessSection({ content }: P<"process">) {
             <Eyebrow>{content.eyebrow || "HOW WE WORK"}</Eyebrow>
             <h2 id="process-title" className="text-display mt-4 text-foreground">{content.title}</h2>
             {content.body && <p className="text-body-lg mt-6 max-w-md text-muted-foreground">{content.body}</p>}
+            {content.media && <SectionMedia item={content.media} className="mt-10 hidden max-w-md rounded-[6px] lg:block" />}
           </div>
         </div>
         <ol className="relative lg:col-span-7">
@@ -106,16 +108,17 @@ export function InsightsTeaser({ content }: P<"insights">) {
 export function CareersTeaser({ content }: P<"careers">) {
   return (
     <Section tone="dark" aria-labelledby="careers-title" className="glow-soft">
-      <div className={cn("grid gap-10", content.image && "lg:grid-cols-12 lg:items-center")}>
-        <div className={cn(content.image ? "lg:col-span-6" : "max-w-4xl")}>
+      <div className={cn("grid gap-10", content.media && "lg:grid-cols-12 lg:items-center")}>
+        <div className={cn(content.media ? "lg:col-span-6" : "max-w-4xl")}>
           <Eyebrow>{content.eyebrow || "CAREERS"}</Eyebrow>
           <h2 id="careers-title" className="text-display mt-4 text-foreground">{content.title}</h2>
           {content.body && <p className="text-body-lg mt-6 max-w-xl text-muted-foreground">{content.body}</p>}
           <div className="mt-8"><HeroAction label={content.ctaLabel} url={content.ctaUrl} variant="primary" /></div>
         </div>
-        {content.image && (
-          <div className="overflow-hidden rounded-[6px] lg:col-span-6">
-            <img src={content.image} alt={content.imageAlt} loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover" />
+        {content.media && (
+          <div className="lg:col-span-6">
+            <SectionMedia item={content.media} className="rounded-[6px]" />
+            {content.media.caption && <p className="text-caption mt-3 text-muted-foreground">{content.media.caption}</p>}
           </div>
         )}
       </div>
@@ -127,7 +130,13 @@ export function CareersTeaser({ content }: P<"careers">) {
 export function FinalCta({ content }: P<"finalCta">) {
   return (
     <DarkSection aria-labelledby="final-cta-title" className="hero-glow relative isolate overflow-hidden border-t border-border">
-      <div>
+      {content.background && (
+        <div aria-hidden className="absolute inset-0 -z-10">
+          <SectionMedia item={content.background} fill decorative />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/60" />
+        </div>
+      )}
+      <div className="relative">
         <span aria-hidden className="mb-8 block h-1 w-12 bg-accent" />
         <h2 id="final-cta-title" className="text-display-xl whitespace-pre-line text-foreground">{content.title}</h2>
         <div className="mt-10 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
