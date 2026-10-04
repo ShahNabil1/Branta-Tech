@@ -42,10 +42,13 @@ import { Route as ControlCentreAdminAdminUsersRouteImport } from './routes/contr
 import { Route as ControlCentreAdminDashboardRouteImport } from './routes/control-centre._admin.dashboard'
 import { Route as ControlCentreAdminMediaRouteImport } from './routes/control-centre._admin.media'
 import { Route as ControlCentreAdminTeamRouteImport } from './routes/control-centre._admin.team'
+import { Route as ControlCentreAdminBookingsIndexRouteImport } from './routes/control-centre._admin.bookings.index'
+import { Route as ControlCentreAdminBookingsIdRouteImport } from './routes/control-centre._admin.bookings.$id'
 import { Route as ControlCentreAdminInsightsIndexRouteImport } from './routes/control-centre._admin.insights.index'
 import { Route as ControlCentreAdminInsightsIdRouteImport } from './routes/control-centre._admin.insights.$id'
 import { Route as ControlCentreAdminInsightsAuthorsRouteImport } from './routes/control-centre._admin.insights.authors'
 import { Route as ControlCentreAdminLeadsIndexRouteImport } from './routes/control-centre._admin.leads.index'
+import { Route as ControlCentreAdminLeadsIdRouteImport } from './routes/control-centre._admin.leads.$id'
 import { Route as ControlCentreAdminPortfolioIndexRouteImport } from './routes/control-centre._admin.portfolio.index'
 import { Route as ControlCentreAdminPortfolioCategoriesRouteImport } from './routes/control-centre._admin.portfolio.categories'
 import { Route as ControlCentreAdminServicesIndexRouteImport } from './routes/control-centre._admin.services.index'
@@ -230,6 +233,18 @@ const ControlCentreAdminTeamRoute = ControlCentreAdminTeamRouteImport.update({
   path: '/team',
   getParentRoute: () => ControlCentreAdminRoute,
 } as any)
+const ControlCentreAdminBookingsIndexRoute =
+  ControlCentreAdminBookingsIndexRouteImport.update({
+    id: '/bookings/',
+    path: '/bookings/',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminBookingsIdRoute =
+  ControlCentreAdminBookingsIdRouteImport.update({
+    id: '/bookings/$id',
+    path: '/bookings/$id',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
 const ControlCentreAdminInsightsIndexRoute =
   ControlCentreAdminInsightsIndexRouteImport.update({
     id: '/insights/',
@@ -252,6 +267,12 @@ const ControlCentreAdminLeadsIndexRoute =
   ControlCentreAdminLeadsIndexRouteImport.update({
     id: '/leads/',
     path: '/leads/',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminLeadsIdRoute =
+  ControlCentreAdminLeadsIdRouteImport.update({
+    id: '/leads/$id',
+    path: '/leads/$id',
     getParentRoute: () => ControlCentreAdminRoute,
   } as any)
 const ControlCentreAdminPortfolioIndexRoute =
@@ -378,13 +399,16 @@ export interface FileRoutesByFullPath {
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/media': typeof ControlCentreAdminMediaRoute
   '/control-centre/team': typeof ControlCentreAdminTeamRoute
+  '/control-centre/bookings/$id': typeof ControlCentreAdminBookingsIdRoute
   '/control-centre/insights/$id': typeof ControlCentreAdminInsightsIdRoute
   '/control-centre/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
+  '/control-centre/leads/$id': typeof ControlCentreAdminLeadsIdRoute
   '/control-centre/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
   '/control-centre/services/$id': typeof ControlCentreAdminServicesIdRoute
   '/control-centre/services/groups': typeof ControlCentreAdminServicesGroupsRoute
   '/control-centre/settings/site': typeof ControlCentreAdminSettingsSiteRoute
   '/control-centre/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
+  '/control-centre/bookings/': typeof ControlCentreAdminBookingsIndexRoute
   '/control-centre/insights/': typeof ControlCentreAdminInsightsIndexRoute
   '/control-centre/leads/': typeof ControlCentreAdminLeadsIndexRoute
   '/control-centre/portfolio/': typeof ControlCentreAdminPortfolioIndexRoute
@@ -429,13 +453,16 @@ export interface FileRoutesByTo {
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/media': typeof ControlCentreAdminMediaRoute
   '/control-centre/team': typeof ControlCentreAdminTeamRoute
+  '/control-centre/bookings/$id': typeof ControlCentreAdminBookingsIdRoute
   '/control-centre/insights/$id': typeof ControlCentreAdminInsightsIdRoute
   '/control-centre/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
+  '/control-centre/leads/$id': typeof ControlCentreAdminLeadsIdRoute
   '/control-centre/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
   '/control-centre/services/$id': typeof ControlCentreAdminServicesIdRoute
   '/control-centre/services/groups': typeof ControlCentreAdminServicesGroupsRoute
   '/control-centre/settings/site': typeof ControlCentreAdminSettingsSiteRoute
   '/control-centre/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
+  '/control-centre/bookings': typeof ControlCentreAdminBookingsIndexRoute
   '/control-centre/insights': typeof ControlCentreAdminInsightsIndexRoute
   '/control-centre/leads': typeof ControlCentreAdminLeadsIndexRoute
   '/control-centre/portfolio': typeof ControlCentreAdminPortfolioIndexRoute
@@ -484,13 +511,16 @@ export interface FileRoutesById {
   '/control-centre/_admin/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/_admin/media': typeof ControlCentreAdminMediaRoute
   '/control-centre/_admin/team': typeof ControlCentreAdminTeamRoute
+  '/control-centre/_admin/bookings/$id': typeof ControlCentreAdminBookingsIdRoute
   '/control-centre/_admin/insights/$id': typeof ControlCentreAdminInsightsIdRoute
   '/control-centre/_admin/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
+  '/control-centre/_admin/leads/$id': typeof ControlCentreAdminLeadsIdRoute
   '/control-centre/_admin/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
   '/control-centre/_admin/services/$id': typeof ControlCentreAdminServicesIdRoute
   '/control-centre/_admin/services/groups': typeof ControlCentreAdminServicesGroupsRoute
   '/control-centre/_admin/settings/site': typeof ControlCentreAdminSettingsSiteRoute
   '/control-centre/_admin/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
+  '/control-centre/_admin/bookings/': typeof ControlCentreAdminBookingsIndexRoute
   '/control-centre/_admin/insights/': typeof ControlCentreAdminInsightsIndexRoute
   '/control-centre/_admin/leads/': typeof ControlCentreAdminLeadsIndexRoute
   '/control-centre/_admin/portfolio/': typeof ControlCentreAdminPortfolioIndexRoute
@@ -539,13 +569,16 @@ export interface FileRouteTypes {
     | '/control-centre/dashboard'
     | '/control-centre/media'
     | '/control-centre/team'
+    | '/control-centre/bookings/$id'
     | '/control-centre/insights/$id'
     | '/control-centre/insights/authors'
+    | '/control-centre/leads/$id'
     | '/control-centre/portfolio/categories'
     | '/control-centre/services/$id'
     | '/control-centre/services/groups'
     | '/control-centre/settings/site'
     | '/control-centre/website/navigation'
+    | '/control-centre/bookings/'
     | '/control-centre/insights/'
     | '/control-centre/leads/'
     | '/control-centre/portfolio/'
@@ -590,13 +623,16 @@ export interface FileRouteTypes {
     | '/control-centre/dashboard'
     | '/control-centre/media'
     | '/control-centre/team'
+    | '/control-centre/bookings/$id'
     | '/control-centre/insights/$id'
     | '/control-centre/insights/authors'
+    | '/control-centre/leads/$id'
     | '/control-centre/portfolio/categories'
     | '/control-centre/services/$id'
     | '/control-centre/services/groups'
     | '/control-centre/settings/site'
     | '/control-centre/website/navigation'
+    | '/control-centre/bookings'
     | '/control-centre/insights'
     | '/control-centre/leads'
     | '/control-centre/portfolio'
@@ -644,13 +680,16 @@ export interface FileRouteTypes {
     | '/control-centre/_admin/dashboard'
     | '/control-centre/_admin/media'
     | '/control-centre/_admin/team'
+    | '/control-centre/_admin/bookings/$id'
     | '/control-centre/_admin/insights/$id'
     | '/control-centre/_admin/insights/authors'
+    | '/control-centre/_admin/leads/$id'
     | '/control-centre/_admin/portfolio/categories'
     | '/control-centre/_admin/services/$id'
     | '/control-centre/_admin/services/groups'
     | '/control-centre/_admin/settings/site'
     | '/control-centre/_admin/website/navigation'
+    | '/control-centre/_admin/bookings/'
     | '/control-centre/_admin/insights/'
     | '/control-centre/_admin/leads/'
     | '/control-centre/_admin/portfolio/'
@@ -921,6 +960,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlCentreAdminTeamRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
+    '/control-centre/_admin/bookings/': {
+      id: '/control-centre/_admin/bookings/'
+      path: '/bookings'
+      fullPath: '/control-centre/bookings/'
+      preLoaderRoute: typeof ControlCentreAdminBookingsIndexRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/bookings/$id': {
+      id: '/control-centre/_admin/bookings/$id'
+      path: '/bookings/$id'
+      fullPath: '/control-centre/bookings/$id'
+      preLoaderRoute: typeof ControlCentreAdminBookingsIdRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
     '/control-centre/_admin/insights/': {
       id: '/control-centre/_admin/insights/'
       path: '/insights'
@@ -947,6 +1000,13 @@ declare module '@tanstack/react-router' {
       path: '/leads'
       fullPath: '/control-centre/leads/'
       preLoaderRoute: typeof ControlCentreAdminLeadsIndexRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/leads/$id': {
+      id: '/control-centre/_admin/leads/$id'
+      path: '/leads/$id'
+      fullPath: '/control-centre/leads/$id'
+      preLoaderRoute: typeof ControlCentreAdminLeadsIdRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
     '/control-centre/_admin/portfolio/': {
@@ -1081,13 +1141,16 @@ interface ControlCentreAdminRouteChildren {
   ControlCentreAdminDashboardRoute: typeof ControlCentreAdminDashboardRoute
   ControlCentreAdminMediaRoute: typeof ControlCentreAdminMediaRoute
   ControlCentreAdminTeamRoute: typeof ControlCentreAdminTeamRoute
+  ControlCentreAdminBookingsIdRoute: typeof ControlCentreAdminBookingsIdRoute
   ControlCentreAdminInsightsIdRoute: typeof ControlCentreAdminInsightsIdRoute
   ControlCentreAdminInsightsAuthorsRoute: typeof ControlCentreAdminInsightsAuthorsRoute
+  ControlCentreAdminLeadsIdRoute: typeof ControlCentreAdminLeadsIdRoute
   ControlCentreAdminPortfolioCategoriesRoute: typeof ControlCentreAdminPortfolioCategoriesRoute
   ControlCentreAdminServicesIdRoute: typeof ControlCentreAdminServicesIdRoute
   ControlCentreAdminServicesGroupsRoute: typeof ControlCentreAdminServicesGroupsRoute
   ControlCentreAdminSettingsSiteRoute: typeof ControlCentreAdminSettingsSiteRoute
   ControlCentreAdminWebsiteNavigationRoute: typeof ControlCentreAdminWebsiteNavigationRoute
+  ControlCentreAdminBookingsIndexRoute: typeof ControlCentreAdminBookingsIndexRoute
   ControlCentreAdminInsightsIndexRoute: typeof ControlCentreAdminInsightsIndexRoute
   ControlCentreAdminLeadsIndexRoute: typeof ControlCentreAdminLeadsIndexRoute
   ControlCentreAdminPortfolioIndexRoute: typeof ControlCentreAdminPortfolioIndexRoute
@@ -1107,9 +1170,11 @@ const ControlCentreAdminRouteChildren: ControlCentreAdminRouteChildren = {
   ControlCentreAdminDashboardRoute: ControlCentreAdminDashboardRoute,
   ControlCentreAdminMediaRoute: ControlCentreAdminMediaRoute,
   ControlCentreAdminTeamRoute: ControlCentreAdminTeamRoute,
+  ControlCentreAdminBookingsIdRoute: ControlCentreAdminBookingsIdRoute,
   ControlCentreAdminInsightsIdRoute: ControlCentreAdminInsightsIdRoute,
   ControlCentreAdminInsightsAuthorsRoute:
     ControlCentreAdminInsightsAuthorsRoute,
+  ControlCentreAdminLeadsIdRoute: ControlCentreAdminLeadsIdRoute,
   ControlCentreAdminPortfolioCategoriesRoute:
     ControlCentreAdminPortfolioCategoriesRoute,
   ControlCentreAdminServicesIdRoute: ControlCentreAdminServicesIdRoute,
@@ -1117,6 +1182,7 @@ const ControlCentreAdminRouteChildren: ControlCentreAdminRouteChildren = {
   ControlCentreAdminSettingsSiteRoute: ControlCentreAdminSettingsSiteRoute,
   ControlCentreAdminWebsiteNavigationRoute:
     ControlCentreAdminWebsiteNavigationRoute,
+  ControlCentreAdminBookingsIndexRoute: ControlCentreAdminBookingsIndexRoute,
   ControlCentreAdminInsightsIndexRoute: ControlCentreAdminInsightsIndexRoute,
   ControlCentreAdminLeadsIndexRoute: ControlCentreAdminLeadsIndexRoute,
   ControlCentreAdminPortfolioIndexRoute: ControlCentreAdminPortfolioIndexRoute,
