@@ -61,7 +61,7 @@ function StartProject() {
       <section className="dark bg-background py-16 text-foreground md:py-24">
         <SiteContainer>
           <Eyebrow>START A PROJECT</Eyebrow>
-          <h1 className="text-display-lg mt-4 max-w-3xl">Tell us what you're making.</h1>
+          <h1 className="text-display mt-4 max-w-3xl">Tell us what you're making.</h1>
           <p className="text-body-lg mt-5 max-w-2xl text-muted-foreground">A few details help us come back with the right people and the right questions.</p>
         </SiteContainer>
       </section>

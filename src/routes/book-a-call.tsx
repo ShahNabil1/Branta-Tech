@@ -67,7 +67,7 @@ function BookCall() {
       <section className="dark bg-background py-16 text-foreground md:py-24">
         <SiteContainer>
           <Eyebrow>BOOK A CALL</Eyebrow>
-          <h1 className="text-display-lg mt-4 max-w-3xl">Let's talk it through.</h1>
+          <h1 className="text-display mt-4 max-w-3xl">Let's talk it through.</h1>
           <p className="text-body-lg mt-5 max-w-2xl text-muted-foreground">Suggest a time that works for you. This is a request — we'll confirm the time with you before the call.</p>
         </SiteContainer>
       </section>
