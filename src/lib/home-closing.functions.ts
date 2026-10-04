@@ -2,13 +2,14 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { queryOptions } from "@tanstack/react-query";
 import type { Database } from "@/integrations/supabase/types";
+import { listPublishedPosts, type PostCard } from "./company.functions";
 import { httpsUrl, maxItems, parseLogos, parseSteps, secondaryCta, type ClientLogo, type ProcessStep } from "./home-closing";
 
 type Intro = { eyebrow: string; title: string; body: string; ctaLabel: string; ctaUrl: string };
 export type HomeClosing = {
   process: (Intro & { steps: ProcessStep[] }) | null;
   clients: (Intro & { logos: ClientLogo[] }) | null;
-  insights: (Intro & { maxItems: number }) | null;
+  insights: (Intro & { maxItems: number; posts: PostCard[] }) | null;
   careers: (Intro & { image: string | null; imageAlt: string }) | null;
   finalCta: (Intro & { secondary: { label: string; url: string } }) | null;
 };
@@ -37,7 +38,7 @@ export const getHomeClosing = createServerFn({ method: "GET" }).handler(async ()
       process: p && steps.length ? { ...intro(p), steps } : null,
       // No real logos yet → hide publicly (admin shows the empty state).
       clients: c && logos.length ? { ...intro(c), logos } : null,
-      insights: i ? { ...intro(i), maxItems: maxItems(i.config) } : null,
+      insights: i ? { ...intro(i), maxItems: maxItems(i.config), posts: await listPublishedPosts(maxItems(i.config)).catch(() => []) } : null,
       careers: k ? { ...intro(k), image: httpsUrl(k.media_url) || null, imageAlt: k.title ?? "Branta team" } : null,
       finalCta: f ? { ...intro(f), secondary: secondaryCta(f.config) } : null,
     };

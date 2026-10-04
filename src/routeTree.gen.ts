@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AiStudioRouteImport } from './routes/ai-studio'
 import { Route as ControlCentreRouteImport } from './routes/control-centre'
+import { Route as TeamRouteImport } from './routes/team'
+import { Route as CareersIndexRouteImport } from './routes/careers.index'
+import { Route as CareersSlugRouteImport } from './routes/careers.$slug'
 import { Route as ControlCentreIndexRouteImport } from './routes/control-centre.index'
 import { Route as ControlCentreAdminRouteImport } from './routes/control-centre._admin'
 import { Route as ControlCentreForgotPasswordRouteImport } from './routes/control-centre.forgot-password'
 import { Route as ControlCentreResetPasswordRouteImport } from './routes/control-centre.reset-password'
+import { Route as InsightsIndexRouteImport } from './routes/insights.index'
+import { Route as InsightsSlugRouteImport } from './routes/insights.$slug'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
 import { Route as WorkIndexRouteImport } from './routes/work.index'
@@ -23,6 +29,10 @@ import { Route as WorkSlugRouteImport } from './routes/work.$slug'
 import { Route as ControlCentreAdminAdminUsersRouteImport } from './routes/control-centre._admin.admin-users'
 import { Route as ControlCentreAdminDashboardRouteImport } from './routes/control-centre._admin.dashboard'
 import { Route as ControlCentreAdminMediaRouteImport } from './routes/control-centre._admin.media'
+import { Route as ControlCentreAdminTeamRouteImport } from './routes/control-centre._admin.team'
+import { Route as ControlCentreAdminInsightsIndexRouteImport } from './routes/control-centre._admin.insights.index'
+import { Route as ControlCentreAdminInsightsIdRouteImport } from './routes/control-centre._admin.insights.$id'
+import { Route as ControlCentreAdminInsightsAuthorsRouteImport } from './routes/control-centre._admin.insights.authors'
 import { Route as ControlCentreAdminPortfolioIndexRouteImport } from './routes/control-centre._admin.portfolio.index'
 import { Route as ControlCentreAdminPortfolioCategoriesRouteImport } from './routes/control-centre._admin.portfolio.categories'
 import { Route as ControlCentreAdminServicesIndexRouteImport } from './routes/control-centre._admin.services.index'
@@ -30,6 +40,10 @@ import { Route as ControlCentreAdminServicesIdRouteImport } from './routes/contr
 import { Route as ControlCentreAdminServicesGroupsRouteImport } from './routes/control-centre._admin.services.groups'
 import { Route as ControlCentreAdminSettingsSiteRouteImport } from './routes/control-centre._admin.settings.site'
 import { Route as ControlCentreAdminWebsiteNavigationRouteImport } from './routes/control-centre._admin.website.navigation'
+import { Route as ControlCentreAdminCareersApplicationsIndexRouteImport } from './routes/control-centre._admin.careers.applications.index'
+import { Route as ControlCentreAdminCareersApplicationsIdRouteImport } from './routes/control-centre._admin.careers.applications.$id'
+import { Route as ControlCentreAdminCareersJobsIndexRouteImport } from './routes/control-centre._admin.careers.jobs.index'
+import { Route as ControlCentreAdminCareersJobsIdRouteImport } from './routes/control-centre._admin.careers.jobs.$id'
 import { Route as ControlCentreAdminPortfolioProjectsIdRouteImport } from './routes/control-centre._admin.portfolio.projects.$id'
 import { Route as ControlCentreAdminPortfolioProjectsNewRouteImport } from './routes/control-centre._admin.portfolio.projects.new'
 import { Route as ControlCentreAdminWebsitePagesIndexRouteImport } from './routes/control-centre._admin.website.pages.index'
@@ -40,6 +54,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AiStudioRoute = AiStudioRouteImport.update({
   id: '/ai-studio',
   path: '/ai-studio',
@@ -48,6 +67,21 @@ const AiStudioRoute = AiStudioRouteImport.update({
 const ControlCentreRoute = ControlCentreRouteImport.update({
   id: '/control-centre',
   path: '/control-centre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamRoute = TeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersIndexRoute = CareersIndexRouteImport.update({
+  id: '/careers/',
+  path: '/careers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersSlugRoute = CareersSlugRouteImport.update({
+  id: '/careers/$slug',
+  path: '/careers/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ControlCentreIndexRoute = ControlCentreIndexRouteImport.update({
@@ -71,6 +105,16 @@ const ControlCentreResetPasswordRoute =
     path: '/reset-password',
     getParentRoute: () => ControlCentreRoute,
   } as any)
+const InsightsIndexRoute = InsightsIndexRouteImport.update({
+  id: '/insights/',
+  path: '/insights/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InsightsSlugRoute = InsightsSlugRouteImport.update({
+  id: '/insights/$slug',
+  path: '/insights/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicesIndexRoute = ServicesIndexRouteImport.update({
   id: '/services/',
   path: '/services/',
@@ -108,6 +152,29 @@ const ControlCentreAdminMediaRoute = ControlCentreAdminMediaRouteImport.update({
   path: '/media',
   getParentRoute: () => ControlCentreAdminRoute,
 } as any)
+const ControlCentreAdminTeamRoute = ControlCentreAdminTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => ControlCentreAdminRoute,
+} as any)
+const ControlCentreAdminInsightsIndexRoute =
+  ControlCentreAdminInsightsIndexRouteImport.update({
+    id: '/insights/',
+    path: '/insights/',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminInsightsIdRoute =
+  ControlCentreAdminInsightsIdRouteImport.update({
+    id: '/insights/$id',
+    path: '/insights/$id',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminInsightsAuthorsRoute =
+  ControlCentreAdminInsightsAuthorsRouteImport.update({
+    id: '/insights/authors',
+    path: '/insights/authors',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
 const ControlCentreAdminPortfolioIndexRoute =
   ControlCentreAdminPortfolioIndexRouteImport.update({
     id: '/portfolio/',
@@ -150,6 +217,30 @@ const ControlCentreAdminWebsiteNavigationRoute =
     path: '/website/navigation',
     getParentRoute: () => ControlCentreAdminRoute,
   } as any)
+const ControlCentreAdminCareersApplicationsIndexRoute =
+  ControlCentreAdminCareersApplicationsIndexRouteImport.update({
+    id: '/careers/applications/',
+    path: '/careers/applications/',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminCareersApplicationsIdRoute =
+  ControlCentreAdminCareersApplicationsIdRouteImport.update({
+    id: '/careers/applications/$id',
+    path: '/careers/applications/$id',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminCareersJobsIndexRoute =
+  ControlCentreAdminCareersJobsIndexRouteImport.update({
+    id: '/careers/jobs/',
+    path: '/careers/jobs/',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminCareersJobsIdRoute =
+  ControlCentreAdminCareersJobsIdRouteImport.update({
+    id: '/careers/jobs/$id',
+    path: '/careers/jobs/$id',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
 const ControlCentreAdminPortfolioProjectsIdRoute =
   ControlCentreAdminPortfolioProjectsIdRouteImport.update({
     id: '/portfolio/projects/$id',
@@ -177,170 +268,260 @@ const ControlCentreAdminWebsitePagesIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/ai-studio': typeof AiStudioRoute
   '/control-centre': typeof ControlCentreRouteWithChildren
+  '/team': typeof TeamRoute
+  '/careers/$slug': typeof CareersSlugRoute
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
+  '/insights/$slug': typeof InsightsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/work/$slug': typeof WorkSlugRoute
+  '/careers/': typeof CareersIndexRoute
   '/control-centre/': typeof ControlCentreIndexRoute
+  '/insights/': typeof InsightsIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/work/': typeof WorkIndexRoute
   '/control-centre/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/media': typeof ControlCentreAdminMediaRoute
+  '/control-centre/team': typeof ControlCentreAdminTeamRoute
+  '/control-centre/insights/$id': typeof ControlCentreAdminInsightsIdRoute
+  '/control-centre/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
   '/control-centre/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
   '/control-centre/services/$id': typeof ControlCentreAdminServicesIdRoute
   '/control-centre/services/groups': typeof ControlCentreAdminServicesGroupsRoute
   '/control-centre/settings/site': typeof ControlCentreAdminSettingsSiteRoute
   '/control-centre/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
+  '/control-centre/insights/': typeof ControlCentreAdminInsightsIndexRoute
   '/control-centre/portfolio/': typeof ControlCentreAdminPortfolioIndexRoute
   '/control-centre/services/': typeof ControlCentreAdminServicesIndexRoute
+  '/control-centre/careers/applications/$id': typeof ControlCentreAdminCareersApplicationsIdRoute
+  '/control-centre/careers/jobs/$id': typeof ControlCentreAdminCareersJobsIdRoute
   '/control-centre/portfolio/projects/$id': typeof ControlCentreAdminPortfolioProjectsIdRoute
   '/control-centre/portfolio/projects/new': typeof ControlCentreAdminPortfolioProjectsNewRoute
   '/control-centre/website/pages/$id': typeof ControlCentreAdminWebsitePagesIdRoute
+  '/control-centre/careers/applications/': typeof ControlCentreAdminCareersApplicationsIndexRoute
+  '/control-centre/careers/jobs/': typeof ControlCentreAdminCareersJobsIndexRoute
   '/control-centre/website/pages/': typeof ControlCentreAdminWebsitePagesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/ai-studio': typeof AiStudioRoute
+  '/team': typeof TeamRoute
+  '/careers/$slug': typeof CareersSlugRoute
   '/control-centre': typeof ControlCentreIndexRoute
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
+  '/insights/$slug': typeof InsightsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/work/$slug': typeof WorkSlugRoute
+  '/careers': typeof CareersIndexRoute
+  '/insights': typeof InsightsIndexRoute
   '/services': typeof ServicesIndexRoute
   '/work': typeof WorkIndexRoute
   '/control-centre/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/media': typeof ControlCentreAdminMediaRoute
+  '/control-centre/team': typeof ControlCentreAdminTeamRoute
+  '/control-centre/insights/$id': typeof ControlCentreAdminInsightsIdRoute
+  '/control-centre/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
   '/control-centre/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
   '/control-centre/services/$id': typeof ControlCentreAdminServicesIdRoute
   '/control-centre/services/groups': typeof ControlCentreAdminServicesGroupsRoute
   '/control-centre/settings/site': typeof ControlCentreAdminSettingsSiteRoute
   '/control-centre/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
+  '/control-centre/insights': typeof ControlCentreAdminInsightsIndexRoute
   '/control-centre/portfolio': typeof ControlCentreAdminPortfolioIndexRoute
   '/control-centre/services': typeof ControlCentreAdminServicesIndexRoute
+  '/control-centre/careers/applications/$id': typeof ControlCentreAdminCareersApplicationsIdRoute
+  '/control-centre/careers/jobs/$id': typeof ControlCentreAdminCareersJobsIdRoute
   '/control-centre/portfolio/projects/$id': typeof ControlCentreAdminPortfolioProjectsIdRoute
   '/control-centre/portfolio/projects/new': typeof ControlCentreAdminPortfolioProjectsNewRoute
   '/control-centre/website/pages/$id': typeof ControlCentreAdminWebsitePagesIdRoute
+  '/control-centre/careers/applications': typeof ControlCentreAdminCareersApplicationsIndexRoute
+  '/control-centre/careers/jobs': typeof ControlCentreAdminCareersJobsIndexRoute
   '/control-centre/website/pages': typeof ControlCentreAdminWebsitePagesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/ai-studio': typeof AiStudioRoute
   '/control-centre': typeof ControlCentreRouteWithChildren
+  '/team': typeof TeamRoute
+  '/careers/$slug': typeof CareersSlugRoute
   '/control-centre/_admin': typeof ControlCentreAdminRouteWithChildren
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
+  '/insights/$slug': typeof InsightsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/work/$slug': typeof WorkSlugRoute
+  '/careers/': typeof CareersIndexRoute
   '/control-centre/': typeof ControlCentreIndexRoute
+  '/insights/': typeof InsightsIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/work/': typeof WorkIndexRoute
   '/control-centre/_admin/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/_admin/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/_admin/media': typeof ControlCentreAdminMediaRoute
+  '/control-centre/_admin/team': typeof ControlCentreAdminTeamRoute
+  '/control-centre/_admin/insights/$id': typeof ControlCentreAdminInsightsIdRoute
+  '/control-centre/_admin/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
   '/control-centre/_admin/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
   '/control-centre/_admin/services/$id': typeof ControlCentreAdminServicesIdRoute
   '/control-centre/_admin/services/groups': typeof ControlCentreAdminServicesGroupsRoute
   '/control-centre/_admin/settings/site': typeof ControlCentreAdminSettingsSiteRoute
   '/control-centre/_admin/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
+  '/control-centre/_admin/insights/': typeof ControlCentreAdminInsightsIndexRoute
   '/control-centre/_admin/portfolio/': typeof ControlCentreAdminPortfolioIndexRoute
   '/control-centre/_admin/services/': typeof ControlCentreAdminServicesIndexRoute
+  '/control-centre/_admin/careers/applications/$id': typeof ControlCentreAdminCareersApplicationsIdRoute
+  '/control-centre/_admin/careers/jobs/$id': typeof ControlCentreAdminCareersJobsIdRoute
   '/control-centre/_admin/portfolio/projects/$id': typeof ControlCentreAdminPortfolioProjectsIdRoute
   '/control-centre/_admin/portfolio/projects/new': typeof ControlCentreAdminPortfolioProjectsNewRoute
   '/control-centre/_admin/website/pages/$id': typeof ControlCentreAdminWebsitePagesIdRoute
+  '/control-centre/_admin/careers/applications/': typeof ControlCentreAdminCareersApplicationsIndexRoute
+  '/control-centre/_admin/careers/jobs/': typeof ControlCentreAdminCareersJobsIndexRoute
   '/control-centre/_admin/website/pages/': typeof ControlCentreAdminWebsitePagesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/ai-studio'
     | '/control-centre'
+    | '/team'
+    | '/careers/$slug'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
+    | '/insights/$slug'
     | '/services/$slug'
     | '/work/$slug'
+    | '/careers/'
     | '/control-centre/'
+    | '/insights/'
     | '/services/'
     | '/work/'
     | '/control-centre/admin-users'
     | '/control-centre/dashboard'
     | '/control-centre/media'
+    | '/control-centre/team'
+    | '/control-centre/insights/$id'
+    | '/control-centre/insights/authors'
     | '/control-centre/portfolio/categories'
     | '/control-centre/services/$id'
     | '/control-centre/services/groups'
     | '/control-centre/settings/site'
     | '/control-centre/website/navigation'
+    | '/control-centre/insights/'
     | '/control-centre/portfolio/'
     | '/control-centre/services/'
+    | '/control-centre/careers/applications/$id'
+    | '/control-centre/careers/jobs/$id'
     | '/control-centre/portfolio/projects/$id'
     | '/control-centre/portfolio/projects/new'
     | '/control-centre/website/pages/$id'
+    | '/control-centre/careers/applications/'
+    | '/control-centre/careers/jobs/'
     | '/control-centre/website/pages/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/ai-studio'
+    | '/team'
+    | '/careers/$slug'
     | '/control-centre'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
+    | '/insights/$slug'
     | '/services/$slug'
     | '/work/$slug'
+    | '/careers'
+    | '/insights'
     | '/services'
     | '/work'
     | '/control-centre/admin-users'
     | '/control-centre/dashboard'
     | '/control-centre/media'
+    | '/control-centre/team'
+    | '/control-centre/insights/$id'
+    | '/control-centre/insights/authors'
     | '/control-centre/portfolio/categories'
     | '/control-centre/services/$id'
     | '/control-centre/services/groups'
     | '/control-centre/settings/site'
     | '/control-centre/website/navigation'
+    | '/control-centre/insights'
     | '/control-centre/portfolio'
     | '/control-centre/services'
+    | '/control-centre/careers/applications/$id'
+    | '/control-centre/careers/jobs/$id'
     | '/control-centre/portfolio/projects/$id'
     | '/control-centre/portfolio/projects/new'
     | '/control-centre/website/pages/$id'
+    | '/control-centre/careers/applications'
+    | '/control-centre/careers/jobs'
     | '/control-centre/website/pages'
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/ai-studio'
     | '/control-centre'
+    | '/team'
+    | '/careers/$slug'
     | '/control-centre/_admin'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
+    | '/insights/$slug'
     | '/services/$slug'
     | '/work/$slug'
+    | '/careers/'
     | '/control-centre/'
+    | '/insights/'
     | '/services/'
     | '/work/'
     | '/control-centre/_admin/admin-users'
     | '/control-centre/_admin/dashboard'
     | '/control-centre/_admin/media'
+    | '/control-centre/_admin/team'
+    | '/control-centre/_admin/insights/$id'
+    | '/control-centre/_admin/insights/authors'
     | '/control-centre/_admin/portfolio/categories'
     | '/control-centre/_admin/services/$id'
     | '/control-centre/_admin/services/groups'
     | '/control-centre/_admin/settings/site'
     | '/control-centre/_admin/website/navigation'
+    | '/control-centre/_admin/insights/'
     | '/control-centre/_admin/portfolio/'
     | '/control-centre/_admin/services/'
+    | '/control-centre/_admin/careers/applications/$id'
+    | '/control-centre/_admin/careers/jobs/$id'
     | '/control-centre/_admin/portfolio/projects/$id'
     | '/control-centre/_admin/portfolio/projects/new'
     | '/control-centre/_admin/website/pages/$id'
+    | '/control-centre/_admin/careers/applications/'
+    | '/control-centre/_admin/careers/jobs/'
     | '/control-centre/_admin/website/pages/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   AiStudioRoute: typeof AiStudioRoute
   ControlCentreRoute: typeof ControlCentreRouteWithChildren
+  TeamRoute: typeof TeamRoute
+  CareersSlugRoute: typeof CareersSlugRoute
+  InsightsSlugRoute: typeof InsightsSlugRoute
   ServicesSlugRoute: typeof ServicesSlugRoute
   WorkSlugRoute: typeof WorkSlugRoute
+  CareersIndexRoute: typeof CareersIndexRoute
+  InsightsIndexRoute: typeof InsightsIndexRoute
   ServicesIndexRoute: typeof ServicesIndexRoute
   WorkIndexRoute: typeof WorkIndexRoute
 }
@@ -352,6 +533,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai-studio': {
@@ -366,6 +554,27 @@ declare module '@tanstack/react-router' {
       path: '/control-centre'
       fullPath: '/control-centre'
       preLoaderRoute: typeof ControlCentreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/team': {
+      id: '/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof TeamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/': {
+      id: '/careers/'
+      path: '/careers'
+      fullPath: '/careers/'
+      preLoaderRoute: typeof CareersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/$slug': {
+      id: '/careers/$slug'
+      path: '/careers/$slug'
+      fullPath: '/careers/$slug'
+      preLoaderRoute: typeof CareersSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/control-centre/': {
@@ -395,6 +604,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/control-centre/reset-password'
       preLoaderRoute: typeof ControlCentreResetPasswordRouteImport
       parentRoute: typeof ControlCentreRoute
+    }
+    '/insights/': {
+      id: '/insights/'
+      path: '/insights'
+      fullPath: '/insights/'
+      preLoaderRoute: typeof InsightsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/insights/$slug': {
+      id: '/insights/$slug'
+      path: '/insights/$slug'
+      fullPath: '/insights/$slug'
+      preLoaderRoute: typeof InsightsSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/services/': {
       id: '/services/'
@@ -443,6 +666,34 @@ declare module '@tanstack/react-router' {
       path: '/media'
       fullPath: '/control-centre/media'
       preLoaderRoute: typeof ControlCentreAdminMediaRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/team': {
+      id: '/control-centre/_admin/team'
+      path: '/team'
+      fullPath: '/control-centre/team'
+      preLoaderRoute: typeof ControlCentreAdminTeamRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/insights/': {
+      id: '/control-centre/_admin/insights/'
+      path: '/insights'
+      fullPath: '/control-centre/insights/'
+      preLoaderRoute: typeof ControlCentreAdminInsightsIndexRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/insights/$id': {
+      id: '/control-centre/_admin/insights/$id'
+      path: '/insights/$id'
+      fullPath: '/control-centre/insights/$id'
+      preLoaderRoute: typeof ControlCentreAdminInsightsIdRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/insights/authors': {
+      id: '/control-centre/_admin/insights/authors'
+      path: '/insights/authors'
+      fullPath: '/control-centre/insights/authors'
+      preLoaderRoute: typeof ControlCentreAdminInsightsAuthorsRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
     '/control-centre/_admin/portfolio/': {
@@ -494,6 +745,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlCentreAdminWebsiteNavigationRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
+    '/control-centre/_admin/careers/applications/': {
+      id: '/control-centre/_admin/careers/applications/'
+      path: '/careers/applications'
+      fullPath: '/control-centre/careers/applications/'
+      preLoaderRoute: typeof ControlCentreAdminCareersApplicationsIndexRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/careers/applications/$id': {
+      id: '/control-centre/_admin/careers/applications/$id'
+      path: '/careers/applications/$id'
+      fullPath: '/control-centre/careers/applications/$id'
+      preLoaderRoute: typeof ControlCentreAdminCareersApplicationsIdRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/careers/jobs/': {
+      id: '/control-centre/_admin/careers/jobs/'
+      path: '/careers/jobs'
+      fullPath: '/control-centre/careers/jobs/'
+      preLoaderRoute: typeof ControlCentreAdminCareersJobsIndexRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/careers/jobs/$id': {
+      id: '/control-centre/_admin/careers/jobs/$id'
+      path: '/careers/jobs/$id'
+      fullPath: '/control-centre/careers/jobs/$id'
+      preLoaderRoute: typeof ControlCentreAdminCareersJobsIdRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
     '/control-centre/_admin/portfolio/projects/$id': {
       id: '/control-centre/_admin/portfolio/projects/$id'
       path: '/portfolio/projects/$id'
@@ -529,16 +808,24 @@ interface ControlCentreAdminRouteChildren {
   ControlCentreAdminAdminUsersRoute: typeof ControlCentreAdminAdminUsersRoute
   ControlCentreAdminDashboardRoute: typeof ControlCentreAdminDashboardRoute
   ControlCentreAdminMediaRoute: typeof ControlCentreAdminMediaRoute
+  ControlCentreAdminTeamRoute: typeof ControlCentreAdminTeamRoute
+  ControlCentreAdminInsightsIdRoute: typeof ControlCentreAdminInsightsIdRoute
+  ControlCentreAdminInsightsAuthorsRoute: typeof ControlCentreAdminInsightsAuthorsRoute
   ControlCentreAdminPortfolioCategoriesRoute: typeof ControlCentreAdminPortfolioCategoriesRoute
   ControlCentreAdminServicesIdRoute: typeof ControlCentreAdminServicesIdRoute
   ControlCentreAdminServicesGroupsRoute: typeof ControlCentreAdminServicesGroupsRoute
   ControlCentreAdminSettingsSiteRoute: typeof ControlCentreAdminSettingsSiteRoute
   ControlCentreAdminWebsiteNavigationRoute: typeof ControlCentreAdminWebsiteNavigationRoute
+  ControlCentreAdminInsightsIndexRoute: typeof ControlCentreAdminInsightsIndexRoute
   ControlCentreAdminPortfolioIndexRoute: typeof ControlCentreAdminPortfolioIndexRoute
   ControlCentreAdminServicesIndexRoute: typeof ControlCentreAdminServicesIndexRoute
+  ControlCentreAdminCareersApplicationsIdRoute: typeof ControlCentreAdminCareersApplicationsIdRoute
+  ControlCentreAdminCareersJobsIdRoute: typeof ControlCentreAdminCareersJobsIdRoute
   ControlCentreAdminPortfolioProjectsIdRoute: typeof ControlCentreAdminPortfolioProjectsIdRoute
   ControlCentreAdminPortfolioProjectsNewRoute: typeof ControlCentreAdminPortfolioProjectsNewRoute
   ControlCentreAdminWebsitePagesIdRoute: typeof ControlCentreAdminWebsitePagesIdRoute
+  ControlCentreAdminCareersApplicationsIndexRoute: typeof ControlCentreAdminCareersApplicationsIndexRoute
+  ControlCentreAdminCareersJobsIndexRoute: typeof ControlCentreAdminCareersJobsIndexRoute
   ControlCentreAdminWebsitePagesIndexRoute: typeof ControlCentreAdminWebsitePagesIndexRoute
 }
 
@@ -546,6 +833,10 @@ const ControlCentreAdminRouteChildren: ControlCentreAdminRouteChildren = {
   ControlCentreAdminAdminUsersRoute: ControlCentreAdminAdminUsersRoute,
   ControlCentreAdminDashboardRoute: ControlCentreAdminDashboardRoute,
   ControlCentreAdminMediaRoute: ControlCentreAdminMediaRoute,
+  ControlCentreAdminTeamRoute: ControlCentreAdminTeamRoute,
+  ControlCentreAdminInsightsIdRoute: ControlCentreAdminInsightsIdRoute,
+  ControlCentreAdminInsightsAuthorsRoute:
+    ControlCentreAdminInsightsAuthorsRoute,
   ControlCentreAdminPortfolioCategoriesRoute:
     ControlCentreAdminPortfolioCategoriesRoute,
   ControlCentreAdminServicesIdRoute: ControlCentreAdminServicesIdRoute,
@@ -553,13 +844,21 @@ const ControlCentreAdminRouteChildren: ControlCentreAdminRouteChildren = {
   ControlCentreAdminSettingsSiteRoute: ControlCentreAdminSettingsSiteRoute,
   ControlCentreAdminWebsiteNavigationRoute:
     ControlCentreAdminWebsiteNavigationRoute,
+  ControlCentreAdminInsightsIndexRoute: ControlCentreAdminInsightsIndexRoute,
   ControlCentreAdminPortfolioIndexRoute: ControlCentreAdminPortfolioIndexRoute,
   ControlCentreAdminServicesIndexRoute: ControlCentreAdminServicesIndexRoute,
+  ControlCentreAdminCareersApplicationsIdRoute:
+    ControlCentreAdminCareersApplicationsIdRoute,
+  ControlCentreAdminCareersJobsIdRoute: ControlCentreAdminCareersJobsIdRoute,
   ControlCentreAdminPortfolioProjectsIdRoute:
     ControlCentreAdminPortfolioProjectsIdRoute,
   ControlCentreAdminPortfolioProjectsNewRoute:
     ControlCentreAdminPortfolioProjectsNewRoute,
   ControlCentreAdminWebsitePagesIdRoute: ControlCentreAdminWebsitePagesIdRoute,
+  ControlCentreAdminCareersApplicationsIndexRoute:
+    ControlCentreAdminCareersApplicationsIndexRoute,
+  ControlCentreAdminCareersJobsIndexRoute:
+    ControlCentreAdminCareersJobsIndexRoute,
   ControlCentreAdminWebsitePagesIndexRoute:
     ControlCentreAdminWebsitePagesIndexRoute,
 }
@@ -587,10 +886,16 @@ const ControlCentreRouteWithChildren = ControlCentreRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   AiStudioRoute: AiStudioRoute,
   ControlCentreRoute: ControlCentreRouteWithChildren,
+  TeamRoute: TeamRoute,
+  CareersSlugRoute: CareersSlugRoute,
+  InsightsSlugRoute: InsightsSlugRoute,
   ServicesSlugRoute: ServicesSlugRoute,
   WorkSlugRoute: WorkSlugRoute,
+  CareersIndexRoute: CareersIndexRoute,
+  InsightsIndexRoute: InsightsIndexRoute,
   ServicesIndexRoute: ServicesIndexRoute,
   WorkIndexRoute: WorkIndexRoute,
 }
