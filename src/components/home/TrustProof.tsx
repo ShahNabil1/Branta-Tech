@@ -9,7 +9,7 @@ function Logo({ l, decorative }: { l: ClientLogo; decorative?: boolean }) {
   const img = (
     <img src={l.logo_url} alt={decorative ? "" : l.alt || l.client_name} loading="lazy" decoding="async"
       onError={(e) => { const li = e.currentTarget.closest("li"); if (li) li.style.display = "none"; }}
-      className="h-7 w-auto max-w-[150px] object-contain opacity-60 grayscale transition-[opacity,filter] duration-300 hover:opacity-100 hover:grayscale-0 md:h-9 md:max-w-[180px]" />
+      className="h-7 w-auto max-w-[150px] object-contain opacity-70 [filter:grayscale(1)_brightness(0)_invert(0.92)] transition-opacity duration-300 hover:opacity-100 md:h-9 md:max-w-[180px]" />
   );
   return /^https:\/\//.test(l.client_url) && !decorative
     ? <a href={l.client_url} target="_blank" rel="noopener noreferrer" className="shrink-0 focus-visible:outline-2 focus-visible:outline-accent">{img}</a>
