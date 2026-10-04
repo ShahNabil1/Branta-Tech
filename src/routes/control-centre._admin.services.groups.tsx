@@ -7,7 +7,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { adminHead, must } from "@/lib/supabase/cms";
 import {
   PageHeader, Panel, TextInput, TextArea, SelectInput, CheckboxInput, AdminButton, LoadingRow, ErrorNote, StatusBadge, FeaturedBadge,
-  STATUS_OPTIONS, useFormState, friendlyError, nullIfEmpty,
+  STATUS_OPTIONS, MEDIA_TYPE_OPTIONS, useFormState, friendlyError, nullIfEmpty, isSafeUrl,
 } from "@/components/admin/cms";
 
 export const Route = createFileRoute("/control-centre/_admin/services/groups")({
@@ -32,6 +32,8 @@ function GroupsPage() {
 
 function GroupForm({ group }: { group: Tables<"service_groups"> }) {
   const qc = useQueryClient();
+  const cfg = (group.config && typeof group.config === "object" && !Array.isArray(group.config) ? group.config : {}) as Record<string, unknown>;
+  const media = (cfg["media"] && typeof cfg["media"] === "object" ? cfg["media"] : {}) as Record<string, unknown>;
   const f = useFormState({
     name: group.name,
     short_description: group.short_description ?? "",
@@ -39,15 +41,21 @@ function GroupForm({ group }: { group: Tables<"service_groups"> }) {
     sort_order: String(group.sort_order),
     is_featured: group.is_featured,
     status: group.status,
+    media_type: String(media["type"] ?? ""),
+    media_url: String(media["url"] ?? ""),
+    media_poster: String(media["poster"] ?? ""),
+    media_alt: String(media["alt"] ?? ""),
   });
   const v = f.values;
   async function save() {
     if (f.state === "saving") return;
     if (!v.name.trim()) return f.fail("Name is required.");
+    if (!isSafeUrl(v.media_url) || !isSafeUrl(v.media_poster)) return f.fail("Fix the media URLs.");
     f.begin();
     const { error } = await supabase.from("service_groups").update({
       name: v.name.trim(), short_description: nullIfEmpty(v.short_description), description: nullIfEmpty(v.description),
       sort_order: Math.round(Number(v.sort_order) || 0), is_featured: v.is_featured, status: v.status,
+      config: { ...cfg, media: v.media_url && v.media_type ? { type: v.media_type, url: v.media_url.trim(), poster: v.media_poster.trim(), alt: v.media_alt.trim() } : null } as never,
     }).eq("id", group.id);
     if (error) return f.fail(friendlyError(error));
     f.markSaved(v);
@@ -68,6 +76,10 @@ function GroupForm({ group }: { group: Tables<"service_groups"> }) {
         </div>
         <TextArea label="Short description" value={v.short_description} onChange={(e) => f.set("short_description", e.target.value)} className="md:col-span-2" />
         <TextArea label="Description" value={v.description} onChange={(e) => f.set("description", e.target.value)} className="md:col-span-2" />
+        <SelectInput label="Media type (optional)" value={v.media_type} options={MEDIA_TYPE_OPTIONS} onChange={(e) => f.set("media_type", e.target.value)} />
+        <TextInput label="Media URL" hint="Real image, video or Vimeo link — shown on /services and the group page." value={v.media_url} onChange={(e) => f.set("media_url", e.target.value)} />
+        <TextInput label="Poster URL (video)" value={v.media_poster} onChange={(e) => f.set("media_poster", e.target.value)} />
+        <TextInput label="Media alt text" value={v.media_alt} onChange={(e) => f.set("media_alt", e.target.value)} />
         <CheckboxInput label="Featured" checked={v.is_featured} onChange={(b) => f.set("is_featured", b)} />
         <div className="flex items-center justify-end gap-3">
           <span className="text-caption" role="status">

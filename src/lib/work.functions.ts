@@ -32,13 +32,13 @@ export type CaseStudy = {
 type SB = ReturnType<typeof createClient<Database>>;
 const MEDIA_TYPES = new Set(["image", "video", "vimeo"]);
 
-function client(): SB | null {
+export function client(): SB | null {
   const url = process.env["SUPABASE_URL"];
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
   return url && key ? createClient<Database>(url, key, { auth: { persistSession: false, autoRefreshToken: false } }) : null;
 }
 
-async function withPoster(m: WorkMedia | null): Promise<WorkMedia | null> {
+export async function withPoster(m: WorkMedia | null): Promise<WorkMedia | null> {
   if (!m || m.type !== "vimeo" || m.poster) return m;
   const id = vimeoId(m.url);
   if (!id) return m;
@@ -46,11 +46,11 @@ async function withPoster(m: WorkMedia | null): Promise<WorkMedia | null> {
   return { ...m, poster: await vimeoThumb(id) };
 }
 
-type ProjRow = Pick<Database["public"]["Tables"]["portfolio_projects"]["Row"], "id" | "slug" | "title" | "client_name" | "project_year" | "category_id" | "cover_type" | "cover_url" | "cover_poster_url" | "sort_order">;
-const PROJ_COLS = "id,slug,title,client_name,project_year,category_id,cover_type,cover_url,cover_poster_url,sort_order";
+export type ProjRow = Pick<Database["public"]["Tables"]["portfolio_projects"]["Row"], "id" | "slug" | "title" | "client_name" | "project_year" | "category_id" | "cover_type" | "cover_url" | "cover_poster_url" | "sort_order">;
+export const PROJ_COLS = "id,slug,title,client_name,project_year,category_id,cover_type,cover_url,cover_poster_url,sort_order";
 
 /** Builds cards with category, services and cover media (published only — RLS + explicit filters). */
-async function buildCards(sb: SB, list: ProjRow[]): Promise<{ cards: WorkCard[]; links: { project_id: string; service_id: string }[] }> {
+export async function buildCards(sb: SB, list: ProjRow[]): Promise<{ cards: WorkCard[]; links: { project_id: string; service_id: string }[] }> {
   const ids = list.map((p) => p.id);
   if (!ids.length) return { cards: [], links: [] };
   const catIds = [...new Set(list.map((p) => p.category_id).filter((x): x is string => !!x))];

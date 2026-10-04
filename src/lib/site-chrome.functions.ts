@@ -9,6 +9,8 @@ export type SiteChrome = {
   company: { company_name?: string; short_description?: string } | null;
   social: Partial<Record<"facebook" | "instagram" | "linkedin" | "youtube" | "x", string>> | null;
   featured: { title: string; slug: string; image: string; category: string | null } | null;
+  /** Published service + service group slugs — /services/<slug> links activate only for these. */
+  serviceSlugs: string[];
 };
 
 /**
@@ -17,13 +19,13 @@ export type SiteChrome = {
  * Never throws — the header falls back to defaults if anything fails.
  */
 export const getSiteChrome = createServerFn({ method: "GET" }).handler(async (): Promise<SiteChrome> => {
-  const empty: SiteChrome = { navigation: null, brand: null, contact: null, company: null, social: null, featured: null };
+  const empty: SiteChrome = { navigation: null, brand: null, contact: null, company: null, social: null, featured: null, serviceSlugs: [] };
   const url = process.env["SUPABASE_URL"];
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
   if (!url || !key) return empty;
   const sb = createClient<Database>(url, key, { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } });
   try {
-    const [settings, featured] = await Promise.all([
+    const [settings, featured, svcs, grps] = await Promise.all([
       sb.from("site_settings").select("setting_group,settings").in("setting_group", ["navigation", "brand", "contact", "company", "social"]),
       sb
         .from("portfolio_projects")
@@ -35,6 +37,8 @@ export const getSiteChrome = createServerFn({ method: "GET" }).handler(async ():
         .order("sort_order")
         .limit(1)
         .maybeSingle(),
+      sb.from("services").select("slug").eq("status", "published"),
+      sb.from("service_groups").select("slug").eq("status", "published"),
     ]);
     const get = (g: string) => settings.data?.find((r) => r.setting_group === g)?.settings ?? null;
     const f = featured.data;
@@ -48,6 +52,7 @@ export const getSiteChrome = createServerFn({ method: "GET" }).handler(async ():
         f && f.cover_url && /^https:\/\//.test(f.cover_url)
           ? { title: f.title, slug: f.slug, image: f.cover_url, category: f.portfolio_categories?.name ?? null }
           : null,
+      serviceSlugs: [...(svcs.data ?? []), ...(grps.data ?? [])].map((r) => r.slug),
     };
   } catch {
     return empty;
