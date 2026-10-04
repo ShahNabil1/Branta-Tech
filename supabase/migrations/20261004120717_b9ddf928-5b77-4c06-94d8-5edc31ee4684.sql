@@ -1,0 +1,2 @@
+update public.page_sections set cta_url = '/start-a-project' where section_type = 'final_cta' and cta_url = '/contact';
+update public.page_sections set config = jsonb_set(config, '{secondary_cta,url}', '"/start-a-project"') where section_type = 'hero' and config #>> '{secondary_cta,url}' = '/contact';
