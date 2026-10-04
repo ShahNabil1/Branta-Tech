@@ -1,5 +1,5 @@
 /** Builds route head() meta from real values only. Image tags are added only for absolute https images. */
-export function pageMeta({ title, description, image, noindex, type = "website" }: { title: string; description: string; image?: string | null; noindex?: boolean; type?: string }) {
+export function pageMeta({ title, description, image, noindex, type = "website" }: { title: string; description: string; image?: string | null | undefined; noindex?: boolean | undefined; type?: string }) {
   const meta: Array<Record<string, string>> = [
     { title },
     { name: "description", content: description },

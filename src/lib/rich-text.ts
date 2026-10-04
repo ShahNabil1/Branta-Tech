@@ -6,9 +6,9 @@
 export type Block =
   | { type: "heading"; level: 2 | 3; text: string }
   | { type: "paragraph"; text: string }
-  | { type: "quote"; text: string; cite?: string }
+  | { type: "quote"; text: string; cite?: string | undefined }
   | { type: "list"; ordered: boolean; items: string[] }
-  | { type: "image"; url: string; alt: string; caption?: string };
+  | { type: "image"; url: string; alt: string; caption?: string | undefined };
 
 export const BLOCK_TYPES = ["paragraph", "heading", "quote", "list", "image"] as const;
 
