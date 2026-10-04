@@ -33,7 +33,7 @@ function useResolveLink() {
   );
 }
 
-function SmartLink({ url, className, pendingClassName, children, onNavigate, ...rest }: {
+export function SmartLink({ url, className, pendingClassName, children, onNavigate, ...rest }: {
   url: string | undefined;
   className?: string;
   pendingClassName?: string;

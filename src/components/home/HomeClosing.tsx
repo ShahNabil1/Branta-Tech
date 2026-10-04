@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { DarkSection, Eyebrow, Section, SiteContainer } from "@/components/layout/primitives";
 import { HeroAction } from "@/components/home/Hero";
-import { SmartLink } from "@/components/layout/SiteHeader";
 import type { HomeClosing } from "@/lib/home-closing.functions";
 import { cn } from "@/lib/utils";
 
@@ -124,9 +123,8 @@ export function FinalCta({ content }: P<"finalCta">) {
   return (
     <DarkSection aria-labelledby="final-cta-title" className="border-t border-border">
       <SiteContainer className="px-0">
-        <h2 id="final-cta-title" className="text-display-xl whitespace-pre-line text-foreground">
-          {content.title}<span aria-hidden className="text-accent">.</span>
-        </h2>
+        <span aria-hidden className="mb-8 block h-1 w-12 bg-accent" />
+        <h2 id="final-cta-title" className="text-display-xl whitespace-pre-line text-foreground">{content.title}</h2>
         <div className="mt-10 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           {content.body && <p className="text-body-lg max-w-md text-muted-foreground">{content.body}</p>}
           <div className="flex flex-wrap gap-3">
@@ -138,5 +136,3 @@ export function FinalCta({ content }: P<"finalCta">) {
     </DarkSection>
   );
 }
-
-export { SmartLink };

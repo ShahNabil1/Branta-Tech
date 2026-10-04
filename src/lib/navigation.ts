@@ -92,3 +92,25 @@ export function navFromCms(raw: unknown): NavEntry[] | null {
 
 /** Only https URLs, used for CMS-provided images. */
 export const safeImage = (u: unknown) => (typeof u === "string" && /^https:\/\/[^\s"<>]+$/.test(u) ? u : null);
+
+/* ---------------- Footer ---------------- */
+
+/** FALLBACK footer columns — used only while CMS navigation has no "footer" group items. */
+export const FALLBACK_FOOTER: NavColumn[] = [
+  { title: "Create", links: [L("AI Film", "/services/ai-video-film"), L("AI Photography", "/services/ai-photography"), L("Brand & Creative", "/services/brand-creative"), L("Campaigns", "/services/brand-creative")] },
+  { title: "Build", links: [L("UI/UX", "/services/ui-ux-digital-design"), L("Websites", "/services/web-software"), L("E-commerce", "/services/web-software"), L("Software", "/services/web-software"), L("Automation", "/services/ai-automation")] },
+  { title: "Company", links: [L("About", "/about"), L("Process", "/process"), L("Team", "/team"), L("Careers", "/careers"), L("Contact", "/contact")] },
+  { title: "Explore", links: [L("Work", "/work"), L("AI Studio", "/ai-studio"), L("Insights", "/insights")] },
+];
+
+/** CMS items in menu_group "footer": each top-level item is a column, its children the links. */
+export function footerFromCms(raw: unknown): NavColumn[] | null {
+  const items = (raw as { items?: CmsItem[] } | null)?.items;
+  if (!Array.isArray(items)) return null;
+  const cols = items
+    .filter((i) => live(i) && (i.menu_group ?? "").toLowerCase() === "footer")
+    .sort(byOrder)
+    .map((i) => ({ title: i.label!.trim(), links: (i.children ?? []).filter(live).sort(byOrder).map((k) => ({ label: k.label!.trim(), url: (k.url ?? "").trim() })) }))
+    .filter((c) => c.links.length);
+  return cols.length ? cols : null;
+}
