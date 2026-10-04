@@ -1,4 +1,5 @@
-import { AdminButton, CheckboxInput, TextInput, TextArea } from "@/components/admin/cms";
+import { AdminButton, CheckboxInput, ConfirmButton, TextInput, TextArea } from "@/components/admin/cms";
+import { UploadImageButton } from "@/components/admin/UploadImageButton";
 import { asObj, maxItems, parseLogos, parseSteps, secondaryCta, type ClientLogo, type ProcessStep } from "@/lib/home-closing";
 
 type Props = { type: string; config: string; onChange: (json: string) => void };
@@ -47,21 +48,26 @@ export function HomeClosingFields({ type, config, onChange }: Props) {
     const upd = (i: number, p: Partial<ClientLogo>) => set(logos.map((l, j) => (j === i ? { ...l, ...p } : l)));
     return box("Client logos", <>
       <p className="text-caption text-muted-foreground">Real clients only. These logos are shown in the Trust & Credibility band right after the Hero (not repeated later on the homepage). The band stays hidden on the website until at least one enabled logo with a client name and an https logo URL exists.</p>
-      {logos.length === 0 && <p className="text-small rounded-sm border border-dashed border-border p-4 text-muted-foreground">No logos yet. Upload logos in Media, then add them here.</p>}
+      {logos.length === 0 && <p className="text-small rounded-sm border border-dashed border-border p-4 text-muted-foreground">No logos yet. Click "Add logo", then upload or paste its image.</p>}
       {logos.map((l, i) => (
         <div key={i} className="grid gap-2 rounded-sm border border-border p-3 md:grid-cols-2">
           <div className="flex items-center justify-between md:col-span-2">
             <p className="text-small font-medium">{l.client_name || `Logo ${i + 1}`}</p>
             <div className="flex gap-1">
               <AdminButton size="sm" variant="ghost" disabled={i === 0} onClick={() => set(swap(logos, i, i - 1))}>Up</AdminButton>
-              <AdminButton size="sm" variant="ghost" onClick={() => set(logos.filter((_, j) => j !== i))}>Remove</AdminButton>
+              <AdminButton size="sm" variant="ghost" disabled={i === logos.length - 1} onClick={() => set(swap(logos, i, i + 1))}>Down</AdminButton>
+              <ConfirmButton title="Delete this client logo?" description="It is removed from the homepage after you save this section. Projects, client accounts, leads and other content are not affected." confirmLabel="Delete" onConfirm={() => set(logos.filter((_, j) => j !== i))}>Delete</ConfirmButton>
             </div>
           </div>
           <TextInput label="Client name" value={l.client_name} onChange={(e) => upd(i, { client_name: e.target.value })} />
-          <TextInput label="Logo URL" hint="https; SVG or transparent PNG." value={l.logo_url} onChange={(e) => upd(i, { logo_url: e.target.value })} />
+          <TextInput label="Logo URL" hint="https. Uploads: PNG, WebP, AVIF or JPG (SVG upload is blocked for security; an https SVG link still works)." value={l.logo_url} onChange={(e) => upd(i, { logo_url: e.target.value })} />
+          <div className="flex items-center gap-3 md:col-span-2">
+            <UploadImageButton label={l.logo_url ? "Replace logo" : "Upload logo"} onUploaded={(url) => upd(i, { logo_url: url, alt: l.alt || (l.client_name ? `${l.client_name} logo` : "") })} />
+            {/^https:\/\//.test(l.logo_url) && <span className="flex h-12 w-32 items-center justify-center rounded-sm border border-border bg-background p-2"><img src={l.logo_url} alt="" className="max-h-full max-w-full object-contain" onError={(e) => { e.currentTarget.style.display = "none"; }} /></span>}
+          </div>
           <TextInput label="Alt text" value={l.alt} onChange={(e) => upd(i, { alt: e.target.value })} />
           <TextInput label="Client website (optional)" value={l.client_url} onChange={(e) => upd(i, { client_url: e.target.value })} />
-          <CheckboxInput label="Enabled" checked={l.enabled} onChange={(b) => upd(i, { enabled: b })} />
+          <CheckboxInput label="Visible on website" checked={l.enabled} onChange={(b) => upd(i, { enabled: b })} />
         </div>
       ))}
       <AdminButton size="sm" variant="ghost" onClick={() => set([...logos, { client_name: "", logo_url: "", client_url: "", alt: "", sort_order: logos.length, enabled: true }])}>Add logo</AdminButton>

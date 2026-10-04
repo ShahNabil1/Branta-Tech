@@ -8,10 +8,11 @@ type Content = NonNullable<HomeClosing["trust"]>;
 function Logo({ l, decorative }: { l: ClientLogo; decorative?: boolean }) {
   const img = (
     <img src={l.logo_url} alt={decorative ? "" : l.alt || l.client_name} loading="lazy" decoding="async"
+      onError={(e) => { const li = e.currentTarget.closest("li"); if (li) li.style.display = "none"; }}
       className="h-7 w-auto max-w-[150px] object-contain opacity-60 grayscale transition-[opacity,filter] duration-300 hover:opacity-100 hover:grayscale-0 md:h-9 md:max-w-[180px]" />
   );
   return /^https:\/\//.test(l.client_url) && !decorative
-    ? <a href={l.client_url} target="_blank" rel="noreferrer" className="shrink-0 focus-visible:outline-2 focus-visible:outline-accent">{img}</a>
+    ? <a href={l.client_url} target="_blank" rel="noopener noreferrer" className="shrink-0 focus-visible:outline-2 focus-visible:outline-accent">{img}</a>
     : <span className="shrink-0">{img}</span>;
 }
 
@@ -80,7 +81,7 @@ export function TrustProof({ content }: { content: Content }) {
                 <div className="mt-4 flex items-center gap-4">
                   {fundedBy.logo_url && <img src={fundedBy.logo_url} alt={`${fundedBy.name} logo`} loading="lazy" className="h-12 w-auto max-w-[120px] object-contain" />}
                   {fundedBy.url
-                    ? <a href={fundedBy.url} target="_blank" rel="noreferrer" className="text-h3 font-medium underline-offset-4 hover:underline">{fundedBy.name}</a>
+                    ? <a href={fundedBy.url} target="_blank" rel="noopener noreferrer" className="text-h3 font-medium underline-offset-4 hover:underline">{fundedBy.name}</a>
                     : <p className="text-h3 font-medium">{fundedBy.name}</p>}
                 </div>
                 {fundedBy.body && <p className="text-small mt-3 max-w-sm text-muted-foreground">{fundedBy.body}</p>}
