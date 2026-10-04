@@ -120,7 +120,7 @@ export const getAiFilm = createServerFn({ method: "GET" }).handler(async (): Pro
     if (cfg.project_ids.length) items.sort((a, b) => cfg.project_ids.indexOf(a.id) - cfg.project_ids.indexOf(b.id));
 
     return {
-      eyebrow: sec.eyebrow || "AI FILM",
+      eyebrow: sec.eyebrow || "AI COMMERCIAL",
       title: sec.title || "Turn an Idea Into a World.",
       body: sec.body || "",
       ctaLabel: sec.cta_label || "Explore AI Commercial",
