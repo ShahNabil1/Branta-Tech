@@ -19,7 +19,7 @@ const pendingCls = "text-small cursor-default text-muted-foreground/45";
 function SiteFooter() {
   const { data } = useQuery(siteChromeQuery);
   const cols = footerFromCms(data?.navigation) ?? FALLBACK_FOOTER;
-  const logo = https(data?.brand?.logo_dark_url) ?? https(data?.brand?.logo_url);
+  const logo = https(data?.brand?.logo_url);
   const name = text(data?.company?.company_name) ?? "Branta Tech";
   const desc = text(data?.company?.short_description) ?? "Creative. AI. Technology.";
   const email = text(data?.contact?.email);
@@ -28,7 +28,7 @@ function SiteFooter() {
   const socials = SOCIAL.map((s) => ({ ...s, url: https(data?.social?.[s.key]) })).filter((s) => s.url);
 
   return (
-    <footer className="dark border-t border-border bg-background text-foreground">
+    <footer className="footer-glow border-t border-border bg-background text-foreground">
       <SiteContainer wide className="py-16 md:py-20">
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">

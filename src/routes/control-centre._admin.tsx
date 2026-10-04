@@ -131,20 +131,20 @@ function AdminLayout() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background lg:flex-row">
-      <aside className="dark hidden shrink-0 flex-col bg-background text-foreground lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-60">
+      <aside className="hidden border-r border-border shrink-0 flex-col bg-background text-foreground lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-60">
         <Brand />
         <div className="flex-1 overflow-y-auto pb-6"><NavList roles={admin.roles} /></div>
         {footer}
       </aside>
 
-      <header className="dark sticky top-0 z-30 flex items-center justify-between bg-background px-4 py-3 text-foreground lg:hidden">
+      <header className="sticky border-b border-border top-0 z-30 flex items-center justify-between bg-background px-4 py-3 text-foreground lg:hidden">
         <button onClick={() => setOpen(true)} aria-label="Open menu" className="flex items-center gap-2 text-small">
           <PanelLeft className="size-5" aria-hidden /> Menu
         </button>
         <span className="text-small font-semibold">Control Centre</span>
       </header>
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="left" className="dark flex w-72 flex-col border-border bg-background p-0 text-foreground">
+        <SheetContent side="left" className="flex w-72 flex-col border-border bg-background p-0 text-foreground">
           <SheetTitle className="sr-only">Control Centre menu</SheetTitle>
           <Brand />
           <div className="flex-1 overflow-y-auto pb-6"><NavList roles={admin.roles} onNavigate={() => setOpen(false)} /></div>

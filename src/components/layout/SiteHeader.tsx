@@ -1,4 +1,4 @@
-import logoLight from "@/assets/brand/branta-logo-light.png.asset.json";
+import logoLight from "@/assets/brand/branta-logo.png.asset.json";
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Link, useHydrated, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -75,7 +75,7 @@ export function SmartLink({ url, className, pendingClassName, children, onNaviga
 function useChrome() {
   const { data } = useQuery(siteChromeQuery);
   const nav = navFromCms(data?.navigation) ?? FALLBACK_NAV;
-  const logo = safeImage(data?.brand?.logo_dark_url) ?? safeImage(data?.brand?.logo_url);
+  const logo = safeImage(data?.brand?.logo_url);
   const email = typeof data?.contact?.email === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.contact.email) ? data.contact.email : null;
   return { nav, logo, email, featured: data?.featured ?? null };
 }
@@ -175,8 +175,8 @@ export function SiteHeader() {
     <header
       ref={headerRef}
       className={cn(
-        "dark sticky top-0 z-50 border-b border-border text-foreground transition-[background-color] duration-200",
-        scrolled && !openEntry ? "bg-background/85 backdrop-blur-md" : "bg-background",
+        "sticky top-0 z-50 border-b border-border text-foreground transition-[background-color] duration-200",
+        !openEntry ? "bg-surface/85 backdrop-blur-md" : "bg-surface",
       )}
     >
       <div className="mx-auto flex h-16 w-full max-w-[1600px] items-center gap-6 px-5 md:px-8 xl:h-[68px]">
@@ -262,7 +262,7 @@ export function SiteHeader() {
           aria-label={`${entry.label} menu`}
           onMouseEnter={keepOpen}
           onMouseLeave={hoverClose}
-          className={cn("absolute inset-x-0 top-full hidden border-b border-border bg-background motion-safe:animate-[nav-in_200ms_var(--ease-out-expo)]", open === entry.id && "lg:block")}
+          className={cn("absolute inset-x-0 top-full hidden border-b border-border bg-surface motion-safe:animate-[nav-in_200ms_var(--ease-out-expo)]", open === entry.id && "lg:block")}
         >
           {entry.kind === "mega" ? (
             <MegaPanel entry={entry} featured={entry.id === nav.find((n) => n.kind === "mega")?.id ? featured : null} onNavigate={() => setOpen(null)} />

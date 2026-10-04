@@ -126,7 +126,7 @@ export function CareersTeaser({ content }: P<"careers">) {
 /* ---------- Final CTA ---------- */
 export function FinalCta({ content }: P<"finalCta">) {
   return (
-    <DarkSection aria-labelledby="final-cta-title" className="border-t border-border">
+    <DarkSection aria-labelledby="final-cta-title" className="hero-glow relative isolate overflow-hidden border-t border-border">
       <div>
         <span aria-hidden className="mb-8 block h-1 w-12 bg-accent" />
         <h2 id="final-cta-title" className="text-display-xl whitespace-pre-line text-foreground">{content.title}</h2>

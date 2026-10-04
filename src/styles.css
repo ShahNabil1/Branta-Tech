@@ -57,59 +57,67 @@
 :root {
   --radius: 0.25rem;
 
-  /* Brand palette */
-  --background: oklch(0.975 0.002 106); /* #F7F7F5 warm white */
-  --foreground: oklch(0.145 0 0); /* #0A0A0A */
-  --surface: oklch(1 0 0); /* #FFFFFF */
-  --muted: oklch(0.948 0.003 106); /* #EFEFEC */
-  --muted-foreground: oklch(0.47 0.005 106);
-  --ink: oklch(0.12 0 0); /* #080808 dark cinematic */
-  --ink-foreground: oklch(0.966 0.002 106); /* #F5F5F3 */
-  --accent: oklch(0.68 0.215 42); /* #FF5D00 */
-  --accent-foreground: oklch(1 0 0);
+  /* Branta light system: white / warm white + orange. */
+  --background: #FFFFFF;
+  --warm: #FFF8F3;
+  --surface-soft: #FFFCFA;
+  --orange-soft: #FFF3EA;
+  --peach: #FFD8BD;
+  --orange-light: #FFB07A;
+  --orange-bright: #FF7A1A;
+  --accent-hover: #E94F00;
+  --foreground: #24160F;
+  --text-secondary: #6F5B50;
+  --surface: #FFFFFF;
+  --muted: #FFF3EA;
+  --muted-foreground: #6F5B50;
+  --ink: #24160F; /* warm dark — only for small overlays on media */
+  --ink-foreground: #FFFFFF;
+  --accent: #FF5D00;
+  --accent-foreground: #FFFFFF;
 
   --card: var(--surface);
   --card-foreground: var(--foreground);
   --popover: var(--surface);
   --popover-foreground: var(--foreground);
-  --primary: var(--foreground);
-  --primary-foreground: var(--background);
+  --primary: var(--accent);
+  --primary-foreground: #FFFFFF;
   --secondary: var(--muted);
   --secondary-foreground: var(--foreground);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.145 0 0 / 10%);
-  --input: oklch(0.145 0 0 / 14%);
+  --border: #EADFD8;
+  --input: #DCCDC5;
   --ring: var(--accent);
+  --line: #D8C8BE;
+  --gradient-primary:
+    radial-gradient(60% 70% at 80% 40%, color-mix(in oklab, #FF7A1A 34%, transparent) 0%, color-mix(in oklab, #FFB07A 22%, transparent) 45%, transparent 75%),
+    radial-gradient(45% 50% at 10% 100%, color-mix(in oklab, #FFD8BD 70%, transparent) 0%, transparent 70%),
+    linear-gradient(#FFF8F3, #FFF3EA);
 
-  /* Motion durations */
   --dur-micro: 200ms;
   --dur-reveal: 600ms;
   --dur-cinematic: 1000ms;
 
-  /* Layout */
   --page-max: 1440px;
   --content-max: 1280px;
   --gutter: clamp(1.25rem, 4vw, 3rem);
   --section-y: clamp(4.5rem, 10vw, 9rem);
 }
 
+/* Former dark sections now render as the soft-orange "warm" variant (no black sections). */
 .dark {
-  --background: var(--ink);
-  --foreground: var(--ink-foreground);
-  --surface: oklch(0.17 0 0);
-  --muted: oklch(0.2 0 0);
-  --muted-foreground: oklch(0.7 0.004 106);
+  --background: #FFF3EA;
+  --foreground: #24160F;
+  --surface: #FFFFFF;
+  --muted: #FFE9DA;
+  --muted-foreground: #6F5B50;
   --card: var(--surface);
   --card-foreground: var(--foreground);
   --popover: var(--surface);
   --popover-foreground: var(--foreground);
-  --primary: var(--ink-foreground);
-  --primary-foreground: var(--ink);
-  --secondary: var(--muted);
-  --secondary-foreground: var(--foreground);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 16%);
+  --border: #EADFD8;
+  --input: #DCCDC5;
 }
 
 @layer base {
@@ -299,33 +307,29 @@
 @utility animate-fade-in { animation: fade-in-soft 450ms ease-out both; }
 @media (prefers-reduced-motion: reduce) { .animate-fade-in { animation: none; } }
 
-/* Homepage Hero: warm dark base with soft orange light behind the media side (background only). */
+/* Homepage Hero: warm white base with soft orange light behind the media side (background only). */
 .hero-glow {
-  --hero-base: oklch(0.155 0.018 50); /* ~#120A05 */
-  background-color: var(--hero-base);
-  background-image:
-    linear-gradient(to bottom, var(--background) 0, transparent 120px),
-    radial-gradient(60% 70% at 80% 45%, color-mix(in oklab, #FF5D00 30%, transparent) 0%, color-mix(in oklab, #A82E00 18%, transparent) 45%, transparent 75%),
-    radial-gradient(40% 45% at 8% 100%, color-mix(in oklab, #D94800 16%, transparent) 0%, transparent 70%),
-    radial-gradient(35% 30% at 50% 0%, color-mix(in oklab, #5A1700 35%, transparent) 0%, transparent 70%),
-    radial-gradient(120% 100% at 100% 100%, color-mix(in oklab, #5A1700 25%, transparent) 0%, transparent 60%);
+  background-color: #FFF8F3;
+  background-image: var(--gradient-primary);
 }
 .hero-glow::before {
-  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0.05;
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0.035;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 .hero-glow::after {
   content: ""; position: absolute; z-index: -1; pointer-events: none;
   width: 55vw; height: 55vw; right: -10vw; top: 10%;
-  background: radial-gradient(closest-side, color-mix(in oklab, #FF5D00 14%, transparent), transparent);
+  background: radial-gradient(closest-side, color-mix(in oklab, #FF5D00 16%, transparent), transparent);
   animation: hero-drift 40s ease-in-out infinite alternate;
+}
+.footer-glow {
+  background-color: #FFF8F3;
+  background-image: radial-gradient(50% 60% at 100% 100%, color-mix(in oklab, #FFB07A 30%, transparent), transparent 70%);
 }
 @keyframes hero-drift { to { transform: translate3d(-4vw, 3vh, 0); } }
 @media (max-width: 767px) {
   .hero-glow {
-    background-image:
-      linear-gradient(to bottom, var(--background) 0, transparent 80px),
-      radial-gradient(90% 45% at 70% 78%, color-mix(in oklab, #FF5D00 24%, transparent) 0%, color-mix(in oklab, #A82E00 12%, transparent) 50%, transparent 80%);
+    background-image: radial-gradient(90% 45% at 70% 78%, color-mix(in oklab, #FF7A1A 26%, transparent) 0%, color-mix(in oklab, #FFB07A 16%, transparent) 50%, transparent 80%);
   }
   .hero-glow::after { display: none; }
 }
