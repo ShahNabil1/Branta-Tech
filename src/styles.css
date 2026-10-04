@@ -57,42 +57,44 @@
 :root {
   --radius: 0.25rem;
 
-  /* Branta dark-first system: layered charcoal + orange + warm white. */
-  --background: #0B0B0B;
-  --background-alt: #111111;
-  --surface: #161616;
-  --surface-elevated: #1C1C1C;
-  --orange-hover: #E95200;
+  /* Branta balanced system: light sections + dark sections, orange connects both. */
+  --white: #FFFFFF;
+  --warm: #FFF8F3;
+  --warm-white: #F7F7F5;
+  --dark-bg: #0B0B0B;
+  --dark-alt: #111111;
+  --dark-surface: #161616;
+  --footer-bg: #080808;
   --orange-bright: #FF7A1A;
-  --orange-burnt: #C94300;
-  --orange-soft: #FF9A5A;
+  --orange-soft: #FFB07A;
   --orange-glow: #7A2100;
-  --orange-border: #5A2C15;
-  --accent-hover: var(--orange-hover);
-  --foreground: #F7F7F5;
-  --text-body: #D8D3CE;
-  --muted: #1C1C1C;
-  --muted-foreground: #B7B0AA;
-  --text-muted: #817A74;
-  --ink: #080808;
+  --accent-hover: #E95200;
+
+  /* Light-mode defaults */
+  --background: var(--white);
+  --background-alt: var(--warm);
+  --foreground: #24160F;
+  --surface: #FFFFFF;
+  --muted: var(--warm-white);
+  --muted-foreground: #6F5B50;
+  --ink: #0B0B0B;
   --ink-foreground: #F7F7F5;
   --accent: #FF5D00;
   --accent-foreground: #FFFFFF;
-
   --card: var(--surface);
   --card-foreground: var(--foreground);
-  --popover: #111111;
+  --popover: var(--surface);
   --popover-foreground: var(--foreground);
   --primary: var(--accent);
   --primary-foreground: #FFFFFF;
   --secondary: var(--muted);
   --secondary-foreground: var(--foreground);
-  --destructive: oklch(0.63 0.22 25);
+  --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(1 0 0);
-  --border: #2B2927;
-  --input: #45403C;
+  --border: #EADFD8;
+  --input: #DCCDC5;
   --ring: var(--accent);
-  --line: #3A3531;
+  --line: #D8C8BE;
   --gradient-primary:
     radial-gradient(60% 70% at 80% 45%, color-mix(in oklab, #FF5D00 30%, transparent) 0%, color-mix(in oklab, #C94300 18%, transparent) 45%, transparent 75%),
     radial-gradient(40% 45% at 8% 100%, color-mix(in oklab, #C94300 16%, transparent) 0%, transparent 70%),
@@ -106,16 +108,26 @@
   --content-max: 1280px;
   --gutter: clamp(1.25rem, 4vw, 3rem);
   --section-y: clamp(4.5rem, 10vw, 9rem);
-  color-scheme: dark;
 }
 
-/* "dark" tone sections: slightly lifted charcoal for rhythm (#111111). */
+/* Dark-mode sections (Hero, Made by Branta, AI Film, Automation, CTAs, header, footer, admin sidebar). */
 .dark {
-  --background: #111111;
-  --surface: #161616;
+  --background: var(--dark-bg);
+  --background-alt: var(--dark-alt);
+  --foreground: #F7F7F5;
+  --surface: var(--dark-surface);
   --muted: #1C1C1C;
+  --muted-foreground: #B7B0AA;
   --card: var(--surface);
-  --popover: #161616;
+  --card-foreground: var(--foreground);
+  --popover: var(--dark-alt);
+  --popover-foreground: var(--foreground);
+  --secondary: var(--muted);
+  --secondary-foreground: var(--foreground);
+  --border: #2B2927;
+  --input: #45403C;
+  --line: #3A3531;
+  color-scheme: dark;
 }
 
 @layer base {
@@ -321,7 +333,7 @@
   animation: hero-drift 40s ease-in-out infinite alternate;
 }
 .footer-glow {
-  background-color: #080808;
+  background-color: var(--footer-bg);
   background-image: radial-gradient(45% 55% at 100% 100%, color-mix(in oklab, #7A2100 30%, transparent), transparent 70%);
 }
 @keyframes hero-drift { to { transform: translate3d(-4vw, 3vh, 0); } }
@@ -333,4 +345,9 @@
 }
 @media (prefers-reduced-motion: reduce) { .hero-glow::after { animation: none; } }
 
-html { scrollbar-color: #3A332E #111111; }
+
+/* Careers band: dark #111 with subtle orange glow. */
+.glow-soft {
+  background-color: var(--dark-alt);
+  background-image: radial-gradient(45% 70% at 90% 50%, color-mix(in oklab, #FF5D00 14%, transparent), transparent 70%);
+}

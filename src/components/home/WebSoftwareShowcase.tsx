@@ -74,7 +74,7 @@ function Promo({ id, poster, title }: { id: string | null; poster: string | null
 
 export function WebSoftwareShowcase({ content }: { content: NonNullable<WebSoftware> }) {
   return (
-    <DarkSection aria-labelledby="web-software-title">
+    <Section tone="warm" aria-labelledby="web-software-title">
       <SiteContainer>
         <div className="grid gap-8 md:grid-cols-12 md:items-end">
           <div className="md:col-span-7">
@@ -123,6 +123,6 @@ export function WebSoftwareShowcase({ content }: { content: NonNullable<WebSoftw
           )}
         </div>
       </SiteContainer>
-    </DarkSection>
+    </Section>
   );
 }

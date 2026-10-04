@@ -28,7 +28,7 @@ function SiteFooter() {
   const socials = SOCIAL.map((s) => ({ ...s, url: https(data?.social?.[s.key]) })).filter((s) => s.url);
 
   return (
-    <footer className="footer-glow border-t border-border bg-background text-foreground">
+    <footer className="dark footer-glow border-t border-border bg-background text-foreground">
       <SiteContainer wide className="py-16 md:py-20">
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">

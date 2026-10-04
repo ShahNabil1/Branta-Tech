@@ -170,7 +170,7 @@ export function CapabilityExplorer({ content }: { content: CapExplorerContent })
   const panelId = "cap-panel";
 
   return (
-    <section aria-labelledby="cap-title" className="relative bg-background py-[var(--section-y)] text-foreground">
+    <section aria-labelledby="cap-title" className="relative bg-[var(--warm)] py-[var(--section-y)] text-foreground">
       <SiteContainer wide>
         <div className="mb-10 grid gap-4 md:mb-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-end">
           <div>

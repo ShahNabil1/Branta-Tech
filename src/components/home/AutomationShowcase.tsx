@@ -154,7 +154,7 @@ export function AutomationShowcase({ content }: { content: NonNullable<Automatio
   const cta = <HeroAction label={content.ctaLabel} url={content.ctaUrl} variant="secondary" />;
 
   return (
-    <DarkSection aria-labelledby="automation-title">
+    <DarkSection aria-labelledby="automation-title" className="bg-[var(--dark-alt)]">
       <SiteContainer>
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
           <div className="min-w-0 lg:col-span-5">

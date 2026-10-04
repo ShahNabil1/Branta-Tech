@@ -22,8 +22,8 @@ export function SiteContainer({
 /* ---------- Section ---------- */
 type Tone = "warm" | "white" | "muted" | "dark";
 const toneClass: Record<Tone, string> = {
-  warm: "bg-background text-foreground",
-  white: "bg-surface text-foreground",
+  warm: "bg-[var(--warm)] text-foreground",
+  white: "bg-[var(--white)] text-foreground",
   muted: "bg-muted text-foreground",
   dark: "dark bg-background text-foreground",
 };
