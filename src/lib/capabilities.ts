@@ -1,7 +1,7 @@
 /** Browser-safe Capability Explorer types + config parsing (shared by site + Control Centre). */
 
 export type CapMediaType = "vimeo" | "image" | "video" | "workflow" | "none";
-export type CapMedia = { type: CapMediaType; url: string; poster_url: string; alt: string };
+export type CapMedia = { type: CapMediaType; url: string; poster_url: string; alt: string; autoplay: boolean; loop: boolean; muted: boolean };
 export type CapItem = {
   key: string;
   label: string;
@@ -26,10 +26,10 @@ export type CapExplorerContent = {
 };
 
 export const CAP_MEDIA_TYPES: { value: CapMediaType; label: string }[] = [
-  { value: "none", label: "None (clean placeholder)" },
-  { value: "image", label: "Image" },
+  { value: "video", label: "Video file (.mp4 / .webm)" },
   { value: "vimeo", label: "Vimeo" },
-  { value: "video", label: "Video file" },
+  { value: "image", label: "Image (fallback)" },
+  { value: "none", label: "None (clean placeholder)" },
   { value: "workflow", label: "Workflow diagram" },
 ];
 
@@ -61,6 +61,9 @@ export function parseCapConfig(raw: unknown): CapConfig {
           url: str(m["url"]),
           poster_url: str(m["poster_url"]),
           alt: str(m["alt"]),
+          autoplay: m["autoplay"] !== false,
+          loop: m["loop"] !== false,
+          muted: m["muted"] !== false,
         },
       };
     })

@@ -1,6 +1,6 @@
 /** Shared, browser-safe options for Start a Project / Book a Call. */
 export const SERVICE_OPTIONS = [
-  "AI Film / Video", "AI Photography", "Branding / Creative", "UI/UX", "Website", "E-commerce", "Software", "AI Automation", "Something Else",
+  "AI Commercial / Video", "AI Photography", "Branding / Creative", "UI/UX", "Website", "E-commerce", "Software", "AI Automation", "Something Else",
 ] as const;
 export const BUDGET_OPTIONS = ["Not sure yet", "Have a budget in mind"] as const;
 export const TIMELINE_OPTIONS = ["As soon as possible", "Within 1 month", "1–3 months", "3+ months", "Flexible"] as const;

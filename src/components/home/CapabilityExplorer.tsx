@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type RefObject } from "react";
 import { cn } from "@/lib/utils";
 import { SiteContainer } from "@/components/layout/primitives";
 import { Reveal } from "@/components/motion/Reveal";
@@ -29,18 +29,49 @@ function ImageLayer({ item, active }: { item: Item; active: boolean }) {
   );
 }
 
-function VimeoLayer({ item, active }: { item: Item; active: boolean }) {
-  const id = vimeoId(item.media.url);
-  const frame = useRef<HTMLIFrameElement>(null);
-  const [playing, setPlaying] = useState(false);
+/** True while the element is near/in the viewport — players only run while visible. */
+function useInView<T extends Element>(ref: RefObject<T | null>) {
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([e]) => setInView(!!e?.isIntersecting), { rootMargin: "100px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref]);
+  return inView;
+}
+
+function useMotionAllowed() {
   const [allow, setAllow] = useState(false);
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const save = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
     setAllow(!reduced && !save);
   }, []);
+  return allow;
+}
+
+const LAYER = "absolute inset-0 transition-[opacity,transform] duration-[350ms] ease-[var(--ease-out-expo)]";
+
+/** Poster that disappears quietly if it fails to load (never a broken image icon). */
+function Poster({ src, alt }: { src: string; alt: string }) {
+  const [bad, setBad] = useState(false);
+  if (!src || bad) return null;
+  return <img src={src} alt={alt} decoding="async" onError={() => setBad(true)} className="absolute inset-0 size-full object-cover" />;
+}
+
+function VimeoLayer({ item, active }: { item: Item; active: boolean }) {
+  const m = item.media;
+  const id = vimeoId(m.url);
+  const box = useRef<HTMLDivElement>(null);
+  const frame = useRef<HTMLIFrameElement>(null);
+  const inView = useInView(box);
+  const allow = useMotionAllowed();
+  const [playing, setPlaying] = useState(false);
+  const run = active && inView && allow && m.autoplay && !!id;
   useEffect(() => {
-    if (!active) { setPlaying(false); return; }
+    if (!run) { setPlaying(false); return; }
     const onMsg = (e: MessageEvent) => {
       if (e.origin !== "https://player.vimeo.com" || e.source !== frame.current?.contentWindow) return;
       let d: { event?: string } = {};
@@ -52,19 +83,19 @@ function VimeoLayer({ item, active }: { item: Item; active: boolean }) {
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [active]);
+  }, [run]);
   return (
-    <div aria-hidden={!active} className={cn("absolute inset-0 transition-[opacity,transform] duration-[450ms] ease-[var(--ease-out-expo)]", active ? "scale-100 opacity-100" : "scale-[1.03] opacity-0")}>
-      {item.media.poster_url && <img src={item.media.poster_url} alt={item.media.alt} decoding="async" className="absolute inset-0 size-full object-cover" />}
-      {/* Only the active film mounts its player; switching away unmounts it (stops playback). */}
-      {active && allow && id && (
+    <div ref={box} aria-hidden={!active} className={cn(LAYER, active ? "scale-100 opacity-100" : "scale-[1.02] opacity-0")}>
+      <Poster src={m.poster_url} alt={m.alt} />
+      {/* Only the active, visible capability mounts its player; anything else unmounts it (stops playback). */}
+      {run && (
         <iframe
           ref={frame}
-          title={item.media.alt || `${item.label} film`}
+          title={m.alt || `${item.label} video`}
           tabIndex={-1}
-          src={`https://player.vimeo.com/video/${id}?background=1&autoplay=1&muted=1&loop=1&autopause=0&dnt=1`}
+          src={`https://player.vimeo.com/video/${id}?background=1&autoplay=1&muted=${m.muted ? 1 : 0}&loop=${m.loop ? 1 : 0}&autopause=0&dnt=1`}
           allow="autoplay; fullscreen; picture-in-picture"
-          className={cn("pointer-events-none absolute inset-0 size-full border-0 transition-opacity duration-700", playing ? "opacity-100" : "opacity-0")}
+          className={cn("pointer-events-none absolute inset-0 size-full border-0 transition-opacity duration-500", playing ? "opacity-100" : "opacity-0")}
         />
       )}
     </div>
@@ -72,23 +103,36 @@ function VimeoLayer({ item, active }: { item: Item; active: boolean }) {
 }
 
 function VideoLayer({ item, active }: { item: Item; active: boolean }) {
+  const m = item.media;
+  const box = useRef<HTMLDivElement>(null);
   const ref = useRef<HTMLVideoElement>(null);
+  const inView = useInView(box);
+  const allow = useMotionAllowed();
+  const [playing, setPlaying] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const run = active && inView && allow && m.autoplay && !failed;
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
-    if (active && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) void v.play().catch(() => {});
-    else v.pause();
-  }, [active]);
+    if (run) void v.play().catch(() => setPlaying(false)); // blocked autoplay keeps the poster
+    else { v.pause(); setPlaying(false); }
+  }, [run]);
   return (
-    <video
-      ref={ref}
-      src={item.media.url}
-      poster={item.media.poster_url || undefined}
-      muted loop playsInline preload={active ? "auto" : "none"}
-      aria-hidden={!active}
-      aria-label={item.media.alt || undefined}
-      className={cn("absolute inset-0 size-full object-cover transition-[opacity,transform] duration-[450ms] ease-[var(--ease-out-expo)]", active ? "scale-100 opacity-100" : "scale-[1.03] opacity-0")}
-    />
+    <div ref={box} aria-hidden={!active} className={cn(LAYER, active ? "scale-100 opacity-100" : "scale-[1.02] opacity-0")}>
+      <Poster src={m.poster_url} alt={m.alt} />
+      {/* The file only starts loading once its tab has been active while visible. */}
+      {(run || playing) && (
+        <video
+          ref={ref}
+          src={m.url}
+          muted={m.muted} loop={m.loop} playsInline autoPlay preload="auto"
+          aria-label={m.alt || undefined}
+          onPlaying={() => setPlaying(true)}
+          onError={() => { setFailed(true); setPlaying(false); }}
+          className={cn("absolute inset-0 size-full object-cover transition-opacity duration-500", playing ? "opacity-100" : "opacity-0")}
+        />
+      )}
+    </div>
   );
 }
 
@@ -128,6 +172,7 @@ function MediaLayer({ item, active }: { item: Item; active: boolean }) {
   if (m.type === "workflow") return <WorkflowLayer item={item} active={active} />;
   if (m.type === "vimeo" && vimeoId(m.url)) return <VimeoLayer item={item} active={active} />;
   if (m.type === "video" && m.url) return <VideoLayer item={item} active={active} />;
+  if ((m.type === "vimeo" || m.type === "video") && m.poster_url) return <ImageLayer item={{ ...item, media: { ...m, url: m.poster_url } }} active={active} />;
   if (m.type === "image" && m.url) return <ImageLayer item={item} active={active} />;
   return <EmptyMedia item={item} active={active} />;
 }

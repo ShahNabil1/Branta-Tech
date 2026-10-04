@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { ArrowDown, ArrowUp, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminButton, CheckboxInput, SelectInput, TextArea, TextInput, isSafeUrl, swapped } from "@/components/admin/cms";
-import { CAP_MEDIA_TYPES, parseCapConfig, type CapItem } from "@/lib/capabilities";
+import { CAP_MEDIA_TYPES, parseCapConfig, safeMediaUrl, type CapItem, type CapMedia } from "@/lib/capabilities";
+import { vimeoId } from "@/lib/hero";
 
 type Svc = { id: string; name: string; status: string };
 
@@ -49,9 +50,20 @@ export function CapabilityFields({ config, onChange }: { config: string; onChang
             <TextInput label="CTA label" value={m.cta_label} onChange={(e) => setItem(i, { cta_label: e.target.value })} />
             <TextInput label="CTA URL" value={m.cta_url} error={isSafeUrl(m.cta_url) ? null : "Use /path or https:// URL."} onChange={(e) => setItem(i, { cta_url: e.target.value })} />
             <SelectInput label="Media type" value={m.media.type} options={CAP_MEDIA_TYPES} onChange={(e) => setItem(i, { media: { ...m.media, type: e.target.value as CapItem["media"]["type"] } })} />
-            <TextInput label="Media URL" value={m.media.url} hint="From Media library, real Branta work only." error={isSafeUrl(m.media.url, {}) ? null : "Unsafe or invalid URL."} onChange={(e) => setItem(i, { media: { ...m.media, url: e.target.value } })} />
+            <TextInput label={m.media.type === "vimeo" ? "Vimeo URL" : m.media.type === "image" ? "Image URL" : "Video URL"} value={m.media.url}
+              hint={m.media.type === "vimeo" ? "Any normal link, e.g. https://vimeo.com/123456789" : m.media.type === "video" ? "https link to an .mp4 or .webm file" : "From Media library, real Branta work only."}
+              error={!isSafeUrl(m.media.url, {}) ? "Unsafe or invalid URL." : m.media.type === "vimeo" && m.media.url && !vimeoId(m.media.url) ? "Not a recognisable Vimeo link." : m.media.type === "video" && m.media.url && !/\.(mp4|webm)(\?|#|$)/i.test(m.media.url) ? "Use an .mp4 or .webm link." : null}
+              onChange={(e) => setItem(i, { media: { ...m.media, url: e.target.value } })} />
             <TextInput label="Poster URL" value={m.media.poster_url} error={isSafeUrl(m.media.poster_url) ? null : "Unsafe or invalid URL."} onChange={(e) => setItem(i, { media: { ...m.media, poster_url: e.target.value } })} />
-            <TextInput label="Alt text" value={m.media.alt} onChange={(e) => setItem(i, { media: { ...m.media, alt: e.target.value } })} />
+            <TextInput label="Alt / accessibility description" value={m.media.alt} onChange={(e) => setItem(i, { media: { ...m.media, alt: e.target.value } })} />
+            {(m.media.type === "video" || m.media.type === "vimeo") && (
+              <div className="flex flex-wrap gap-x-6 gap-y-2 md:col-span-2">
+                <CheckboxInput label="Autoplay" checked={m.media.autoplay} onChange={(b) => setItem(i, { media: { ...m.media, autoplay: b } })} />
+                <CheckboxInput label="Loop" checked={m.media.loop} onChange={(b) => setItem(i, { media: { ...m.media, loop: b } })} />
+                <CheckboxInput label="Muted" hint="Browsers only autoplay muted video." checked={m.media.muted} onChange={(b) => setItem(i, { media: { ...m.media, muted: b } })} />
+              </div>
+            )}
+            <CapMediaPreview label={m.label} media={m.media} />
             <TextInput
               label="Related labels (fallback)"
               className="md:col-span-2"
@@ -84,9 +96,37 @@ export function CapabilityFields({ config, onChange }: { config: string; onChang
         </details>
       ))}
       <div>
-        <AdminButton size="sm" onClick={() => writeItems([...items, { key: `cap-${Date.now().toString(36)}`, label: "", enabled: false, sort_order: 0, headline: "", description: "", related_labels: [], service_ids: [], cta_label: "", cta_url: "", media: { type: "none", url: "", poster_url: "", alt: "" } }])}>
+        <AdminButton size="sm" onClick={() => writeItems([...items, { key: `cap-${Date.now().toString(36)}`, label: "", enabled: false, sort_order: 0, headline: "", description: "", related_labels: [], service_ids: [], cta_label: "", cta_url: "", media: { type: "video", url: "", poster_url: "", alt: "", autoplay: true, loop: true, muted: true } }])}>
           <Plus className="size-3.5" aria-hidden /> Add capability
         </AdminButton>
+      </div>
+    </div>
+  );
+}
+
+/** Admin preview: poster plus a click-to-load player, so nothing autoplays inside the editor. */
+function CapMediaPreview({ label, media }: { label: string; media: CapMedia }) {
+  const [play, setPlay] = useState(false);
+  const url = safeMediaUrl(media.url), poster = safeMediaUrl(media.poster_url);
+  const vid = media.type === "vimeo" ? vimeoId(url) : null;
+  const canPlay = (media.type === "video" && !!url) || !!vid;
+  return (
+    <div className="md:col-span-2">
+      <p className="text-small mb-2 font-medium">Preview — {label || "Untitled"}</p>
+      <div className="relative w-full max-w-md overflow-hidden rounded-sm bg-muted" style={{ aspectRatio: "4/3" }}>
+        {play && vid ? (
+          <iframe title={`${label} preview`} src={`https://player.vimeo.com/video/${vid}?autoplay=1&muted=1&dnt=1`} allow="autoplay; fullscreen" className="absolute inset-0 size-full border-0" />
+        ) : play && media.type === "video" ? (
+          <video src={url} poster={poster || undefined} controls autoPlay muted playsInline className="absolute inset-0 size-full object-cover" />
+        ) : poster || (media.type === "image" && url) ? (
+          <img src={poster || url} alt="" className="absolute inset-0 size-full object-cover" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+        ) : (
+          <span className="text-caption absolute inset-0 grid place-items-center text-muted-foreground">{media.type === "workflow" ? "Workflow diagram" : "No poster yet"}</span>
+        )}
+      </div>
+      <div className="mt-2 flex gap-2">
+        {canPlay && <AdminButton size="sm" onClick={() => setPlay((p) => !p)}>{play ? "Show poster" : "Play preview"}</AdminButton>}
+        {(media.type === "video" || media.type === "vimeo") && !poster && <span className="text-caption self-center text-muted-foreground">{vid ? "Vimeo thumbnail used when no poster is set." : "Add a poster so something shows before the video loads."}</span>}
       </div>
     </div>
   );
