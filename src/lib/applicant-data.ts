@@ -48,3 +48,24 @@ export async function fetchApplyPrefill(userId: string) {
 }
 
 export const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+
+export type MyInterview = {
+  id: string; application_id: string; job_title: string; scheduled_at: string; timezone: string;
+  interview_type: string; meeting_url: string | null; location: string | null; public_notes: string | null; status: string;
+};
+export const INTERVIEW_TYPE_LABEL: Record<string, string> = { video: "Video call", phone: "Phone call", in_person: "In person" };
+export const INTERVIEW_STATUS_LABEL: Record<string, string> = { scheduled: "Scheduled", rescheduled: "Rescheduled", completed: "Completed", cancelled: "Cancelled" };
+
+export async function fetchMyInterviews() {
+  const { data, error } = await rpc("my_interviews");
+  if (error) throw new Error("load failed");
+  return (data ?? []) as MyInterview[];
+}
+export const isUpcoming = (i: MyInterview) => i.status !== "cancelled" && i.status !== "completed" && new Date(i.scheduled_at).getTime() > Date.now() - 2 * 3600_000;
+
+/** Date + time shown in the interview's own timezone. */
+export function fmtInterview(iso: string, tz: string) {
+  try {
+    return new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: tz, timeZoneName: "short" }).format(new Date(iso));
+  } catch { return new Date(iso).toLocaleString("en-GB"); }
+}

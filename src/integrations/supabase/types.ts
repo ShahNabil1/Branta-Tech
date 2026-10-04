@@ -338,6 +338,62 @@ export type Database = {
           },
         ]
       }
+      job_interviews: {
+        Row: {
+          application_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          internal_notes: string | null
+          interview_type: string
+          location: string | null
+          meeting_url: string | null
+          public_notes: string | null
+          scheduled_at: string
+          status: string
+          timezone: string
+          updated_at: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          internal_notes?: string | null
+          interview_type?: string
+          location?: string | null
+          meeting_url?: string | null
+          public_notes?: string | null
+          scheduled_at: string
+          status?: string
+          timezone?: string
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          internal_notes?: string | null
+          interview_type?: string
+          location?: string | null
+          meeting_url?: string | null
+          public_notes?: string | null
+          scheduled_at?: string
+          status?: string
+          timezone?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_interviews_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "job_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       jobs: {
         Row: {
           created_at: string
@@ -1302,6 +1358,21 @@ export type Database = {
           status: string
           timezone: string
           topic: string
+        }[]
+      }
+      my_interviews: {
+        Args: never
+        Returns: {
+          application_id: string
+          id: string
+          interview_type: string
+          job_title: string
+          location: string
+          meeting_url: string
+          public_notes: string
+          scheduled_at: string
+          status: string
+          timezone: string
         }[]
       }
       my_requests: {
