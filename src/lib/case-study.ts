@@ -59,7 +59,7 @@ export function parseCaseConfig(raw: unknown, type?: string): CaseConfig {
   const c = obj(raw);
   const max = sectionMeta(type ?? "")?.media ?? 24;
   const media = (Array.isArray(c["media"]) ? c["media"] : [])
-    .map((m) => {
+    .map((m): CaseMedia => {
       const o = obj(m);
       const t = o["type"] === "vimeo" || o["type"] === "video" ? (o["type"] as "vimeo" | "video") : "image";
       const url = safeHttps(o["url"]);
