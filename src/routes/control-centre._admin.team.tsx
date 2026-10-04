@@ -37,7 +37,8 @@ function TeamAdmin() {
             {m.photo_url && isHttps(m.photo_url) ? <img src={m.photo_url} alt="" className="size-10 rounded-sm object-cover" /> : <span className="grid size-10 place-items-center rounded-sm bg-muted text-small">{m.name.charAt(0)}</span>}
             <div className="min-w-0">
               <p className="text-small font-medium">{m.name}</p>
-              <p className="text-caption flex flex-wrap items-center gap-2 text-muted-foreground">{m.role ?? "—"}{m.department ? ` · ${m.department}` : ""}{m.leadership_level < 2 ? (m.leadership_level === 0 ? " · Top leadership" : " · Lead") : ""} <StatusBadge status={m.status} />{m.featured && <FeaturedBadge />}</p>
+              <p className="text-caption flex flex-wrap items-center gap-2 text-muted-foreground">{m.role ?? "—"} · {m.department ?? "No department"} · {m.leadership_level === 0 ? "Top leadership" : m.leadership_level === 1 ? "Lead" : "Member"} · Reports to {(q.data ?? []).find((x) => x.id === m.manager_id)?.name ?? "—"} <StatusBadge status={m.status} />{m.featured && <FeaturedBadge />}
+                {m.leadership_level > 0 && (!m.manager_id || (m.leadership_level === 2 && !m.department)) && <span className="rounded-sm border border-border px-1.5 py-0.5 text-foreground">Hierarchy incomplete</span>}</p>
             </div>
             <div className="ml-auto flex gap-1">
               <AdminButton size="sm" variant="ghost" onClick={() => patch(m.id, { status: m.status === "published" ? "draft" : "published" }, m.status === "published" ? "Unpublished" : "Published")}>{m.status === "published" ? "Unpublish" : "Publish"}</AdminButton>
