@@ -45,6 +45,10 @@ import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
 import { Route as WorkIndexRouteImport } from './routes/work.index'
 import { Route as WorkSlugRouteImport } from './routes/work.$slug'
 import { Route as CareersAccountIndexRouteImport } from './routes/careers.account.index'
+import { Route as CareersAccountApplicationsRouteImport } from './routes/careers.account.applications'
+import { Route as CareersAccountInterviewsRouteImport } from './routes/careers.account.interviews'
+import { Route as CareersAccountProfileRouteImport } from './routes/careers.account.profile'
+import { Route as CareersAccountResumeRouteImport } from './routes/careers.account.resume'
 import { Route as ControlCentreAdminAdminUsersRouteImport } from './routes/control-centre._admin.admin-users'
 import { Route as ControlCentreAdminDashboardRouteImport } from './routes/control-centre._admin.dashboard'
 import { Route as ControlCentreAdminMediaRouteImport } from './routes/control-centre._admin.media'
@@ -253,6 +257,28 @@ const CareersAccountIndexRoute = CareersAccountIndexRouteImport.update({
   path: '/',
   getParentRoute: () => CareersAccountRoute,
 } as any)
+const CareersAccountApplicationsRoute =
+  CareersAccountApplicationsRouteImport.update({
+    id: '/applications',
+    path: '/applications',
+    getParentRoute: () => CareersAccountRoute,
+  } as any)
+const CareersAccountInterviewsRoute =
+  CareersAccountInterviewsRouteImport.update({
+    id: '/interviews',
+    path: '/interviews',
+    getParentRoute: () => CareersAccountRoute,
+  } as any)
+const CareersAccountProfileRoute = CareersAccountProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => CareersAccountRoute,
+} as any)
+const CareersAccountResumeRoute = CareersAccountResumeRouteImport.update({
+  id: '/resume',
+  path: '/resume',
+  getParentRoute: () => CareersAccountRoute,
+} as any)
 const ControlCentreAdminAdminUsersRoute =
   ControlCentreAdminAdminUsersRouteImport.update({
     id: '/admin-users',
@@ -443,6 +469,10 @@ export interface FileRoutesByFullPath {
   '/insights/': typeof InsightsIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/work/': typeof WorkIndexRoute
+  '/careers/account/applications': typeof CareersAccountApplicationsRoute
+  '/careers/account/interviews': typeof CareersAccountInterviewsRoute
+  '/careers/account/profile': typeof CareersAccountProfileRoute
+  '/careers/account/resume': typeof CareersAccountResumeRoute
   '/control-centre/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/media': typeof ControlCentreAdminMediaRoute
@@ -503,6 +533,10 @@ export interface FileRoutesByTo {
   '/insights': typeof InsightsIndexRoute
   '/services': typeof ServicesIndexRoute
   '/work': typeof WorkIndexRoute
+  '/careers/account/applications': typeof CareersAccountApplicationsRoute
+  '/careers/account/interviews': typeof CareersAccountInterviewsRoute
+  '/careers/account/profile': typeof CareersAccountProfileRoute
+  '/careers/account/resume': typeof CareersAccountResumeRoute
   '/control-centre/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/media': typeof ControlCentreAdminMediaRoute
@@ -568,6 +602,10 @@ export interface FileRoutesById {
   '/insights/': typeof InsightsIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/work/': typeof WorkIndexRoute
+  '/careers/account/applications': typeof CareersAccountApplicationsRoute
+  '/careers/account/interviews': typeof CareersAccountInterviewsRoute
+  '/careers/account/profile': typeof CareersAccountProfileRoute
+  '/careers/account/resume': typeof CareersAccountResumeRoute
   '/control-centre/_admin/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/_admin/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/_admin/media': typeof ControlCentreAdminMediaRoute
@@ -633,6 +671,10 @@ export interface FileRouteTypes {
     | '/insights/'
     | '/services/'
     | '/work/'
+    | '/careers/account/applications'
+    | '/careers/account/interviews'
+    | '/careers/account/profile'
+    | '/careers/account/resume'
     | '/control-centre/admin-users'
     | '/control-centre/dashboard'
     | '/control-centre/media'
@@ -693,6 +735,10 @@ export interface FileRouteTypes {
     | '/insights'
     | '/services'
     | '/work'
+    | '/careers/account/applications'
+    | '/careers/account/interviews'
+    | '/careers/account/profile'
+    | '/careers/account/resume'
     | '/control-centre/admin-users'
     | '/control-centre/dashboard'
     | '/control-centre/media'
@@ -757,6 +803,10 @@ export interface FileRouteTypes {
     | '/insights/'
     | '/services/'
     | '/work/'
+    | '/careers/account/applications'
+    | '/careers/account/interviews'
+    | '/careers/account/profile'
+    | '/careers/account/resume'
     | '/control-centre/_admin/admin-users'
     | '/control-centre/_admin/dashboard'
     | '/control-centre/_admin/media'
@@ -1069,6 +1119,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CareersAccountIndexRouteImport
       parentRoute: typeof CareersAccountRoute
     }
+    '/careers/account/applications': {
+      id: '/careers/account/applications'
+      path: '/applications'
+      fullPath: '/careers/account/applications'
+      preLoaderRoute: typeof CareersAccountApplicationsRouteImport
+      parentRoute: typeof CareersAccountRoute
+    }
+    '/careers/account/interviews': {
+      id: '/careers/account/interviews'
+      path: '/interviews'
+      fullPath: '/careers/account/interviews'
+      preLoaderRoute: typeof CareersAccountInterviewsRouteImport
+      parentRoute: typeof CareersAccountRoute
+    }
+    '/careers/account/profile': {
+      id: '/careers/account/profile'
+      path: '/profile'
+      fullPath: '/careers/account/profile'
+      preLoaderRoute: typeof CareersAccountProfileRouteImport
+      parentRoute: typeof CareersAccountRoute
+    }
+    '/careers/account/resume': {
+      id: '/careers/account/resume'
+      path: '/resume'
+      fullPath: '/careers/account/resume'
+      preLoaderRoute: typeof CareersAccountResumeRouteImport
+      parentRoute: typeof CareersAccountRoute
+    }
     '/control-centre/_admin/admin-users': {
       id: '/control-centre/_admin/admin-users'
       path: '/admin-users'
@@ -1362,10 +1440,18 @@ const ControlCentreRouteWithChildren = ControlCentreRoute._addFileChildren(
 )
 
 interface CareersAccountRouteChildren {
+  CareersAccountApplicationsRoute: typeof CareersAccountApplicationsRoute
+  CareersAccountInterviewsRoute: typeof CareersAccountInterviewsRoute
+  CareersAccountProfileRoute: typeof CareersAccountProfileRoute
+  CareersAccountResumeRoute: typeof CareersAccountResumeRoute
   CareersAccountIndexRoute: typeof CareersAccountIndexRoute
 }
 
 const CareersAccountRouteChildren: CareersAccountRouteChildren = {
+  CareersAccountApplicationsRoute: CareersAccountApplicationsRoute,
+  CareersAccountInterviewsRoute: CareersAccountInterviewsRoute,
+  CareersAccountProfileRoute: CareersAccountProfileRoute,
+  CareersAccountResumeRoute: CareersAccountResumeRoute,
   CareersAccountIndexRoute: CareersAccountIndexRoute,
 }
 

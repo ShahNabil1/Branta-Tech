@@ -14,6 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      applicant_profiles: {
+        Row: {
+          behance_url: string | null
+          created_at: string
+          current_location: string | null
+          github_url: string | null
+          graduation_year: number | null
+          institute: string | null
+          linkedin_url: string | null
+          photo_path: string | null
+          portfolio_url: string | null
+          semester: string | null
+          short_bio: string | null
+          study_department: string | null
+          study_status: string | null
+          updated_at: string
+          user_id: string
+          website_url: string | null
+        }
+        Insert: {
+          behance_url?: string | null
+          created_at?: string
+          current_location?: string | null
+          github_url?: string | null
+          graduation_year?: number | null
+          institute?: string | null
+          linkedin_url?: string | null
+          photo_path?: string | null
+          portfolio_url?: string | null
+          semester?: string | null
+          short_bio?: string | null
+          study_department?: string | null
+          study_status?: string | null
+          updated_at?: string
+          user_id: string
+          website_url?: string | null
+        }
+        Update: {
+          behance_url?: string | null
+          created_at?: string
+          current_location?: string | null
+          github_url?: string | null
+          graduation_year?: number | null
+          institute?: string | null
+          linkedin_url?: string | null
+          photo_path?: string | null
+          portfolio_url?: string | null
+          semester?: string | null
+          short_bio?: string | null
+          study_department?: string | null
+          study_status?: string | null
+          updated_at?: string
+          user_id?: string
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applicant_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       application_notes: {
         Row: {
           application_id: string
