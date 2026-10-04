@@ -1,20 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { DarkSection, Eyebrow, SiteContainer } from "@/components/layout/primitives";
 import { HeroAction } from "@/components/home/Hero";
 import { vimeoId } from "@/lib/hero";
 import { cn } from "@/lib/utils";
 import type { FeaturedWork as FW, WorkItem } from "@/lib/featured-work.functions";
-
-/** Editorial rhythm: large film, tall + medium pair, wide, small + tall pair. */
-const SLOTS = [
-  "md:col-span-12 aspect-[16/9]",
-  "md:col-span-5 aspect-[4/5]",
-  "md:col-span-7 aspect-[4/3] md:self-end",
-  "md:col-span-12 aspect-[21/9]",
-  "md:col-span-5 aspect-[4/3] md:self-end",
-  "md:col-span-7 aspect-[16/10]",
-];
 
 function canHover() {
   return typeof window !== "undefined" && window.matchMedia("(hover: hover) and (pointer: fine)").matches && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -59,62 +49,98 @@ function Media({ item, playing }: { item: WorkItem; playing: boolean }) {
   );
 }
 
-function Card({ item, slot, index, playing, onHover, show }: {
-  item: WorkItem; slot: string; index: number; playing: boolean; onHover: (id: string | null) => void;
-  show: Pick<NonNullable<FW>, "showClient" | "showCategory" | "showServices">;
-}) {
-  const router = useRouter();
-  const ref = useRef<HTMLDivElement>(null);
-  // Stop preview when the card leaves the viewport.
-  useEffect(() => {
-    if (!playing || !ref.current) return;
-    const io = new IntersectionObserver(([e]) => { if (e && !e.isIntersecting) onHover(null); });
-    io.observe(ref.current);
-    return () => io.disconnect();
-  }, [playing, onHover]);
+/** Tile width/aspect by real orientation, with a rhythm so neighbours differ. */
+function tileShape(item: WorkItem, i: number) {
+  const o = item.media?.orientation;
+  if (o === "portrait") return "w-[62vw] sm:w-[40vw] md:w-[22rem] aspect-[4/5]";
+  if (o === "square") return "w-[72vw] sm:w-[46vw] md:w-[26rem] aspect-square";
+  return i % 3 === 0
+    ? "w-[86vw] sm:w-[64vw] md:w-[44rem] aspect-[21/10]"
+    : "w-[80vw] sm:w-[56vw] md:w-[34rem] aspect-[16/10]";
+}
 
-  const meta = [show.showClient && item.client, show.showCategory && item.category, item.year].filter(Boolean).join(" · ");
-  const services = show.showServices ? item.services.join(" · ") : "";
-  const linkable = "/work/$slug" in router.routesByPath;
-
-  const body = (
-    <>
-      <div ref={ref} className={cn("relative w-full overflow-hidden rounded-[4px] bg-muted/10", slot.split(" ").filter((c) => c.includes("aspect")).join(" "))}>
-        <Media item={item} playing={playing} />
-        <span className="text-caption absolute left-3 top-3 z-10 font-mono text-ink-foreground/70">{String(index + 1).padStart(2, "0")}</span>
-      </div>
-      <div className="mt-4 flex items-start justify-between gap-4">
-        <div className="min-w-0 transition-transform duration-300 group-hover:translate-x-1">
-          <h3 className="text-h4 font-medium text-foreground">{item.title}</h3>
-          {meta && <p className="text-caption mt-1 text-muted-foreground">{meta}</p>}
-          {services && <p className="text-caption mt-1 text-muted-foreground/80">{services}</p>}
+function Tile({ item, i, playing, onHover, showClient }: { item: WorkItem; i: number; playing: boolean; onHover: (id: string | null) => void; showClient: boolean }) {
+  const on = () => canHover() && onHover(item.id);
+  return (
+    <li className="shrink-0">
+      <Link to="/work/$slug" params={{ slug: item.slug }} draggable={false}
+        onMouseEnter={on} onMouseLeave={() => onHover(null)} onFocus={(e) => { e.currentTarget.scrollIntoView({ block: "nearest", inline: "nearest" }); on(); }} onBlur={() => onHover(null)}
+        className="group block rounded-[4px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">
+        <div className={cn("relative overflow-hidden rounded-[4px] bg-muted/10", tileShape(item, i))}>
+          <Media item={item} playing={playing} />
         </div>
-        <span aria-hidden className={cn("mt-1 text-accent transition-all duration-300", linkable ? "opacity-60 group-hover:translate-x-1 group-hover:opacity-100" : "opacity-0")}>→</span>
-      </div>
-    </>
+        <div className="mt-3 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            {item.label && <p className="text-caption flex items-center gap-2 text-muted-foreground"><span aria-hidden className="h-1 w-1 rounded-full bg-accent" />{item.label}</p>}
+            <h3 className="text-body mt-1 font-medium text-foreground/80 transition-colors duration-300 group-hover:text-foreground">
+              {item.title}{showClient && item.client && <span className="text-muted-foreground"> · {item.client}</span>}
+            </h3>
+          </div>
+          <span aria-hidden className="mt-1 text-accent opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100 group-focus-visible:opacity-100">→</span>
+        </div>
+      </Link>
+    </li>
   );
+}
 
-  const handlers = {
-    onMouseEnter: () => canHover() && onHover(item.id),
-    onMouseLeave: () => onHover(null),
-  };
-  const cls = cn("group block min-w-0", slot.split(" ").filter((c) => !c.includes("aspect")).join(" "));
-
-  if (linkable && item.slug) {
-    return <Link to="/work/$slug" params={{ slug: item.slug }} className={cn(cls, "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent")} {...handlers} onFocus={handlers.onMouseEnter} onBlur={handlers.onMouseLeave}>{body}</Link>;
-  }
-  return <article className={cls} {...handlers}>{body}</article>;
+/** Slow ping-pong drift via scrollLeft (no duplicated content). Pauses on hover/interaction and for reduced motion. */
+function Row({ items, dir, speed, playing, onHover, showClient, label }: {
+  items: WorkItem[]; dir: "left" | "right"; speed: number; playing: string | null; onHover: (id: string | null) => void; showClient: boolean; label: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const state = useRef({ hover: false, until: 0, dir: dir === "left" ? 1 : -1, pos: -1 });
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const s = state.current;
+    s.dir = dir === "left" ? 1 : -1;
+    s.pos = -1;
+    let raf = 0, last = performance.now();
+    const tick = (t: number) => {
+      const dt = Math.min(64, t - last); last = t;
+      const max = el.scrollWidth - el.clientWidth;
+      if (max > 4) {
+        if (s.pos < 0) { s.pos = s.dir === 1 ? 0 : max; el.scrollLeft = s.pos; }
+        if (!s.hover && t > s.until && !document.hidden) {
+          s.pos += s.dir * speed * dt / 1000;
+          if (s.pos >= max) { s.pos = max; s.dir = -1; s.until = t + 1500; }
+          if (s.pos <= 0) { s.pos = 0; s.dir = 1; s.until = t + 1500; }
+          el.scrollLeft = s.pos;
+        } else s.pos = el.scrollLeft;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    const hold = () => { s.until = performance.now() + 4000; s.pos = el.scrollLeft; };
+    el.addEventListener("pointerdown", hold); el.addEventListener("wheel", hold, { passive: true }); el.addEventListener("touchstart", hold, { passive: true }); el.addEventListener("focusin", hold);
+    return () => { cancelAnimationFrame(raf); el.removeEventListener("pointerdown", hold); el.removeEventListener("wheel", hold); el.removeEventListener("touchstart", hold); el.removeEventListener("focusin", hold); };
+  }, [items, dir, speed]);
+  if (!items.length) return null;
+  return (
+    <div ref={ref} role="region" aria-label={label} onMouseEnter={() => { state.current.hover = true; }} onMouseLeave={() => { state.current.hover = false; state.current.pos = ref.current?.scrollLeft ?? -1; }}
+      className="overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <ul className="flex w-max items-start gap-4 px-5 md:gap-6 md:px-10">
+        {items.map((it, i) => <Tile key={it.id} item={it} i={i + (dir === "right" ? 1 : 0)} playing={playing === it.id} onHover={onHover} showClient={showClient} />)}
+      </ul>
+    </div>
+  );
 }
 
 export function FeaturedWork({ content }: { content: NonNullable<FW> }) {
   const [playing, setPlaying] = useState<string | null>(null);
+  const [filter, setFilter] = useState<string | null>(null);
+  const [fade, setFade] = useState(false);
   if (!content.items.length) return null;
-  const n = content.items.length;
-  // With very few projects, keep each one large instead of forcing pairs.
-  const slots = n <= 2 ? content.items.map(() => SLOTS[0]!) : SLOTS;
+  const items = filter ? content.items.filter((x) => x.tags.includes(filter)) : content.items;
+  const row1 = items.filter((_, i) => i % 2 === 0);
+  const row2 = items.filter((_, i) => i % 2 === 1);
+  const pick = (slug: string | null) => { if (slug === filter) return; setPlaying(null); setFade(true); setTimeout(() => { setFilter(slug); setFade(false); }, 200); };
+  const chip = (on: boolean) => cn("text-small shrink-0 rounded-full px-4 py-2.5 transition-colors focus-visible:outline-2 focus-visible:outline-accent",
+    on ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground");
 
   return (
-    <DarkSection aria-labelledby="featured-work-title">
+    <DarkSection aria-labelledby="featured-work-title" className="overflow-hidden">
       <SiteContainer>
         <div className="grid gap-8 md:grid-cols-12 md:items-end">
           <div className="md:col-span-7">
@@ -126,13 +152,19 @@ export function FeaturedWork({ content }: { content: NonNullable<FW> }) {
             <div className="mt-6"><HeroAction label={content.ctaLabel} url={content.ctaUrl} variant="secondary" /></div>
           </div>
         </div>
-        <div className="mt-14 grid grid-cols-1 gap-x-6 gap-y-12 md:mt-20 md:grid-cols-12 md:gap-y-16">
-          {content.items.map((item, i) => (
-            <Card key={item.id} item={item} index={i} slot={slots[i] ?? SLOTS[5]!} playing={playing === item.id} onHover={setPlaying}
-              show={content} />
-          ))}
-        </div>
+        {content.filters.length > 1 && (
+          <div role="group" aria-label="Filter work" className="-mx-5 mt-12 flex gap-1 overflow-x-auto px-5 [scrollbar-width:none] md:mx-0 md:mt-16 md:flex-wrap md:px-0">
+            <button type="button" aria-pressed={!filter} onClick={() => pick(null)} className={chip(!filter)}>All</button>
+            {content.filters.map((f) => (
+              <button key={f.slug} type="button" aria-pressed={filter === f.slug} onClick={() => pick(f.slug)} className={chip(filter === f.slug)}>{f.name}</button>
+            ))}
+          </div>
+        )}
       </SiteContainer>
+      <div className={cn("-mx-5 mt-10 space-y-8 transition-opacity duration-200 md:-mx-10 md:space-y-10", fade ? "opacity-0" : "opacity-100")} aria-live="polite">
+        <Row key={`a-${filter}`} items={row1} dir="left" speed={22} playing={playing} onHover={setPlaying} showClient={content.showClient} label="Selected work, row one" />
+        <Row key={`b-${filter}`} items={row2} dir="right" speed={18} playing={playing} onHover={setPlaying} showClient={content.showClient} label="Selected work, row two" />
+      </div>
     </DarkSection>
   );
 }
