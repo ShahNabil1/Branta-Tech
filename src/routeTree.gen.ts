@@ -16,6 +16,8 @@ import { Route as ControlCentreIndexRouteImport } from './routes/control-centre.
 import { Route as ControlCentreAdminRouteImport } from './routes/control-centre._admin'
 import { Route as ControlCentreForgotPasswordRouteImport } from './routes/control-centre.forgot-password'
 import { Route as ControlCentreResetPasswordRouteImport } from './routes/control-centre.reset-password'
+import { Route as InsightsIndexRouteImport } from './routes/insights.index'
+import { Route as InsightsSlugRouteImport } from './routes/insights.$slug'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
 import { Route as WorkIndexRouteImport } from './routes/work.index'
@@ -71,6 +73,16 @@ const ControlCentreResetPasswordRoute =
     path: '/reset-password',
     getParentRoute: () => ControlCentreRoute,
   } as any)
+const InsightsIndexRoute = InsightsIndexRouteImport.update({
+  id: '/insights/',
+  path: '/insights/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InsightsSlugRoute = InsightsSlugRouteImport.update({
+  id: '/insights/$slug',
+  path: '/insights/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicesIndexRoute = ServicesIndexRouteImport.update({
   id: '/services/',
   path: '/services/',
@@ -181,9 +193,11 @@ export interface FileRoutesByFullPath {
   '/control-centre': typeof ControlCentreRouteWithChildren
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
+  '/insights/$slug': typeof InsightsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/work/$slug': typeof WorkSlugRoute
   '/control-centre/': typeof ControlCentreIndexRoute
+  '/insights/': typeof InsightsIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/work/': typeof WorkIndexRoute
   '/control-centre/admin-users': typeof ControlCentreAdminAdminUsersRoute
@@ -207,8 +221,10 @@ export interface FileRoutesByTo {
   '/control-centre': typeof ControlCentreIndexRoute
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
+  '/insights/$slug': typeof InsightsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/work/$slug': typeof WorkSlugRoute
+  '/insights': typeof InsightsIndexRoute
   '/services': typeof ServicesIndexRoute
   '/work': typeof WorkIndexRoute
   '/control-centre/admin-users': typeof ControlCentreAdminAdminUsersRoute
@@ -234,9 +250,11 @@ export interface FileRoutesById {
   '/control-centre/_admin': typeof ControlCentreAdminRouteWithChildren
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
+  '/insights/$slug': typeof InsightsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/work/$slug': typeof WorkSlugRoute
   '/control-centre/': typeof ControlCentreIndexRoute
+  '/insights/': typeof InsightsIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/work/': typeof WorkIndexRoute
   '/control-centre/_admin/admin-users': typeof ControlCentreAdminAdminUsersRoute
@@ -262,9 +280,11 @@ export interface FileRouteTypes {
     | '/control-centre'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
+    | '/insights/$slug'
     | '/services/$slug'
     | '/work/$slug'
     | '/control-centre/'
+    | '/insights/'
     | '/services/'
     | '/work/'
     | '/control-centre/admin-users'
@@ -288,8 +308,10 @@ export interface FileRouteTypes {
     | '/control-centre'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
+    | '/insights/$slug'
     | '/services/$slug'
     | '/work/$slug'
+    | '/insights'
     | '/services'
     | '/work'
     | '/control-centre/admin-users'
@@ -314,9 +336,11 @@ export interface FileRouteTypes {
     | '/control-centre/_admin'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
+    | '/insights/$slug'
     | '/services/$slug'
     | '/work/$slug'
     | '/control-centre/'
+    | '/insights/'
     | '/services/'
     | '/work/'
     | '/control-centre/_admin/admin-users'
@@ -339,8 +363,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiStudioRoute: typeof AiStudioRoute
   ControlCentreRoute: typeof ControlCentreRouteWithChildren
+  InsightsSlugRoute: typeof InsightsSlugRoute
   ServicesSlugRoute: typeof ServicesSlugRoute
   WorkSlugRoute: typeof WorkSlugRoute
+  InsightsIndexRoute: typeof InsightsIndexRoute
   ServicesIndexRoute: typeof ServicesIndexRoute
   WorkIndexRoute: typeof WorkIndexRoute
 }
@@ -395,6 +421,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/control-centre/reset-password'
       preLoaderRoute: typeof ControlCentreResetPasswordRouteImport
       parentRoute: typeof ControlCentreRoute
+    }
+    '/insights/': {
+      id: '/insights/'
+      path: '/insights'
+      fullPath: '/insights/'
+      preLoaderRoute: typeof InsightsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/insights/$slug': {
+      id: '/insights/$slug'
+      path: '/insights/$slug'
+      fullPath: '/insights/$slug'
+      preLoaderRoute: typeof InsightsSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/services/': {
       id: '/services/'
@@ -589,8 +629,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiStudioRoute: AiStudioRoute,
   ControlCentreRoute: ControlCentreRouteWithChildren,
+  InsightsSlugRoute: InsightsSlugRoute,
   ServicesSlugRoute: ServicesSlugRoute,
   WorkSlugRoute: WorkSlugRoute,
+  InsightsIndexRoute: InsightsIndexRoute,
   ServicesIndexRoute: ServicesIndexRoute,
   WorkIndexRoute: WorkIndexRoute,
 }
