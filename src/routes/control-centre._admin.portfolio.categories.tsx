@@ -9,6 +9,7 @@ import { adminHead, must } from "@/lib/supabase/cms";
 import {
   PageHeader, Panel, TextInput, TextArea, SelectInput, AdminButton, ConfirmButton, LoadingRow, ErrorNote, EmptyState, StatusBadge,
   STATUS_OPTIONS, SLUG_RE, useAutoSlug, useFormState, friendlyError, nullIfEmpty,
+  swapped,
 } from "@/components/admin/cms";
 
 export const Route = createFileRoute("/control-centre/_admin/portfolio/categories")({
@@ -26,7 +27,7 @@ function CategoriesPage() {
 
   async function move(i: number, d: -1 | 1) {
     const order = q.data!.map((c) => c.id);
-    [order[i], order[i + d]] = [order[i + d], order[i]];
+    order = swapped(order, i, i + d);
     const res = await Promise.all(order.map((id, idx) => supabase.from("portfolio_categories").update({ sort_order: (idx + 1) * 10 }).eq("id", id)));
     const err = res.find((r) => r.error)?.error;
     if (err) toast.error(friendlyError(err));

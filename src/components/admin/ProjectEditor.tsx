@@ -9,6 +9,7 @@ import { must } from "@/lib/supabase/cms";
 import {
   PageHeader, Panel, TextInput, TextArea, SelectInput, CheckboxInput, SaveBar, ConfirmButton, AdminButton, LoadingRow, ErrorNote, EmptyState,
   STATUS_OPTIONS, MEDIA_TYPE_OPTIONS, SLUG_RE, useAutoSlug, useFormState, useUnsavedWarning, friendlyError, isSafeUrl, nullIfEmpty,
+  swapped,
 } from "@/components/admin/cms";
 import { SeoFields, seoFrom, seoPayload, seoErrors, emptySeo, type SeoValues } from "@/components/admin/SeoFields";
 
@@ -218,7 +219,7 @@ function ProjectMedia({ projectId }: { projectId: string }) {
 
   async function move(i: number, d: -1 | 1) {
     const order = q.data!.map((m) => m.id);
-    [order[i], order[i + d]] = [order[i + d], order[i]];
+    order = swapped(order, i, i + d);
     const res = await Promise.all(order.map((id, idx) => supabase.from("portfolio_media").update({ sort_order: (idx + 1) * 10 }).eq("id", id)));
     const err = res.find((r) => r.error)?.error;
     if (err) toast.error(friendlyError(err));

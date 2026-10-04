@@ -10,6 +10,7 @@ import {
   PageHeader, Panel, TextInput, TextArea, SelectInput, CheckboxInput, SaveBar, ConfirmButton, AdminButton,
   LoadingRow, ErrorNote, EmptyState, StatusBadge, STATUS_OPTIONS, MEDIA_TYPE_OPTIONS, SLUG_RE,
   useAutoSlug, useFormState, useUnsavedWarning, friendlyError, isSafeUrl, nullIfEmpty,
+  swapped,
 } from "@/components/admin/cms";
 import { SeoFields, seoFrom, seoPayload, seoErrors, emptySeo, type SeoValues } from "@/components/admin/SeoFields";
 
@@ -140,7 +141,7 @@ function Sections({ pageId }: { pageId: string }) {
     if (!a || !b) return;
     // Renumber to avoid ties, then swap.
     const order = list.map((s) => s.id);
-    [order[i], order[i + dir]] = [order[i + dir], order[i]];
+    order = swapped(order, i, i + dir);
     const results = await Promise.all(order.map((id, idx) => supabase.from("page_sections").update({ sort_order: (idx + 1) * 10 }).eq("id", id)));
     const err = results.find((r) => r.error)?.error;
     if (err) toast.error(friendlyError(err));

@@ -17,10 +17,10 @@ export function adminHead(title: string) {
   };
 }
 
-export async function must<T>(p: PromiseLike<{ data: T; error: unknown }>): Promise<T> {
+export async function must<T>(p: PromiseLike<{ data: T; error: unknown }>): Promise<[T] extends [unknown[] | null] ? NonNullable<T> : T> {
   const { data, error } = await p;
   if (error) throw error;
-  return data;
+  return data as never;
 }
 
 export const MEDIA_BUCKET = "site-public";
