@@ -18,7 +18,7 @@ const Fields = z.object({
   started_at: z.coerce.number(),
 });
 
-export type ApplyResult = { ok: true } | { ok: false; error: string; fields?: Record<string, string> };
+export type ApplyResult = { ok: true; id: string } | { ok: false; error: string; fields?: Record<string, string>; duplicateId?: string; signIn?: boolean };
 
 /** Detects PDF / DOC / DOCX by magic bytes (the browser's MIME type is not trusted). */
 function sniff(b: Uint8Array): "pdf" | "doc" | "docx" | null {
@@ -50,6 +50,11 @@ export const submitApplication = createServerFn({ method: "POST" })
       return { ok: false, error: "Please check the highlighted fields.", fields };
     }
     const f = parsed.data;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getRequestHeader } = await import("@tanstack/react-start/server");
+    const auth = getRequestHeader("authorization");
+    const who = auth?.startsWith("Bearer ") ? (await supabaseAdmin.auth.getUser(auth.slice(7))).data.user : null;
+    if (!who) return { ok: false, error: "Please sign in to apply.", signIn: true };
     if (Date.now() - f.started_at < 3000) return { ok: false, error: "That was quick — please review your application and send it again." };
 
     const file = data.get("resume");
@@ -60,8 +65,6 @@ export const submitApplication = createServerFn({ method: "POST" })
     const ext = file.name.toLowerCase().split(".").pop();
     if (!kind || (ext !== kind && !(kind === "docx" && ext === "docx"))) return { ok: false, error: "That file type isn't accepted.", fields: { resume: "Use a PDF, DOC or DOCX file" } };
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { getRequestHeader } = await import("@tanstack/react-start/server");
     const { createHash, randomUUID } = await import("crypto");
     const ip = getRequestHeader("cf-connecting-ip") || getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
     const ipHash = createHash("sha256").update(`branta-careers:${ip}`).digest("hex");
@@ -71,12 +74,13 @@ export const submitApplication = createServerFn({ method: "POST" })
 
     const hourAgo = new Date(Date.now() - 3600_000).toISOString();
     const dayAgo = new Date(Date.now() - 86400_000).toISOString();
-    const [byIp, byEmail] = await Promise.all([
+    const [byIp, byUser, existing] = await Promise.all([
       supabaseAdmin.from("job_applications").select("id", { count: "exact", head: true }).eq("ip_hash", ipHash).gte("submitted_at", hourAgo),
-      supabaseAdmin.from("job_applications").select("id", { count: "exact", head: true }).ilike("email", f.email).eq("job_id", job.id).gte("submitted_at", dayAgo),
+      supabaseAdmin.from("job_applications").select("id", { count: "exact", head: true }).eq("applicant_user_id", who.id).gte("submitted_at", dayAgo),
+      supabaseAdmin.from("job_applications").select("id").eq("job_id", job.id).eq("applicant_user_id", who.id).neq("status", "withdrawn").maybeSingle(),
     ]);
-    if ((byIp.count ?? 0) >= 5) return { ok: false, error: "Too many applications from this connection. Please try again later." };
-    if ((byEmail.count ?? 0) >= 1) return { ok: false, error: "We've already received your application for this role. We'll be in touch." };
+    if (existing.data) return { ok: false, error: "Application already submitted", duplicateId: existing.data.id };
+    if ((byIp.count ?? 0) >= 5 || (byUser.count ?? 0) >= 10) return { ok: false, error: "Too many applications right now. Please try again later." };
 
     const path = `${job.id}/${randomUUID()}.${kind}`;
     const up = await supabaseAdmin.storage.from("career-private").upload(path, bytes, { contentType: CT[kind], upsert: false });
@@ -87,12 +91,32 @@ export const submitApplication = createServerFn({ method: "POST" })
     const n = (v: string) => (v ? v : null);
     const ins = await supabaseAdmin.from("job_applications").insert({
       job_id: job.id, full_name: f.full_name, email: f.email.toLowerCase(), phone: f.phone, location: n(f.location),
-      portfolio_url: n(f.portfolio_url), linkedin_url: n(f.linkedin_url), cover_note: f.cover_note, resume_url: path, ip_hash: ipHash,
-    });
+      portfolio_url: n(f.portfolio_url), linkedin_url: n(f.linkedin_url), cover_note: f.cover_note, resume_url: path, ip_hash: ipHash, applicant_user_id: who.id,
+    } as never).select("id").single();
     if (ins.error) {
-      console.error("application insert failed", ins.error.message);
       await supabaseAdmin.storage.from("career-private").remove([path]);
+      if (ins.error.code === "23505") {
+        const again = await supabaseAdmin.from("job_applications").select("id").eq("job_id", job.id).eq("applicant_user_id", who.id).neq("status", "withdrawn").maybeSingle();
+        return { ok: false, error: "Application already submitted", ...(again.data ? { duplicateId: again.data.id } : {}) };
+      }
+      console.error("application insert failed", ins.error.message);
       return { ok: false, error: "We couldn't send your application. Please try again." };
     }
-    return { ok: true };
+    return { ok: true, id: (ins.data as { id: string }).id };
+  });
+
+/** Short-lived download link for the caller's own CV on one of their applications. */
+export const getMyResumeLink = createServerFn({ method: "POST" })
+  .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data }): Promise<{ url: string | null }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getRequestHeader } = await import("@tanstack/react-start/server");
+    const auth = getRequestHeader("authorization");
+    const who = auth?.startsWith("Bearer ") ? (await supabaseAdmin.auth.getUser(auth.slice(7))).data.user : null;
+    if (!who) return { url: null };
+    const { data: row } = await supabaseAdmin.from("job_applications").select("resume_url, applicant_user_id").eq("id", data.id).maybeSingle();
+    const r = row as { resume_url: string | null; applicant_user_id: string | null } | null;
+    if (!r || r.applicant_user_id !== who.id || !r.resume_url) return { url: null };
+    const { data: s } = await supabaseAdmin.storage.from("career-private").createSignedUrl(r.resume_url, 300, { download: true });
+    return { url: s?.signedUrl ?? null };
   });

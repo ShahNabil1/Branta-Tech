@@ -245,6 +245,7 @@ export type Database = {
       }
       job_applications: {
         Row: {
+          applicant_user_id: string | null
           cover_note: string
           created_at: string
           email: string
@@ -260,8 +261,10 @@ export type Database = {
           status: string
           submitted_at: string
           updated_at: string
+          withdrawn_at: string | null
         }
         Insert: {
+          applicant_user_id?: string | null
           cover_note: string
           created_at?: string
           email: string
@@ -277,8 +280,10 @@ export type Database = {
           status?: string
           submitted_at?: string
           updated_at?: string
+          withdrawn_at?: string | null
         }
         Update: {
+          applicant_user_id?: string | null
           cover_note?: string
           created_at?: string
           email?: string
@@ -294,6 +299,7 @@ export type Database = {
           status?: string
           submitted_at?: string
           updated_at?: string
+          withdrawn_at?: string | null
         }
         Relationships: [
           {
@@ -1229,6 +1235,37 @@ export type Database = {
           id: string
         }[]
       }
+      my_application: {
+        Args: { _id: string }
+        Returns: {
+          cover_note: string
+          email: string
+          employment_type: string
+          full_name: string
+          has_resume: boolean
+          id: string
+          job_slug: string
+          job_title: string
+          linkedin_url: string
+          location: string
+          phone: string
+          portfolio_url: string
+          status: string
+          submitted_at: string
+          withdrawn_at: string
+        }[]
+      }
+      my_applications: {
+        Args: never
+        Returns: {
+          employment_type: string
+          id: string
+          job_slug: string
+          job_title: string
+          status: string
+          submitted_at: string
+        }[]
+      }
       my_bookings: {
         Args: never
         Returns: {
@@ -1250,6 +1287,7 @@ export type Database = {
           status: string
         }[]
       }
+      withdraw_my_application: { Args: { _id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
