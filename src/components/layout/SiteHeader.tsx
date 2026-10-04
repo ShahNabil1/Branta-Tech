@@ -1,0 +1,476 @@
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { Link, useRouter, useRouterState } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
+import { FALLBACK_NAV, navFromCms, safeImage, siteChromeQuery, type NavEntry, type NavLink } from "@/lib/navigation";
+import { cn } from "@/lib/utils";
+
+/* ---------------- link resolution ---------------- */
+
+type Resolved = { kind: "internal"; to: string; hash?: string } | { kind: "external"; href: string } | { kind: "pending" };
+
+function useResolveLink() {
+  const router = useRouter();
+  return useCallback(
+    (url: string | undefined): Resolved => {
+      const v = (url ?? "").trim();
+      if (!v || v === "#") return { kind: "pending" };
+      if (v.startsWith("/") && !v.startsWith("//")) {
+        const [rawPath = "/", hash] = v.split("#");
+        const path = rawPath.length > 1 ? rawPath.replace(/\/+$/, "") : rawPath;
+        const exists = Boolean((router.routesByPath as unknown as Record<string, unknown>)[path]);
+        return exists ? { kind: "internal", to: path, ...(hash ? { hash } : {}) } : { kind: "pending" };
+      }
+      try {
+        const u = new URL(v);
+        if (["https:", "http:", "mailto:", "tel:"].includes(u.protocol)) return { kind: "external", href: v };
+      } catch {
+        /* invalid */
+      }
+      return { kind: "pending" };
+    },
+    [router],
+  );
+}
+
+function SmartLink({ url, className, pendingClassName, children, onNavigate, ...rest }: {
+  url: string | undefined;
+  className?: string;
+  pendingClassName?: string;
+  children: ReactNode;
+  onNavigate?: () => void;
+  "aria-current"?: "page";
+}) {
+  const r = useResolveLink()(url);
+  if (r.kind === "internal")
+    return (
+      <Link to={r.to as "/"} {...(r.hash ? { hash: r.hash } : {})} className={className} onClick={onNavigate} {...rest}>
+        {children}
+      </Link>
+    );
+  if (r.kind === "external")
+    return (
+      <a href={r.href} className={className} onClick={onNavigate} {...(r.href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})}>
+        {children}
+      </a>
+    );
+  return (
+    <span aria-disabled="true" title="Coming soon" className={cn(className, pendingClassName ?? "cursor-default opacity-45")}>
+      {children}
+    </span>
+  );
+}
+
+/* ---------------- data ---------------- */
+
+function useChrome() {
+  const { data } = useQuery(siteChromeQuery);
+  const nav = navFromCms(data?.navigation) ?? FALLBACK_NAV;
+  const logo = safeImage(data?.brand?.logo_dark_url) ?? safeImage(data?.brand?.logo_url);
+  const email = typeof data?.contact?.email === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.contact.email) ? data.contact.email : null;
+  return { nav, logo, email, featured: data?.featured ?? null };
+}
+
+/** Book a call → /book-a-call, else /contact, else contact email, else pending. */
+function useBookingUrl(email: string | null) {
+  const resolve = useResolveLink();
+  if (resolve("/book-a-call").kind === "internal") return "/book-a-call";
+  if (resolve("/contact").kind === "internal") return "/contact";
+  return email ? `mailto:${email}` : "#";
+}
+
+export function BrandLogo({ src, onNavigate }: { src: string | null; onNavigate?: () => void }) {
+  return (
+    <Link to="/" onClick={onNavigate} aria-label="Branta Tech home" className="flex shrink-0 items-center gap-2 rounded-sm text-foreground">
+      {src ? (
+        <img src={src} alt="Branta Tech" className="h-7 w-auto" />
+      ) : (
+        <>
+          <span aria-hidden className="grid size-7 place-items-center rounded-sm bg-foreground text-caption font-bold text-background">B</span>
+          <span className="text-body font-semibold tracking-tight">
+            Branta<span className="text-muted-foreground">Tech</span>
+          </span>
+        </>
+      )}
+    </Link>
+  );
+}
+
+function usePathActive() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  return (entry: NavEntry) => {
+    const urls = [entry.url, ...entry.columns.flatMap((c) => [c.url, ...c.links.map((l) => l.url)])].filter(Boolean) as string[];
+    return urls.some((u) => {
+      const p = u.split("#")[0] ?? "";
+      return p === "/" ? pathname === "/" : !!p && p.startsWith("/") && (pathname === p || pathname.startsWith(`${p}/`));
+    });
+  };
+}
+
+/* ---------------- header ---------------- */
+
+export function SiteHeader() {
+  const { nav, logo, email, featured } = useChrome();
+  const booking = useBookingUrl(email);
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState<string | null>(null);
+  const [mobile, setMobile] = useState(false);
+  const closeTimer = useRef<number | undefined>(undefined);
+  const headerRef = useRef<HTMLElement>(null);
+  const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isActive = usePathActive();
+  const baseId = useId();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Close menus on navigation.
+  useEffect(() => {
+    setOpen(null);
+    setMobile(false);
+  }, [pathname]);
+
+  // Outside click + Escape for desktop panels.
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: PointerEvent) => {
+      if (!headerRef.current?.contains(e.target as Node)) setOpen(null);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        const id = open;
+        setOpen(null);
+        triggerRefs.current[id]?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const hoverAt = useRef(0);
+  const hoverOpen = (id: string) => {
+    window.clearTimeout(closeTimer.current);
+    setOpen((o) => {
+      if (o !== id) hoverAt.current = Date.now();
+      return id;
+    });
+  };
+  const hoverClose = () => {
+    window.clearTimeout(closeTimer.current);
+    closeTimer.current = window.setTimeout(() => setOpen(null), 160);
+  };
+  const keepOpen = () => window.clearTimeout(closeTimer.current);
+  const openEntry = nav.find((n) => n.id === open && n.kind !== "link");
+
+  return (
+    <header
+      ref={headerRef}
+      className={cn(
+        "dark sticky top-0 z-50 border-b border-border text-foreground transition-[background-color] duration-200",
+        scrolled && !openEntry ? "bg-background/85 backdrop-blur-md" : "bg-background",
+      )}
+    >
+      <div className="mx-auto flex h-16 w-full max-w-[1600px] items-center gap-6 px-5 md:px-8 xl:h-[68px]">
+        <BrandLogo src={logo} />
+
+        {/* Desktop nav */}
+        <nav aria-label="Main" className="hidden flex-1 justify-center lg:flex" onMouseLeave={hoverClose}>
+          <ul className="flex items-center gap-0.5">
+            {nav.map((entry) => {
+              const active = isActive(entry);
+              const itemCls = cn(
+                "text-small relative flex h-9 items-center gap-1 rounded-sm px-3 font-medium text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+                (active || open === entry.id) && "text-foreground",
+              );
+              const dot = active && <span aria-hidden className="absolute bottom-0.5 left-1/2 size-1 -translate-x-1/2 rounded-full bg-accent" />;
+              if (entry.kind === "link")
+                return (
+                  <li key={entry.id} onMouseEnter={() => setOpen(null)}>
+                    <SmartLink url={entry.url} className={itemCls} pendingClassName="cursor-default text-muted-foreground/45 hover:text-muted-foreground/45" {...(active ? { "aria-current": "page" as const } : {})}>
+                      {entry.label}
+                      {dot}
+                    </SmartLink>
+                  </li>
+                );
+              const panelId = `${baseId}-${entry.id}`;
+              return (
+                <li key={entry.id} onMouseEnter={() => hoverOpen(entry.id)}>
+                  <button
+                    ref={(el) => {
+                      triggerRefs.current[entry.id] = el;
+                    }}
+                    type="button"
+                    aria-expanded={open === entry.id}
+                    aria-controls={panelId}
+                    onClick={() => {
+                      // A click right after hover-open should not immediately close the panel.
+                      const recent = Date.now() - hoverAt.current < 500;
+                      setOpen((o) => (o === entry.id ? (recent ? o : null) : entry.id));
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        setOpen(entry.id);
+                        requestAnimationFrame(() => document.getElementById(panelId)?.querySelector<HTMLElement>("a,[tabindex]")?.focus());
+                      }
+                    }}
+                    className={itemCls}
+                  >
+                    {entry.label}
+                    <ChevronDown aria-hidden className={cn("size-3.5 transition-transform duration-200", open === entry.id && "rotate-180")} />
+                    {dot}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        {/* Desktop actions */}
+        <div className="ml-auto hidden items-center gap-1 lg:flex">
+          <AuthAction label="Sign in" className="hidden xl:inline-flex" />
+          <AuthAction label="Sign up" className="hidden xl:inline-flex" />
+          <BookButton url={booking} className="ml-2" />
+        </div>
+
+        {/* Mobile trigger */}
+        <button
+          type="button"
+          className="text-small ml-auto flex h-10 items-center gap-2 rounded-sm px-2 font-medium lg:hidden"
+          aria-expanded={mobile}
+          aria-controls={`${baseId}-mobile`}
+          onClick={() => setMobile(true)}
+        >
+          <Menu className="size-5" aria-hidden /> Menu
+        </button>
+      </div>
+
+      {/* Desktop panel */}
+      {nav.filter((n) => n.kind !== "link").map((entry) => (
+        <div
+          key={entry.id}
+          id={`${baseId}-${entry.id}`}
+          role="region"
+          aria-label={`${entry.label} menu`}
+          onMouseEnter={keepOpen}
+          onMouseLeave={hoverClose}
+          className={cn("absolute inset-x-0 top-full hidden border-b border-border bg-background motion-safe:animate-[nav-in_200ms_var(--ease-out-expo)]", open === entry.id && "lg:block")}
+        >
+          {entry.kind === "mega" ? (
+            <MegaPanel entry={entry} featured={entry.id === nav.find((n) => n.kind === "mega")?.id ? featured : null} onNavigate={() => setOpen(null)} />
+          ) : (
+            <DropdownPanel entry={entry} onNavigate={() => setOpen(null)} />
+          )}
+        </div>
+      ))}
+
+      {mobile && (
+        <MobileMenu id={`${baseId}-mobile`} nav={nav} logo={logo} booking={booking} isActive={isActive} onClose={() => setMobile(false)} />
+      )}
+    </header>
+  );
+}
+
+/* ---------------- desktop panels ---------------- */
+
+const panelLink =
+  "group/link text-small flex items-center gap-1 py-1.5 text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:text-foreground focus-visible:outline-none";
+
+function LinkRow({ link, onNavigate }: { link: NavLink; onNavigate: () => void }) {
+  return (
+    <SmartLink url={link.url} onNavigate={onNavigate} className={panelLink} pendingClassName="cursor-default text-muted-foreground/70 hover:text-muted-foreground/70">
+      {link.label}
+      <ArrowUpRight aria-hidden className="size-3 opacity-0 transition-opacity duration-150 group-hover/link:opacity-100 group-focus-visible/link:opacity-100" />
+    </SmartLink>
+  );
+}
+
+function MegaPanel({ entry, featured, onNavigate }: { entry: NavEntry; featured: { title: string; slug: string; image: string; category: string | null } | null; onNavigate: () => void }) {
+  return (
+    <div className="mx-auto grid max-w-[1600px] gap-10 px-5 py-10 md:px-8 xl:grid-cols-[1fr_18rem]">
+      <div className="grid grid-cols-3 divide-x divide-border">
+        {entry.columns.map((col) => (
+          <div key={col.title} className="px-8 first:pl-0">
+            <SmartLink url={col.url} onNavigate={onNavigate} className="text-eyebrow mb-4 inline-flex items-center gap-1 text-foreground hover:text-accent" pendingClassName="cursor-default">
+              {col.title}
+            </SmartLink>
+            <ul>
+              {col.links.map((l) => (
+                <li key={l.label}><LinkRow link={l} onNavigate={onNavigate} /></li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      {featured && (
+        <SmartLink url={`/work/${featured.slug}`} onNavigate={onNavigate} className="group/feat hidden xl:block" pendingClassName="cursor-default">
+          <span className="block aspect-[4/5] overflow-hidden rounded-sm bg-muted">
+            <img src={featured.image} alt="" loading="lazy" decoding="async" className="size-full object-cover transition-transform duration-500 group-hover/feat:scale-[1.03]" />
+          </span>
+          <span className="text-caption mt-3 block text-muted-foreground">{featured.category ?? "Featured work"}</span>
+          <span className="text-small block font-medium">{featured.title}</span>
+        </SmartLink>
+      )}
+      <div className="xl:col-span-2 border-t border-border pt-5">
+        <SmartLink url={entry.url} onNavigate={onNavigate} className="text-small inline-flex items-center gap-1 font-medium text-foreground hover:text-accent" pendingClassName="cursor-default text-muted-foreground/70">
+          View all {entry.label.toLowerCase()} services <ArrowUpRight aria-hidden className="size-3.5" />
+        </SmartLink>
+      </div>
+    </div>
+  );
+}
+
+function DropdownPanel({ entry, onNavigate }: { entry: NavEntry; onNavigate: () => void }) {
+  const links = entry.columns.flatMap((c) => c.links);
+  return (
+    <div className="mx-auto max-w-[1600px] px-5 py-8 md:px-8">
+      <ul className="grid grid-cols-5 divide-x divide-border">
+        {links.map((l) => (
+          <li key={l.label} className="px-6 first:pl-0">
+            <SmartLink url={l.url} onNavigate={onNavigate} className="group/link block" pendingClassName="cursor-default opacity-60">
+              <span className="text-small flex items-center gap-1 font-medium text-foreground">
+                {l.label}
+                <ArrowUpRight aria-hidden className="size-3 opacity-0 transition-opacity duration-150 group-hover/link:opacity-100" />
+              </span>
+              {l.description && <span className="text-caption mt-1 block text-muted-foreground">{l.description}</span>}
+            </SmartLink>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/* ---------------- actions ---------------- */
+
+/** Client sign-in / sign-up arrive with the Client Portal phase; shown but inactive. */
+function AuthAction({ label, className, block }: { label: string; className?: string; block?: boolean }) {
+  return (
+    <span
+      aria-disabled="true"
+      title="Available with the client portal"
+      className={cn(
+        "text-small cursor-default items-center rounded-sm px-3 font-medium text-muted-foreground/50",
+        block ? "flex h-12 border border-border justify-center" : "h-9",
+        className,
+      )}
+    >
+      {label}
+    </span>
+  );
+}
+
+function BookButton({ url, className, large }: { url: string; className?: string; large?: boolean }) {
+  return (
+    <SmartLink
+      url={url}
+      className={cn(
+        "group/cta inline-flex items-center justify-center gap-1.5 rounded-full bg-accent font-medium text-accent-foreground transition-colors duration-200 hover:bg-foreground hover:text-background",
+        large ? "text-body h-14 w-full" : "text-small h-9 px-4",
+        className,
+      )}
+      pendingClassName="cursor-default opacity-60"
+    >
+      Book a call
+      <ArrowUpRight aria-hidden className="size-4 transition-transform duration-200 group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-0.5" />
+    </SmartLink>
+  );
+}
+
+/* ---------------- mobile ---------------- */
+
+function MobileMenu({ id, nav, logo, booking, isActive, onClose }: {
+  id: string;
+  nav: NavEntry[];
+  logo: string | null;
+  booking: string;
+  isActive: (e: NavEntry) => boolean;
+  onClose: () => void;
+}) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  const links = nav.filter((n) => n.kind === "link");
+  const groups = nav.filter((n) => n.kind !== "link");
+  const row = "text-h4 flex min-h-14 w-full items-center justify-between border-b border-border py-3 text-left font-medium";
+
+  return (
+    <div id={id} role="dialog" aria-modal="true" aria-label="Site menu" className="fixed inset-0 z-[60] flex flex-col bg-background text-foreground">
+      <div className="flex h-16 shrink-0 items-center justify-between border-b border-border px-5">
+        <BrandLogo src={logo} onNavigate={onClose} />
+        <button ref={closeRef} type="button" onClick={onClose} className="text-small flex h-10 items-center gap-2 rounded-sm px-2 font-medium">
+          <X className="size-5" aria-hidden /> Close
+        </button>
+      </div>
+      <nav aria-label="Mobile" className="flex-1 overflow-y-auto px-5 pb-6">
+        <ul>
+          {links.map((e) => (
+            <li key={e.id}>
+              <SmartLink url={e.url} onNavigate={onClose} className={cn(row, isActive(e) && "text-accent")} pendingClassName="cursor-default text-muted-foreground/50">
+                {e.label}
+              </SmartLink>
+            </li>
+          ))}
+          {groups.map((e) => {
+            const open = expanded === e.id;
+            const subId = `${id}-${e.id}`;
+            const sub = e.kind === "mega" ? e.columns.map((c) => ({ label: c.title, url: c.url ?? "#" })) : e.columns.flatMap((c) => c.links);
+            return (
+              <li key={e.id}>
+                <button type="button" className={row} aria-expanded={open} aria-controls={subId} onClick={() => setExpanded(open ? null : e.id)}>
+                  {e.label}
+                  <ChevronDown aria-hidden className={cn("size-5 text-muted-foreground transition-transform duration-200", open && "rotate-180")} />
+                </button>
+                <ul id={subId} hidden={!open} className="border-b border-border py-2">
+                  {sub.map((l) => (
+                    <li key={l.label}>
+                      <SmartLink url={l.url} onNavigate={onClose} className="text-body flex min-h-11 items-center text-muted-foreground hover:text-foreground" pendingClassName="cursor-default opacity-60">
+                        {l.label}
+                      </SmartLink>
+                    </li>
+                  ))}
+                  {e.kind === "mega" && (
+                    <li>
+                      <SmartLink url={e.url} onNavigate={onClose} className="text-body flex min-h-11 items-center font-medium text-foreground" pendingClassName="cursor-default opacity-50">
+                        View all
+                      </SmartLink>
+                    </li>
+                  )}
+                </ul>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+      <div className="shrink-0 border-t border-border px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
+        <p className="text-eyebrow mb-3 text-muted-foreground">Account</p>
+        <div className="mb-4 grid grid-cols-2 gap-2">
+          <AuthAction label="Sign in" block />
+          <AuthAction label="Create account" block />
+        </div>
+        <BookButton url={booking} large />
+      </div>
+    </div>
+  );
+}
