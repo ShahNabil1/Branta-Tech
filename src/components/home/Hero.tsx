@@ -1,3 +1,4 @@
+import { SmartLink } from "@/components/layout/SiteHeader";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
@@ -42,21 +43,13 @@ function useParallax<T extends HTMLElement>(max = 24) {
 }
 
 export function HeroAction({ label, url, variant }: { label: string; url: string; variant: "primary" | "secondary" }) {
-  const router = useRouter();
   if (!label) return null;
   const cls = cn(buttonVariants({ variant, size: "lg" }));
-  const arrow = <span aria-hidden className="ml-1">→</span>;
-  if (url in router.routesByPath) {
-    return <Link to={url as "/"} className={cls}>{label}{arrow}</Link>;
-  }
-  if (/^https:\/\//.test(url)) {
-    return <a href={url} target="_blank" rel="noreferrer" className={cls}>{label}{arrow}</a>;
-  }
-  // Destination page not built yet: complete-looking but inactive.
+  // SmartLink activates internal links only when the page (or published service) exists; otherwise inactive.
   return (
-    <span role="link" aria-disabled="true" title="Coming soon" className={cn(cls, "cursor-not-allowed opacity-60")}>
-      {label}{arrow}
-    </span>
+    <SmartLink url={url} className={cls} pendingClassName="cursor-not-allowed opacity-60">
+      {label}<span aria-hidden className="ml-1">→</span>
+    </SmartLink>
   );
 }
 

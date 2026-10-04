@@ -16,23 +16,26 @@ export type NavEntry = { id: string; label: string; url: string; kind: "link" | 
  * "navigation") is empty. Once saved in the Control Centre, CMS wins.
  * ------------------------------------------------------------------ */
 const L = (label: string, url = "#"): NavLink => ({ label, url });
+/** Fallback service slugs; links stay inactive until the service is published. */
+const SVC: Record<string, string> = {"AI Film & TVC": "ai-film-tvc", "AI Commercial": "ai-commercial", "AI Product Video": "ai-product-video", "AI Fashion Film": "ai-fashion-film", "AI UGC": "ai-ugc", "Character Animation": "character-animation", "Motion Graphics": "motion-graphics-vfx", "AI Product Photography": "ai-product-photography", "AI Fashion Visuals": "ai-fashion-visuals", "Lifestyle Visuals": "lifestyle-visuals", "Campaign Visuals": "campaign-visuals", "Virtual Models": "virtual-models", "E-commerce Images": "ecommerce-images", "Branding": "branding", "Graphic Design": "graphic-design", "Campaign Creative": "campaign-creative", "Social Media Creative": "social-media-creative", "Packaging": "packaging-design", "UI/UX": "ui-ux-design", "Website UI": "website-ui", "Mobile App UI": "mobile-app-ui", "SaaS Product Design": "saas-product-design", "Dashboard Design": "dashboard-design", "Business Website": "web-development", "E-commerce": "ecommerce-development", "SaaS": "saas-development", "LMS": "lms-development", "CRM": "crm-development", "ERP": "erp-development", "POS": "pos-development", "Custom Software": "custom-software", "AI Agents": "ai-agents", "AI Chatbots": "ai-chatbots", "n8n Automation": "n8n-automation", "Marketing Automation": "marketing-automation", "Sales Automation": "sales-automation", "Business Process Automation": "business-process-automation"};
+const S = (label: string) => L(label, SVC[label] ? `/services/${SVC[label]}` : "#");
 
 export const FALLBACK_NAV: NavEntry[] = [
   { id: "explore", label: "Explore", url: "/", kind: "link", columns: [] },
   {
     id: "create", label: "Create", url: "/services", kind: "mega",
     columns: [
-      { title: "AI Video", url: "/services/ai-video-film", links: ["AI Film & TVC", "AI Commercial", "AI Product Video", "AI Fashion Film", "AI UGC", "Reels", "Character Animation", "Motion Graphics", "VFX"].map((l) => L(l)) },
-      { title: "AI Image", url: "/services/ai-photography", links: ["AI Product Photography", "AI Fashion Visuals", "Lifestyle Visuals", "Campaign Visuals", "Virtual Models", "E-commerce Images", "Image Restoration"].map((l) => L(l)) },
-      { title: "Creative", url: "/services/brand-creative", links: ["Branding", "Graphic Design", "Campaign Creative", "Social Media Creative", "Packaging", "Presentation Design"].map((l) => L(l)) },
+      { title: "AI Video", url: "/services/ai-video-film", links: ["AI Film & TVC", "AI Commercial", "AI Product Video", "AI Fashion Film", "AI UGC", "Reels", "Character Animation", "Motion Graphics", "VFX"].map(S) },
+      { title: "AI Image", url: "/services/ai-photography", links: ["AI Product Photography", "AI Fashion Visuals", "Lifestyle Visuals", "Campaign Visuals", "Virtual Models", "E-commerce Images", "Image Restoration"].map(S) },
+      { title: "Creative", url: "/services/brand-creative", links: ["Branding", "Graphic Design", "Campaign Creative", "Social Media Creative", "Packaging", "Presentation Design"].map(S) },
     ],
   },
   {
     id: "build", label: "Build", url: "/services", kind: "mega",
     columns: [
-      { title: "Design", url: "/services/ui-ux-digital-design", links: ["UI/UX", "Website UI", "Mobile App UI", "SaaS Product Design", "Dashboard Design", "Landing Pages"].map((l) => L(l)) },
-      { title: "Development", url: "/services/web-software", links: ["Business Website", "E-commerce", "SaaS", "LMS", "CRM", "ERP", "POS", "HRM", "Custom Software"].map((l) => L(l)) },
-      { title: "Automation", url: "/services/ai-automation", links: ["AI Agents", "AI Chatbots", "n8n Automation", "Marketing Automation", "Sales Automation", "CRM Automation", "Internal AI Tools", "Business Process Automation"].map((l) => L(l)) },
+      { title: "Design", url: "/services/ui-ux-digital-design", links: ["UI/UX", "Website UI", "Mobile App UI", "SaaS Product Design", "Dashboard Design", "Landing Pages"].map(S) },
+      { title: "Development", url: "/services/web-software", links: ["Business Website", "E-commerce", "SaaS", "LMS", "CRM", "ERP", "POS", "HRM", "Custom Software"].map(S) },
+      { title: "Automation", url: "/services/ai-automation", links: ["AI Agents", "AI Chatbots", "n8n Automation", "Marketing Automation", "Sales Automation", "CRM Automation", "Internal AI Tools", "Business Process Automation"].map(S) },
     ],
   },
   { id: "work", label: "Work", url: "/work", kind: "link", columns: [] },

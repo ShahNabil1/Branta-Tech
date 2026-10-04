@@ -204,7 +204,7 @@ function Sections({ pageId }: { pageId: string }) {
   );
 }
 
-const SECTION_TYPES = ["hero", "capability_explorer", "featured_work", "ai_film_showcase", "ai_image_showcase", "web_software_showcase", "automation_showcase", "process", "client_logos", "insights_teaser", "careers_teaser", "final_cta", "text", "media", "cta", "services", "portfolio", "logos", "custom"].map((v) => ({ value: v, label: v }));
+const SECTION_TYPES = ["hero", "capability_explorer", "featured_work", "ai_film_showcase", "ai_image_showcase", "web_software_showcase", "automation_showcase", "process", "client_logos", "insights_teaser", "careers_teaser", "final_cta", "studio_hero", "studio_entry", "text", "media", "cta", "services", "portfolio", "logos", "custom"].map((v) => ({ value: v, label: v }));
 
 function SectionForm({ section, onSaved }: { section: Section; onSaved: () => void }) {
   const init = {

@@ -428,6 +428,7 @@ export type Database = {
       }
       service_groups: {
         Row: {
+          config: Json
           created_at: string
           description: string | null
           id: string
@@ -440,6 +441,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          config?: Json
           created_at?: string
           description?: string | null
           id?: string
@@ -452,6 +454,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          config?: Json
           created_at?: string
           description?: string | null
           id?: string
@@ -474,12 +477,14 @@ export type Database = {
           group_id: string
           hero_media_type: string | null
           hero_media_url: string | null
+          hero_poster_url: string | null
           id: string
           meta_description: string | null
           meta_title: string | null
           name: string
           noindex: boolean
           og_image_url: string | null
+          page_config: Json
           short_description: string | null
           slug: string
           sort_order: number
@@ -494,12 +499,14 @@ export type Database = {
           group_id: string
           hero_media_type?: string | null
           hero_media_url?: string | null
+          hero_poster_url?: string | null
           id?: string
           meta_description?: string | null
           meta_title?: string | null
           name: string
           noindex?: boolean
           og_image_url?: string | null
+          page_config?: Json
           short_description?: string | null
           slug: string
           sort_order?: number
@@ -514,12 +521,14 @@ export type Database = {
           group_id?: string
           hero_media_type?: string | null
           hero_media_url?: string | null
+          hero_poster_url?: string | null
           id?: string
           meta_description?: string | null
           meta_title?: string | null
           name?: string
           noindex?: boolean
           og_image_url?: string | null
+          page_config?: Json
           short_description?: string | null
           slug?: string
           sort_order?: number
