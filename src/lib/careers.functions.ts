@@ -120,3 +120,79 @@ export const getMyResumeLink = createServerFn({ method: "POST" })
     const { data: s } = await supabaseAdmin.storage.from("career-private").createSignedUrl(r.resume_url, 300, { download: true });
     return { url: s?.signedUrl ?? null };
   });
+
+// ---------- Applicant current resume (career-private/profiles/<uid>/...) ----------
+async function caller() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { getRequestHeader } = await import("@tanstack/react-start/server");
+  const auth = getRequestHeader("authorization");
+  const who = auth?.startsWith("Bearer ") ? (await supabaseAdmin.auth.getUser(auth.slice(7))).data.user : null;
+  return { supabaseAdmin, who };
+}
+export type MyResume = { file_name: string; file_size: number; uploaded_at: string } | null;
+type ResumeRow = { file_path: string; file_name: string; file_size: number; content_type: string; uploaded_at: string };
+const safeName = (s: string) => s.replace(/[^\w .()-]+/g, "_").slice(0, 200) || "resume";
+
+export const getMyResume = createServerFn({ method: "GET" }).handler(async (): Promise<MyResume> => {
+  const { supabaseAdmin, who } = await caller();
+  if (!who) return null;
+  const { data } = await supabaseAdmin.from("applicant_resumes" as never).select("file_name, file_size, uploaded_at").eq("user_id", who.id).maybeSingle();
+  return (data as MyResume) ?? null;
+});
+
+export const uploadMyResume = createServerFn({ method: "POST" })
+  .inputValidator((d: FormData) => { if (!(d instanceof FormData)) throw new Error("Invalid form"); return d; })
+  .handler(async ({ data }): Promise<{ ok: true; resume: MyResume } | { ok: false; error: string }> => {
+    const { supabaseAdmin, who } = await caller();
+    if (!who) return { ok: false, error: "Please sign in again." };
+    const file = data.get("resume");
+    if (!(file instanceof File) || file.size === 0) return { ok: false, error: "Choose a PDF, DOC or DOCX file." };
+    if (file.size > RESUME_MAX) return { ok: false, error: "Maximum size is 5 MB." };
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const kind = sniff(bytes);
+    const ext = file.name.toLowerCase().split(".").pop();
+    if (!kind || ext !== kind) return { ok: false, error: "Only real PDF, DOC or DOCX files are accepted." };
+    const { randomUUID } = await import("crypto");
+    const path = `profiles/${who.id}/${randomUUID()}.${kind}`;
+    const up = await supabaseAdmin.storage.from("career-private").upload(path, bytes, { contentType: CT[kind], upsert: false });
+    if (up.error) return { ok: false, error: "Upload failed. Please try again." };
+    const { data: old } = await supabaseAdmin.from("applicant_resumes" as never).select("file_path").eq("user_id", who.id).maybeSingle();
+    const row = { user_id: who.id, file_path: path, file_name: safeName(file.name), file_size: file.size, content_type: CT[kind], uploaded_at: new Date().toISOString() };
+    const res = await supabaseAdmin.from("applicant_resumes" as never).upsert(row as never);
+    if (res.error) { await supabaseAdmin.storage.from("career-private").remove([path]); return { ok: false, error: "Upload failed. Please try again." }; }
+    const oldPath = (old as { file_path: string } | null)?.file_path;
+    if (oldPath && oldPath.startsWith(`profiles/${who.id}/`)) await supabaseAdmin.storage.from("career-private").remove([oldPath]);
+    return { ok: true, resume: { file_name: row.file_name, file_size: row.file_size, uploaded_at: row.uploaded_at } };
+  });
+
+export const getMyCurrentResumeLink = createServerFn({ method: "POST" }).handler(async (): Promise<{ url: string | null }> => {
+  const { supabaseAdmin, who } = await caller();
+  if (!who) return { url: null };
+  const { data } = await supabaseAdmin.from("applicant_resumes" as never).select("file_path, file_name").eq("user_id", who.id).maybeSingle();
+  const r = data as { file_path: string; file_name: string } | null;
+  if (!r || !r.file_path.startsWith(`profiles/${who.id}/`)) return { url: null };
+  const { data: s } = await supabaseAdmin.storage.from("career-private").createSignedUrl(r.file_path, 300, { download: r.file_name });
+  return { url: s?.signedUrl ?? null };
+});
+
+export const removeMyResume = createServerFn({ method: "POST" }).handler(async (): Promise<{ ok: boolean }> => {
+  const { supabaseAdmin, who } = await caller();
+  if (!who) return { ok: false };
+  const { data } = await supabaseAdmin.from("applicant_resumes" as never).select("file_path").eq("user_id", who.id).maybeSingle();
+  const p = (data as { file_path: string } | null)?.file_path;
+  await supabaseAdmin.from("applicant_resumes" as never).delete().eq("user_id", who.id);
+  if (p && p.startsWith(`profiles/${who.id}/`)) await supabaseAdmin.storage.from("career-private").remove([p]);
+  return { ok: true };
+});
+
+/** Copies the applicant's saved resume into an application-owned file so later replacements never alter it. */
+async function copySavedResume(supabaseAdmin: Awaited<ReturnType<typeof caller>>["supabaseAdmin"], uid: string, jobId: string): Promise<string | null> {
+  const { data } = await supabaseAdmin.from("applicant_resumes" as never).select("*").eq("user_id", uid).maybeSingle();
+  const r = data as ResumeRow | null;
+  if (!r || !r.file_path.startsWith(`profiles/${uid}/`)) return null;
+  const { randomUUID } = await import("crypto");
+  const dest = `${jobId}/${randomUUID()}.${r.file_path.split(".").pop()}`;
+  const cp = await supabaseAdmin.storage.from("career-private").copy(r.file_path, dest);
+  return cp.error ? null : dest;
+}
+export { copySavedResume as _copySavedResume };
