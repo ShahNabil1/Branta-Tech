@@ -55,7 +55,7 @@ export function LeadershipHierarchy({ members }: { members: TeamMember[] }) {
           </div>
           {leads.length > 0 && (
             <div aria-hidden className="mx-auto h-12 w-px bg-border md:h-14">
-              <span className="block size-1.5 -translate-x-[2.5px] translate-y-[calc(100%*0)] rounded-full bg-accent" />
+              <span className="block size-1.5 -translate-x-[2.5px] rounded-full bg-accent" />
             </div>
           )}
         </li>
