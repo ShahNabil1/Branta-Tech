@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { DarkSection, Eyebrow, Section, SiteContainer } from "@/components/layout/primitives";
+import { DarkSection, Eyebrow, Section } from "@/components/layout/primitives";
 import { HeroAction } from "@/components/home/Hero";
 import type { HomeClosing } from "@/lib/home-closing.functions";
 import { cn } from "@/lib/utils";
@@ -122,7 +122,7 @@ export function CareersTeaser({ content }: P<"careers">) {
 export function FinalCta({ content }: P<"finalCta">) {
   return (
     <DarkSection aria-labelledby="final-cta-title" className="border-t border-border">
-      <SiteContainer className="px-0">
+      <div>
         <span aria-hidden className="mb-8 block h-1 w-12 bg-accent" />
         <h2 id="final-cta-title" className="text-display-xl whitespace-pre-line text-foreground">{content.title}</h2>
         <div className="mt-10 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
@@ -132,7 +132,7 @@ export function FinalCta({ content }: P<"finalCta">) {
             <HeroAction label={content.secondary.label} url={content.secondary.url} variant="secondary" />
           </div>
         </div>
-      </SiteContainer>
+      </div>
     </DarkSection>
   );
 }
