@@ -9,7 +9,7 @@ import { adminHead, must } from "@/lib/supabase/cms";
 import {
   PageHeader, Panel, TextInput, TextArea, SelectInput, AdminButton, ConfirmButton, LoadingRow, ErrorNote, EmptyState, StatusBadge,
   STATUS_OPTIONS, SLUG_RE, useAutoSlug, useFormState, friendlyError, nullIfEmpty,
-  swapped,
+  swapped, formatDate,
 } from "@/components/admin/cms";
 
 export const Route = createFileRoute("/control-centre/_admin/portfolio/categories")({
@@ -22,6 +22,12 @@ const KEY = ["cms", "portfolio_categories", "full"];
 function CategoriesPage() {
   const qc = useQueryClient();
   const q = useQuery({ queryKey: KEY, queryFn: () => must(supabase.from("portfolio_categories").select("*").order("sort_order")) });
+  const counts = useQuery({ queryKey: ["cms", "portfolio_categories", "counts"], queryFn: async () => {
+    const rows = await must(supabase.from("portfolio_projects").select("category_id").not("category_id", "is", null));
+    const m = new Map<string, number>();
+    for (const r of rows) if (r.category_id) m.set(r.category_id, (m.get(r.category_id) ?? 0) + 1);
+    return m;
+  } });
   const [editing, setEditing] = useState<string | null>(null);
   const refresh = () => qc.invalidateQueries({ queryKey: ["cms"] });
 
@@ -60,13 +66,17 @@ function CategoriesPage() {
         {q.data?.map((c, i) => (
           <li key={c.id} className="rounded-md border border-border bg-surface">
             <div className="flex flex-wrap items-center gap-2 px-4 py-3">
-              <span className="text-small flex-1 font-medium">{c.name} <span className="font-mono text-muted-foreground">/{c.slug}</span></span>
+              <span className="text-small min-w-0 flex-1 font-medium">{c.name} <span className="font-mono text-muted-foreground">/{c.slug}</span>
+                <span className="text-caption block font-normal text-muted-foreground">Created {formatDate(c.created_at)} · Updated {formatDate(c.updated_at)}</span></span>
+              <span className="text-caption text-muted-foreground">{counts.data ? `${counts.data.get(c.id) ?? 0} project${(counts.data.get(c.id) ?? 0) === 1 ? "" : "s"}` : "…"}</span>
               <StatusBadge status={c.status} />
               <AdminButton size="sm" variant="ghost" aria-label="Move up" disabled={i === 0} onClick={() => move(i, -1)}><ArrowUp className="size-3.5" /></AdminButton>
               <AdminButton size="sm" variant="ghost" aria-label="Move down" disabled={i === q.data.length - 1} onClick={() => move(i, 1)}><ArrowDown className="size-3.5" /></AdminButton>
               <AdminButton size="sm" variant="ghost" onClick={() => toggle(c)}>{c.status === "published" ? "Unpublish" : "Publish"}</AdminButton>
               <AdminButton size="sm" onClick={() => setEditing(editing === c.id ? null : c.id)}>{editing === c.id ? "Close" : "Edit"}</AdminButton>
-              <ConfirmButton title={`Delete "${c.name}"?`} description="Projects in this category are kept and become uncategorised." onConfirm={() => remove(c.id)}>Delete</ConfirmButton>
+              <ConfirmButton title="Delete this category?" description={(counts.data?.get(c.id) ?? 0) > 0
+                ? `This category is used by ${counts.data!.get(c.id)} project${counts.data!.get(c.id) === 1 ? "" : "s"}. Deleting it will keep those projects but remove their category.`
+                : "Projects using this category will NOT be deleted. They will become uncategorised."} onConfirm={() => remove(c.id)}>Delete</ConfirmButton>
             </div>
             {editing === c.id && <div className="border-t border-border p-4"><CategoryForm category={c} nextOrder={c.sort_order} onDone={() => { setEditing(null); refresh(); }} /></div>}
           </li>
