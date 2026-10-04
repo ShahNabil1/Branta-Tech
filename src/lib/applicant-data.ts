@@ -12,7 +12,7 @@ export type MyApplicationDetail = MyApplication & {
 
 /** Applicant-friendly wording for internal statuses. */
 export const STATUS_LABEL: Record<string, string> = {
-  new: "Submitted", reviewing: "Reviewing", shortlisted: "Shortlisted", interview: "Interview",
+  new: "Submitted", reviewing: "Under Review", shortlisted: "Shortlisted", interview: "Interview Scheduled",
   offer: "Offer", hired: "Hired", rejected: "Not selected", withdrawn: "Withdrawn",
 };
 export const statusLabel = (s: string) => STATUS_LABEL[s] ?? "Submitted";
@@ -68,4 +68,18 @@ export function fmtInterview(iso: string, tz: string) {
   try {
     return new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: tz, timeZoneName: "short" }).format(new Date(iso));
   } catch { return new Date(iso).toLocaleString("en-GB"); }
+}
+
+/** Share of useful application fields filled in (no weighting, no gating). */
+export async function fetchProfileCompleteness(userId: string, hasResume: boolean) {
+  const [{ data: p }, { data: a }] = await Promise.all([
+    supabase.from("profiles").select("full_name, phone").eq("id", userId).maybeSingle(),
+    db.from("applicant_profiles").select("current_location, institute, linkedin_url, portfolio_url").eq("user_id", userId).maybeSingle(),
+  ]);
+  const checks: [string, boolean][] = [
+    ["Full name", !!p?.full_name], ["Phone", !!p?.phone], ["Location", !!a?.current_location], ["University / institute", !!a?.institute],
+    ["LinkedIn or portfolio link", !!(a?.linkedin_url || a?.portfolio_url)], ["Resume", hasResume],
+  ];
+  const done = checks.filter(([, ok]) => ok).length;
+  return { percent: Math.round((done / checks.length) * 100), missing: checks.filter(([, ok]) => !ok).map(([k]) => k) };
 }
