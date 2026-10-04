@@ -29,6 +29,8 @@ import { Route as WorkSlugRouteImport } from './routes/work.$slug'
 import { Route as ControlCentreAdminAdminUsersRouteImport } from './routes/control-centre._admin.admin-users'
 import { Route as ControlCentreAdminDashboardRouteImport } from './routes/control-centre._admin.dashboard'
 import { Route as ControlCentreAdminMediaRouteImport } from './routes/control-centre._admin.media'
+import { Route as ControlCentreAdminInsightsIndexRouteImport } from './routes/control-centre._admin.insights.index'
+import { Route as ControlCentreAdminInsightsIdRouteImport } from './routes/control-centre._admin.insights.$id'
 import { Route as ControlCentreAdminPortfolioIndexRouteImport } from './routes/control-centre._admin.portfolio.index'
 import { Route as ControlCentreAdminPortfolioCategoriesRouteImport } from './routes/control-centre._admin.portfolio.categories'
 import { Route as ControlCentreAdminServicesIndexRouteImport } from './routes/control-centre._admin.services.index'
@@ -144,6 +146,18 @@ const ControlCentreAdminMediaRoute = ControlCentreAdminMediaRouteImport.update({
   path: '/media',
   getParentRoute: () => ControlCentreAdminRoute,
 } as any)
+const ControlCentreAdminInsightsIndexRoute =
+  ControlCentreAdminInsightsIndexRouteImport.update({
+    id: '/insights/',
+    path: '/insights/',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminInsightsIdRoute =
+  ControlCentreAdminInsightsIdRouteImport.update({
+    id: '/insights/$id',
+    path: '/insights/$id',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
 const ControlCentreAdminPortfolioIndexRoute =
   ControlCentreAdminPortfolioIndexRouteImport.update({
     id: '/portfolio/',
@@ -231,11 +245,13 @@ export interface FileRoutesByFullPath {
   '/control-centre/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/media': typeof ControlCentreAdminMediaRoute
+  '/control-centre/insights/$id': typeof ControlCentreAdminInsightsIdRoute
   '/control-centre/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
   '/control-centre/services/$id': typeof ControlCentreAdminServicesIdRoute
   '/control-centre/services/groups': typeof ControlCentreAdminServicesGroupsRoute
   '/control-centre/settings/site': typeof ControlCentreAdminSettingsSiteRoute
   '/control-centre/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
+  '/control-centre/insights/': typeof ControlCentreAdminInsightsIndexRoute
   '/control-centre/portfolio/': typeof ControlCentreAdminPortfolioIndexRoute
   '/control-centre/services/': typeof ControlCentreAdminServicesIndexRoute
   '/control-centre/portfolio/projects/$id': typeof ControlCentreAdminPortfolioProjectsIdRoute
@@ -262,11 +278,13 @@ export interface FileRoutesByTo {
   '/control-centre/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/media': typeof ControlCentreAdminMediaRoute
+  '/control-centre/insights/$id': typeof ControlCentreAdminInsightsIdRoute
   '/control-centre/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
   '/control-centre/services/$id': typeof ControlCentreAdminServicesIdRoute
   '/control-centre/services/groups': typeof ControlCentreAdminServicesGroupsRoute
   '/control-centre/settings/site': typeof ControlCentreAdminSettingsSiteRoute
   '/control-centre/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
+  '/control-centre/insights': typeof ControlCentreAdminInsightsIndexRoute
   '/control-centre/portfolio': typeof ControlCentreAdminPortfolioIndexRoute
   '/control-centre/services': typeof ControlCentreAdminServicesIndexRoute
   '/control-centre/portfolio/projects/$id': typeof ControlCentreAdminPortfolioProjectsIdRoute
@@ -296,11 +314,13 @@ export interface FileRoutesById {
   '/control-centre/_admin/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/_admin/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/_admin/media': typeof ControlCentreAdminMediaRoute
+  '/control-centre/_admin/insights/$id': typeof ControlCentreAdminInsightsIdRoute
   '/control-centre/_admin/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
   '/control-centre/_admin/services/$id': typeof ControlCentreAdminServicesIdRoute
   '/control-centre/_admin/services/groups': typeof ControlCentreAdminServicesGroupsRoute
   '/control-centre/_admin/settings/site': typeof ControlCentreAdminSettingsSiteRoute
   '/control-centre/_admin/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
+  '/control-centre/_admin/insights/': typeof ControlCentreAdminInsightsIndexRoute
   '/control-centre/_admin/portfolio/': typeof ControlCentreAdminPortfolioIndexRoute
   '/control-centre/_admin/services/': typeof ControlCentreAdminServicesIndexRoute
   '/control-centre/_admin/portfolio/projects/$id': typeof ControlCentreAdminPortfolioProjectsIdRoute
@@ -330,11 +350,13 @@ export interface FileRouteTypes {
     | '/control-centre/admin-users'
     | '/control-centre/dashboard'
     | '/control-centre/media'
+    | '/control-centre/insights/$id'
     | '/control-centre/portfolio/categories'
     | '/control-centre/services/$id'
     | '/control-centre/services/groups'
     | '/control-centre/settings/site'
     | '/control-centre/website/navigation'
+    | '/control-centre/insights/'
     | '/control-centre/portfolio/'
     | '/control-centre/services/'
     | '/control-centre/portfolio/projects/$id'
@@ -361,11 +383,13 @@ export interface FileRouteTypes {
     | '/control-centre/admin-users'
     | '/control-centre/dashboard'
     | '/control-centre/media'
+    | '/control-centre/insights/$id'
     | '/control-centre/portfolio/categories'
     | '/control-centre/services/$id'
     | '/control-centre/services/groups'
     | '/control-centre/settings/site'
     | '/control-centre/website/navigation'
+    | '/control-centre/insights'
     | '/control-centre/portfolio'
     | '/control-centre/services'
     | '/control-centre/portfolio/projects/$id'
@@ -394,11 +418,13 @@ export interface FileRouteTypes {
     | '/control-centre/_admin/admin-users'
     | '/control-centre/_admin/dashboard'
     | '/control-centre/_admin/media'
+    | '/control-centre/_admin/insights/$id'
     | '/control-centre/_admin/portfolio/categories'
     | '/control-centre/_admin/services/$id'
     | '/control-centre/_admin/services/groups'
     | '/control-centre/_admin/settings/site'
     | '/control-centre/_admin/website/navigation'
+    | '/control-centre/_admin/insights/'
     | '/control-centre/_admin/portfolio/'
     | '/control-centre/_admin/services/'
     | '/control-centre/_admin/portfolio/projects/$id'
@@ -565,6 +591,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlCentreAdminMediaRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
+    '/control-centre/_admin/insights/': {
+      id: '/control-centre/_admin/insights/'
+      path: '/insights'
+      fullPath: '/control-centre/insights/'
+      preLoaderRoute: typeof ControlCentreAdminInsightsIndexRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/insights/$id': {
+      id: '/control-centre/_admin/insights/$id'
+      path: '/insights/$id'
+      fullPath: '/control-centre/insights/$id'
+      preLoaderRoute: typeof ControlCentreAdminInsightsIdRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
     '/control-centre/_admin/portfolio/': {
       id: '/control-centre/_admin/portfolio/'
       path: '/portfolio'
@@ -649,11 +689,13 @@ interface ControlCentreAdminRouteChildren {
   ControlCentreAdminAdminUsersRoute: typeof ControlCentreAdminAdminUsersRoute
   ControlCentreAdminDashboardRoute: typeof ControlCentreAdminDashboardRoute
   ControlCentreAdminMediaRoute: typeof ControlCentreAdminMediaRoute
+  ControlCentreAdminInsightsIdRoute: typeof ControlCentreAdminInsightsIdRoute
   ControlCentreAdminPortfolioCategoriesRoute: typeof ControlCentreAdminPortfolioCategoriesRoute
   ControlCentreAdminServicesIdRoute: typeof ControlCentreAdminServicesIdRoute
   ControlCentreAdminServicesGroupsRoute: typeof ControlCentreAdminServicesGroupsRoute
   ControlCentreAdminSettingsSiteRoute: typeof ControlCentreAdminSettingsSiteRoute
   ControlCentreAdminWebsiteNavigationRoute: typeof ControlCentreAdminWebsiteNavigationRoute
+  ControlCentreAdminInsightsIndexRoute: typeof ControlCentreAdminInsightsIndexRoute
   ControlCentreAdminPortfolioIndexRoute: typeof ControlCentreAdminPortfolioIndexRoute
   ControlCentreAdminServicesIndexRoute: typeof ControlCentreAdminServicesIndexRoute
   ControlCentreAdminPortfolioProjectsIdRoute: typeof ControlCentreAdminPortfolioProjectsIdRoute
@@ -666,6 +708,7 @@ const ControlCentreAdminRouteChildren: ControlCentreAdminRouteChildren = {
   ControlCentreAdminAdminUsersRoute: ControlCentreAdminAdminUsersRoute,
   ControlCentreAdminDashboardRoute: ControlCentreAdminDashboardRoute,
   ControlCentreAdminMediaRoute: ControlCentreAdminMediaRoute,
+  ControlCentreAdminInsightsIdRoute: ControlCentreAdminInsightsIdRoute,
   ControlCentreAdminPortfolioCategoriesRoute:
     ControlCentreAdminPortfolioCategoriesRoute,
   ControlCentreAdminServicesIdRoute: ControlCentreAdminServicesIdRoute,
@@ -673,6 +716,7 @@ const ControlCentreAdminRouteChildren: ControlCentreAdminRouteChildren = {
   ControlCentreAdminSettingsSiteRoute: ControlCentreAdminSettingsSiteRoute,
   ControlCentreAdminWebsiteNavigationRoute:
     ControlCentreAdminWebsiteNavigationRoute,
+  ControlCentreAdminInsightsIndexRoute: ControlCentreAdminInsightsIndexRoute,
   ControlCentreAdminPortfolioIndexRoute: ControlCentreAdminPortfolioIndexRoute,
   ControlCentreAdminServicesIndexRoute: ControlCentreAdminServicesIndexRoute,
   ControlCentreAdminPortfolioProjectsIdRoute:

@@ -7,12 +7,11 @@ import { AdminButton, ConfirmButton, EmptyState, ErrorNote, LoadingRow, Panel, f
  * save/delete/reorder handlers; this only handles layout and selection.
  */
 export function SimpleCrud<T extends { id: string }>({
-  rows, loading, error, empty, renderRow, renderForm, blank, onDelete, onMove, newLabel,
+  rows, loading, error, empty, renderRow, renderForm, onDelete, onMove, newLabel,
 }: {
   rows: T[] | undefined; loading: boolean; error: unknown; empty: string; newLabel: string;
   renderRow: (r: T) => ReactNode;
   renderForm: (r: T | null, close: () => void) => ReactNode;
-  blank: boolean;
   onDelete: (r: T) => Promise<void>;
   onMove: (i: number, dir: -1 | 1) => Promise<void>;
 }) {
@@ -39,9 +38,9 @@ export function SimpleCrud<T extends { id: string }>({
           ))}
         </ul>
       </div>
-      {editing && blank !== undefined && (
+      {editing && (
         <Panel title={editing === "new" ? newLabel : "Edit"} actions={<AdminButton size="sm" variant="ghost" onClick={close}>Close</AdminButton>}>
-          {renderForm(editing === "new" ? null : editing, close)}
+          <div key={editing === "new" ? "new" : editing.id}>{renderForm(editing === "new" ? null : editing, close)}</div>
         </Panel>
       )}
     </div>
