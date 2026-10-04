@@ -52,7 +52,7 @@ export function ClientFilesPanel({ clientId }: { clientId: string }) {
             <div className="min-w-0"><p className="text-small font-medium">{f.title}</p><p className="text-caption text-muted-foreground">{f.file_name} · {formatSize(f.file_size)} · {formatDate(f.created_at)}</p></div>
             <div className="flex gap-2">
               <AdminButton size="sm" onClick={() => openSignedFile(f.storage_path).catch(() => toast.error("Couldn't open the file."))}>Open</AdminButton>
-              <ConfirmButton size="sm" onConfirm={() => remove(f.id, f.storage_path)}>Remove</ConfirmButton>
+              <ConfirmButton title="Remove this file?" description="The client will no longer be able to download it." confirmLabel="Remove" onConfirm={() => remove(f.id, f.storage_path)}>Remove</ConfirmButton>
             </div>
           </li>
         ))}
