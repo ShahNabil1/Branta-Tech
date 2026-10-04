@@ -10,7 +10,7 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const urls: Array<{ loc: string; lastmod?: string }> = STATIC.map((p) => ({ loc: `${SITE_URL}${p}` }));
+        const urls: Array<{ loc: string; lastmod?: string | undefined }> = STATIC.map((p) => ({ loc: `${SITE_URL}${p}` }));
         const url = process.env["SUPABASE_URL"];
         const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
         if (url && key) {
