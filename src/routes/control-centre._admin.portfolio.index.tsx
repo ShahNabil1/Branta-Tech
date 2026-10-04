@@ -216,7 +216,7 @@ function PortfolioList() {
       )}
 
       {n > 0 && (
-        <div role="region" aria-label="Bulk actions" className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 px-4 py-3 backdrop-blur-sm lg:left-64">
+        <div role="region" aria-label="Bulk actions" className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 px-4 py-3 backdrop-blur-sm lg:left-60">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2">
             <p className="mr-auto text-sm font-medium tabular-nums" aria-live="polite">{n} selected</p>
             <AdminButton size="sm" disabled={busy} onClick={() => request("published")}>Publish</AdminButton>
