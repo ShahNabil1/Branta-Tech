@@ -117,7 +117,7 @@ function Profile() {
   if (!loaded) return <p className="text-body text-muted-foreground"><Loader2 className="mr-2 inline size-4 animate-spin" />Loading your profile…</p>;
 
   const input = (k: keyof Form, label: string, o: { type?: string; ac?: string; required?: boolean; hint?: string; ph?: string } = {}) => (
-    <Field id={k} label={label} required={o.required} error={errs[k]} hint={o.hint}>
+    <Field id={k} label={label} required={!!o.required} error={errs[k]} {...(o.hint ? { hint: o.hint } : {})}>
       <input id={k} name={k} type={o.type ?? "text"} autoComplete={o.ac} placeholder={o.ph} value={form[k]} onChange={set(k)}
         aria-invalid={!!errs[k] || undefined} aria-describedby={errs[k] ? `${k}-err` : undefined} className={inputCls} />
     </Field>
