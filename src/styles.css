@@ -279,3 +279,17 @@
   from { opacity: 0; transform: translateY(-6px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Capability Explorer */
+@keyframes cap-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes cap-mask { from { transform: translateY(105%); } to { transform: none; } }
+@keyframes cap-flow { to { stroke-dashoffset: -24; } }
+@keyframes cap-pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+@utility cap-in { animation: cap-in 400ms var(--ease-out-expo) both; animation-delay: var(--cap-delay, 0ms); }
+@utility cap-mask { animation: cap-mask 450ms var(--ease-out-expo) both; }
+@utility cap-flow { stroke-dasharray: 4 8; animation: cap-flow 1.2s linear infinite; }
+@utility cap-pulse { animation: cap-pulse 2.4s ease-in-out infinite; }
+@utility no-scrollbar { scrollbar-width: none; &::-webkit-scrollbar { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .cap-in, .cap-mask, .cap-flow, .cap-pulse { animation: none !important; }
+}
