@@ -85,6 +85,99 @@ export type Database = {
         }
         Relationships: []
       }
+      bookings: {
+        Row: {
+          client_user_id: string | null
+          company: string | null
+          created_at: string
+          email: string
+          id: string
+          internal_notes: string | null
+          ip_hash: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          requested_start_at: string
+          status: string
+          timezone: string
+          topic: string
+          updated_at: string
+        }
+        Insert: {
+          client_user_id?: string | null
+          company?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          internal_notes?: string | null
+          ip_hash?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          requested_start_at: string
+          status?: string
+          timezone: string
+          topic: string
+          updated_at?: string
+        }
+        Update: {
+          client_user_id?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          internal_notes?: string | null
+          ip_hash?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          requested_start_at?: string
+          status?: string
+          timezone?: string
+          topic?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      client_files: {
+        Row: {
+          client_user_id: string
+          created_at: string
+          description: string | null
+          file_name: string
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          storage_path: string
+          title: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          client_user_id: string
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          storage_path: string
+          title: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          client_user_id?: string
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          storage_path?: string
+          title?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       job_applications: {
         Row: {
           cover_note: string
@@ -204,6 +297,78 @@ export type Database = {
           title?: string
           updated_at?: string
           work_mode?: string | null
+        }
+        Relationships: []
+      }
+      leads: {
+        Row: {
+          assigned_to: string | null
+          attachment_name: string | null
+          attachment_path: string | null
+          budget_range: string | null
+          client_user_id: string | null
+          company: string | null
+          created_at: string
+          email: string
+          id: string
+          internal_notes: string | null
+          ip_hash: string | null
+          name: string
+          phone: string | null
+          project_summary: string
+          reference_links: string[]
+          service_interest: string[]
+          source: string
+          status: string
+          timeline: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          attachment_name?: string | null
+          attachment_path?: string | null
+          budget_range?: string | null
+          client_user_id?: string | null
+          company?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          internal_notes?: string | null
+          ip_hash?: string | null
+          name: string
+          phone?: string | null
+          project_summary: string
+          reference_links?: string[]
+          service_interest?: string[]
+          source?: string
+          status?: string
+          timeline?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          attachment_name?: string | null
+          attachment_path?: string | null
+          budget_range?: string | null
+          client_user_id?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          internal_notes?: string | null
+          ip_hash?: string | null
+          name?: string
+          phone?: string | null
+          project_summary?: string
+          reference_links?: string[]
+          service_interest?: string[]
+          source?: string
+          status?: string
+          timeline?: string | null
+          updated_at?: string
+          website?: string | null
         }
         Relationships: []
       }
@@ -669,6 +834,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          company: string | null
           created_at: string
           email: string | null
           full_name: string | null
@@ -679,6 +845,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          company?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -689,6 +856,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          company?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -966,7 +1134,36 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      ensure_client_profile: { Args: never; Returns: undefined }
+      list_sales_staff: {
+        Args: never
+        Returns: {
+          email: string
+          full_name: string
+          id: string
+        }[]
+      }
+      my_bookings: {
+        Args: never
+        Returns: {
+          created_at: string
+          id: string
+          requested_start_at: string
+          status: string
+          timezone: string
+          topic: string
+        }[]
+      }
+      my_requests: {
+        Args: never
+        Returns: {
+          created_at: string
+          id: string
+          project_summary: string
+          service_interest: string[]
+          status: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
