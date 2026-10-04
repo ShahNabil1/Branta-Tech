@@ -20,6 +20,10 @@ function canHover() {
   return typeof window !== "undefined" && window.matchMedia("(hover: hover) and (pointer: fine)").matches && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+export function WorkMediaView({ media, title, playing }: { media: WorkItem["media"]; title: string; alt?: string; playing: boolean }) {
+  return <Media item={{ media, title } as WorkItem} playing={playing} />;
+}
+
 function Media({ item, playing }: { item: WorkItem; playing: boolean }) {
   const m = item.media;
   const [ready, setReady] = useState(false);
