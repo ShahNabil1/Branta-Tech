@@ -46,8 +46,8 @@ export async function withPoster(m: WorkMedia | null): Promise<WorkMedia | null>
   return { ...m, poster: await vimeoThumb(id) };
 }
 
-export type ProjRow = Pick<Database["public"]["Tables"]["portfolio_projects"]["Row"], "id" | "slug" | "title" | "client_name" | "project_year" | "category_id" | "cover_type" | "cover_url" | "cover_poster_url" | "sort_order">;
-export const PROJ_COLS = "id,slug,title,client_name,project_year,category_id,cover_type,cover_url,cover_poster_url,sort_order";
+export type ProjRow = Pick<Database["public"]["Tables"]["portfolio_projects"]["Row"], "id" | "slug" | "title" | "client_name" | "project_year" | "category_id" | "cover_position" | "cover_type" | "cover_url" | "cover_poster_url" | "sort_order">;
+export const PROJ_COLS = "id,slug,title,client_name,project_year,category_id,cover_position,cover_type,cover_url,cover_poster_url,sort_order";
 
 /** Builds cards with category, services and cover media (published only — RLS + explicit filters). */
 export async function buildCards(sb: SB, list: ProjRow[]): Promise<{ cards: WorkCard[]; links: { project_id: string; service_id: string }[] }> {
@@ -77,7 +77,7 @@ export async function buildCards(sb: SB, list: ProjRow[]): Promise<{ cards: Work
       id: p.id, slug: p.slug, title: p.title, client: p.client_name, year: p.project_year,
       category: p.category_id ? cat.get(p.category_id) ?? null : null,
       services: (links.data ?? []).filter((l) => l.project_id === p.id).map((l) => svc.get(l.service_id)).filter((x): x is Tag => !!x),
-      media: await withPoster(m),
+      media: m ? { ...(await withPoster(m))!, position: p.cover_position } : null,
     };
   }));
   return { cards, links: links.data ?? [] };

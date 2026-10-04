@@ -27,7 +27,7 @@ export function RelatedWork({ items, heading = "Selected work" }: { items: WorkC
         {items.map((c, i) => (
           <li key={c.id} className={cn("min-w-0", i === 0 && items.length > 2 && "lg:col-span-2")}>
             <Link to="/work/$slug" params={{ slug: c.slug }} className="group block rounded-[4px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">
-              <div className={cn("relative overflow-hidden rounded-[4px] bg-muted/10", i === 0 && items.length > 2 ? "aspect-[16/9] lg:aspect-[21/10]" : "aspect-[4/3]")}>
+              <div className={cn("relative overflow-hidden rounded-[4px] bg-muted/10", "aspect-video")}>
                 <WorkMediaView media={c.media} title={c.title} playing={false} />
               </div>
               <div className="mt-4 flex items-start justify-between gap-4">

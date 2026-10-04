@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { queryOptions } from "@tanstack/react-query";
 import type { Database } from "@/integrations/supabase/types";
 
-export type WorkMedia = { type: "image" | "video" | "vimeo"; url: string; poster: string | null; alt: string; orientation: string };
+export type WorkMedia = { type: "image" | "video" | "vimeo"; url: string; poster: string | null; alt: string; orientation: string; position?: string };
 export type WorkItem = {
   id: string;
   slug: string;

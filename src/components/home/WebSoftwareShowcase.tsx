@@ -71,7 +71,7 @@ function Promo({ id, poster, title }: { id: string | null; poster: string | null
   );
 }
 
-const WORK_SIZE = ["md:col-span-7 aspect-[16/10]", "md:col-span-5 aspect-[4/5]", "md:col-span-5 aspect-[4/3]", "md:col-span-7 aspect-[16/9]"];
+const WORK_SIZE = ["md:col-span-7 aspect-video", "md:col-span-5 aspect-video", "md:col-span-5 aspect-video", "md:col-span-7 aspect-video"];
 
 function WorkCard({ w, i }: { w: WebWork; i: number }) {
   const size = WORK_SIZE[i % WORK_SIZE.length]!;

@@ -17,7 +17,7 @@ import { ProjectTeam } from "@/components/admin/ProjectTeam";
 import { SeoFields, seoFrom, seoPayload, seoErrors, emptySeo, type SeoValues } from "@/components/admin/SeoFields";
 
 export function ProjectEditorLoader({ id }: { id: string | null }) {
-  const cats = useQuery({ queryKey: ["cms", "portfolio_categories"], queryFn: () => must(supabase.from("portfolio_categories").select("id,name").order("sort_order")) });
+  const cats = useQuery({ queryKey: ["cms", "portfolio_categories"], queryFn: () => must(supabase.from("portfolio_categories").select("id,name,status").order("sort_order")) });
   const q = useQuery({ queryKey: ["cms", "project", id], enabled: !!id, queryFn: () => must(supabase.from("portfolio_projects").select("*").eq("id", id!).maybeSingle()) });
   if (cats.isLoading || (id && q.isLoading)) return <LoadingRow />;
   if (cats.error || q.error) return <ErrorNote>{friendlyError(cats.error ?? q.error)}</ErrorNote>;
@@ -28,10 +28,10 @@ export function ProjectEditorLoader({ id }: { id: string | null }) {
 type Form = {
   title: string; client_name: string; category_id: string; industry: string; project_year: string;
   short_description: string; overview: string; challenge: string; approach: string; execution: string; result: string;
-  cover_url: string; cover_type: string; cover_poster_url: string; timeline: string; is_featured: boolean; status: string; sort_order: string; seo: SeoValues;
+  cover_url: string; cover_type: string; cover_poster_url: string; cover_position: string; timeline: string; is_featured: boolean; status: string; sort_order: string; seo: SeoValues;
 };
 
-function ProjectEditor({ project, categories }: { project: Tables<"portfolio_projects"> | null; categories: { id: string; name: string }[] }) {
+function ProjectEditor({ project, categories }: { project: Tables<"portfolio_projects"> | null; categories: { id: string; name: string; status: string }[] }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const isNew = !project;
@@ -41,7 +41,7 @@ function ProjectEditor({ project, categories }: { project: Tables<"portfolio_pro
     project_year: project?.project_year ? String(project.project_year) : "",
     short_description: s(project?.short_description), overview: s(project?.overview), challenge: s(project?.challenge),
     approach: s(project?.approach), execution: s(project?.execution), result: s(project?.result),
-    cover_url: s(project?.cover_url), cover_type: s(project?.cover_type), cover_poster_url: s(project?.cover_poster_url), timeline: s(project?.timeline), is_featured: project?.is_featured ?? false,
+    cover_url: s(project?.cover_url), cover_type: s(project?.cover_type), cover_poster_url: s(project?.cover_poster_url), cover_position: project?.cover_position ?? "center", timeline: s(project?.timeline), is_featured: project?.is_featured ?? false,
     status: project?.status ?? "draft", sort_order: String(project?.sort_order ?? 0), seo: project ? seoFrom(project) : emptySeo,
   });
   const slug = useAutoSlug(project?.slug ?? "", isNew);
@@ -70,7 +70,7 @@ function ProjectEditor({ project, categories }: { project: Tables<"portfolio_pro
       industry: nullIfEmpty(v.industry), project_year: year, short_description: nullIfEmpty(v.short_description),
       overview: nullIfEmpty(v.overview), challenge: nullIfEmpty(v.challenge), approach: nullIfEmpty(v.approach),
       execution: nullIfEmpty(v.execution), result: nullIfEmpty(v.result), cover_url: nullIfEmpty(v.cover_url),
-      cover_type: v.cover_type || null, cover_poster_url: nullIfEmpty(v.cover_poster_url), timeline: nullIfEmpty(v.timeline), is_featured: v.is_featured, status: v.status, sort_order: Math.round(Number(v.sort_order) || 0),
+      cover_type: v.cover_type || null, cover_poster_url: nullIfEmpty(v.cover_poster_url), cover_position: COVER_POSITIONS.some((o) => o.value === v.cover_position) ? v.cover_position : "center", timeline: nullIfEmpty(v.timeline), is_featured: v.is_featured, status: v.status, sort_order: Math.round(Number(v.sort_order) || 0),
       ...seoPayload(v.seo),
     };
     const res = isNew
@@ -117,7 +117,7 @@ function ProjectEditor({ project, categories }: { project: Tables<"portfolio_pro
               <TextInput label="Title" required value={v.title} onChange={(e) => { f.set("title", e.target.value); slug.syncFrom(e.target.value); }} />
               <TextInput label="Slug" required value={slug.slug} error={slugError} hint="Generated from the title until you edit it. Public address: /work/slug" onChange={(e) => slug.setSlug(e.target.value)} />
               <TextInput label="Client name" value={v.client_name} onChange={(e) => f.set("client_name", e.target.value)} />
-              <SelectInput label="Category" value={v.category_id} options={[{ value: "", label: "Uncategorised" }, ...categories.map((c) => ({ value: c.id, label: c.name }))]} onChange={(e) => f.set("category_id", e.target.value)} />
+              <CategoryPicker value={v.category_id} categories={categories} onChange={(id) => f.set("category_id", id)} />
               <TextInput label="Industry" value={v.industry} onChange={(e) => f.set("industry", e.target.value)} />
               <TextInput label="Project year" type="number" value={v.project_year} error={yearError} onChange={(e) => f.set("project_year", e.target.value)} />
               <TextInput label="Timeline" placeholder="e.g. 6 weeks" value={v.timeline} onChange={(e) => f.set("timeline", e.target.value)} />
@@ -145,12 +145,14 @@ function ProjectEditor({ project, categories }: { project: Tables<"portfolio_pro
                 <UploadImageButton label="Upload" onUploaded={(u) => { f.set("cover_url", u); f.set("cover_type", "image"); }} />
               </div>
               <SelectInput label="Cover type" value={v.cover_type} options={MEDIA_TYPE_OPTIONS} onChange={(e) => f.set("cover_type", e.target.value)} />
+              <p className="text-caption text-muted-foreground md:col-span-2">Recommended cover ratio: 16:9 — e.g. 1920 × 1080, 1600 × 900 or 1280 × 720. Other sizes are cropped to 16:9 on every project card.</p>
+              <SelectInput label="Cover focus" hint="Which part stays visible when the cover is cropped to 16:9." value={v.cover_position} options={COVER_POSITIONS} onChange={(e) => f.set("cover_position", e.target.value)} />
               <div className="flex items-end gap-2">
                 <TextInput label="Poster image (for video covers)" hint="Optional — Vimeo's own thumbnail is used if empty." className="flex-1" value={v.cover_poster_url} error={posterError} onChange={(e) => f.set("cover_poster_url", e.target.value)} />
                 <UploadImageButton label="Upload" onUploaded={(u) => f.set("cover_poster_url", u)} />
               </div>
               {(v.cover_type === "image" ? v.cover_url : v.cover_poster_url) && /^https:\/\//.test(v.cover_type === "image" ? v.cover_url : v.cover_poster_url) && (
-                <img src={v.cover_type === "image" ? v.cover_url : v.cover_poster_url} alt="Cover preview" className="aspect-video w-full rounded-sm bg-muted object-cover" />
+                <img src={v.cover_type === "image" ? v.cover_url : v.cover_poster_url} alt="Cover preview (16:9 crop as shown on cards)" className={`aspect-video w-full rounded-sm bg-muted object-cover md:col-span-2 ${POS_CLASS[v.cover_position] ?? "object-center"}`} />
               )}
             </div>
           </Panel>
@@ -359,6 +361,56 @@ function MediaForm({ projectId, media, defaultOrder, onDone }: { projectId: stri
         <AdminButton variant="ghost" onClick={onDone}>Cancel</AdminButton>
         {f.state === "error" && <span className="text-caption text-destructive" role="alert">{f.error}</span>}
       </div>
+    </div>
+  );
+}
+
+const COVER_POSITIONS = [
+  { value: "center", label: "Center" }, { value: "top", label: "Top" }, { value: "bottom", label: "Bottom" },
+  { value: "left", label: "Left" }, { value: "right", label: "Right" },
+];
+const POS_CLASS: Record<string, string> = { center: "object-center", top: "object-top", bottom: "object-bottom", left: "object-left", right: "object-right" };
+
+/** Category select (published categories + the current one) with inline quick-create. */
+function CategoryPicker({ value, categories, onChange }: { value: string; categories: { id: string; name: string; status: string }[]; onChange: (id: string) => void }) {
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const slug = useAutoSlug("", true);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const opts = categories.filter((c) => c.status === "published" || c.id === value)
+    .map((c) => ({ value: c.id, label: c.status === "published" ? c.name : `${c.name} (${c.status})` }));
+  async function create() {
+    if (!name.trim()) return setErr("Name is required.");
+    if (!SLUG_RE.test(slug.slug)) return setErr("Use lowercase letters, numbers and hyphens in the slug.");
+    setBusy(true); setErr(null);
+    const { data, error } = await supabase.from("portfolio_categories")
+      .insert({ name: name.trim(), slug: slug.slug, status: "published", sort_order: (categories.length + 1) * 10 }).select("id").single();
+    setBusy(false);
+    if (error) return setErr(friendlyError(error));
+    await qc.invalidateQueries({ queryKey: ["cms", "portfolio_categories"] });
+    onChange(data.id);
+    toast.success("Category created");
+    setOpen(false); setName(""); slug.reset("");
+  }
+  return (
+    <div>
+      <div className="flex items-end gap-2">
+        <SelectInput label="Category" className="flex-1" value={value} options={[{ value: "", label: "Uncategorised" }, ...opts]} onChange={(e) => onChange(e.target.value)} />
+        <AdminButton onClick={() => setOpen((o) => !o)}><Plus className="size-4" aria-hidden /> New</AdminButton>
+      </div>
+      {open && (
+        <div className="mt-3 grid gap-3 rounded-sm border border-border p-3">
+          <TextInput label="Category name" value={name} onChange={(e) => { setName(e.target.value); slug.syncFrom(e.target.value); }} />
+          <TextInput label="Slug" value={slug.slug} onChange={(e) => slug.setSlug(e.target.value)} />
+          <div className="flex items-center gap-2">
+            <AdminButton size="sm" variant="primary" disabled={busy} onClick={create}>{busy ? "Creating…" : "Create & select"}</AdminButton>
+            <AdminButton size="sm" variant="ghost" onClick={() => setOpen(false)}>Cancel</AdminButton>
+            {err && <span role="alert" className="text-caption text-destructive">{err}</span>}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

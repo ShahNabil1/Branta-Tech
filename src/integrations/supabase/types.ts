@@ -660,6 +660,7 @@ export type Database = {
           category_id: string | null
           challenge: string | null
           client_name: string | null
+          cover_position: string
           cover_poster_url: string | null
           cover_type: string | null
           cover_url: string | null
@@ -689,6 +690,7 @@ export type Database = {
           category_id?: string | null
           challenge?: string | null
           client_name?: string | null
+          cover_position?: string
           cover_poster_url?: string | null
           cover_type?: string | null
           cover_url?: string | null
@@ -718,6 +720,7 @@ export type Database = {
           category_id?: string | null
           challenge?: string | null
           client_name?: string | null
+          cover_position?: string
           cover_poster_url?: string | null
           cover_type?: string | null
           cover_url?: string | null
