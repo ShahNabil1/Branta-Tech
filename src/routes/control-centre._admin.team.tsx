@@ -16,6 +16,7 @@ export const Route = createFileRoute("/control-centre/_admin/team")({
 });
 
 type M = Tables<"team_members">;
+const LEVELS = [{ value: "0", label: "Top leadership (e.g. Founder / CEO)" }, { value: "1", label: "Lead / department head" }, { value: "2", label: "Team member" }];
 
 function TeamAdmin() {
   const qc = useQueryClient();
@@ -36,7 +37,7 @@ function TeamAdmin() {
             {m.photo_url && isHttps(m.photo_url) ? <img src={m.photo_url} alt="" className="size-10 rounded-sm object-cover" /> : <span className="grid size-10 place-items-center rounded-sm bg-muted text-small">{m.name.charAt(0)}</span>}
             <div className="min-w-0">
               <p className="text-small font-medium">{m.name}</p>
-              <p className="text-caption flex flex-wrap items-center gap-2 text-muted-foreground">{m.role ?? "—"} <StatusBadge status={m.status} />{m.featured && <FeaturedBadge />}</p>
+              <p className="text-caption flex flex-wrap items-center gap-2 text-muted-foreground">{m.role ?? "—"}{m.department ? ` · ${m.department}` : ""}{m.leadership_level < 2 ? (m.leadership_level === 0 ? " · Top leadership" : " · Lead") : ""} <StatusBadge status={m.status} />{m.featured && <FeaturedBadge />}</p>
             </div>
             <div className="ml-auto flex gap-1">
               <AdminButton size="sm" variant="ghost" onClick={() => patch(m.id, { status: m.status === "published" ? "draft" : "published" }, m.status === "published" ? "Unpublished" : "Published")}>{m.status === "published" ? "Unpublish" : "Publish"}</AdminButton>
@@ -44,7 +45,7 @@ function TeamAdmin() {
             </div>
           </div>
         )}
-        renderForm={(m, close) => <MemberForm m={m} nextOrder={(q.data?.length ?? 0) * 10} onSaved={() => { refresh(); close(); }} />}
+        renderForm={(m, close) => <MemberForm m={m} all={q.data ?? []} nextOrder={(q.data?.length ?? 0) * 10} onSaved={() => { refresh(); close(); }} />}
         onDelete={async (m) => { const { error } = await supabase.from("team_members").delete().eq("id", m.id); if (error) toast.error(friendlyError(error)); else { toast.success("Member deleted"); refresh(); } }}
         onMove={async (i, d) => {
           const rows = q.data ?? []; const a = rows[i], b = rows[i + d]; if (!a || !b) return;
@@ -56,10 +57,11 @@ function TeamAdmin() {
   );
 }
 
-function MemberForm({ m, onSaved, nextOrder }: { m: M | null; onSaved: () => void; nextOrder: number }) {
+function MemberForm({ m, all, onSaved, nextOrder }: { m: M | null; all: M[]; onSaved: () => void; nextOrder: number }) {
   const [v, setV] = useState({
     name: m?.name ?? "", role: m?.role ?? "", photo_url: m?.photo_url ?? "", short_bio: m?.short_bio ?? "", full_bio: m?.full_bio ?? "",
     linkedin_url: m?.linkedin_url ?? "", email: m?.email ?? "", status: m?.status ?? "draft", featured: m?.featured ?? false,
+    department: m?.department ?? "", leadership_level: String(m?.leadership_level ?? 2), manager_id: m?.manager_id ?? "",
   });
   const [busy, setBusy] = useState(false);
   const set = <K extends keyof typeof v>(k: K, val: (typeof v)[K]) => setV((p) => ({ ...p, [k]: val }));
@@ -74,6 +76,7 @@ function MemberForm({ m, onSaved, nextOrder }: { m: M | null; onSaved: () => voi
     const payload = {
       name: v.name.trim(), role: nullIfEmpty(v.role), photo_url: nullIfEmpty(v.photo_url), short_bio: nullIfEmpty(v.short_bio), full_bio: nullIfEmpty(v.full_bio),
       linkedin_url: nullIfEmpty(v.linkedin_url), email: nullIfEmpty(v.email), status: v.status, featured: v.featured,
+      department: nullIfEmpty(v.department), leadership_level: Number(v.leadership_level), manager_id: v.manager_id || null,
     };
     const { error } = m ? await supabase.from("team_members").update(payload).eq("id", m.id) : await supabase.from("team_members").insert({ ...payload, sort_order: nextOrder });
     setBusy(false);
@@ -84,6 +87,10 @@ function MemberForm({ m, onSaved, nextOrder }: { m: M | null; onSaved: () => voi
     <div className="grid gap-4">
       <TextInput label="Name" value={v.name} onChange={(e) => set("name", e.target.value)} />
       <TextInput label="Role" value={v.role} onChange={(e) => set("role", e.target.value)} />
+      <TextInput label="Department (optional)" hint="Members sharing a department are grouped on the Team page. Use the same spelling." list="team-depts" value={v.department} onChange={(e) => set("department", e.target.value)} />
+      <datalist id="team-depts">{[...new Set(all.map((x) => x.department).filter(Boolean))].map((d) => <option key={d!} value={d!} />)}</datalist>
+      <SelectInput label="Leadership level" value={v.leadership_level} options={LEVELS} onChange={(e) => set("leadership_level", e.target.value)} />
+      <SelectInput label="Reports to (optional)" value={v.manager_id} options={[{ value: "", label: "— Nobody —" }, ...all.filter((x) => x.id !== m?.id).map((x) => ({ value: x.id, label: `${x.name}${x.role ? ` — ${x.role}` : ""}` }))]} onChange={(e) => set("manager_id", e.target.value)} />
       <div className="flex flex-wrap items-end gap-3">
         <TextInput className="min-w-0 flex-1" label="Photo URL" value={v.photo_url} error={errs.photo} onChange={(e) => set("photo_url", e.target.value)} />
         <UploadImageButton label="Upload" onUploaded={(u) => set("photo_url", u)} />

@@ -71,14 +71,19 @@ export const getPost = createServerFn({ method: "GET" })
     };
   });
 
-export type TeamMember = { id: string; name: string; role: string | null; photo: string | null; shortBio: string | null; fullBio: string | null; linkedin: string | null; featured: boolean };
+export type TeamMember = {
+  id: string; name: string; role: string | null; photo: string | null; shortBio: string | null; fullBio: string | null; linkedin: string | null; featured: boolean;
+  department: string | null; level: number; managerId: string | null;
+};
 export const getTeam = createServerFn({ method: "GET" }).handler(async (): Promise<TeamMember[]> => {
   const sb = pub();
   if (!sb) return [];
-  const { data } = await sb.from("team_members").select("id,name,role,photo_url,short_bio,full_bio,linkedin_url,featured").eq("status", "published").order("sort_order").order("name");
+  const { data } = await sb.from("team_members").select("id,name,role,photo_url,short_bio,full_bio,linkedin_url,featured,department,leadership_level,manager_id")
+    .eq("status", "published").order("leadership_level").order("sort_order").order("name");
   return (data ?? []).map((m) => ({
     id: m.id, name: m.name, role: m.role, photo: img(m.photo_url), shortBio: m.short_bio, fullBio: m.full_bio,
     linkedin: m.linkedin_url && /^https:\/\/(www\.)?linkedin\.com\//.test(m.linkedin_url) ? m.linkedin_url : null, featured: m.featured,
+    department: m.department?.trim() || null, level: m.leadership_level, managerId: m.manager_id,
   }));
 });
 
