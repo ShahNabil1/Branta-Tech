@@ -98,7 +98,7 @@ export function SectionMedia({ item, className, fill, decorative, eager }: {
           ref={frame} title={alt || item.label || "Video"} tabIndex={-1}
           src={`https://player.vimeo.com/video/${vId}?background=1&autoplay=1&muted=1&loop=${item.loop ? 1 : 0}&autopause=0&dnt=1`}
           allow="autoplay; fullscreen; picture-in-picture"
-          className={cn("pointer-events-none absolute left-1/2 top-1/2 h-[max(100%,56.25vw)] w-[max(100%,177.78vh)] min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 border-0 transition-opacity duration-500", playing ? "opacity-100" : "opacity-0")}
+          className={cn("pointer-events-none absolute inset-0 size-full scale-[1.02] border-0 transition-opacity duration-500", playing ? "opacity-100" : "opacity-0")}
         />
       )}
     </div>
