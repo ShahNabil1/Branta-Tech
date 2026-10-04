@@ -62,11 +62,11 @@ function GroupSection({ g, i }: { g: GroupBlock; i: number }) {
   return (
     <Section tone={dark ? "dark" : "warm"} id={g.slug} aria-labelledby={`g-${g.slug}`} className="scroll-mt-20 border-t border-border">
       <div className={cn("grid gap-10 lg:grid-cols-12 lg:gap-16", !g.media && "lg:items-start")}>
-        <div className={cn(g.media ? "lg:col-span-5" : "lg:col-span-6", flip && g.media && "lg:order-2")}>
+        <div className={cn("min-w-0", g.media ? "lg:col-span-5" : "lg:col-span-6", flip && g.media && "lg:order-2")}>
           <p className="text-caption font-mono text-accent">{String(i + 1).padStart(2, "0")}</p>
-          <h2 id={`g-${g.slug}`} className="text-display mt-4 text-foreground">{g.name}</h2>
+          <h2 id={`g-${g.slug}`} className="text-display mt-4 break-words text-foreground">{g.name}</h2>
           {(g.short || g.description) && <p className="text-body-lg mt-6 max-w-lg text-muted-foreground">{g.short || g.description}</p>}
-          <Link to="/services/$slug" params={{ slug: g.slug }} className={cn(buttonVariants({ variant: dark ? "secondary" : "primary", size: "lg" }), "mt-10")}>
+          <Link to="/services/$slug" params={{ slug: g.slug }} className={cn(buttonVariants({ variant: dark ? "secondary" : "primary", size: "lg" }), "mt-10 h-auto min-h-12 max-w-full whitespace-normal py-3 text-center")}>
             Explore {g.name}<span aria-hidden className="ml-1">→</span>
           </Link>
         </div>
