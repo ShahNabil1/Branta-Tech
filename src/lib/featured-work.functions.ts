@@ -9,8 +9,10 @@ export type WorkItem = {
   slug: string;
   title: string;
   client: string | null;
-  category: string | null;
-  services: string[];
+  /** Primary label: category name, else first service name. */
+  label: string | null;
+  /** Filter tag slugs (category + services). */
+  tags: string[];
   year: number | null;
   media: WorkMedia | null;
 };
@@ -21,12 +23,9 @@ export type FeaturedWork = {
   ctaLabel: string;
   ctaUrl: string;
   showClient: boolean;
-  showCategory: boolean;
-  showServices: boolean;
+  filters: { slug: string; name: string }[];
   items: WorkItem[];
 } | null;
-
-const MEDIA_TYPES = new Set(["image", "video", "vimeo"]);
 
 /** Home "featured_work" section + published projects (featured first, then sort_order/recency). Anon RLS, never throws. */
 export const getFeaturedWork = createServerFn({ method: "GET" }).handler(async (): Promise<FeaturedWork> => {
@@ -48,51 +47,18 @@ export const getFeaturedWork = createServerFn({ method: "GET" }).handler(async (
       .maybeSingle();
     if (!sec) return null;
     const cfg = (sec.config && typeof sec.config === "object" && !Array.isArray(sec.config) ? sec.config : {}) as Record<string, unknown>;
-    const max = Math.min(6, Math.max(1, Number(cfg["max_projects"]) || 6));
-
-    const { data: projects } = await sb
-      .from("portfolio_projects")
-      .select("id,slug,title,client_name,project_year,cover_type,cover_url,category_id,is_featured,sort_order,updated_at")
-      .eq("status", "published")
-      .order("is_featured", { ascending: false })
-      .order("sort_order")
-      .order("updated_at", { ascending: false })
-      .limit(max);
-    const list = projects ?? [];
-    const ids = list.map((p) => p.id);
-    const catIds = [...new Set(list.map((p) => p.category_id).filter((x): x is string => !!x))];
-
-    const [media, cats, links] = await Promise.all([
-      ids.length ? sb.from("portfolio_media").select("project_id,media_type,url,poster_url,alt_text,orientation,sort_order").in("project_id", ids).order("sort_order") : null,
-      catIds.length ? sb.from("portfolio_categories").select("id,name").in("id", catIds).eq("status", "published") : null,
-      ids.length ? sb.from("portfolio_project_services").select("project_id,service_id,sort_order").in("project_id", ids).order("sort_order") : null,
-    ]);
-    const svcIds = [...new Set((links?.data ?? []).map((l) => l.service_id))];
-    const svcs = svcIds.length ? (await sb.from("services").select("id,name").in("id", svcIds).eq("status", "published")).data ?? [] : [];
-    const svcName = new Map(svcs.map((s) => [s.id, s.name]));
-    const catName = new Map((cats?.data ?? []).map((c) => [c.id, c.name]));
-
-    const items: WorkItem[] = list.map((p) => {
-      const pm = (media?.data ?? []).filter((m) => m.project_id === p.id);
-      const match = pm.find((m) => m.url === p.cover_url);
-      let m: WorkMedia | null = null;
-      if (p.cover_url && p.cover_type && MEDIA_TYPES.has(p.cover_type)) {
-        m = { type: p.cover_type as WorkMedia["type"], url: p.cover_url, poster: match?.poster_url ?? null, alt: match?.alt_text || p.title, orientation: match?.orientation ?? "auto" };
-      } else {
-        const first = pm.find((x) => MEDIA_TYPES.has(x.media_type));
-        if (first) m = { type: first.media_type as WorkMedia["type"], url: first.url, poster: first.poster_url, alt: first.alt_text || p.title, orientation: first.orientation };
-      }
-      return {
-        id: p.id,
-        slug: p.slug,
-        title: p.title,
-        client: p.client_name,
-        category: p.category_id ? catName.get(p.category_id) ?? null : null,
-        services: (links?.data ?? []).filter((l) => l.project_id === p.id).map((l) => svcName.get(l.service_id)).filter((x): x is string => !!x).slice(0, 3),
-        year: p.project_year,
-        media: m,
-      };
-    });
+    const max = Math.min(30, Math.max(1, Number(cfg["max_projects"]) || 24));
+    const { PROJ_COLS, buildCards } = await import("./work.functions");
+    const { data: projects } = await sb.from("portfolio_projects").select(PROJ_COLS).eq("status", "published")
+      .order("is_featured", { ascending: false }).order("sort_order").order("updated_at", { ascending: false }).limit(max);
+    const { cards } = await buildCards(sb, projects ?? []);
+    const seen = new Map<string, { slug: string; name: string }>();
+    for (const c of cards) for (const t of [c.category, ...c.services]) if (t && !seen.has(t.slug)) seen.set(t.slug, t);
+    const items: WorkItem[] = cards.map((c) => ({
+      id: c.id, slug: c.slug, title: c.title, client: c.client, year: c.year, media: c.media,
+      label: c.category?.name ?? c.services[0]?.name ?? null,
+      tags: [c.category?.slug, ...c.services.map((x) => x.slug)].filter((x): x is string => !!x),
+    }));
 
     return {
       eyebrow: sec.eyebrow || "SELECTED WORK",
@@ -101,8 +67,7 @@ export const getFeaturedWork = createServerFn({ method: "GET" }).handler(async (
       ctaLabel: sec.cta_label || "View All Work",
       ctaUrl: sec.cta_url || "/work",
       showClient: cfg["show_client"] !== false,
-      showCategory: cfg["show_category"] !== false,
-      showServices: cfg["show_services"] !== false,
+      filters: [...seen.values()],
       items,
     };
   } catch {
