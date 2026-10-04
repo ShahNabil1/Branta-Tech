@@ -1154,6 +1154,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ensure_applicant_profile: { Args: never; Returns: undefined }
       ensure_client_profile: { Args: never; Returns: undefined }
       list_sales_staff: {
         Args: never
