@@ -12,6 +12,7 @@ import {
   useAutoSlug, useFormState, useUnsavedWarning, friendlyError, isSafeUrl, nullIfEmpty,
   swapped,
 } from "@/components/admin/cms";
+import { HeroFields } from "@/components/admin/HeroFields";
 import { SeoFields, seoFrom, seoPayload, seoErrors, emptySeo, type SeoValues } from "@/components/admin/SeoFields";
 
 export const Route = createFileRoute("/control-centre/_admin/website/pages/$id")({
@@ -259,6 +260,7 @@ function SectionForm({ section, onSaved }: { section: Section; onSaved: () => vo
       <TextInput label="CTA label" value={v.cta_label} onChange={(e) => f.set("cta_label", e.target.value)} />
       <TextInput label="CTA URL" value={v.cta_url} error={errs.cta_url} placeholder="/contact" onChange={(e) => f.set("cta_url", e.target.value)} />
       <CheckboxInput label="Visible" checked={v.is_visible} onChange={(b) => f.set("is_visible", b)} />
+      {v.section_type === "hero" && <HeroFields config={v.config} onChange={(c) => f.set("config", c)} />}
       <div className="md:col-span-2">
         <button type="button" className="text-caption text-muted-foreground underline underline-offset-4" onClick={() => setAdvanced((a) => !a)}>
           {advanced ? "Hide" : "Show"} advanced settings
