@@ -2,10 +2,10 @@ import { useState } from "react";
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  LayoutDashboard, FileText, Menu, Layers, Image, FolderOpen, Settings, Users, LogOut, PanelLeft,
+  LayoutDashboard, FileText, Newspaper, UserRound, Briefcase, Inbox, Menu, Layers, Image, FolderOpen, Settings, Users, LogOut, PanelLeft,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { getAdminSession } from "@/lib/supabase/admin-access";
+import { getAdminSession, CMS_ROLES } from "@/lib/supabase/admin-access";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -37,6 +37,21 @@ const groups = [
     ],
   },
   {
+    title: "Company",
+    items: [
+      { label: "Insights", icon: Newspaper, to: "/control-centre/insights" as const },
+      { label: "Team", icon: UserRound, to: "/control-centre/team" as const },
+    ],
+  },
+  {
+    title: "Careers",
+    hr: true,
+    items: [
+      { label: "Jobs", icon: Briefcase, to: "/control-centre/careers/jobs" as const },
+      { label: "Applications", icon: Inbox, to: "/control-centre/careers/applications" as const },
+    ],
+  },
+  {
     title: "System",
     items: [
       { label: "Site Settings", icon: Settings, to: "/control-centre/settings/site" as const },
@@ -45,10 +60,10 @@ const groups = [
   },
 ];
 
-function NavList({ onNavigate }: { onNavigate?: () => void }) {
+function NavList({ onNavigate, hrOnly }: { onNavigate?: () => void; hrOnly?: boolean }) {
   return (
     <nav aria-label="Control Centre" className="flex flex-col gap-6 px-3">
-      {groups.map((g) => (
+      {groups.filter((g) => !hrOnly || ("hr" in g && g.hr)).map((g) => (
         <div key={g.title}>
           <p className="text-caption px-3 pb-2 uppercase tracking-wider text-muted-foreground/70">{g.title}</p>
           <ul className="flex flex-col gap-0.5">
@@ -86,6 +101,7 @@ function AdminLayout() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const hrOnly = !admin.roles.some((r) => (CMS_ROLES as readonly string[]).includes(r));
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -107,7 +123,7 @@ function AdminLayout() {
     <div className="flex min-h-screen flex-col bg-background lg:flex-row">
       <aside className="dark hidden shrink-0 flex-col bg-background text-foreground lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-60">
         <Brand />
-        <div className="flex-1 overflow-y-auto pb-6"><NavList /></div>
+        <div className="flex-1 overflow-y-auto pb-6"><NavList hrOnly={hrOnly} /></div>
         {footer}
       </aside>
 
@@ -121,7 +137,7 @@ function AdminLayout() {
         <SheetContent side="left" className="dark flex w-72 flex-col border-border bg-background p-0 text-foreground">
           <SheetTitle className="sr-only">Control Centre menu</SheetTitle>
           <Brand />
-          <div className="flex-1 overflow-y-auto pb-6"><NavList onNavigate={() => setOpen(false)} /></div>
+          <div className="flex-1 overflow-y-auto pb-6"><NavList hrOnly={hrOnly} onNavigate={() => setOpen(false)} /></div>
           {footer}
         </SheetContent>
       </Sheet>

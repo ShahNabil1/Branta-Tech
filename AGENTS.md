@@ -30,3 +30,6 @@
 - Service related work comes only from portfolio_project_services; page_config.project_ids stores display order only, never project data.
 - /services/<slug> links (nav, CTAs via SmartLink/HeroAction) activate only when the slug is in getSiteChrome().serviceSlugs (published services + groups) — drafts stay inactive.
 - AI Studio (/ai-studio) is the site_pages "ai-studio" page: one studio_hero section plus studio_entry sections (eyebrow = kind, config: poster_url, alt, ratio) — no studio table.
+- Insights (/insights, /insights/$slug), About, Team and Careers read via src/lib/company.functions.ts with the publishable key; About/Team/Careers copy comes from site_pages "about"/"team"/"careers" sections ("hero" overrides default hero, "text" sections render in order).
+- Long-form content (posts.content_json, jobs.description_json) is { blocks } validated by src/lib/rich-text.ts and rendered as React elements — never store or render raw HTML.
+- Job applications are written only by the submitApplication server fn (service role, magic-byte CV check, honeypot + rate limit); CVs live in private bucket career-private; applications/notes/CVs are readable only via private.is_hr_admin() (super_admin/admin/hr). HR-only users see just the Careers menu.

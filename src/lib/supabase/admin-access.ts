@@ -1,6 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export const ADMIN_ROLES = ["super_admin", "admin"] as const;
+export const ADMIN_ROLES = ["super_admin", "admin", "hr"] as const;
+/** Roles with full CMS access; "hr" only sees Careers. */
+export const CMS_ROLES = ["super_admin", "admin"] as const;
 
 export type AdminSession = {
   userId: string;
