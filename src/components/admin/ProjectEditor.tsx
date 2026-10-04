@@ -158,9 +158,7 @@ function ProjectServices({ projectId }: { projectId: string }) {
   };
 
   const move = (i: number, d: -1 | 1) => {
-    const next = [...current];
-    [next[i], next[i + d]] = [next[i + d], next[i]];
-    setList(next);
+    setList(swapped(current, i, i + d));
   };
 
   async function save() {
@@ -218,7 +216,7 @@ function ProjectMedia({ projectId }: { projectId: string }) {
   const refresh = () => qc.invalidateQueries({ queryKey: key });
 
   async function move(i: number, d: -1 | 1) {
-    const order = q.data!.map((m) => m.id);
+    let order = q.data!.map((m) => m.id);
     order = swapped(order, i, i + d);
     const res = await Promise.all(order.map((id, idx) => supabase.from("portfolio_media").update({ sort_order: (idx + 1) * 10 }).eq("id", id)));
     const err = res.find((r) => r.error)?.error;

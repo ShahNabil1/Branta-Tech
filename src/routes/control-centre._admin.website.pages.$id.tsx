@@ -19,7 +19,7 @@ export const Route = createFileRoute("/control-centre/_admin/website/pages/$id")
   component: PageEditorRoute,
 });
 
-const PAGE_TYPES = ["standard", "home", "landing", "legal", "contact"].map((v) => ({ value: v, label: v[0].toUpperCase() + v.slice(1) }));
+const PAGE_TYPES = ["standard", "home", "landing", "legal", "contact"].map((v) => ({ value: v, label: v.charAt(0).toUpperCase() + v.slice(1) }));
 
 function PageEditorRoute() {
   const { id } = Route.useParams();
@@ -140,7 +140,7 @@ function Sections({ pageId }: { pageId: string }) {
     const a = list[i], b = list[i + dir];
     if (!a || !b) return;
     // Renumber to avoid ties, then swap.
-    const order = list.map((s) => s.id);
+    let order = list.map((s) => s.id);
     order = swapped(order, i, i + dir);
     const results = await Promise.all(order.map((id, idx) => supabase.from("page_sections").update({ sort_order: (idx + 1) * 10 }).eq("id", id)));
     const err = results.find((r) => r.error)?.error;

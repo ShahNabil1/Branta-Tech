@@ -26,7 +26,7 @@ function CategoriesPage() {
   const refresh = () => qc.invalidateQueries({ queryKey: ["cms"] });
 
   async function move(i: number, d: -1 | 1) {
-    const order = q.data!.map((c) => c.id);
+    let order = q.data!.map((c) => c.id);
     order = swapped(order, i, i + d);
     const res = await Promise.all(order.map((id, idx) => supabase.from("portfolio_categories").update({ sort_order: (idx + 1) * 10 }).eq("id", id)));
     const err = res.find((r) => r.error)?.error;

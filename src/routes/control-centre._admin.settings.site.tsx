@@ -14,7 +14,7 @@ type FieldDef = { key: string; label: string; kind?: "url" | "email" | "textarea
 const GROUPS: { group: string; title: string; fields: FieldDef[] }[] = [
   { group: "company", title: "Company", fields: [{ key: "company_name", label: "Company name" }, { key: "short_description", label: "Short description", kind: "textarea" }] },
   { group: "contact", title: "Contact", fields: [{ key: "email", label: "Email", kind: "email" }, { key: "phone", label: "Phone" }, { key: "address", label: "Address", kind: "textarea" }] },
-  { group: "social", title: "Social", fields: ["facebook", "instagram", "linkedin", "youtube", "x"].map((k) => ({ key: k, label: k === "x" ? "X" : k[0].toUpperCase() + k.slice(1), kind: "url" as const })) },
+  { group: "social", title: "Social", fields: ["facebook", "instagram", "linkedin", "youtube", "x"].map((k) => ({ key: k, label: k === "x" ? "X" : k.charAt(0).toUpperCase() + k.slice(1), kind: "url" as const })) },
   { group: "brand", title: "Brand", fields: [{ key: "logo_url", label: "Logo URL", kind: "url" }, { key: "logo_dark_url", label: "Logo (dark) URL", kind: "url" }, { key: "favicon_url", label: "Favicon URL", kind: "url" }] },
   { group: "footer", title: "Footer", fields: [{ key: "footer_tagline", label: "Footer tagline" }, { key: "copyright_text", label: "Copyright text" }] },
   { group: "default_seo", title: "Default SEO", fields: [{ key: "title", label: "Title" }, { key: "description", label: "Description", kind: "textarea" }, { key: "og_image", label: "OG image URL", kind: "url" }] },
