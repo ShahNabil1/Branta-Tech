@@ -90,7 +90,7 @@ function ServiceDetail({ p }: { p: Extract<NonNullable<ServicePage>, { kind: "se
   const c = s.config;
   const eyebrow = c.eyebrow || p.group?.name?.toUpperCase() || "SERVICE";
   const ctaLabel = c.cta.label || "Start a Project";
-  const ctaUrl = c.cta.url || "/contact";
+  const ctaUrl = c.cta.url || "/start-a-project";
   return (
     <SiteShell>
       <DarkSection aria-labelledby="svc-title" className={s.media ? "pb-0" : undefined}>
@@ -210,7 +210,7 @@ function GroupPage({ p }: { p: Extract<NonNullable<ServicePage>, { kind: "group"
         <span aria-hidden className="block h-px w-12 bg-accent" />
         <h2 id="grp-cta" className="text-display mt-8 max-w-3xl text-foreground">Have an Idea? Bring It.</h2>
         <div className="mt-10 flex flex-wrap gap-3">
-          <HeroAction label="Start a Project" url="/contact" variant="primary" />
+          <HeroAction label="Start a Project" url="/start-a-project" variant="primary" />
           <Link to="/services" className={buttonVariants({ variant: "secondary", size: "lg" })}>All services</Link>
         </div>
       </DarkSection>

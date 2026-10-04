@@ -38,7 +38,7 @@ export const HERO_FALLBACK: HeroContent = {
   title: "We Create What Brands Need Next.",
   body: "AI films, product visuals, campaigns, digital products and automation, built by one integrated creative technology team.",
   primary: { label: "Explore Our Work", url: "/work" },
-  secondary: { label: "Start a Project", url: "/contact" },
+  secondary: { label: "Start a Project", url: "/start-a-project" },
   capabilities: ["AI Film", "AI Photography", "Creative", "Web", "Software", "Automation"],
   media: [],
 };

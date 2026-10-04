@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { Link, useHydrated, useRouter, useRouterState } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { Link, useHydrated, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { displayName, useClientSession } from "@/lib/client-session";
 import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
 import { FALLBACK_NAV, navFromCms, safeImage, siteChromeQuery, type NavEntry, type NavLink } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
@@ -243,8 +245,7 @@ export function SiteHeader() {
 
         {/* Desktop actions */}
         <div className="ml-auto hidden items-center gap-1 lg:flex">
-          <AuthAction label="Sign in" className="hidden xl:inline-flex" />
-          <AuthAction label="Sign up" className="hidden xl:inline-flex" />
+          <AccountArea />
           <BookButton url={booking} className="ml-2" />
         </div>
 
@@ -359,18 +360,51 @@ function DropdownPanel({ entry, onNavigate }: { entry: NavEntry; onNavigate: () 
 /* ---------------- actions ---------------- */
 
 /** Client sign-in / sign-up arrive with the Client Portal phase; shown but inactive. */
-function AuthAction({ label, className, block }: { label: string; className?: string; block?: boolean }) {
+function AccountArea({ mobile, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
+  const { ready, user } = useClientSession();
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const base = "text-small items-center rounded-sm px-3 font-medium text-muted-foreground transition-colors hover:text-foreground";
+  const block = "flex h-12 justify-center border border-border text-foreground";
+  async function signOut() {
+    onNavigate?.();
+    await qc.cancelQueries({ queryKey: ["client"] });
+    qc.removeQueries({ queryKey: ["client"] });
+    await supabase.auth.signOut();
+    navigate({ to: "/sign-in", replace: true });
+  }
+  if (!ready) return mobile ? <div className="col-span-2 h-12" /> : <span className="hidden w-[120px] xl:inline-block" />;
+  if (!user) {
+    return mobile ? (
+      <>
+        <Link to="/sign-in" onClick={onNavigate} className={cn(base, block)}>Sign in</Link>
+        <Link to="/sign-up" onClick={onNavigate} className={cn(base, block)}>Create account</Link>
+      </>
+    ) : (
+      <>
+        <Link to="/sign-in" className={cn(base, "hidden h-9 xl:inline-flex")}>Sign in</Link>
+        <Link to="/sign-up" className={cn(base, "hidden h-9 xl:inline-flex")}>Sign up</Link>
+      </>
+    );
+  }
+  const name = displayName(user);
+  if (mobile) {
+    return (
+      <>
+        <p className="text-small col-span-2 truncate text-foreground">Signed in as {name}</p>
+        <Link to="/client" onClick={onNavigate} className={cn(base, block)}>Dashboard</Link>
+        <Link to="/client/profile" onClick={onNavigate} className={cn(base, block)}>Profile</Link>
+        <button type="button" onClick={signOut} className={cn(base, block, "col-span-2")}>Sign out</button>
+      </>
+    );
+  }
   return (
-    <span
-      aria-disabled="true"
-      title="Available with the client portal"
-      className={cn(
-        "text-small cursor-default items-center rounded-sm px-3 font-medium text-muted-foreground/50",
-        block ? "flex h-12 border border-border justify-center" : "h-9",
-        className,
-      )}
-    >
-      {label}
+    <span className="hidden items-center gap-1 xl:inline-flex">
+      <Link to="/client" className={cn(base, "inline-flex h-9 gap-2 text-foreground")} title="Client dashboard">
+        <span aria-hidden className="grid size-6 place-items-center rounded-full bg-muted text-caption font-semibold uppercase">{name.charAt(0)}</span>
+        <span className="max-w-[120px] truncate">Dashboard</span>
+      </Link>
+      <button type="button" onClick={signOut} className={cn(base, "inline-flex h-9")}>Sign out</button>
     </span>
   );
 }
@@ -472,8 +506,7 @@ function MobileMenu({ id, nav, logo, booking, isActive, onClose }: {
       <div className="shrink-0 border-t border-border px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
         <p className="text-eyebrow mb-3 text-muted-foreground">Account</p>
         <div className="mb-4 grid grid-cols-2 gap-2">
-          <AuthAction label="Sign in" block />
-          <AuthAction label="Create account" block />
+          <AccountArea mobile onNavigate={onClose} />
         </div>
         <BookButton url={booking} large />
       </div>
