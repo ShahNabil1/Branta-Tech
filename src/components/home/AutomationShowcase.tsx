@@ -43,7 +43,7 @@ function Node({ n, i, state }: { n: FlowNode; i: number; state: "idle" | "active
   return (
     <div
       className={cn(
-        "relative flex min-h-[88px] flex-col justify-between rounded-[6px] border bg-foreground/[0.03] p-4 transition-colors duration-500",
+        "relative flex min-h-[72px] flex-col md:min-h-[88px] justify-between rounded-[6px] border bg-foreground/[0.03] p-4 transition-colors duration-500",
         state === "active" ? "border-accent/70" : state === "done" ? "border-foreground/25" : "border-border",
       )}
     >
@@ -159,7 +159,7 @@ export function AutomationShowcase({ content }: { content: NonNullable<Automatio
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
           <div className="min-w-0 lg:col-span-5">
             <Eyebrow>{content.eyebrow}</Eyebrow>
-            <h2 id="automation-title" className="text-display mt-4 whitespace-pre-line text-foreground">{content.title}</h2>
+            <h2 id="automation-title" className="text-h1 mt-4 whitespace-pre-line text-foreground">{content.title}</h2>
             {content.body && <p className="text-body-lg mt-6 max-w-md text-muted-foreground">{content.body}</p>}
 
             <div
