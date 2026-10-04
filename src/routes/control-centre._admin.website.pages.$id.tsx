@@ -13,6 +13,7 @@ import {
   swapped,
 } from "@/components/admin/cms";
 import { HeroFields } from "@/components/admin/HeroFields";
+import { CapabilityFields } from "@/components/admin/CapabilityFields";
 import { SeoFields, seoFrom, seoPayload, seoErrors, emptySeo, type SeoValues } from "@/components/admin/SeoFields";
 
 export const Route = createFileRoute("/control-centre/_admin/website/pages/$id")({
@@ -198,7 +199,7 @@ function Sections({ pageId }: { pageId: string }) {
   );
 }
 
-const SECTION_TYPES = ["hero", "text", "media", "cta", "services", "portfolio", "logos", "custom"].map((v) => ({ value: v, label: v }));
+const SECTION_TYPES = ["hero", "capability_explorer", "text", "media", "cta", "services", "portfolio", "logos", "custom"].map((v) => ({ value: v, label: v }));
 
 function SectionForm({ section, onSaved }: { section: Section; onSaved: () => void }) {
   const init = {
@@ -261,6 +262,7 @@ function SectionForm({ section, onSaved }: { section: Section; onSaved: () => vo
       <TextInput label="CTA URL" value={v.cta_url} error={errs.cta_url} placeholder="/contact" onChange={(e) => f.set("cta_url", e.target.value)} />
       <CheckboxInput label="Visible" checked={v.is_visible} onChange={(b) => f.set("is_visible", b)} />
       {v.section_type === "hero" && <HeroFields config={v.config} onChange={(c) => f.set("config", c)} />}
+      {v.section_type === "capability_explorer" && <CapabilityFields config={v.config} onChange={(c) => f.set("config", c)} />}
       <div className="md:col-span-2">
         <button type="button" className="text-caption text-muted-foreground underline underline-offset-4" onClick={() => setAdvanced((a) => !a)}>
           {advanced ? "Hide" : "Show"} advanced settings
