@@ -45,7 +45,7 @@ export function WorkMediaView({ media: m, title, alt, playing }: { media: WorkMe
 export type PortfolioCardProps = {
   slug: string;
   title: string;
-  label?: string | null;
+  label?: string | null | undefined;
   client?: string | null;
   media: WorkMedia | null;
   /** Preview state (only one card plays at a time — owned by the parent). */
