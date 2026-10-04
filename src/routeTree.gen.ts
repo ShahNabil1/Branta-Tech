@@ -40,6 +40,10 @@ import { Route as ControlCentreAdminServicesIdRouteImport } from './routes/contr
 import { Route as ControlCentreAdminServicesGroupsRouteImport } from './routes/control-centre._admin.services.groups'
 import { Route as ControlCentreAdminSettingsSiteRouteImport } from './routes/control-centre._admin.settings.site'
 import { Route as ControlCentreAdminWebsiteNavigationRouteImport } from './routes/control-centre._admin.website.navigation'
+import { Route as ControlCentreAdminCareersApplicationsIndexRouteImport } from './routes/control-centre._admin.careers.applications.index'
+import { Route as ControlCentreAdminCareersApplicationsIdRouteImport } from './routes/control-centre._admin.careers.applications.$id'
+import { Route as ControlCentreAdminCareersJobsIndexRouteImport } from './routes/control-centre._admin.careers.jobs.index'
+import { Route as ControlCentreAdminCareersJobsIdRouteImport } from './routes/control-centre._admin.careers.jobs.$id'
 import { Route as ControlCentreAdminPortfolioProjectsIdRouteImport } from './routes/control-centre._admin.portfolio.projects.$id'
 import { Route as ControlCentreAdminPortfolioProjectsNewRouteImport } from './routes/control-centre._admin.portfolio.projects.new'
 import { Route as ControlCentreAdminWebsitePagesIndexRouteImport } from './routes/control-centre._admin.website.pages.index'
@@ -213,6 +217,30 @@ const ControlCentreAdminWebsiteNavigationRoute =
     path: '/website/navigation',
     getParentRoute: () => ControlCentreAdminRoute,
   } as any)
+const ControlCentreAdminCareersApplicationsIndexRoute =
+  ControlCentreAdminCareersApplicationsIndexRouteImport.update({
+    id: '/careers/applications/',
+    path: '/careers/applications/',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminCareersApplicationsIdRoute =
+  ControlCentreAdminCareersApplicationsIdRouteImport.update({
+    id: '/careers/applications/$id',
+    path: '/careers/applications/$id',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminCareersJobsIndexRoute =
+  ControlCentreAdminCareersJobsIndexRouteImport.update({
+    id: '/careers/jobs/',
+    path: '/careers/jobs/',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminCareersJobsIdRoute =
+  ControlCentreAdminCareersJobsIdRouteImport.update({
+    id: '/careers/jobs/$id',
+    path: '/careers/jobs/$id',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
 const ControlCentreAdminPortfolioProjectsIdRoute =
   ControlCentreAdminPortfolioProjectsIdRouteImport.update({
     id: '/portfolio/projects/$id',
@@ -269,9 +297,13 @@ export interface FileRoutesByFullPath {
   '/control-centre/insights/': typeof ControlCentreAdminInsightsIndexRoute
   '/control-centre/portfolio/': typeof ControlCentreAdminPortfolioIndexRoute
   '/control-centre/services/': typeof ControlCentreAdminServicesIndexRoute
+  '/control-centre/careers/applications/$id': typeof ControlCentreAdminCareersApplicationsIdRoute
+  '/control-centre/careers/jobs/$id': typeof ControlCentreAdminCareersJobsIdRoute
   '/control-centre/portfolio/projects/$id': typeof ControlCentreAdminPortfolioProjectsIdRoute
   '/control-centre/portfolio/projects/new': typeof ControlCentreAdminPortfolioProjectsNewRoute
   '/control-centre/website/pages/$id': typeof ControlCentreAdminWebsitePagesIdRoute
+  '/control-centre/careers/applications/': typeof ControlCentreAdminCareersApplicationsIndexRoute
+  '/control-centre/careers/jobs/': typeof ControlCentreAdminCareersJobsIndexRoute
   '/control-centre/website/pages/': typeof ControlCentreAdminWebsitePagesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -304,9 +336,13 @@ export interface FileRoutesByTo {
   '/control-centre/insights': typeof ControlCentreAdminInsightsIndexRoute
   '/control-centre/portfolio': typeof ControlCentreAdminPortfolioIndexRoute
   '/control-centre/services': typeof ControlCentreAdminServicesIndexRoute
+  '/control-centre/careers/applications/$id': typeof ControlCentreAdminCareersApplicationsIdRoute
+  '/control-centre/careers/jobs/$id': typeof ControlCentreAdminCareersJobsIdRoute
   '/control-centre/portfolio/projects/$id': typeof ControlCentreAdminPortfolioProjectsIdRoute
   '/control-centre/portfolio/projects/new': typeof ControlCentreAdminPortfolioProjectsNewRoute
   '/control-centre/website/pages/$id': typeof ControlCentreAdminWebsitePagesIdRoute
+  '/control-centre/careers/applications': typeof ControlCentreAdminCareersApplicationsIndexRoute
+  '/control-centre/careers/jobs': typeof ControlCentreAdminCareersJobsIndexRoute
   '/control-centre/website/pages': typeof ControlCentreAdminWebsitePagesIndexRoute
 }
 export interface FileRoutesById {
@@ -342,9 +378,13 @@ export interface FileRoutesById {
   '/control-centre/_admin/insights/': typeof ControlCentreAdminInsightsIndexRoute
   '/control-centre/_admin/portfolio/': typeof ControlCentreAdminPortfolioIndexRoute
   '/control-centre/_admin/services/': typeof ControlCentreAdminServicesIndexRoute
+  '/control-centre/_admin/careers/applications/$id': typeof ControlCentreAdminCareersApplicationsIdRoute
+  '/control-centre/_admin/careers/jobs/$id': typeof ControlCentreAdminCareersJobsIdRoute
   '/control-centre/_admin/portfolio/projects/$id': typeof ControlCentreAdminPortfolioProjectsIdRoute
   '/control-centre/_admin/portfolio/projects/new': typeof ControlCentreAdminPortfolioProjectsNewRoute
   '/control-centre/_admin/website/pages/$id': typeof ControlCentreAdminWebsitePagesIdRoute
+  '/control-centre/_admin/careers/applications/': typeof ControlCentreAdminCareersApplicationsIndexRoute
+  '/control-centre/_admin/careers/jobs/': typeof ControlCentreAdminCareersJobsIndexRoute
   '/control-centre/_admin/website/pages/': typeof ControlCentreAdminWebsitePagesIndexRoute
 }
 export interface FileRouteTypes {
@@ -380,9 +420,13 @@ export interface FileRouteTypes {
     | '/control-centre/insights/'
     | '/control-centre/portfolio/'
     | '/control-centre/services/'
+    | '/control-centre/careers/applications/$id'
+    | '/control-centre/careers/jobs/$id'
     | '/control-centre/portfolio/projects/$id'
     | '/control-centre/portfolio/projects/new'
     | '/control-centre/website/pages/$id'
+    | '/control-centre/careers/applications/'
+    | '/control-centre/careers/jobs/'
     | '/control-centre/website/pages/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -415,9 +459,13 @@ export interface FileRouteTypes {
     | '/control-centre/insights'
     | '/control-centre/portfolio'
     | '/control-centre/services'
+    | '/control-centre/careers/applications/$id'
+    | '/control-centre/careers/jobs/$id'
     | '/control-centre/portfolio/projects/$id'
     | '/control-centre/portfolio/projects/new'
     | '/control-centre/website/pages/$id'
+    | '/control-centre/careers/applications'
+    | '/control-centre/careers/jobs'
     | '/control-centre/website/pages'
   id:
     | '__root__'
@@ -452,9 +500,13 @@ export interface FileRouteTypes {
     | '/control-centre/_admin/insights/'
     | '/control-centre/_admin/portfolio/'
     | '/control-centre/_admin/services/'
+    | '/control-centre/_admin/careers/applications/$id'
+    | '/control-centre/_admin/careers/jobs/$id'
     | '/control-centre/_admin/portfolio/projects/$id'
     | '/control-centre/_admin/portfolio/projects/new'
     | '/control-centre/_admin/website/pages/$id'
+    | '/control-centre/_admin/careers/applications/'
+    | '/control-centre/_admin/careers/jobs/'
     | '/control-centre/_admin/website/pages/'
   fileRoutesById: FileRoutesById
 }
@@ -693,6 +745,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlCentreAdminWebsiteNavigationRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
+    '/control-centre/_admin/careers/applications/': {
+      id: '/control-centre/_admin/careers/applications/'
+      path: '/careers/applications'
+      fullPath: '/control-centre/careers/applications/'
+      preLoaderRoute: typeof ControlCentreAdminCareersApplicationsIndexRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/careers/applications/$id': {
+      id: '/control-centre/_admin/careers/applications/$id'
+      path: '/careers/applications/$id'
+      fullPath: '/control-centre/careers/applications/$id'
+      preLoaderRoute: typeof ControlCentreAdminCareersApplicationsIdRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/careers/jobs/': {
+      id: '/control-centre/_admin/careers/jobs/'
+      path: '/careers/jobs'
+      fullPath: '/control-centre/careers/jobs/'
+      preLoaderRoute: typeof ControlCentreAdminCareersJobsIndexRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/careers/jobs/$id': {
+      id: '/control-centre/_admin/careers/jobs/$id'
+      path: '/careers/jobs/$id'
+      fullPath: '/control-centre/careers/jobs/$id'
+      preLoaderRoute: typeof ControlCentreAdminCareersJobsIdRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
     '/control-centre/_admin/portfolio/projects/$id': {
       id: '/control-centre/_admin/portfolio/projects/$id'
       path: '/portfolio/projects/$id'
@@ -739,9 +819,13 @@ interface ControlCentreAdminRouteChildren {
   ControlCentreAdminInsightsIndexRoute: typeof ControlCentreAdminInsightsIndexRoute
   ControlCentreAdminPortfolioIndexRoute: typeof ControlCentreAdminPortfolioIndexRoute
   ControlCentreAdminServicesIndexRoute: typeof ControlCentreAdminServicesIndexRoute
+  ControlCentreAdminCareersApplicationsIdRoute: typeof ControlCentreAdminCareersApplicationsIdRoute
+  ControlCentreAdminCareersJobsIdRoute: typeof ControlCentreAdminCareersJobsIdRoute
   ControlCentreAdminPortfolioProjectsIdRoute: typeof ControlCentreAdminPortfolioProjectsIdRoute
   ControlCentreAdminPortfolioProjectsNewRoute: typeof ControlCentreAdminPortfolioProjectsNewRoute
   ControlCentreAdminWebsitePagesIdRoute: typeof ControlCentreAdminWebsitePagesIdRoute
+  ControlCentreAdminCareersApplicationsIndexRoute: typeof ControlCentreAdminCareersApplicationsIndexRoute
+  ControlCentreAdminCareersJobsIndexRoute: typeof ControlCentreAdminCareersJobsIndexRoute
   ControlCentreAdminWebsitePagesIndexRoute: typeof ControlCentreAdminWebsitePagesIndexRoute
 }
 
@@ -763,11 +847,18 @@ const ControlCentreAdminRouteChildren: ControlCentreAdminRouteChildren = {
   ControlCentreAdminInsightsIndexRoute: ControlCentreAdminInsightsIndexRoute,
   ControlCentreAdminPortfolioIndexRoute: ControlCentreAdminPortfolioIndexRoute,
   ControlCentreAdminServicesIndexRoute: ControlCentreAdminServicesIndexRoute,
+  ControlCentreAdminCareersApplicationsIdRoute:
+    ControlCentreAdminCareersApplicationsIdRoute,
+  ControlCentreAdminCareersJobsIdRoute: ControlCentreAdminCareersJobsIdRoute,
   ControlCentreAdminPortfolioProjectsIdRoute:
     ControlCentreAdminPortfolioProjectsIdRoute,
   ControlCentreAdminPortfolioProjectsNewRoute:
     ControlCentreAdminPortfolioProjectsNewRoute,
   ControlCentreAdminWebsitePagesIdRoute: ControlCentreAdminWebsitePagesIdRoute,
+  ControlCentreAdminCareersApplicationsIndexRoute:
+    ControlCentreAdminCareersApplicationsIndexRoute,
+  ControlCentreAdminCareersJobsIndexRoute:
+    ControlCentreAdminCareersJobsIndexRoute,
   ControlCentreAdminWebsitePagesIndexRoute:
     ControlCentreAdminWebsitePagesIndexRoute,
 }
