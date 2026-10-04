@@ -120,7 +120,7 @@ function Row({ items, dir, speed, playing, onHover, showClient, label }: {
   return (
     <div ref={ref} role="region" aria-label={label} onMouseEnter={() => { state.current.hover = true; }} onMouseLeave={() => { state.current.hover = false; state.current.pos = ref.current?.scrollLeft ?? -1; }}
       className="overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <ul className="flex w-max items-start gap-4 px-5 md:gap-6 md:px-10">
+      <ul className="flex w-max items-start gap-4 px-[var(--gutter)] md:gap-6">
         {items.map((it, i) => <Tile key={it.id} item={it} i={i + (dir === "right" ? 1 : 0)} playing={playing === it.id} onHover={onHover} showClient={showClient} />)}
       </ul>
     </div>
@@ -140,7 +140,7 @@ export function FeaturedWork({ content }: { content: NonNullable<FW> }) {
     on ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground");
 
   return (
-    <DarkSection aria-labelledby="featured-work-title" className="overflow-hidden">
+    <DarkSection bleed aria-labelledby="featured-work-title" className="overflow-hidden">
       <SiteContainer>
         <div className="grid gap-8 md:grid-cols-12 md:items-end">
           <div className="md:col-span-7">
@@ -161,7 +161,7 @@ export function FeaturedWork({ content }: { content: NonNullable<FW> }) {
           </div>
         )}
       </SiteContainer>
-      <div className={cn("-mx-5 mt-10 space-y-8 transition-opacity duration-200 md:-mx-10 md:space-y-10", fade ? "opacity-0" : "opacity-100")} aria-live="polite">
+      <div className={cn("mt-10 space-y-8 transition-opacity duration-200 md:space-y-10", fade ? "opacity-0" : "opacity-100")} aria-live="polite">
         <Row key={`a-${filter}`} items={row1} dir="left" speed={22} playing={playing} onHover={setPlaying} showClient={content.showClient} label="Selected work, row one" />
         <Row key={`b-${filter}`} items={row2} dir="right" speed={18} playing={playing} onHover={setPlaying} showClient={content.showClient} label="Selected work, row two" />
       </div>
