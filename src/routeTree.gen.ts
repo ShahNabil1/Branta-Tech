@@ -15,7 +15,20 @@ import { Route as ControlCentreIndexRouteImport } from './routes/control-centre.
 import { Route as ControlCentreAdminRouteImport } from './routes/control-centre._admin'
 import { Route as ControlCentreForgotPasswordRouteImport } from './routes/control-centre.forgot-password'
 import { Route as ControlCentreResetPasswordRouteImport } from './routes/control-centre.reset-password'
+import { Route as ControlCentreAdminAdminUsersRouteImport } from './routes/control-centre._admin.admin-users'
 import { Route as ControlCentreAdminDashboardRouteImport } from './routes/control-centre._admin.dashboard'
+import { Route as ControlCentreAdminMediaRouteImport } from './routes/control-centre._admin.media'
+import { Route as ControlCentreAdminPortfolioIndexRouteImport } from './routes/control-centre._admin.portfolio.index'
+import { Route as ControlCentreAdminPortfolioCategoriesRouteImport } from './routes/control-centre._admin.portfolio.categories'
+import { Route as ControlCentreAdminServicesIndexRouteImport } from './routes/control-centre._admin.services.index'
+import { Route as ControlCentreAdminServicesIdRouteImport } from './routes/control-centre._admin.services.$id'
+import { Route as ControlCentreAdminServicesGroupsRouteImport } from './routes/control-centre._admin.services.groups'
+import { Route as ControlCentreAdminSettingsSiteRouteImport } from './routes/control-centre._admin.settings.site'
+import { Route as ControlCentreAdminWebsiteNavigationRouteImport } from './routes/control-centre._admin.website.navigation'
+import { Route as ControlCentreAdminPortfolioProjectsIdRouteImport } from './routes/control-centre._admin.portfolio.projects.$id'
+import { Route as ControlCentreAdminPortfolioProjectsNewRouteImport } from './routes/control-centre._admin.portfolio.projects.new'
+import { Route as ControlCentreAdminWebsitePagesIndexRouteImport } from './routes/control-centre._admin.website.pages.index'
+import { Route as ControlCentreAdminWebsitePagesIdRouteImport } from './routes/control-centre._admin.website.pages.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -48,10 +61,87 @@ const ControlCentreResetPasswordRoute =
     path: '/reset-password',
     getParentRoute: () => ControlCentreRoute,
   } as any)
+const ControlCentreAdminAdminUsersRoute =
+  ControlCentreAdminAdminUsersRouteImport.update({
+    id: '/admin-users',
+    path: '/admin-users',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
 const ControlCentreAdminDashboardRoute =
   ControlCentreAdminDashboardRouteImport.update({
     id: '/dashboard',
     path: '/dashboard',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminMediaRoute = ControlCentreAdminMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => ControlCentreAdminRoute,
+} as any)
+const ControlCentreAdminPortfolioIndexRoute =
+  ControlCentreAdminPortfolioIndexRouteImport.update({
+    id: '/portfolio/',
+    path: '/portfolio/',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminPortfolioCategoriesRoute =
+  ControlCentreAdminPortfolioCategoriesRouteImport.update({
+    id: '/portfolio/categories',
+    path: '/portfolio/categories',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminServicesIndexRoute =
+  ControlCentreAdminServicesIndexRouteImport.update({
+    id: '/services/',
+    path: '/services/',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminServicesIdRoute =
+  ControlCentreAdminServicesIdRouteImport.update({
+    id: '/services/$id',
+    path: '/services/$id',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminServicesGroupsRoute =
+  ControlCentreAdminServicesGroupsRouteImport.update({
+    id: '/services/groups',
+    path: '/services/groups',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminSettingsSiteRoute =
+  ControlCentreAdminSettingsSiteRouteImport.update({
+    id: '/settings/site',
+    path: '/settings/site',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminWebsiteNavigationRoute =
+  ControlCentreAdminWebsiteNavigationRouteImport.update({
+    id: '/website/navigation',
+    path: '/website/navigation',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminPortfolioProjectsIdRoute =
+  ControlCentreAdminPortfolioProjectsIdRouteImport.update({
+    id: '/portfolio/projects/$id',
+    path: '/portfolio/projects/$id',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminPortfolioProjectsNewRoute =
+  ControlCentreAdminPortfolioProjectsNewRouteImport.update({
+    id: '/portfolio/projects/new',
+    path: '/portfolio/projects/new',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminWebsitePagesIndexRoute =
+  ControlCentreAdminWebsitePagesIndexRouteImport.update({
+    id: '/website/pages/',
+    path: '/website/pages/',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminWebsitePagesIdRoute =
+  ControlCentreAdminWebsitePagesIdRouteImport.update({
+    id: '/website/pages/$id',
+    path: '/website/pages/$id',
     getParentRoute: () => ControlCentreAdminRoute,
   } as any)
 
@@ -61,14 +151,40 @@ export interface FileRoutesByFullPath {
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
   '/control-centre/': typeof ControlCentreIndexRoute
+  '/control-centre/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
+  '/control-centre/media': typeof ControlCentreAdminMediaRoute
+  '/control-centre/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
+  '/control-centre/services/$id': typeof ControlCentreAdminServicesIdRoute
+  '/control-centre/services/groups': typeof ControlCentreAdminServicesGroupsRoute
+  '/control-centre/settings/site': typeof ControlCentreAdminSettingsSiteRoute
+  '/control-centre/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
+  '/control-centre/portfolio/': typeof ControlCentreAdminPortfolioIndexRoute
+  '/control-centre/services/': typeof ControlCentreAdminServicesIndexRoute
+  '/control-centre/portfolio/projects/$id': typeof ControlCentreAdminPortfolioProjectsIdRoute
+  '/control-centre/portfolio/projects/new': typeof ControlCentreAdminPortfolioProjectsNewRoute
+  '/control-centre/website/pages/$id': typeof ControlCentreAdminWebsitePagesIdRoute
+  '/control-centre/website/pages/': typeof ControlCentreAdminWebsitePagesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/control-centre': typeof ControlCentreIndexRoute
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
+  '/control-centre/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
+  '/control-centre/media': typeof ControlCentreAdminMediaRoute
+  '/control-centre/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
+  '/control-centre/services/$id': typeof ControlCentreAdminServicesIdRoute
+  '/control-centre/services/groups': typeof ControlCentreAdminServicesGroupsRoute
+  '/control-centre/settings/site': typeof ControlCentreAdminSettingsSiteRoute
+  '/control-centre/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
+  '/control-centre/portfolio': typeof ControlCentreAdminPortfolioIndexRoute
+  '/control-centre/services': typeof ControlCentreAdminServicesIndexRoute
+  '/control-centre/portfolio/projects/$id': typeof ControlCentreAdminPortfolioProjectsIdRoute
+  '/control-centre/portfolio/projects/new': typeof ControlCentreAdminPortfolioProjectsNewRoute
+  '/control-centre/website/pages/$id': typeof ControlCentreAdminWebsitePagesIdRoute
+  '/control-centre/website/pages': typeof ControlCentreAdminWebsitePagesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -78,7 +194,20 @@ export interface FileRoutesById {
   '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
   '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
   '/control-centre/': typeof ControlCentreIndexRoute
+  '/control-centre/_admin/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/_admin/dashboard': typeof ControlCentreAdminDashboardRoute
+  '/control-centre/_admin/media': typeof ControlCentreAdminMediaRoute
+  '/control-centre/_admin/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
+  '/control-centre/_admin/services/$id': typeof ControlCentreAdminServicesIdRoute
+  '/control-centre/_admin/services/groups': typeof ControlCentreAdminServicesGroupsRoute
+  '/control-centre/_admin/settings/site': typeof ControlCentreAdminSettingsSiteRoute
+  '/control-centre/_admin/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
+  '/control-centre/_admin/portfolio/': typeof ControlCentreAdminPortfolioIndexRoute
+  '/control-centre/_admin/services/': typeof ControlCentreAdminServicesIndexRoute
+  '/control-centre/_admin/portfolio/projects/$id': typeof ControlCentreAdminPortfolioProjectsIdRoute
+  '/control-centre/_admin/portfolio/projects/new': typeof ControlCentreAdminPortfolioProjectsNewRoute
+  '/control-centre/_admin/website/pages/$id': typeof ControlCentreAdminWebsitePagesIdRoute
+  '/control-centre/_admin/website/pages/': typeof ControlCentreAdminWebsitePagesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -88,14 +217,40 @@ export interface FileRouteTypes {
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
     | '/control-centre/'
+    | '/control-centre/admin-users'
     | '/control-centre/dashboard'
+    | '/control-centre/media'
+    | '/control-centre/portfolio/categories'
+    | '/control-centre/services/$id'
+    | '/control-centre/services/groups'
+    | '/control-centre/settings/site'
+    | '/control-centre/website/navigation'
+    | '/control-centre/portfolio/'
+    | '/control-centre/services/'
+    | '/control-centre/portfolio/projects/$id'
+    | '/control-centre/portfolio/projects/new'
+    | '/control-centre/website/pages/$id'
+    | '/control-centre/website/pages/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/control-centre'
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
+    | '/control-centre/admin-users'
     | '/control-centre/dashboard'
+    | '/control-centre/media'
+    | '/control-centre/portfolio/categories'
+    | '/control-centre/services/$id'
+    | '/control-centre/services/groups'
+    | '/control-centre/settings/site'
+    | '/control-centre/website/navigation'
+    | '/control-centre/portfolio'
+    | '/control-centre/services'
+    | '/control-centre/portfolio/projects/$id'
+    | '/control-centre/portfolio/projects/new'
+    | '/control-centre/website/pages/$id'
+    | '/control-centre/website/pages'
   id:
     | '__root__'
     | '/'
@@ -104,7 +259,20 @@ export interface FileRouteTypes {
     | '/control-centre/forgot-password'
     | '/control-centre/reset-password'
     | '/control-centre/'
+    | '/control-centre/_admin/admin-users'
     | '/control-centre/_admin/dashboard'
+    | '/control-centre/_admin/media'
+    | '/control-centre/_admin/portfolio/categories'
+    | '/control-centre/_admin/services/$id'
+    | '/control-centre/_admin/services/groups'
+    | '/control-centre/_admin/settings/site'
+    | '/control-centre/_admin/website/navigation'
+    | '/control-centre/_admin/portfolio/'
+    | '/control-centre/_admin/services/'
+    | '/control-centre/_admin/portfolio/projects/$id'
+    | '/control-centre/_admin/portfolio/projects/new'
+    | '/control-centre/_admin/website/pages/$id'
+    | '/control-centre/_admin/website/pages/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -156,6 +324,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlCentreResetPasswordRouteImport
       parentRoute: typeof ControlCentreRoute
     }
+    '/control-centre/_admin/admin-users': {
+      id: '/control-centre/_admin/admin-users'
+      path: '/admin-users'
+      fullPath: '/control-centre/admin-users'
+      preLoaderRoute: typeof ControlCentreAdminAdminUsersRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
     '/control-centre/_admin/dashboard': {
       id: '/control-centre/_admin/dashboard'
       path: '/dashboard'
@@ -163,15 +338,130 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlCentreAdminDashboardRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
+    '/control-centre/_admin/media': {
+      id: '/control-centre/_admin/media'
+      path: '/media'
+      fullPath: '/control-centre/media'
+      preLoaderRoute: typeof ControlCentreAdminMediaRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/portfolio/': {
+      id: '/control-centre/_admin/portfolio/'
+      path: '/portfolio'
+      fullPath: '/control-centre/portfolio/'
+      preLoaderRoute: typeof ControlCentreAdminPortfolioIndexRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/portfolio/categories': {
+      id: '/control-centre/_admin/portfolio/categories'
+      path: '/portfolio/categories'
+      fullPath: '/control-centre/portfolio/categories'
+      preLoaderRoute: typeof ControlCentreAdminPortfolioCategoriesRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/services/': {
+      id: '/control-centre/_admin/services/'
+      path: '/services'
+      fullPath: '/control-centre/services/'
+      preLoaderRoute: typeof ControlCentreAdminServicesIndexRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/services/$id': {
+      id: '/control-centre/_admin/services/$id'
+      path: '/services/$id'
+      fullPath: '/control-centre/services/$id'
+      preLoaderRoute: typeof ControlCentreAdminServicesIdRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/services/groups': {
+      id: '/control-centre/_admin/services/groups'
+      path: '/services/groups'
+      fullPath: '/control-centre/services/groups'
+      preLoaderRoute: typeof ControlCentreAdminServicesGroupsRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/settings/site': {
+      id: '/control-centre/_admin/settings/site'
+      path: '/settings/site'
+      fullPath: '/control-centre/settings/site'
+      preLoaderRoute: typeof ControlCentreAdminSettingsSiteRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/website/navigation': {
+      id: '/control-centre/_admin/website/navigation'
+      path: '/website/navigation'
+      fullPath: '/control-centre/website/navigation'
+      preLoaderRoute: typeof ControlCentreAdminWebsiteNavigationRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/portfolio/projects/$id': {
+      id: '/control-centre/_admin/portfolio/projects/$id'
+      path: '/portfolio/projects/$id'
+      fullPath: '/control-centre/portfolio/projects/$id'
+      preLoaderRoute: typeof ControlCentreAdminPortfolioProjectsIdRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/portfolio/projects/new': {
+      id: '/control-centre/_admin/portfolio/projects/new'
+      path: '/portfolio/projects/new'
+      fullPath: '/control-centre/portfolio/projects/new'
+      preLoaderRoute: typeof ControlCentreAdminPortfolioProjectsNewRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/website/pages/': {
+      id: '/control-centre/_admin/website/pages/'
+      path: '/website/pages'
+      fullPath: '/control-centre/website/pages/'
+      preLoaderRoute: typeof ControlCentreAdminWebsitePagesIndexRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/website/pages/$id': {
+      id: '/control-centre/_admin/website/pages/$id'
+      path: '/website/pages/$id'
+      fullPath: '/control-centre/website/pages/$id'
+      preLoaderRoute: typeof ControlCentreAdminWebsitePagesIdRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
   }
 }
 
 interface ControlCentreAdminRouteChildren {
+  ControlCentreAdminAdminUsersRoute: typeof ControlCentreAdminAdminUsersRoute
   ControlCentreAdminDashboardRoute: typeof ControlCentreAdminDashboardRoute
+  ControlCentreAdminMediaRoute: typeof ControlCentreAdminMediaRoute
+  ControlCentreAdminPortfolioCategoriesRoute: typeof ControlCentreAdminPortfolioCategoriesRoute
+  ControlCentreAdminServicesIdRoute: typeof ControlCentreAdminServicesIdRoute
+  ControlCentreAdminServicesGroupsRoute: typeof ControlCentreAdminServicesGroupsRoute
+  ControlCentreAdminSettingsSiteRoute: typeof ControlCentreAdminSettingsSiteRoute
+  ControlCentreAdminWebsiteNavigationRoute: typeof ControlCentreAdminWebsiteNavigationRoute
+  ControlCentreAdminPortfolioIndexRoute: typeof ControlCentreAdminPortfolioIndexRoute
+  ControlCentreAdminServicesIndexRoute: typeof ControlCentreAdminServicesIndexRoute
+  ControlCentreAdminPortfolioProjectsIdRoute: typeof ControlCentreAdminPortfolioProjectsIdRoute
+  ControlCentreAdminPortfolioProjectsNewRoute: typeof ControlCentreAdminPortfolioProjectsNewRoute
+  ControlCentreAdminWebsitePagesIdRoute: typeof ControlCentreAdminWebsitePagesIdRoute
+  ControlCentreAdminWebsitePagesIndexRoute: typeof ControlCentreAdminWebsitePagesIndexRoute
 }
 
 const ControlCentreAdminRouteChildren: ControlCentreAdminRouteChildren = {
+  ControlCentreAdminAdminUsersRoute: ControlCentreAdminAdminUsersRoute,
   ControlCentreAdminDashboardRoute: ControlCentreAdminDashboardRoute,
+  ControlCentreAdminMediaRoute: ControlCentreAdminMediaRoute,
+  ControlCentreAdminPortfolioCategoriesRoute:
+    ControlCentreAdminPortfolioCategoriesRoute,
+  ControlCentreAdminServicesIdRoute: ControlCentreAdminServicesIdRoute,
+  ControlCentreAdminServicesGroupsRoute: ControlCentreAdminServicesGroupsRoute,
+  ControlCentreAdminSettingsSiteRoute: ControlCentreAdminSettingsSiteRoute,
+  ControlCentreAdminWebsiteNavigationRoute:
+    ControlCentreAdminWebsiteNavigationRoute,
+  ControlCentreAdminPortfolioIndexRoute: ControlCentreAdminPortfolioIndexRoute,
+  ControlCentreAdminServicesIndexRoute: ControlCentreAdminServicesIndexRoute,
+  ControlCentreAdminPortfolioProjectsIdRoute:
+    ControlCentreAdminPortfolioProjectsIdRoute,
+  ControlCentreAdminPortfolioProjectsNewRoute:
+    ControlCentreAdminPortfolioProjectsNewRoute,
+  ControlCentreAdminWebsitePagesIdRoute: ControlCentreAdminWebsitePagesIdRoute,
+  ControlCentreAdminWebsitePagesIndexRoute:
+    ControlCentreAdminWebsitePagesIndexRoute,
 }
 
 const ControlCentreAdminRouteWithChildren =
