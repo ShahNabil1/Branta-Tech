@@ -1,0 +1,2 @@
+revoke select on public.team_members from anon;
+grant select (id, name, role, photo_url, short_bio, full_bio, linkedin_url, sort_order, status, featured, created_at, updated_at) on public.team_members to anon;

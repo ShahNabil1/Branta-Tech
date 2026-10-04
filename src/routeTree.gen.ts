@@ -29,8 +29,10 @@ import { Route as WorkSlugRouteImport } from './routes/work.$slug'
 import { Route as ControlCentreAdminAdminUsersRouteImport } from './routes/control-centre._admin.admin-users'
 import { Route as ControlCentreAdminDashboardRouteImport } from './routes/control-centre._admin.dashboard'
 import { Route as ControlCentreAdminMediaRouteImport } from './routes/control-centre._admin.media'
+import { Route as ControlCentreAdminTeamRouteImport } from './routes/control-centre._admin.team'
 import { Route as ControlCentreAdminInsightsIndexRouteImport } from './routes/control-centre._admin.insights.index'
 import { Route as ControlCentreAdminInsightsIdRouteImport } from './routes/control-centre._admin.insights.$id'
+import { Route as ControlCentreAdminInsightsAuthorsRouteImport } from './routes/control-centre._admin.insights.authors'
 import { Route as ControlCentreAdminPortfolioIndexRouteImport } from './routes/control-centre._admin.portfolio.index'
 import { Route as ControlCentreAdminPortfolioCategoriesRouteImport } from './routes/control-centre._admin.portfolio.categories'
 import { Route as ControlCentreAdminServicesIndexRouteImport } from './routes/control-centre._admin.services.index'
@@ -146,6 +148,11 @@ const ControlCentreAdminMediaRoute = ControlCentreAdminMediaRouteImport.update({
   path: '/media',
   getParentRoute: () => ControlCentreAdminRoute,
 } as any)
+const ControlCentreAdminTeamRoute = ControlCentreAdminTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => ControlCentreAdminRoute,
+} as any)
 const ControlCentreAdminInsightsIndexRoute =
   ControlCentreAdminInsightsIndexRouteImport.update({
     id: '/insights/',
@@ -156,6 +163,12 @@ const ControlCentreAdminInsightsIdRoute =
   ControlCentreAdminInsightsIdRouteImport.update({
     id: '/insights/$id',
     path: '/insights/$id',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminInsightsAuthorsRoute =
+  ControlCentreAdminInsightsAuthorsRouteImport.update({
+    id: '/insights/authors',
+    path: '/insights/authors',
     getParentRoute: () => ControlCentreAdminRoute,
   } as any)
 const ControlCentreAdminPortfolioIndexRoute =
@@ -245,7 +258,9 @@ export interface FileRoutesByFullPath {
   '/control-centre/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/media': typeof ControlCentreAdminMediaRoute
+  '/control-centre/team': typeof ControlCentreAdminTeamRoute
   '/control-centre/insights/$id': typeof ControlCentreAdminInsightsIdRoute
+  '/control-centre/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
   '/control-centre/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
   '/control-centre/services/$id': typeof ControlCentreAdminServicesIdRoute
   '/control-centre/services/groups': typeof ControlCentreAdminServicesGroupsRoute
@@ -278,7 +293,9 @@ export interface FileRoutesByTo {
   '/control-centre/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/media': typeof ControlCentreAdminMediaRoute
+  '/control-centre/team': typeof ControlCentreAdminTeamRoute
   '/control-centre/insights/$id': typeof ControlCentreAdminInsightsIdRoute
+  '/control-centre/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
   '/control-centre/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
   '/control-centre/services/$id': typeof ControlCentreAdminServicesIdRoute
   '/control-centre/services/groups': typeof ControlCentreAdminServicesGroupsRoute
@@ -314,7 +331,9 @@ export interface FileRoutesById {
   '/control-centre/_admin/admin-users': typeof ControlCentreAdminAdminUsersRoute
   '/control-centre/_admin/dashboard': typeof ControlCentreAdminDashboardRoute
   '/control-centre/_admin/media': typeof ControlCentreAdminMediaRoute
+  '/control-centre/_admin/team': typeof ControlCentreAdminTeamRoute
   '/control-centre/_admin/insights/$id': typeof ControlCentreAdminInsightsIdRoute
+  '/control-centre/_admin/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
   '/control-centre/_admin/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
   '/control-centre/_admin/services/$id': typeof ControlCentreAdminServicesIdRoute
   '/control-centre/_admin/services/groups': typeof ControlCentreAdminServicesGroupsRoute
@@ -350,7 +369,9 @@ export interface FileRouteTypes {
     | '/control-centre/admin-users'
     | '/control-centre/dashboard'
     | '/control-centre/media'
+    | '/control-centre/team'
     | '/control-centre/insights/$id'
+    | '/control-centre/insights/authors'
     | '/control-centre/portfolio/categories'
     | '/control-centre/services/$id'
     | '/control-centre/services/groups'
@@ -383,7 +404,9 @@ export interface FileRouteTypes {
     | '/control-centre/admin-users'
     | '/control-centre/dashboard'
     | '/control-centre/media'
+    | '/control-centre/team'
     | '/control-centre/insights/$id'
+    | '/control-centre/insights/authors'
     | '/control-centre/portfolio/categories'
     | '/control-centre/services/$id'
     | '/control-centre/services/groups'
@@ -418,7 +441,9 @@ export interface FileRouteTypes {
     | '/control-centre/_admin/admin-users'
     | '/control-centre/_admin/dashboard'
     | '/control-centre/_admin/media'
+    | '/control-centre/_admin/team'
     | '/control-centre/_admin/insights/$id'
+    | '/control-centre/_admin/insights/authors'
     | '/control-centre/_admin/portfolio/categories'
     | '/control-centre/_admin/services/$id'
     | '/control-centre/_admin/services/groups'
@@ -591,6 +616,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlCentreAdminMediaRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
+    '/control-centre/_admin/team': {
+      id: '/control-centre/_admin/team'
+      path: '/team'
+      fullPath: '/control-centre/team'
+      preLoaderRoute: typeof ControlCentreAdminTeamRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
     '/control-centre/_admin/insights/': {
       id: '/control-centre/_admin/insights/'
       path: '/insights'
@@ -603,6 +635,13 @@ declare module '@tanstack/react-router' {
       path: '/insights/$id'
       fullPath: '/control-centre/insights/$id'
       preLoaderRoute: typeof ControlCentreAdminInsightsIdRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/insights/authors': {
+      id: '/control-centre/_admin/insights/authors'
+      path: '/insights/authors'
+      fullPath: '/control-centre/insights/authors'
+      preLoaderRoute: typeof ControlCentreAdminInsightsAuthorsRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
     '/control-centre/_admin/portfolio/': {
@@ -689,7 +728,9 @@ interface ControlCentreAdminRouteChildren {
   ControlCentreAdminAdminUsersRoute: typeof ControlCentreAdminAdminUsersRoute
   ControlCentreAdminDashboardRoute: typeof ControlCentreAdminDashboardRoute
   ControlCentreAdminMediaRoute: typeof ControlCentreAdminMediaRoute
+  ControlCentreAdminTeamRoute: typeof ControlCentreAdminTeamRoute
   ControlCentreAdminInsightsIdRoute: typeof ControlCentreAdminInsightsIdRoute
+  ControlCentreAdminInsightsAuthorsRoute: typeof ControlCentreAdminInsightsAuthorsRoute
   ControlCentreAdminPortfolioCategoriesRoute: typeof ControlCentreAdminPortfolioCategoriesRoute
   ControlCentreAdminServicesIdRoute: typeof ControlCentreAdminServicesIdRoute
   ControlCentreAdminServicesGroupsRoute: typeof ControlCentreAdminServicesGroupsRoute
@@ -708,7 +749,10 @@ const ControlCentreAdminRouteChildren: ControlCentreAdminRouteChildren = {
   ControlCentreAdminAdminUsersRoute: ControlCentreAdminAdminUsersRoute,
   ControlCentreAdminDashboardRoute: ControlCentreAdminDashboardRoute,
   ControlCentreAdminMediaRoute: ControlCentreAdminMediaRoute,
+  ControlCentreAdminTeamRoute: ControlCentreAdminTeamRoute,
   ControlCentreAdminInsightsIdRoute: ControlCentreAdminInsightsIdRoute,
+  ControlCentreAdminInsightsAuthorsRoute:
+    ControlCentreAdminInsightsAuthorsRoute,
   ControlCentreAdminPortfolioCategoriesRoute:
     ControlCentreAdminPortfolioCategoriesRoute,
   ControlCentreAdminServicesIdRoute: ControlCentreAdminServicesIdRoute,
