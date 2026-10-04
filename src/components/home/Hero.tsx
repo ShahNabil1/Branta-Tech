@@ -98,6 +98,8 @@ function VimeoTile({ item, className }: { item: HeroMediaItem; className?: strin
     if (!id || reduced) return;
     const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
     if (conn?.saveData) return;
+    // Only the visible copy (desktop or mobile layout) loads the player.
+    if (!wrap.current || wrap.current.offsetParent === null) return;
     const t = window.setTimeout(() => setMount(true), window.innerWidth < 768 ? 2500 : 400);
     return () => window.clearTimeout(t);
   }, [id, reduced]);
