@@ -121,7 +121,7 @@ export const isInternship = (j: { type: string | null }) => /intern/i.test(j.typ
 export const getJobs = createServerFn({ method: "GET" }).handler(async (): Promise<JobCard[]> => {
   const sb = pub();
   if (!sb) return [];
-  const { data } = await sb.from("jobs").select(JOB_COLS).eq("status", "published").order("featured", { ascending: false }).order("sort_order").order("published_at", { ascending: false });
+  const { data } = await sb.from("jobs").select(JOB_COLS).eq("status", "published").order("featured", { ascending: false }).order("published_at", { ascending: false, nullsFirst: false }).order("sort_order");
   return (data ?? []).map(toJob);
 });
 
