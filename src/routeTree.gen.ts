@@ -10,33 +10,106 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ControlCentreRouteImport } from './routes/control-centre'
+import { Route as ControlCentreIndexRouteImport } from './routes/control-centre.index'
+import { Route as ControlCentreAdminRouteImport } from './routes/control-centre._admin'
+import { Route as ControlCentreForgotPasswordRouteImport } from './routes/control-centre.forgot-password'
+import { Route as ControlCentreResetPasswordRouteImport } from './routes/control-centre.reset-password'
+import { Route as ControlCentreAdminDashboardRouteImport } from './routes/control-centre._admin.dashboard'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ControlCentreRoute = ControlCentreRouteImport.update({
+  id: '/control-centre',
+  path: '/control-centre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ControlCentreIndexRoute = ControlCentreIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ControlCentreRoute,
+} as any)
+const ControlCentreAdminRoute = ControlCentreAdminRouteImport.update({
+  id: '/_admin',
+  getParentRoute: () => ControlCentreRoute,
+} as any)
+const ControlCentreForgotPasswordRoute =
+  ControlCentreForgotPasswordRouteImport.update({
+    id: '/forgot-password',
+    path: '/forgot-password',
+    getParentRoute: () => ControlCentreRoute,
+  } as any)
+const ControlCentreResetPasswordRoute =
+  ControlCentreResetPasswordRouteImport.update({
+    id: '/reset-password',
+    path: '/reset-password',
+    getParentRoute: () => ControlCentreRoute,
+  } as any)
+const ControlCentreAdminDashboardRoute =
+  ControlCentreAdminDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/control-centre': typeof ControlCentreRouteWithChildren
+  '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
+  '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
+  '/control-centre/': typeof ControlCentreIndexRoute
+  '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/control-centre': typeof ControlCentreIndexRoute
+  '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
+  '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
+  '/control-centre/dashboard': typeof ControlCentreAdminDashboardRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/control-centre': typeof ControlCentreRouteWithChildren
+  '/control-centre/_admin': typeof ControlCentreAdminRouteWithChildren
+  '/control-centre/forgot-password': typeof ControlCentreForgotPasswordRoute
+  '/control-centre/reset-password': typeof ControlCentreResetPasswordRoute
+  '/control-centre/': typeof ControlCentreIndexRoute
+  '/control-centre/_admin/dashboard': typeof ControlCentreAdminDashboardRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/control-centre'
+    | '/control-centre/forgot-password'
+    | '/control-centre/reset-password'
+    | '/control-centre/'
+    | '/control-centre/dashboard'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/control-centre'
+    | '/control-centre/forgot-password'
+    | '/control-centre/reset-password'
+    | '/control-centre/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/control-centre'
+    | '/control-centre/_admin'
+    | '/control-centre/forgot-password'
+    | '/control-centre/reset-password'
+    | '/control-centre/'
+    | '/control-centre/_admin/dashboard'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ControlCentreRoute: typeof ControlCentreRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +121,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/control-centre': {
+      id: '/control-centre'
+      path: '/control-centre'
+      fullPath: '/control-centre'
+      preLoaderRoute: typeof ControlCentreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/control-centre/': {
+      id: '/control-centre/'
+      path: '/'
+      fullPath: '/control-centre/'
+      preLoaderRoute: typeof ControlCentreIndexRouteImport
+      parentRoute: typeof ControlCentreRoute
+    }
+    '/control-centre/_admin': {
+      id: '/control-centre/_admin'
+      path: ''
+      fullPath: '/control-centre'
+      preLoaderRoute: typeof ControlCentreAdminRouteImport
+      parentRoute: typeof ControlCentreRoute
+    }
+    '/control-centre/forgot-password': {
+      id: '/control-centre/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/control-centre/forgot-password'
+      preLoaderRoute: typeof ControlCentreForgotPasswordRouteImport
+      parentRoute: typeof ControlCentreRoute
+    }
+    '/control-centre/reset-password': {
+      id: '/control-centre/reset-password'
+      path: '/reset-password'
+      fullPath: '/control-centre/reset-password'
+      preLoaderRoute: typeof ControlCentreResetPasswordRouteImport
+      parentRoute: typeof ControlCentreRoute
+    }
+    '/control-centre/_admin/dashboard': {
+      id: '/control-centre/_admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/control-centre/dashboard'
+      preLoaderRoute: typeof ControlCentreAdminDashboardRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
   }
 }
 
+interface ControlCentreAdminRouteChildren {
+  ControlCentreAdminDashboardRoute: typeof ControlCentreAdminDashboardRoute
+}
+
+const ControlCentreAdminRouteChildren: ControlCentreAdminRouteChildren = {
+  ControlCentreAdminDashboardRoute: ControlCentreAdminDashboardRoute,
+}
+
+const ControlCentreAdminRouteWithChildren =
+  ControlCentreAdminRoute._addFileChildren(ControlCentreAdminRouteChildren)
+
+interface ControlCentreRouteChildren {
+  ControlCentreAdminRoute: typeof ControlCentreAdminRouteWithChildren
+  ControlCentreForgotPasswordRoute: typeof ControlCentreForgotPasswordRoute
+  ControlCentreResetPasswordRoute: typeof ControlCentreResetPasswordRoute
+  ControlCentreIndexRoute: typeof ControlCentreIndexRoute
+}
+
+const ControlCentreRouteChildren: ControlCentreRouteChildren = {
+  ControlCentreAdminRoute: ControlCentreAdminRouteWithChildren,
+  ControlCentreForgotPasswordRoute: ControlCentreForgotPasswordRoute,
+  ControlCentreResetPasswordRoute: ControlCentreResetPasswordRoute,
+  ControlCentreIndexRoute: ControlCentreIndexRoute,
+}
+
+const ControlCentreRouteWithChildren = ControlCentreRoute._addFileChildren(
+  ControlCentreRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ControlCentreRoute: ControlCentreRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

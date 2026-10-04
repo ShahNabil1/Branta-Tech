@@ -11,6 +11,7 @@ import {
 } from "@/components/layout/primitives";
 import { MaskReveal, Reveal } from "@/components/motion/Reveal";
 import { Button, TextLink } from "@/components/ui/brand-button";
+import { SiteShell } from "@/components/layout/SiteShell";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -50,7 +51,7 @@ const typeScale = [
 
 function Index() {
   return (
-    <>
+    <SiteShell>
       <PageHero
         eyebrow="Design system · Phase 01"
         title={
@@ -119,6 +120,6 @@ function Index() {
           </div>
         </div>
       </Section>
-    </>
+    </SiteShell>
   );
 }
