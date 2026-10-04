@@ -14,6 +14,199 @@ export type Database = {
   }
   public: {
     Tables: {
+      application_notes: {
+        Row: {
+          application_id: string
+          author_user_id: string | null
+          created_at: string
+          id: string
+          note: string
+        }
+        Insert: {
+          application_id: string
+          author_user_id?: string | null
+          created_at?: string
+          id?: string
+          note: string
+        }
+        Update: {
+          application_id?: string
+          author_user_id?: string | null
+          created_at?: string
+          id?: string
+          note?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_notes_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "job_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      authors: {
+        Row: {
+          bio: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          photo_url: string | null
+          profile_url: string | null
+          role: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          photo_url?: string | null
+          profile_url?: string | null
+          role?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          photo_url?: string | null
+          profile_url?: string | null
+          role?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      job_applications: {
+        Row: {
+          cover_note: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          ip_hash: string | null
+          job_id: string
+          linkedin_url: string | null
+          location: string | null
+          phone: string
+          portfolio_url: string | null
+          resume_url: string | null
+          status: string
+          submitted_at: string
+          updated_at: string
+        }
+        Insert: {
+          cover_note: string
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          ip_hash?: string | null
+          job_id: string
+          linkedin_url?: string | null
+          location?: string | null
+          phone: string
+          portfolio_url?: string | null
+          resume_url?: string | null
+          status?: string
+          submitted_at?: string
+          updated_at?: string
+        }
+        Update: {
+          cover_note?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          ip_hash?: string | null
+          job_id?: string
+          linkedin_url?: string | null
+          location?: string | null
+          phone?: string
+          portfolio_url?: string | null
+          resume_url?: string | null
+          status?: string
+          submitted_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jobs: {
+        Row: {
+          created_at: string
+          department: string | null
+          description_html: string | null
+          description_json: Json
+          employment_type: string | null
+          featured: boolean
+          id: string
+          location: string | null
+          published_at: string | null
+          requirements_json: Json
+          slug: string
+          sort_order: number
+          status: string
+          summary: string | null
+          title: string
+          updated_at: string
+          work_mode: string | null
+        }
+        Insert: {
+          created_at?: string
+          department?: string | null
+          description_html?: string | null
+          description_json?: Json
+          employment_type?: string | null
+          featured?: boolean
+          id?: string
+          location?: string | null
+          published_at?: string | null
+          requirements_json?: Json
+          slug: string
+          sort_order?: number
+          status?: string
+          summary?: string | null
+          title: string
+          updated_at?: string
+          work_mode?: string | null
+        }
+        Update: {
+          created_at?: string
+          department?: string | null
+          description_html?: string | null
+          description_json?: Json
+          employment_type?: string | null
+          featured?: boolean
+          id?: string
+          location?: string | null
+          published_at?: string | null
+          requirements_json?: Json
+          slug?: string
+          sort_order?: number
+          status?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string
+          work_mode?: string | null
+        }
+        Relationships: []
+      }
       page_sections: {
         Row: {
           body: string | null
@@ -393,6 +586,86 @@ export type Database = {
           },
         ]
       }
+      posts: {
+        Row: {
+          author_id: string | null
+          canonical_url: string | null
+          category: string | null
+          content_html: string | null
+          content_json: Json
+          cover_alt: string | null
+          cover_url: string | null
+          created_at: string
+          excerpt: string | null
+          featured: boolean
+          id: string
+          meta_description: string | null
+          meta_title: string | null
+          noindex: boolean
+          og_image_url: string | null
+          published_at: string | null
+          slug: string
+          sort_order: number
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          canonical_url?: string | null
+          category?: string | null
+          content_html?: string | null
+          content_json?: Json
+          cover_alt?: string | null
+          cover_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          featured?: boolean
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          noindex?: boolean
+          og_image_url?: string | null
+          published_at?: string | null
+          slug: string
+          sort_order?: number
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          canonical_url?: string | null
+          category?: string | null
+          content_html?: string | null
+          content_json?: Json
+          cover_alt?: string | null
+          cover_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          featured?: boolean
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          noindex?: boolean
+          og_image_url?: string | null
+          published_at?: string | null
+          slug?: string
+          sort_order?: number
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "authors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -610,6 +883,54 @@ export type Database = {
           id?: string
           setting_group?: string
           settings?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      team_members: {
+        Row: {
+          created_at: string
+          email: string | null
+          featured: boolean
+          full_bio: string | null
+          id: string
+          linkedin_url: string | null
+          name: string
+          photo_url: string | null
+          role: string | null
+          short_bio: string | null
+          sort_order: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          featured?: boolean
+          full_bio?: string | null
+          id?: string
+          linkedin_url?: string | null
+          name: string
+          photo_url?: string | null
+          role?: string | null
+          short_bio?: string | null
+          sort_order?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          featured?: boolean
+          full_bio?: string | null
+          id?: string
+          linkedin_url?: string | null
+          name?: string
+          photo_url?: string | null
+          role?: string | null
+          short_bio?: string | null
+          sort_order?: number
+          status?: string
           updated_at?: string
         }
         Relationships: []
