@@ -19,7 +19,7 @@ const pendingCls = "text-small cursor-default text-muted-foreground/45";
 function SiteFooter() {
   const { data } = useQuery(siteChromeQuery);
   const cols = footerFromCms(data?.navigation) ?? FALLBACK_FOOTER;
-  const logo = https(data?.brand?.logo_url);
+  const logo = https(data?.brand?.logo_dark_url) ?? https(data?.brand?.logo_url);
   const name = text(data?.company?.company_name) ?? "Branta Tech";
   const desc = text(data?.company?.short_description) ?? "Creative. AI. Technology.";
   const email = text(data?.contact?.email);
