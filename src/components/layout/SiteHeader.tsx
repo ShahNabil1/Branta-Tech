@@ -18,7 +18,7 @@ function useResolveLink() {
       if (v.startsWith("/") && !v.startsWith("//")) {
         const [rawPath = "/", hash] = v.split("#");
         const path = rawPath.length > 1 ? rawPath.replace(/\/+$/, "") : rawPath;
-        const exists = Boolean((router.routesByPath as Record<string, unknown>)[path]);
+        const exists = Boolean((router.routesByPath as unknown as Record<string, unknown>)[path]);
         return exists ? { kind: "internal", to: path, ...(hash ? { hash } : {}) } : { kind: "pending" };
       }
       try {
@@ -44,7 +44,7 @@ function SmartLink({ url, className, pendingClassName, children, onNavigate, ...
   const r = useResolveLink()(url);
   if (r.kind === "internal")
     return (
-      <Link to={r.to as "/"} hash={r.hash} className={className} onClick={onNavigate} {...rest}>
+      <Link to={r.to as "/"} {...(r.hash ? { hash: r.hash } : {})} className={className} onClick={onNavigate} {...rest}>
         {children}
       </Link>
     );

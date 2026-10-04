@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
+import type { Database, Json } from "@/integrations/supabase/types";
 
 export type SiteChrome = {
-  navigation: unknown | null;
+  navigation: Json | null;
   brand: { logo_url?: string; logo_dark_url?: string } | null;
   contact: { email?: string } | null;
   featured: { title: string; slug: string; image: string; category: string | null } | null;
