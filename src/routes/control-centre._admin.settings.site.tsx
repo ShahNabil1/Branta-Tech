@@ -52,12 +52,12 @@ function SettingsForm({ initial }: { initial: Values }) {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     if (f.state === "saving") return;
-    for (const g of GROUPS) for (const fd of g.fields) if (fieldError(fd, f.values[g.group][fd.key])) return f.fail(`Fix "${fd.label}" in ${g.title}.`);
+    for (const g of GROUPS) for (const fd of g.fields) if (fieldError(fd, f.values[g.group]?.[fd.key] ?? "")) return f.fail(`Fix "${fd.label}" in ${g.title}.`);
     f.begin();
     try {
       const changed = GROUPS;
       for (const g of changed) {
-        const clean = Object.fromEntries(Object.entries(f.values[g.group]).map(([k, v]) => [k, v.trim()]));
+        const clean = Object.fromEntries(Object.entries(f.values[g.group] ?? {}).map(([k, v]) => [k, v.trim()]));
         await saveSettingsGroup(g.group, clean);
       }
       f.markSaved(f.values);
@@ -76,7 +76,7 @@ function SettingsForm({ initial }: { initial: Values }) {
           <Panel key={g.group} title={g.title}>
             <div className="grid gap-4 md:grid-cols-2">
               {g.fields.map((fd) => {
-                const val = f.values[g.group][fd.key];
+                const val = f.values[g.group]?.[fd.key] ?? "";
                 const onChange = (v: string) => f.set(g.group, { ...f.values[g.group], [fd.key]: v });
                 return fd.kind === "textarea" ? (
                   <TextArea key={fd.key} label={fd.label} value={val} onChange={(e) => onChange(e.target.value)} className="md:col-span-2" />
