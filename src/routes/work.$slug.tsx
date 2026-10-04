@@ -146,21 +146,19 @@ function CaseStudyPage() {
 
       <DarkSection aria-label="More work">
         {cs.next && (
-          <Link to="/work/$slug" params={{ slug: cs.next.slug }} className="group block border-b border-border pb-12 focus-visible:outline-2 focus-visible:outline-accent">
+          <Link to="/work/$slug" params={{ slug: cs.next.slug }} className="group block border-b border-border pb-10 focus-visible:outline-2 focus-visible:outline-accent">
             <Eyebrow>NEXT PROJECT</Eyebrow>
-            <p className="text-display mt-4 text-foreground transition-colors group-hover:text-accent">{cs.next.title} <span aria-hidden>→</span></p>
+            <p className="text-h2 mt-3 text-foreground transition-colors group-hover:text-accent">{cs.next.title} <span aria-hidden>→</span></p>
           </Link>
         )}
         {cs.related.length > 0 && (
           <div className="mt-12">
             <h2 className="text-h3 text-foreground">Related work</h2>
-            <ul className="mt-8 grid gap-6 md:grid-cols-3">
+            <ul className={cn("mt-8", PORTFOLIO_GRID)}>
               {cs.related.map((r) => (
-                <li key={r.id}>
-                  <Link to="/work/$slug" params={{ slug: r.slug }} className="group block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">
-                    <div className="relative aspect-video overflow-hidden rounded-[4px] bg-muted/10"><WorkMediaView media={r.media} title={r.title} playing={false} /></div>
-                    <p className="text-small mt-3 font-medium text-foreground">{r.title}</p>
-                  </Link>
+                <li key={r.id} className="min-w-0">
+                  <PortfolioCard slug={r.slug} title={r.title} label={r.category?.name ?? r.services[0]?.name} client={r.client} media={r.media}
+                    playing={relPlaying === r.id} onPreview={(on) => setRelPlaying(on ? r.id : null)} />
                 </li>
               ))}
             </ul>

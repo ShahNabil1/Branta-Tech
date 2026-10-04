@@ -1,13 +1,13 @@
 import { canonical } from "@/lib/seo";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { SiteShell } from "@/components/layout/SiteShell";
 import { DarkSection, Eyebrow, Section } from "@/components/layout/primitives";
-import { WorkMediaView } from "@/components/home/FeaturedWork";
+import { PortfolioCard, PORTFOLIO_GRID } from "@/components/work/PortfolioCard";
 import { siteChromeQuery } from "@/lib/navigation";
-import { workListQuery, type WorkCard } from "@/lib/work.functions";
+import { workListQuery } from "@/lib/work.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/work/")({
@@ -27,49 +27,6 @@ export const Route = createFileRoute("/work/")({
   notFoundComponent: () => <p className="p-8">Not found.</p>,
   component: WorkPage,
 });
-
-/** Editorial rhythm by column span; aspect follows the real media orientation. */
-const SPANS = [12, 7, 5, 5, 7, 4, 4, 4];
-function slot(c: WorkCard, i: number) {
-  const span = SPANS[i % SPANS.length]!;
-  void c;
-  const aspect = "aspect-video"; // every portfolio listing cover is 16:9
-  const col = { 12: "md:col-span-12", 7: "md:col-span-7", 5: "md:col-span-5", 4: "md:col-span-4" }[span]!;
-  return { col, aspect };
-}
-
-const canHover = () => window.matchMedia("(hover: hover) and (pointer: fine)").matches && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-function Card({ c, i, playing, setPlaying }: { c: WorkCard; i: number; playing: boolean; setPlaying: (id: string | null) => void }) {
-  const ref = useRef<HTMLAnchorElement>(null);
-  const { col, aspect } = slot(c, i);
-  useEffect(() => {
-    if (!playing || !ref.current) return;
-    const io = new IntersectionObserver(([e]) => { if (e && !e.isIntersecting) setPlaying(null); });
-    io.observe(ref.current);
-    return () => io.disconnect();
-  }, [playing, setPlaying]);
-  const meta = [c.client, c.category?.name, c.year].filter(Boolean).join(" · ");
-  const on = () => canHover() && setPlaying(c.id);
-  return (
-    <li className={cn("min-w-0", col)}>
-      <Link ref={ref} to="/work/$slug" params={{ slug: c.slug }} onMouseEnter={on} onMouseLeave={() => setPlaying(null)} onFocus={on} onBlur={() => setPlaying(null)}
-        className="group block rounded-[4px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">
-        <div className={cn("relative overflow-hidden rounded-[4px] bg-muted/10", aspect)}>
-          <WorkMediaView media={c.media} title={c.title} playing={playing} />
-        </div>
-        <div className="mt-4 flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h2 className="text-h4 font-medium text-foreground">{c.title}</h2>
-            {meta && <p className="text-caption mt-1 text-muted-foreground">{meta}</p>}
-            {c.services.length > 0 && <p className="text-caption mt-1 text-muted-foreground/80">{c.services.slice(0, 3).map((s) => s.name).join(" · ")}</p>}
-          </div>
-          <span aria-hidden className="mt-1 text-accent opacity-60 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100">→</span>
-        </div>
-      </Link>
-    </li>
-  );
-}
 
 function WorkPage() {
   const { data } = useSuspenseQuery(workListQuery);
@@ -100,8 +57,13 @@ function WorkPage() {
         )}
         <p className="text-caption mt-6 text-muted-foreground" aria-live="polite">{items.length} {items.length === 1 ? "project" : "projects"}</p>
         {items.length ? (
-          <ul className="mt-8 grid grid-cols-1 gap-x-6 gap-y-14 md:grid-cols-12 md:gap-y-20">
-            {items.map((c, i) => <Card key={c.id} c={c} i={i} playing={playing === c.id} setPlaying={setPlaying} />)}
+          <ul className={cn("mt-8", PORTFOLIO_GRID)}>
+            {items.map((c) => (
+              <li key={c.id} className="min-w-0">
+                <PortfolioCard slug={c.slug} title={c.title} label={c.category?.name ?? c.services[0]?.name} client={c.client} media={c.media} headingLevel="h2"
+                  playing={playing === c.id} onPreview={(on) => setPlaying(on ? c.id : null)} />
+              </li>
+            ))}
           </ul>
         ) : (
           <p className="text-body mt-10 text-muted-foreground">Published work will appear here.</p>
