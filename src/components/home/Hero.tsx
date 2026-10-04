@@ -41,7 +41,7 @@ function useParallax<T extends HTMLElement>(max = 24) {
   return ref;
 }
 
-function HeroAction({ label, url, variant }: { label: string; url: string; variant: "primary" | "secondary" }) {
+export function HeroAction({ label, url, variant }: { label: string; url: string; variant: "primary" | "secondary" }) {
   const router = useRouter();
   if (!label) return null;
   const cls = cn(buttonVariants({ variant, size: "lg" }));
