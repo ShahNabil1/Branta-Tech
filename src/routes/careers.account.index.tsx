@@ -11,7 +11,7 @@ export const Route = createFileRoute("/careers/account/")({
   component: AccountHome,
 });
 
-function Card({ label, value, hint }: { label: string; value: string; hint?: string }) {
+function Card({ label, value, hint }: { label: string; value: string; hint?: string | undefined }) {
   return (
     <div className="rounded-md border border-border bg-surface p-5">
       <p className="text-caption text-muted-foreground">{label}</p>
