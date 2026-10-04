@@ -1,7 +1,6 @@
 import type { HomeClosing } from "@/lib/home-closing.functions";
 import type { ClientLogo } from "@/lib/home-closing";
 import { Eyebrow, SiteContainer } from "@/components/layout/primitives";
-import { Reveal } from "@/components/motion/Reveal";
 import { cn } from "@/lib/utils";
 
 type Content = NonNullable<HomeClosing["trust"]>;
@@ -64,7 +63,7 @@ export function TrustProof({ content }: { content: Content }) {
       )}
       {(stats.length > 0 || fundedBy) && (
         <SiteContainer>
-          <Reveal className={cn("grid border-t border-border", logos.length > 0 && "mt-14 md:mt-20", stats.length > 0 && fundedBy ? "md:grid-cols-12" : "")}>
+          <div className={cn("grid border-t border-border", logos.length > 0 && "mt-14 md:mt-20", stats.length > 0 && fundedBy ? "md:grid-cols-12" : "")}>
             {stats.length > 0 && (
               <dl className={cn("grid grid-cols-2 gap-x-6 gap-y-8 pt-10", fundedBy && "md:col-span-8", stats.length > 2 && "sm:grid-cols-3")}>
                 {stats.map((s, i) => (
@@ -87,7 +86,7 @@ export function TrustProof({ content }: { content: Content }) {
                 {fundedBy.body && <p className="text-small mt-3 max-w-sm text-muted-foreground">{fundedBy.body}</p>}
               </div>
             )}
-          </Reveal>
+          </div>
         </SiteContainer>
       )}
     </section>
