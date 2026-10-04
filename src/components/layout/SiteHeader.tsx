@@ -1,3 +1,4 @@
+import logoLight from "@/assets/brand/branta-logo-light.png.asset.json";
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Link, useHydrated, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -90,16 +91,7 @@ function useBookingUrl(email: string | null) {
 export function BrandLogo({ src, onNavigate }: { src: string | null; onNavigate?: () => void }) {
   return (
     <Link to="/" onClick={onNavigate} aria-label="Branta Tech home" className="flex shrink-0 items-center gap-2 rounded-sm text-foreground">
-      {src ? (
-        <img src={src} alt="Branta Tech" className="h-7 w-auto" />
-      ) : (
-        <>
-          <span aria-hidden className="grid size-7 place-items-center rounded-sm bg-foreground text-caption font-bold text-background">B</span>
-          <span className="text-body font-semibold tracking-tight">
-            Branta<span className="text-muted-foreground">Tech</span>
-          </span>
-        </>
-      )}
+      <img src={src ?? logoLight.url} alt="Branta Tech" width={1288} height={308} className="h-7 w-auto" />
     </Link>
   );
 }
