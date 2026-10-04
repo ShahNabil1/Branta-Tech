@@ -14,6 +14,8 @@ export function WorkMediaView({ media, title, playing }: { media: WorkItem["medi
   return <Media item={{ media, title } as WorkItem} playing={playing} />;
 }
 
+const COVER_POS: Record<string, string> = { center: "object-center", top: "object-top", bottom: "object-bottom", left: "object-left", right: "object-right" };
+
 function Media({ item, playing }: { item: WorkItem; playing: boolean }) {
   const m = item.media;
   const [ready, setReady] = useState(false);
@@ -22,11 +24,12 @@ function Media({ item, playing }: { item: WorkItem; playing: boolean }) {
     return <div className="flex h-full w-full items-center justify-center bg-muted/10 text-caption text-muted-foreground">Media coming soon</div>;
   }
   const poster = m.type === "image" ? m.url : m.poster;
+  const pos = COVER_POS[m.position ?? "center"] ?? "object-center";
   const vid = m.type === "vimeo" ? vimeoId(m.url) : null;
   return (
     <>
       {poster ? (
-        <img src={poster} alt={m.alt} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]" />
+        <img src={poster} alt={m.alt} loading="lazy" decoding="async" className={cn("absolute inset-0 h-full w-full object-cover transition-transform", pos, " duration-700 ease-out group-hover:scale-[1.03]")} />
       ) : (
         <div className="absolute inset-0 bg-muted/10" />
       )}
@@ -43,7 +46,7 @@ function Media({ item, playing }: { item: WorkItem; playing: boolean }) {
       )}
       {playing && m.type === "video" && (
         <video src={m.url} poster={poster ?? undefined} muted loop playsInline autoPlay onPlaying={() => setReady(true)}
-          className={cn("absolute inset-0 h-full w-full object-cover transition-opacity duration-500", ready ? "opacity-100" : "opacity-0")} />
+          className={cn("absolute inset-0 h-full w-full object-cover transition-opacity duration-500", pos, ready ? "opacity-100" : "opacity-0")} />
       )}
     </>
   );
@@ -51,12 +54,10 @@ function Media({ item, playing }: { item: WorkItem; playing: boolean }) {
 
 /** Tile width/aspect by real orientation, with a rhythm so neighbours differ. */
 function tileShape(item: WorkItem, i: number) {
-  const o = item.media?.orientation;
-  if (o === "portrait") return "w-[62vw] sm:w-[40vw] md:w-[22rem] aspect-[4/5]";
-  if (o === "square") return "w-[72vw] sm:w-[46vw] md:w-[26rem] aspect-square";
+  void item;
   return i % 3 === 0
-    ? "w-[86vw] sm:w-[64vw] md:w-[44rem] aspect-[21/10]"
-    : "w-[80vw] sm:w-[56vw] md:w-[34rem] aspect-[16/10]";
+    ? "w-[86vw] sm:w-[64vw] md:w-[44rem] aspect-video"
+    : "w-[80vw] sm:w-[56vw] md:w-[34rem] aspect-video";
 }
 
 function Tile({ item, i, playing, onHover, showClient }: { item: WorkItem; i: number; playing: boolean; onHover: (id: string | null) => void; showClient: boolean }) {

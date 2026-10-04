@@ -158,7 +158,7 @@ function CaseStudyPage() {
               {cs.related.map((r) => (
                 <li key={r.id}>
                   <Link to="/work/$slug" params={{ slug: r.slug }} className="group block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">
-                    <div className="relative aspect-[4/3] overflow-hidden rounded-[4px] bg-muted/10"><WorkMediaView media={r.media} title={r.title} playing={false} /></div>
+                    <div className="relative aspect-video overflow-hidden rounded-[4px] bg-muted/10"><WorkMediaView media={r.media} title={r.title} playing={false} /></div>
                     <p className="text-small mt-3 font-medium text-foreground">{r.title}</p>
                   </Link>
                 </li>

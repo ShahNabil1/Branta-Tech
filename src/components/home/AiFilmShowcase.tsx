@@ -11,7 +11,6 @@ const STEPS = ["Concept", "Direction", "AI Production", "Sound", "Post"];
 
 /** Width rhythm: first item dominant, portrait media narrow, others medium. */
 function widthFor(item: FilmItem, i: number) {
-  if (item.media.orientation === "portrait") return "w-[62vw] sm:w-[260px] lg:w-[300px] aspect-[9/16]";
   if (i === 0) return "w-[80vw] sm:w-[620px] lg:w-[820px] aspect-[16/9]";
   return "w-[72vw] sm:w-[440px] lg:w-[520px] aspect-[16/9]";
 }

@@ -32,11 +32,8 @@ export const Route = createFileRoute("/work/")({
 const SPANS = [12, 7, 5, 5, 7, 4, 4, 4];
 function slot(c: WorkCard, i: number) {
   const span = SPANS[i % SPANS.length]!;
-  const o = c.media?.orientation;
-  const aspect = span === 12 ? "aspect-[16/9] md:aspect-[21/9]"
-    : o === "portrait" ? "aspect-[4/5]"
-    : o === "square" ? "aspect-square"
-    : span >= 7 ? "aspect-[16/10]" : "aspect-[4/3]";
+  void c;
+  const aspect = "aspect-video"; // every portfolio listing cover is 16:9
   const col = { 12: "md:col-span-12", 7: "md:col-span-7", 5: "md:col-span-5", 4: "md:col-span-4" }[span]!;
   return { col, aspect };
 }
