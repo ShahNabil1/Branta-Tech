@@ -40,13 +40,16 @@ function toCard(r: PostRow): PostCard {
 
 export const getInsights = createServerFn({ method: "GET" })
   .inputValidator((d: { limit?: number } | undefined) => z.object({ limit: z.number().int().min(1).max(100).optional() }).parse(d ?? {}))
-  .handler(async ({ data }): Promise<PostCard[]> => {
-    const sb = pub();
-    if (!sb) return [];
-    const { data: rows } = await sb.from("posts").select(POST_COLS).eq("status", "published")
-      .order("featured", { ascending: false }).order("published_at", { ascending: false, nullsFirst: false }).order("sort_order").limit(data.limit ?? 60);
-    return ((rows ?? []) as unknown as PostRow[]).map(toCard);
-  });
+  .handler(({ data }) => listPublishedPosts(data.limit ?? 60));
+
+/** Server-only helper (call from server handlers, not the browser). Featured first, then newest. */
+export async function listPublishedPosts(limit: number): Promise<PostCard[]> {
+  const sb = pub();
+  if (!sb) return [];
+  const { data: rows } = await sb.from("posts").select(POST_COLS).eq("status", "published")
+    .order("featured", { ascending: false }).order("published_at", { ascending: false, nullsFirst: false }).order("sort_order").limit(limit);
+  return ((rows ?? []) as unknown as PostRow[]).map(toCard);
+}
 
 export const getPost = createServerFn({ method: "GET" })
   .inputValidator((d: { slug: string }) => z.object({ slug: z.string().min(1).max(120) }).parse(d))
