@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { VideoPlayer } from "@/components/work/VideoPlayer";
-import { WorkMediaView } from "@/components/home/FeaturedWork";
+import { useState } from "react";
+import { PortfolioCard, PORTFOLIO_GRID } from "@/components/work/PortfolioCard";
 import type { ServiceMedia } from "@/lib/services";
 import type { WorkCard } from "@/lib/work.functions";
 import { cn } from "@/lib/utils";
@@ -17,27 +18,18 @@ export function ServiceMediaView({ media, title, className, priority }: { media:
 
 /** Up to six real, published projects. Caller hides this when empty. */
 export function RelatedWork({ items, heading = "Selected work" }: { items: WorkCard[]; heading?: string }) {
+  const [playing, setPlaying] = useState<string | null>(null);
   return (
     <div>
       <div className="flex items-end justify-between gap-6">
         <h2 className="text-h2 text-foreground">{heading}</h2>
         <Link to="/work" className="text-small shrink-0 font-medium text-muted-foreground hover:text-foreground">All work →</Link>
       </div>
-      <ul className="mt-10 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((c, i) => (
-          <li key={c.id} className={cn("min-w-0", i === 0 && items.length > 2 && "lg:col-span-2")}>
-            <Link to="/work/$slug" params={{ slug: c.slug }} className="group block rounded-[4px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">
-              <div className={cn("relative overflow-hidden rounded-[4px] bg-muted/10", "aspect-video")}>
-                <WorkMediaView media={c.media} title={c.title} playing={false} />
-              </div>
-              <div className="mt-4 flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <h3 className="text-h4 font-medium text-foreground">{c.title}</h3>
-                  {(c.client || c.year) && <p className="text-caption mt-1 text-muted-foreground">{[c.client, c.year].filter(Boolean).join(" · ")}</p>}
-                </div>
-                <span aria-hidden className="mt-1 text-accent opacity-60 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100">→</span>
-              </div>
-            </Link>
+      <ul className={cn("mt-8", PORTFOLIO_GRID)}>
+        {items.map((c) => (
+          <li key={c.id} className="min-w-0">
+            <PortfolioCard slug={c.slug} title={c.title} label={c.category?.name ?? c.services[0]?.name} client={c.client} media={c.media}
+              playing={playing === c.id} onPreview={(on) => setPlaying(on ? c.id : null)} />
           </li>
         ))}
       </ul>

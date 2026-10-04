@@ -1,57 +1,18 @@
-import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DarkSection, Eyebrow, SiteContainer } from "@/components/layout/primitives";
 import { HeroAction } from "@/components/home/Hero";
-import { WorkMediaView } from "@/components/home/FeaturedWork";
+import { PortfolioCard, PORTFOLIO_RAIL_W } from "@/components/work/PortfolioCard";
 import { FILM_FILTERS, type AiFilm, type FilmItem } from "@/lib/ai-film.functions";
 import { cn } from "@/lib/utils";
 
 const STEPS = ["Concept", "Direction", "AI Production", "Sound", "Post"];
 
-/** Width rhythm: first item dominant, portrait media narrow, others medium. */
-function widthFor(item: FilmItem, i: number) {
-  if (i === 0) return "w-[80vw] sm:w-[620px] lg:w-[820px] aspect-[16/9]";
-  return "w-[72vw] sm:w-[440px] lg:w-[520px] aspect-[16/9]";
-}
-
-function canHover() {
-  return typeof window !== "undefined" && window.matchMedia("(hover: hover) and (pointer: fine)").matches && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-function FilmCard({ item, index, playing, setPlaying }: { item: FilmItem; index: number; playing: boolean; setPlaying: (id: string | null) => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!playing || !ref.current) return;
-    const io = new IntersectionObserver(([e]) => { if (e && e.intersectionRatio < 0.5) setPlaying(null); }, { threshold: [0, 0.5] });
-    io.observe(ref.current);
-    return () => io.disconnect();
-  }, [playing, setPlaying]);
-  const size = widthFor(item, index);
-  const meta = [item.format, item.client].filter(Boolean).join(" · ");
+function FilmCard({ item, playing, setPlaying }: { item: FilmItem; playing: boolean; setPlaying: (id: string | null) => void }) {
   return (
     <li className="shrink-0 snap-start">
-      <div
-        ref={ref}
-        tabIndex={0}
-        aria-label={`${item.title}${meta ? `, ${meta}` : ""}`}
-        onMouseEnter={() => canHover() && setPlaying(item.id)}
-        onMouseLeave={() => setPlaying(null)}
-        onFocus={() => canHover() && setPlaying(item.id)}
-        onBlur={() => setPlaying(null)}
-        className="group outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-[4px]"
-      >
-        <div className={cn("relative overflow-hidden rounded-[4px] bg-muted/10", size.split(" ").filter((c) => c.includes("aspect")).join(" "), size.split(" ").filter((c) => !c.includes("aspect")).join(" "))}>
-          <WorkMediaView alt={item.media.alt} title={item.title} media={item.media} playing={playing} />
-          {playing && <span aria-hidden className="absolute right-3 top-3 z-10 size-1.5 rounded-full bg-accent" />}
-        </div>
-        <div className="mt-3">
-          <p className="text-small font-medium text-foreground">
-            <Link to="/work/$slug" params={{ slug: item.slug }} draggable={false} className="hover:text-accent focus-visible:outline-2 focus-visible:outline-accent">{item.title}<span aria-hidden className="ml-1 text-accent opacity-0 transition-opacity group-hover:opacity-100">→</span></Link>
-          </p>
-          {meta && <p className="text-caption mt-0.5 text-muted-foreground">{meta}</p>}
-        </div>
-      </div>
+      <PortfolioCard slug={item.slug} title={item.title} label={item.format} client={item.client} media={item.media}
+        playing={playing} onPreview={(on) => setPlaying(on ? item.id : null)} className={PORTFOLIO_RAIL_W} />
     </li>
   );
 }
@@ -113,7 +74,7 @@ export function AiFilmShowcase({ content }: { content: NonNullable<AiFilm> }) {
       <ul
         ref={rail}
         aria-label="AI film work"
-        className="no-scrollbar mt-6 flex cursor-grab snap-x snap-mandatory items-end gap-4 overflow-x-auto scroll-px-[var(--gutter)] px-[var(--gutter)] pb-2 active:cursor-grabbing md:gap-6"
+        className="no-scrollbar mt-6 flex cursor-grab snap-x snap-mandatory items-start gap-4 overflow-x-auto scroll-px-[var(--gutter)] px-[var(--gutter)] pb-2 active:cursor-grabbing md:gap-5"
         onPointerDown={(e) => {
           if (e.pointerType !== "mouse" || !rail.current) return;
           drag.current = { x: e.clientX, left: rail.current.scrollLeft, moved: false };
@@ -128,8 +89,8 @@ export function AiFilmShowcase({ content }: { content: NonNullable<AiFilm> }) {
         onPointerUp={() => { drag.current = null; if (rail.current) rail.current.style.scrollSnapType = ""; }}
         onPointerLeave={() => { drag.current = null; if (rail.current) rail.current.style.scrollSnapType = ""; }}
       >
-        {items.map((item, i) => (
-          <FilmCard key={item.id} item={item} index={i} playing={playing === item.id} setPlaying={setPlaying} />
+        {items.map((item) => (
+          <FilmCard key={item.id} item={item} playing={playing === item.id} setPlaying={setPlaying} />
         ))}
       </ul>
 

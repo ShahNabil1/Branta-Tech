@@ -5,6 +5,7 @@ import { DarkSection, Eyebrow, SiteContainer } from "@/components/layout/primiti
 import { HeroAction } from "@/components/home/Hero";
 import type { WebSoftware, WebWork } from "@/lib/web-software.functions";
 import { cn } from "@/lib/utils";
+import { PortfolioCard, PORTFOLIO_GRID } from "@/components/work/PortfolioCard";
 
 /** Poster first; on desktop the muted background player mounts near the viewport and fades in once Vimeo reports playback. */
 function Promo({ id, poster, title }: { id: string | null; poster: string | null; title: string }) {
@@ -71,23 +72,6 @@ function Promo({ id, poster, title }: { id: string | null; poster: string | null
   );
 }
 
-const WORK_SIZE = ["md:col-span-7 aspect-video", "md:col-span-5 aspect-video", "md:col-span-5 aspect-video", "md:col-span-7 aspect-video"];
-
-function WorkCard({ w, i }: { w: WebWork; i: number }) {
-  const size = WORK_SIZE[i % WORK_SIZE.length]!;
-  return (
-    <article className={cn("min-w-0", size.split(" ").filter((c) => !c.includes("aspect")).join(" "))}>
-      <div className={cn("relative overflow-hidden rounded-[4px] bg-muted/10", size.split(" ").filter((c) => c.includes("aspect")).join(" "))}>
-        {w.image
-          ? <img src={w.image} alt={w.alt} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover object-top" />
-          : <div className="text-caption flex h-full items-center justify-center text-muted-foreground">Media coming soon</div>}
-      </div>
-      <h4 className="text-h4 mt-4 text-foreground"><Link to="/work/$slug" params={{ slug: w.slug }} className="hover:text-accent focus-visible:outline-2 focus-visible:outline-accent">{w.title} <span aria-hidden className="text-accent">→</span></Link></h4>
-      {(w.client || w.services.length > 0) && <p className="text-caption mt-1 text-muted-foreground">{[w.client, w.services.join(" · ")].filter(Boolean).join(" · ")}</p>}
-    </article>
-  );
-}
-
 export function WebSoftwareShowcase({ content }: { content: NonNullable<WebSoftware> }) {
   return (
     <DarkSection aria-labelledby="web-software-title">
@@ -126,9 +110,14 @@ export function WebSoftwareShowcase({ content }: { content: NonNullable<WebSoftw
         <div className="mt-20 border-t border-border pt-10">
           <h3 className="text-h3 text-foreground">{content.workHeading}</h3>
           {content.work.length ? (
-            <div className="mt-8 grid grid-cols-1 gap-x-6 gap-y-12 md:grid-cols-12">
-              {content.work.map((w, i) => <WorkCard key={w.id} w={w} i={i} />)}
-            </div>
+            <ul className={cn("mt-8", PORTFOLIO_GRID)}>
+              {content.work.map((w) => (
+                <li key={w.id} className="min-w-0">
+                  <PortfolioCard slug={w.slug} title={w.title} label={w.services[0]} client={w.client}
+                    media={w.image ? { type: "image", url: w.image, poster: null, alt: w.alt, orientation: "landscape", position: "top" } : null} headingLevel="h3" />
+                </li>
+              ))}
+            </ul>
           ) : (
             <p className="text-small mt-4 text-muted-foreground">Selected digital work will appear here.</p>
           )}

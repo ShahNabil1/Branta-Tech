@@ -1,85 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { PortfolioCard, PORTFOLIO_RAIL_W } from "@/components/work/PortfolioCard";
 import { DarkSection, Eyebrow, SiteContainer } from "@/components/layout/primitives";
 import { HeroAction } from "@/components/home/Hero";
-import { vimeoId } from "@/lib/hero";
 import { cn } from "@/lib/utils";
 import type { FeaturedWork as FW, WorkItem } from "@/lib/featured-work.functions";
 
-function canHover() {
-  return typeof window !== "undefined" && window.matchMedia("(hover: hover) and (pointer: fine)").matches && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
+export { WorkMediaView } from "@/components/work/PortfolioCard";
 
-export function WorkMediaView({ media, title, playing }: { media: WorkItem["media"]; title: string; alt?: string; playing: boolean }) {
-  return <Media item={{ media, title } as WorkItem} playing={playing} />;
-}
-
-const COVER_POS: Record<string, string> = { center: "object-center", top: "object-top", bottom: "object-bottom", left: "object-left", right: "object-right" };
-
-function Media({ item, playing }: { item: WorkItem; playing: boolean }) {
-  const m = item.media;
-  const [ready, setReady] = useState(false);
-  useEffect(() => { if (!playing) setReady(false); }, [playing]);
-  if (!m) {
-    return <div className="flex h-full w-full items-center justify-center bg-muted/10 text-caption text-muted-foreground">Media coming soon</div>;
-  }
-  const poster = m.type === "image" ? m.url : m.poster;
-  const pos = COVER_POS[m.position ?? "center"] ?? "object-center";
-  const vid = m.type === "vimeo" ? vimeoId(m.url) : null;
-  return (
-    <>
-      {poster ? (
-        <img src={poster} alt={m.alt} loading="lazy" decoding="async" className={cn("absolute inset-0 h-full w-full object-cover transition-transform", pos, " duration-700 ease-out group-hover:scale-[1.03]")} />
-      ) : (
-        <div className="absolute inset-0 bg-muted/10" />
-      )}
-      {playing && vid && (
-        <iframe
-          title={`${item.title} preview`}
-          src={`https://player.vimeo.com/video/${vid}?background=1&autoplay=1&muted=1&loop=1&dnt=1`}
-          allow="autoplay; fullscreen"
-          tabIndex={-1}
-          aria-hidden
-          onLoad={() => setTimeout(() => setReady(true), 600)}
-          className={cn("pointer-events-none absolute left-1/2 top-1/2 h-[120%] w-[120%] -translate-x-1/2 -translate-y-1/2 border-0 transition-opacity duration-500", ready ? "opacity-100" : "opacity-0")}
-        />
-      )}
-      {playing && m.type === "video" && (
-        <video src={m.url} poster={poster ?? undefined} muted loop playsInline autoPlay onPlaying={() => setReady(true)}
-          className={cn("absolute inset-0 h-full w-full object-cover transition-opacity duration-500", pos, ready ? "opacity-100" : "opacity-0")} />
-      )}
-    </>
-  );
-}
-
-/** Tile width/aspect by real orientation, with a rhythm so neighbours differ. */
-function tileShape(item: WorkItem, i: number) {
-  void item;
-  return i % 3 === 0
-    ? "w-[86vw] sm:w-[64vw] md:w-[44rem] aspect-video"
-    : "w-[80vw] sm:w-[56vw] md:w-[34rem] aspect-video";
-}
-
-function Tile({ item, i, playing, onHover, showClient }: { item: WorkItem; i: number; playing: boolean; onHover: (id: string | null) => void; showClient: boolean }) {
-  const on = () => canHover() && onHover(item.id);
+function Tile({ item, playing, onHover, showClient }: { item: WorkItem; i: number; playing: boolean; onHover: (id: string | null) => void; showClient: boolean }) {
   return (
     <li className="shrink-0">
-      <Link to="/work/$slug" params={{ slug: item.slug }} draggable={false}
-        onMouseEnter={on} onMouseLeave={() => onHover(null)} onFocus={(e) => { e.currentTarget.scrollIntoView({ block: "nearest", inline: "nearest" }); on(); }} onBlur={() => onHover(null)}
-        className="group block rounded-[4px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">
-        <div className={cn("relative overflow-hidden rounded-[4px] bg-muted/10", tileShape(item, i))}>
-          <Media item={item} playing={playing} />
-        </div>
-        <div className="mt-3 flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            {item.label && <p className="text-caption flex items-center gap-2 text-muted-foreground"><span aria-hidden className="h-1 w-1 rounded-full bg-accent" />{item.label}</p>}
-            <h3 className="text-body mt-1 font-medium text-foreground/80 transition-colors duration-300 group-hover:text-foreground">
-              {item.title}{showClient && item.client && <span className="text-muted-foreground"> · {item.client}</span>}
-            </h3>
-          </div>
-          <span aria-hidden className="mt-1 text-accent opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100 group-focus-visible:opacity-100">→</span>
-        </div>
-      </Link>
+      <PortfolioCard slug={item.slug} title={item.title} label={item.label} client={showClient ? item.client : null} media={item.media}
+        playing={playing} onPreview={(on) => onHover(on ? item.id : null)} className={PORTFOLIO_RAIL_W} onFocusScroll />
     </li>
   );
 }
@@ -121,7 +53,7 @@ function Row({ items, dir, speed, playing, onHover, showClient, label }: {
   return (
     <div ref={ref} role="region" aria-label={label} onMouseEnter={() => { state.current.hover = true; }} onMouseLeave={() => { state.current.hover = false; state.current.pos = ref.current?.scrollLeft ?? -1; }}
       className="overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <ul className="flex w-max items-start gap-4 px-[var(--gutter)] md:gap-6">
+      <ul className="flex w-max items-start gap-4 px-[var(--gutter)] md:gap-5">
         {items.map((it, i) => <Tile key={it.id} item={it} i={i + (dir === "right" ? 1 : 0)} playing={playing === it.id} onHover={onHover} showClient={showClient} />)}
       </ul>
     </div>
@@ -162,7 +94,7 @@ export function FeaturedWork({ content }: { content: NonNullable<FW> }) {
           </div>
         )}
       </SiteContainer>
-      <div className={cn("mt-10 space-y-8 transition-opacity duration-200 md:space-y-10", fade ? "opacity-0" : "opacity-100")} aria-live="polite">
+      <div className={cn("mt-10 space-y-6 transition-opacity duration-200 md:space-y-8", fade ? "opacity-0" : "opacity-100")} aria-live="polite">
         <Row key={`a-${filter}`} items={row1} dir="left" speed={22} playing={playing} onHover={setPlaying} showClient={content.showClient} label="Selected work, row one" />
         <Row key={`b-${filter}`} items={row2} dir="right" speed={18} playing={playing} onHover={setPlaying} showClient={content.showClient} label="Selected work, row two" />
       </div>
