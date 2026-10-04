@@ -253,10 +253,9 @@ export function SiteHeader() {
           id={`${baseId}-${entry.id}`}
           role="region"
           aria-label={`${entry.label} menu`}
-          hidden={open !== entry.id}
           onMouseEnter={keepOpen}
           onMouseLeave={hoverClose}
-          className="absolute inset-x-0 top-full hidden border-b border-border bg-background lg:block motion-safe:animate-[nav-in_200ms_var(--ease-out-expo)]"
+          className={cn("absolute inset-x-0 top-full hidden border-b border-border bg-background motion-safe:animate-[nav-in_200ms_var(--ease-out-expo)]", open === entry.id && "lg:block")}
         >
           {entry.kind === "mega" ? (
             <MegaPanel entry={entry} featured={entry.id === nav.find((n) => n.kind === "mega")?.id ? featured : null} onNavigate={() => setOpen(null)} />
