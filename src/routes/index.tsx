@@ -8,6 +8,8 @@ import { homeHeroQuery } from "@/lib/home-hero.functions";
 import { capabilityExplorerQuery } from "@/lib/capability-explorer.functions";
 import { heroFromSection } from "@/lib/hero";
 import { capExplorerFrom } from "@/lib/capabilities";
+import { featuredWorkQuery } from "@/lib/featured-work.functions";
+import { FeaturedWork } from "@/components/home/FeaturedWork";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -25,6 +27,7 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(siteChromeQuery),
       context.queryClient.ensureQueryData(homeHeroQuery),
       context.queryClient.ensureQueryData(capabilityExplorerQuery),
+      context.queryClient.ensureQueryData(featuredWorkQuery),
     ]),
   errorComponent: () => <p className="p-8">Something went wrong loading this page.</p>,
   notFoundComponent: () => <p className="p-8">Not found.</p>,
@@ -34,11 +37,13 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { data } = useSuspenseQuery(homeHeroQuery);
   const { data: cap } = useSuspenseQuery(capabilityExplorerQuery);
+  const { data: work } = useSuspenseQuery(featuredWorkQuery);
   const explorer = capExplorerFrom(cap.section, cap.services);
   return (
     <SiteShell>
       <HomeHero hero={heroFromSection(data)} />
       {explorer && <CapabilityExplorer content={explorer} />}
+      {work && <FeaturedWork content={work} />}
     </SiteShell>
   );
 }
