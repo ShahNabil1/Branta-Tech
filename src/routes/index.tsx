@@ -10,6 +10,8 @@ import { heroFromSection } from "@/lib/hero";
 import { capExplorerFrom } from "@/lib/capabilities";
 import { featuredWorkQuery } from "@/lib/featured-work.functions";
 import { FeaturedWork } from "@/components/home/FeaturedWork";
+import { aiFilmQuery } from "@/lib/ai-film.functions";
+import { AiFilmShowcase } from "@/components/home/AiFilmShowcase";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,6 +30,7 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(homeHeroQuery),
       context.queryClient.ensureQueryData(capabilityExplorerQuery),
       context.queryClient.ensureQueryData(featuredWorkQuery),
+      context.queryClient.ensureQueryData(aiFilmQuery),
     ]),
   errorComponent: () => <p className="p-8">Something went wrong loading this page.</p>,
   notFoundComponent: () => <p className="p-8">Not found.</p>,
@@ -38,12 +41,14 @@ function Index() {
   const { data } = useSuspenseQuery(homeHeroQuery);
   const { data: cap } = useSuspenseQuery(capabilityExplorerQuery);
   const { data: work } = useSuspenseQuery(featuredWorkQuery);
+  const { data: film } = useSuspenseQuery(aiFilmQuery);
   const explorer = capExplorerFrom(cap.section, cap.services);
   return (
     <SiteShell>
       <HomeHero hero={heroFromSection(data)} />
       {explorer && <CapabilityExplorer content={explorer} />}
       {work && <FeaturedWork content={work} />}
+      {film && <AiFilmShowcase content={film} />}
     </SiteShell>
   );
 }
