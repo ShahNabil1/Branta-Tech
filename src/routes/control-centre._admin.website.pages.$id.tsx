@@ -204,7 +204,7 @@ function Sections({ pageId }: { pageId: string }) {
   );
 }
 
-const SECTION_TYPES = ["hero", "trust_proof", "capability_explorer", "work_showcase", "client_stories", "services_snapshot", "pricing", "book_call_cta", "client_logos", "studio_hero", "studio_entry", "text", "media", "cta", "services", "portfolio", "logos", "custom"].map((v) => ({ value: v, label: v }));
+const SECTION_TYPES = ["hero", "trust_proof", "capability_explorer", "work_showcase", "client_stories", "recognition", "services_snapshot", "pricing", "book_call_cta", "client_logos", "studio_hero", "studio_entry", "text", "media", "cta", "services", "portfolio", "logos", "custom"].map((v) => ({ value: v, label: v }));
 
 function SectionForm({ section, onSaved }: { section: Section; onSaved: () => void }) {
   const init = {
