@@ -166,7 +166,7 @@ function InlinePlayer({ card, onClose }: { card: WorkCard; onClose: () => void }
         <div className="flex flex-col gap-4">
           <div>
             {label && <p className="text-eyebrow flex items-center gap-2 text-muted-foreground"><span aria-hidden className="size-1.5 rounded-full bg-accent" />{label}</p>}
-            <h3 className="text-h mt-3 text-foreground">{card.title}</h3>
+            <h3 className="text-h3 mt-3 text-foreground">{card.title}</h3>
             {card.client && <p className="text-small mt-1 text-muted-foreground">{card.client}</p>}
           </div>
           <div className="flex flex-wrap items-center gap-4">

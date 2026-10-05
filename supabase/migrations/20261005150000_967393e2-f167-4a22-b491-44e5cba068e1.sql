@@ -1,0 +1,1 @@
+UPDATE public.portfolio_categories SET homepage_group = 'software_saas' WHERE slug = 'saas' AND homepage_group = 'ai_motion';
