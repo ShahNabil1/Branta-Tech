@@ -1,22 +1,75 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { applicationWindow, parseDetails, type FormKey, type JobDetails } from "./job-details";
 
 export const RESUME_MAX = 5 * 1024 * 1024;
 export const RESUME_ACCEPT = ".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
-const optUrl = z.string().trim().max(500).refine((v) => !v || /^https?:\/\/[^\s"<>]+$/.test(v), "Enter a full link starting with https://");
 const Fields = z.object({
   job_slug: z.string().trim().min(1).max(120),
   full_name: z.string().trim().min(2, "Enter your full name").max(120),
   email: z.string().trim().email("Enter a valid email").max(200),
-  phone: z.string().trim().min(6, "Enter a phone number").max(40).regex(/^[+\d\s().-]+$/, "Use digits, spaces, + ( ) -"),
-  location: z.string().trim().max(120),
-  portfolio_url: optUrl,
-  linkedin_url: optUrl,
-  cover_note: z.string().trim().min(20, "Tell us a little more (at least 20 characters)").max(4000),
   website: z.string().max(0).optional(), // honeypot
   started_at: z.coerce.number(),
 });
+
+
+const ATT_MAX = 5 * 1024 * 1024;
+const ATT_CT: Record<string, string> = { pdf: "application/pdf", png: "image/png", jpg: "image/jpeg", webp: "image/webp" };
+function sniffAtt(b: Uint8Array): "pdf" | "png" | "jpg" | "webp" | null {
+  if (b[0] === 0x25 && b[1] === 0x50 && b[2] === 0x44 && b[3] === 0x46) return "pdf";
+  if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47) return "png";
+  if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return "jpg";
+  if (b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 && b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50) return "webp";
+  return null;
+}
+const urlOk = (v: string) => /^https?:\/\/[^\s"<>]+$/.test(v);
+const TEXT_MAX: Partial<Record<FormKey, number>> = { phone: 40, location: 200, education: 1000, experience: 2000, cover_note: 4000, expected_salary: 80, current_salary: 80, current_company: 160, current_position: 160, joining_date: 20 };
+type Att = { key: string; ext: string; bytes: Uint8Array };
+
+/** Validates the job's configured form fields + custom questions (server-side source of truth). */
+async function checkConfiguredFields(fd: FormData, det: JobDetails): Promise<{ fields: Record<string, string> } | { values: Partial<Record<FormKey, string>>; answers: Record<string, string | string[]>; files: Att[] }> {
+  const fields: Record<string, string> = {};
+  const values: Partial<Record<FormKey, string>> = {};
+  const files: Att[] = [];
+  const readFile = async (name: string, key: string, imagesOnly: boolean, required: boolean) => {
+    const f = fd.get(name);
+    if (!(f instanceof File) || f.size === 0) { if (required) fields[key] = "Please attach a file"; return; }
+    if (f.size > ATT_MAX) { fields[key] = "Maximum size is 5 MB"; return; }
+    const bytes = new Uint8Array(await f.arrayBuffer());
+    const ext = sniffAtt(bytes);
+    if (!ext || (imagesOnly && ext === "pdf")) { fields[key] = imagesOnly ? "Use a PNG, JPG or WEBP image" : "Use a PDF, PNG, JPG or WEBP file"; return; }
+    files.push({ key, ext, bytes });
+  };
+  for (const c of det.form.filter((x) => x.enabled && x.key !== "resume")) {
+    if (c.key === "portfolio_file" || c.key === "photo") { await readFile(`file_${c.key}`, c.key, c.key === "photo", c.required); continue; }
+    const raw = String(fd.get(c.key) ?? "").trim().slice(0, TEXT_MAX[c.key] ?? 500);
+    if (!raw) { if (c.required) fields[c.key] = "This field is required"; continue; }
+    if (c.key.endsWith("_url") && !urlOk(raw)) { fields[c.key] = "Enter a full link starting with https://"; continue; }
+    if (c.key === "phone" && (raw.length < 6 || !/^[+\d\s().-]+$/.test(raw))) { fields[c.key] = "Use digits, spaces, + ( ) -"; continue; }
+    if (c.key === "joining_date" && !/^\d{4}-\d{2}-\d{2}$/.test(raw)) { fields[c.key] = "Choose a date"; continue; }
+    values[c.key] = raw;
+  }
+  const answers: Record<string, string | string[]> = {};
+  for (const q of det.questions.filter((x) => x.enabled)) {
+    const key = `q_${q.id}`;
+    if (q.type === "file") { await readFile(`qf_${q.id}`, key, false, q.required); continue; }
+    if (q.type === "multi") {
+      const vals = fd.getAll(key).map(String).filter((x) => q.options.includes(x));
+      if (!vals.length && q.required) fields[key] = "Choose at least one"; else if (vals.length) answers[q.id] = vals;
+      continue;
+    }
+    const raw = String(fd.get(key) ?? "").trim().slice(0, q.type === "long" ? 4000 : 500);
+    if (!raw) { if (q.required) fields[key] = "This question is required"; continue; }
+    const opts = q.type === "yesno" ? ["Yes", "No"] : q.options;
+    if (["yesno", "single", "dropdown"].includes(q.type) && !opts.includes(raw)) { fields[key] = "Choose an option"; continue; }
+    if (q.type === "number" && !Number.isFinite(Number(raw))) { fields[key] = "Enter a number"; continue; }
+    if (q.type === "url" && !urlOk(raw)) { fields[key] = "Enter a full link starting with https://"; continue; }
+    if (q.type === "date" && !/^\d{4}-\d{2}-\d{2}$/.test(raw)) { fields[key] = "Choose a date"; continue; }
+    answers[q.id] = raw;
+  }
+  return Object.keys(fields).length ? { fields } : { values, answers, files };
+}
 
 export type ApplyResult = { ok: true; id: string } | { ok: false; error: string; fields?: Record<string, string>; duplicateId?: string; signIn?: boolean };
 
@@ -61,7 +114,8 @@ export const submitApplication = createServerFn({ method: "POST" })
     const file = data.get("resume");
     let bytes: Uint8Array | null = null;
     let kind: "pdf" | "doc" | "docx" | null = null;
-    if (!useSaved) {
+    const hasFile = file instanceof File && file.size > 0;
+    if (!useSaved && hasFile) {
       if (!(file instanceof File) || file.size === 0) return { ok: false, error: "Please attach your CV.", fields: { resume: "Attach a PDF, DOC or DOCX file" } };
       if (file.size > RESUME_MAX) return { ok: false, error: "Your CV is too large.", fields: { resume: "Maximum size is 5 MB" } };
       bytes = new Uint8Array(await file.arrayBuffer());
@@ -74,8 +128,13 @@ export const submitApplication = createServerFn({ method: "POST" })
     const ip = getRequestHeader("cf-connecting-ip") || getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
     const ipHash = createHash("sha256").update(`branta-careers:${ip}`).digest("hex");
 
-    const { data: job } = await supabaseAdmin.from("jobs").select("id").eq("slug", f.job_slug).eq("status", "published").maybeSingle();
+    const { data: job } = await supabaseAdmin.from("jobs").select("id,status,open_at,deadline_at,details").eq("slug", f.job_slug).eq("status", "published").maybeSingle();
     if (!job) return { ok: false, error: "This role is no longer open." };
+    const det = parseDetails(job.details);
+    if (det.application.method !== "form" || applicationWindow(job, det) !== "open") return { ok: false, error: "Applications for this role are closed." };
+    const checked = await checkConfiguredFields(data, det);
+    if ("fields" in checked) return { ok: false, error: "Please check the highlighted fields.", fields: checked.fields };
+    const resumeOn = det.form.find((x) => x.key === "resume");
 
     const hourAgo = new Date(Date.now() - 3600_000).toISOString();
     const dayAgo = new Date(Date.now() - 86400_000).toISOString();
@@ -87,12 +146,15 @@ export const submitApplication = createServerFn({ method: "POST" })
     if (existing.data) return { ok: false, error: "Application already submitted", duplicateId: existing.data.id };
     if ((byIp.count ?? 0) >= 5 || (byUser.count ?? 0) >= 10) return { ok: false, error: "Too many applications right now. Please try again later." };
 
-    let path: string;
-    if (useSaved) {
+    const wantResume = !!resumeOn?.enabled;
+    if (wantResume && resumeOn!.required && !useSaved && !hasFile) return { ok: false, error: "Please attach your CV.", fields: { resume: "Attach a PDF, DOC or DOCX file" } };
+    let path: string | null = null;
+    const uploaded: string[] = [];
+    if (wantResume && useSaved && !hasFile) {
       const copied = await copySavedResume(supabaseAdmin, who.id, job.id);
       if (!copied) return { ok: false, error: "Your saved CV couldn't be attached. Please upload one.", fields: { resume: "Attach a PDF, DOC or DOCX file" } };
       path = copied;
-    } else {
+    } else if (wantResume && hasFile) {
       path = `${job.id}/${randomUUID()}.${kind}`;
       const up = await supabaseAdmin.storage.from("career-private").upload(path, bytes!, { contentType: CT[kind!], upsert: false });
       if (up.error) {
@@ -100,13 +162,41 @@ export const submitApplication = createServerFn({ method: "POST" })
         return { ok: false, error: "We couldn't upload your CV. Please try again." };
       }
     }
-    const n = (v: string) => (v ? v : null);
+    if (path) uploaded.push(path);
+    // Extra attachments (portfolio, photo, file questions) — already sniffed by checkConfiguredFields.
+    const filesOut: Record<string, string> = {};
+    for (const att of checked.files) {
+      const p = `${job.id}/${randomUUID()}-att.${att.ext}`;
+      const up = await supabaseAdmin.storage.from("career-private").upload(p, att.bytes, { contentType: ATT_CT[att.ext] ?? "application/octet-stream", upsert: false });
+      if (up.error) { await supabaseAdmin.storage.from("career-private").remove(uploaded); return { ok: false, error: "We couldn't upload your files. Please try again." }; }
+      uploaded.push(p); filesOut[att.key] = p;
+    }
+    const v = checked.values;
+    const answers: Record<string, { label: string; value: string | string[] }> = {};
+    let eligible: boolean | null = null;
+    for (const q of det.questions.filter((x) => x.enabled)) {
+      const val = q.type === "file" ? filesOut[`q_${q.id}`] ?? "" : checked.answers[q.id] ?? "";
+      if (val === "" || (Array.isArray(val) && !val.length)) continue;
+      answers[q.id] = { label: q.label, value: q.type === "file" ? `file:${val}` : val };
+      if (q.eligibility && q.eligible_answer.trim()) {
+        const ok = Array.isArray(val) ? val.includes(q.eligible_answer.trim()) : String(val).trim().toLowerCase() === q.eligible_answer.trim().toLowerCase();
+        eligible = (eligible ?? true) && ok;
+      }
+    }
+    if (eligible === null && det.questions.some((q) => q.enabled && q.eligibility && q.eligible_answer.trim())) eligible = false;
+    const extra: Record<string, string> = {};
+    for (const k of ["website_url", "current_company", "current_position", "education", "experience", "expected_salary", "current_salary", "joining_date"] as const) if (v[k]) extra[k] = v[k]!;
+    if (filesOut["portfolio_file"]) extra["portfolio_file"] = filesOut["portfolio_file"];
+    if (filesOut["photo"]) extra["photo"] = filesOut["photo"];
+    const n = (s?: string) => (s ? s : null);
     const ins = await supabaseAdmin.from("job_applications").insert({
-      job_id: job.id, full_name: f.full_name, email: f.email.toLowerCase(), phone: f.phone, location: n(f.location),
-      portfolio_url: n(f.portfolio_url), linkedin_url: n(f.linkedin_url), cover_note: f.cover_note, resume_url: path, ip_hash: ipHash, applicant_user_id: who.id,
+      job_id: job.id, full_name: f.full_name, email: f.email.toLowerCase(), phone: v.phone ?? "", location: n(v.location),
+      portfolio_url: n(v.portfolio_url), linkedin_url: n(v.linkedin_url), cover_note: v.cover_note ?? "", resume_url: path, ip_hash: ipHash, applicant_user_id: who.id,
+      answers, extra, eligibility_passed: eligible,
+      ...(eligible === false && det.application.auto_reject ? { status: "rejected" } : {}),
     } as never).select("id").single();
     if (ins.error) {
-      await supabaseAdmin.storage.from("career-private").remove([path]);
+      if (uploaded.length) await supabaseAdmin.storage.from("career-private").remove(uploaded);
       if (ins.error.code === "23505") {
         const again = await supabaseAdmin.from("job_applications").select("id").eq("job_id", job.id).eq("applicant_user_id", who.id).neq("status", "withdrawn").maybeSingle();
         return { ok: false, error: "Application already submitted", ...(again.data ? { duplicateId: again.data.id } : {}) };

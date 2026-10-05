@@ -29,9 +29,8 @@ function ApplicationView() {
     toast.success("Status updated");
     qc.invalidateQueries({ queryKey: ["cms"] });
   }
-  async function openResume() {
-    const path = q.data?.resume_url;
-    if (!path) return;
+  async function openResume() { if (q.data?.resume_url) await openFile(q.data.resume_url); }
+  async function openFile(path: string) {
     const { data, error } = await supabase.storage.from("career-private").createSignedUrl(path, 60, { download: true });
     if (error || !data) return void toast.error("Couldn't open the CV. You may not have access.");
     window.open(data.signedUrl, "_blank", "noopener,noreferrer");
@@ -79,6 +78,7 @@ function ApplicationView() {
           </div>
           {a.resume_url && <AdminButton className="mt-6" onClick={openResume}><Download className="size-4" aria-hidden /> Download CV</AdminButton>}
         </Panel>
+        <ApplicationExtras extra={a.extra} answers={a.answers} eligible={a.eligibility_passed} openFile={openFile} />
         <Panel title="Internal notes" description="Only admins and HR can see these.">
           <div className="grid gap-3">
             <TextArea label="Add a note" value={note} onChange={(e) => setNote(e.target.value)} />
@@ -96,5 +96,28 @@ function ApplicationView() {
         </Panel>
       </div>
     </div>
+  );
+}
+
+const EXTRA_LABEL: Record<string, string> = { website_url: "Website", current_company: "Current company", current_position: "Current position", education: "Education", experience: "Experience", expected_salary: "Expected salary", current_salary: "Current salary", joining_date: "Available joining date" };
+function ApplicationExtras({ extra, answers, eligible, openFile }: { extra: unknown; answers: unknown; eligible: boolean | null; openFile: (p: string) => void }) {
+  const ex = (extra && typeof extra === "object" ? extra : {}) as Record<string, string>;
+  const ans = Object.values((answers && typeof answers === "object" ? answers : {}) as Record<string, { label: string; value: string | string[] }>);
+  const rows = Object.entries(EXTRA_LABEL).filter(([k]) => ex[k]);
+  if (!rows.length && !ans.length && !ex["portfolio_file"] && !ex["photo"] && eligible === null) return null;
+  return (
+    <Panel title="Application answers" {...(eligible === null ? {} : { description: eligible ? "Eligibility: meets the screening answers." : "Eligibility: does not meet one or more screening answers (not rejected unless auto-reject is on)." })}>
+      <dl className="grid gap-4 sm:grid-cols-2">
+        {rows.map(([k, l]) => <div key={k}><dt className="text-caption text-muted-foreground">{l}</dt><dd className="text-small whitespace-pre-line">{ex[k]}</dd></div>)}
+        {ans.map((x, i) => {
+          const v = Array.isArray(x.value) ? x.value.join(", ") : String(x.value);
+          return <div key={i} className="sm:col-span-2"><dt className="text-caption text-muted-foreground">{x.label}</dt><dd className="text-small whitespace-pre-line">{v.startsWith("file:") ? <AdminButton size="sm" onClick={() => openFile(v.slice(5))}>Download file</AdminButton> : v}</dd></div>;
+        })}
+      </dl>
+      <div className="mt-4 flex gap-2">
+        {ex["portfolio_file"] && <AdminButton size="sm" onClick={() => openFile(ex["portfolio_file"]!)}>Portfolio file</AdminButton>}
+        {ex["photo"] && <AdminButton size="sm" onClick={() => openFile(ex["photo"]!)}>Profile photo</AdminButton>}
+      </div>
+    </Panel>
   );
 }
