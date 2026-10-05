@@ -23,7 +23,7 @@ export function WorkMediaView({ media: m, title, alt, playing }: { media: WorkMe
   return (
     <>
       {poster ? (
-        <img src={poster} alt={alt ?? m.alt ?? title} loading="lazy" decoding="async" draggable={false}
+        <img src={poster} alt={alt ?? m.alt ?? title} loading="lazy" decoding="async" draggable={false} tabIndex={tabIndex}
           className={cn("absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100", pos)} />
       ) : <div className="absolute inset-0 bg-muted/10" />}
       {(m.type === "vimeo" || m.type === "video") && playing && (
@@ -49,9 +49,10 @@ export type PortfolioCardProps = {
   /** When set, clicking opens an inline player instead of navigating. */
   onActivate?: (() => void) | undefined;
   selected?: boolean;
+  tabIndex?: number | undefined;
 };
 
-export function PortfolioCard({ slug, title, label, client, media, playing = false, onPreview, className, headingLevel = "h3", onFocusScroll, onActivate, selected }: PortfolioCardProps) {
+export function PortfolioCard({ slug, title, label, client, media, playing = false, onPreview, className, headingLevel = "h3", onFocusScroll, onActivate, selected, tabIndex }: PortfolioCardProps) {
   const ref = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
     if (!playing || !ref.current || !onPreview) return;
