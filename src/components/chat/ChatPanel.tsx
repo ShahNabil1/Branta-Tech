@@ -98,13 +98,12 @@ export default function ChatPanel({ open, onClose }: { open: boolean; onClose: (
     if (a.type === "human") return send({ action: { type: "human", label: a.label } });
     if (a.type === "portfolio") return send({ action: { type: "portfolio", label: a.label } });
     if (a.type === "intent" && a.target) return send({ action: { type: "intent", key: a.target, label: a.label } });
-    if (a.type === "link" && a.target) { window.location.href = a.target; return; }
+    if (a.type === "link" && a.target) { window.location.href = a.target; return Promise.resolve(); }
     return send({ text: a.target || a.label });
   }
   function startBooking(label: string) {
-    if (!settings.booking) return send({ text: label });
-    setBooking(true);
-    void send({ text: label });
+    if (settings.booking) setBooking(true);
+    return send({ text: label });
   }
 
   const humanMode = state.mode === "human" || state.status === "waiting_for_agent";
