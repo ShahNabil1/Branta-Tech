@@ -77,11 +77,12 @@ function AvailabilityForm({ initial }: { initial: { settings: Record<string, unk
   async function addException() {
     const date = new Date(Date.now() + 86400_000).toISOString().slice(0, 10);
     const row = await must(supabase.from("booking_availability_exceptions").insert({ exception_date: date, kind: "blocked", reason: "Unavailable" }).select("*").single());
+    if (!row) return;
     setExceptions((v) => [...v, row]); toast.success("Blocked date added");
   }
   async function updateException(id: string, patch: Partial<Exception>) {
     const row = await must(supabase.from("booking_availability_exceptions").update(patch).eq("id", id).select("*").single());
-    setExceptions((v) => v.map((x) => x.id === id ? row : x));
+    if (row) setExceptions((v) => v.map((x) => x.id === id ? row : x));
   }
   async function deleteException(id: string) {
     await must(supabase.from("booking_availability_exceptions").delete().eq("id", id).select("id"));
@@ -105,7 +106,7 @@ function AvailabilityForm({ initial }: { initial: { settings: Record<string, unk
         <TextInput label="To" type="time" value={r.end_time.slice(0, 5)} onChange={(e) => setRulesChanged(rules.map((x) => x.id === r.id ? { ...x, end_time: e.target.value } : x))} />
         <CheckboxInput label="Enabled" checked={r.enabled} onChange={(enabled) => setRulesChanged(rules.map((x) => x.id === r.id ? { ...x, enabled } : x))} />
         <AdminButton aria-label="Remove window" variant="ghost" onClick={async () => { await must(supabase.from("booking_availability_rules").delete().eq("id", r.id).select("id")); setRules(rules.filter((x) => x.id !== r.id)); }}><Trash2 className="size-4" /></AdminButton>
-      </div>)}<AdminButton className="justify-self-start" onClick={async () => { const row = await must(supabase.from("booking_availability_rules").insert({ day_of_week: 1, start_time: "10:00", end_time: "18:00", sort_order: rules.length }).select("*").single()); setRules([...rules, row]); }}><Plus className="size-4" /> Add window</AdminButton></div></Panel>
+      </div>)}<AdminButton className="justify-self-start" onClick={async () => { const row = await must(supabase.from("booking_availability_rules").insert({ day_of_week: 1, start_time: "10:00", end_time: "18:00", sort_order: rules.length }).select("*").single()); if (row) setRules([...rules, row]); }}><Plus className="size-4" /> Add window</AdminButton></div></Panel>
       <Panel title="Blocked and special dates" description="Block a whole date, a partial window, or open a special window."><div className="grid gap-3">{exceptions.map((x) => <div key={x.id} className="grid items-end gap-3 rounded-sm border border-border p-3 md:grid-cols-[1fr_1fr_1fr_1fr_1.5fr_auto]">
         <TextInput label="Date" type="date" value={x.exception_date} onChange={(e) => void updateException(x.id, { exception_date: e.target.value })} />
         <SelectInput label="Type" value={x.kind} onChange={(e) => void updateException(x.id, { kind: e.target.value })} options={[{ value: "blocked", label: "Blocked" }, { value: "available", label: "Special opening" }]} />

@@ -180,12 +180,12 @@ function StepNeeds({ services, selected, setSelected, values, setValue, errs }: 
   </div>;
 }
 
-function StepDate({ value, onChange, available, min, max, error }: { value?: Date; onChange: (d?: Date) => void; available: Set<string>; min?: string; max?: string; error?: string }) {
+function StepDate({ value, onChange, available, min, max, error }: { value: Date | undefined; onChange: (d: Date | undefined) => void; available: Set<string>; min: string | undefined; max: string | undefined; error: string | undefined }) {
   const first = min ? new Date(`${min}T12:00:00`) : new Date(); const last = max ? new Date(`${max}T12:00:00`) : new Date();
   return <div><h3 className="text-h2">Choose a date.</h3><p className="text-body mt-3 text-muted-foreground">Only days with real Branta availability can be selected.</p><div className="mt-8 overflow-x-auto rounded-md border border-border p-3 sm:p-6"><Calendar mode="single" selected={value} onSelect={onChange} defaultMonth={first} fromMonth={first} toMonth={last} disabled={(d) => !available.has(dayKey(d))} className="pointer-events-auto mx-auto [--cell-size:2.75rem]" /></div>{error && <p className="text-caption mt-2 text-destructive">{error}</p>}</div>;
 }
 
-function StepTime({ date, slots, value, onChange, userTime, officeZone, userZone, error }: { date: string; slots: { iso: string; label: string }[]; value: string; onChange: (v: string) => void; userTime: (v: string) => string; officeZone: string; userZone: string; error?: string }) {
+function StepTime({ date, slots, value, onChange, userTime, officeZone, userZone, error }: { date: string; slots: { iso: string; label: string }[]; value: string; onChange: (v: string) => void; userTime: (v: string) => string; officeZone: string; userZone: string; error: string | undefined }) {
   return <div><h3 className="text-h2">Choose a time.</h3><p className="text-body mt-3 text-muted-foreground">Available on {date ? new Intl.DateTimeFormat("en-GB", { dateStyle: "full" }).format(new Date(`${date}T12:00:00`)) : "your selected date"}.</p><div className="mt-8 grid gap-3 sm:grid-cols-2">{slots.map((s) => <label key={s.iso} className={cn("cursor-pointer rounded-sm border px-4 py-4", value === s.iso ? "border-accent bg-accent/5" : "border-border hover:border-foreground")}><input type="radio" className="sr-only" checked={value === s.iso} onChange={() => onChange(s.iso)} /><span className="text-body font-medium">{userTime(s.iso)}</span><span className="text-caption mt-1 block text-muted-foreground">Your time · {s.label} {officeZone.replace(/_/g, " ")}</span></label>)}</div>{slots.length === 0 && <FormAlert tone="info">No times remain on this date. Go back and choose another day.</FormAlert>}{error && <p className="text-caption mt-2 text-destructive">{error}</p>}<p className="text-caption mt-6 text-muted-foreground">Detected timezone: {userZone.replace(/_/g, " ")}</p></div>;
 }
 
