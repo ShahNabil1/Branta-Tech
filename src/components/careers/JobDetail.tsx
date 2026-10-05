@@ -8,14 +8,14 @@ export function JobFacts({ j }: { j: PublicJob }) {
   const d = j.details;
   const joining = d.joining.immediate ? "Immediate" : d.joining.text || (d.joining.date ? formatDeadline(d.joining.date) : "");
   const facts: [string, string][] = ([
-    ["Location", j.location ?? ""], ["Employment type", j.type ?? ""], ["Work mode", j.workMode ?? ""], ["Salary", j.salary],
+    ["Location", j.location ?? ""], ["Employment type", j.type ?? ""], ["Work mode", j.workMode ?? ""], ["Salary", j.salary === "Not disclosed" ? "" : j.salary],
     ["Vacancy", j.vacancies ? String(j.vacancies) : ""], ["Experience", j.experience], ["Working hours", j.hours],
     ["Deadline", j.deadlineAt ? formatDeadline(j.deadlineAt) : ""], ["Joining", joining],
   ] as [string, string][]).filter(([, v]) => v);
   return (
-    <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-border bg-border sm:grid-cols-3">
+    <dl className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
       {facts.map(([k, v]) => (
-        <div key={k} className="min-w-0 bg-surface p-4">
+        <div key={k} className="min-w-0 rounded-md border border-border bg-surface p-4">
           <dt className="text-caption text-muted-foreground">{k}</dt>
           <dd className="text-small mt-1 break-words font-medium text-foreground">{v}</dd>
         </div>
