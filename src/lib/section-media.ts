@@ -1,5 +1,6 @@
 /** Shared homepage media items stored in page_sections.config.media_items. Client-safe parsing. */
 import { vimeoId } from "@/lib/hero";
+import { parsePriority, type VideoPriority } from "@/lib/video-priority";
 
 export type MediaType = "image" | "video" | "vimeo";
 export const ASPECTS = ["16:9", "4:5", "1:1", "4:3", "portrait", "wide", "full"] as const;
@@ -11,6 +12,8 @@ export type SectionMediaItem = {
   id: string; type: MediaType; url: string; poster_url: string; alt: string; label: string; caption: string;
   enabled: boolean; sort_order: number; autoplay: boolean; muted: boolean; loop: boolean;
   aspect: Aspect; position: Position;
+  /** "auto" lets each section pick its default loading priority. */
+  priority: VideoPriority | "auto"; sound_control: boolean;
 };
 
 const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
@@ -20,7 +23,7 @@ export const isDirectVideo = (v: string) => isHttps(v) && /\.(mp4|webm)(\?|#|$)/
 
 export const newMediaItem = (aspect: Aspect = "16:9"): SectionMediaItem => ({
   id: Math.random().toString(36).slice(2, 10), type: "image", url: "", poster_url: "", alt: "", label: "", caption: "",
-  enabled: true, sort_order: 0, autoplay: true, muted: true, loop: true, aspect, position: "center",
+  enabled: true, sort_order: 0, autoplay: true, muted: true, loop: true, aspect, position: "center", priority: "auto", sound_control: true,
 });
 
 /** Usable publicly: https URL matching its type. */
@@ -42,6 +45,7 @@ export function parseMediaItems(raw: unknown, publicOnly = false, fallbackAspect
       autoplay: o["autoplay"] !== false, muted: o["muted"] !== false, loop: o["loop"] !== false,
       aspect: (ASPECTS as readonly string[]).includes(str(o["aspect"])) ? (str(o["aspect"]) as Aspect) : fallbackAspect,
       position: (POSITIONS as readonly string[]).includes(str(o["position"])) ? (str(o["position"]) as Position) : "center",
+      priority: parsePriority(o["priority"]), sound_control: o["sound_control"] !== false,
     };
   }).sort((a, b) => a.sort_order - b.sort_order);
   if (!publicOnly) return all;

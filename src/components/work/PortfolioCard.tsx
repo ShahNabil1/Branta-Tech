@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { vimeoId } from "@/lib/hero";
+import { BrantaVideo } from "@/components/media/BrantaVideo";
 import { cn } from "@/lib/utils";
 import type { WorkMedia } from "@/lib/featured-work.functions";
 
@@ -17,26 +17,17 @@ export function canHoverPreview() {
 
 /** Poster-first media inside a parent 16:9 frame. Video/Vimeo mounts only while `playing`. */
 export function WorkMediaView({ media: m, title, alt, playing }: { media: WorkMedia | null; title: string; alt?: string; playing: boolean }) {
-  const [ready, setReady] = useState(false);
-  useEffect(() => { if (!playing) setReady(false); }, [playing]);
   if (!m) return <div className="text-caption flex h-full w-full items-center justify-center bg-muted/10 text-muted-foreground">Media coming soon</div>;
   const poster = m.type === "image" ? m.url : m.poster;
   const pos = COVER_POS[m.position ?? "center"] ?? "object-center";
-  const vid = m.type === "vimeo" ? vimeoId(m.url) : null;
   return (
     <>
       {poster ? (
         <img src={poster} alt={alt ?? m.alt ?? title} loading="lazy" decoding="async" draggable={false}
           className={cn("absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100", pos)} />
       ) : <div className="absolute inset-0 bg-muted/10" />}
-      {playing && vid && (
-        <iframe title={`${title} preview`} src={`https://player.vimeo.com/video/${vid}?background=1&autoplay=1&muted=1&loop=1&dnt=1`}
-          allow="autoplay; fullscreen" tabIndex={-1} aria-hidden onLoad={() => setTimeout(() => setReady(true), 600)}
-          className={cn("pointer-events-none absolute left-1/2 top-1/2 h-[120%] w-[120%] -translate-x-1/2 -translate-y-1/2 border-0 transition-opacity duration-500", ready ? "opacity-100" : "opacity-0")} />
-      )}
-      {playing && m.type === "video" && (
-        <video src={m.url} poster={poster ?? undefined} muted loop playsInline autoPlay onPlaying={() => setReady(true)}
-          className={cn("absolute inset-0 h-full w-full object-cover transition-opacity duration-500", pos, ready ? "opacity-100" : "opacity-0")} />
+      {(m.type === "vimeo" || m.type === "video") && playing && (
+        <BrantaVideo kind={m.type} url={m.url} poster={null} alt="" priority="lazy" active={playing} cover objectPosition={pos} className="[&>div:first-child]:hidden" />
       )}
     </>
   );

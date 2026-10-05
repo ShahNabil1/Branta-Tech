@@ -84,6 +84,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      // Vimeo: player, poster CDN and adaptive video delivery — warmed once for the whole site.
+      { rel: "preconnect", href: "https://player.vimeo.com" },
+      { rel: "preconnect", href: "https://i.vimeocdn.com" },
+      { rel: "preconnect", href: "https://f.vimeocdn.com" },
+      { rel: "dns-prefetch", href: "https://vod-adaptive-ak.vimeocdn.com" },
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap",

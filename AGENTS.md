@@ -19,7 +19,7 @@
 - Site chrome (SiteShell) is applied per public route, not in __root, so admin pages stay chrome-free.
 - Control Centre CMS screens use the shared kit in src/components/admin/cms.tsx (fields, badges, SaveBar, ConfirmButton, slug/URL helpers) and src/lib/supabase/cms.ts; writes go through the browser client under RLS — never the service-role client — so admin protection stays in the database.
 - Navigation is stored as JSON in site_settings (setting_group "navigation", { items: [...] }) — no dedicated table until navigation needs relational features.
-- Public header (src/components/layout/SiteHeader.tsx) renders CMS navigation via navFromCms, falling back to FALLBACK_NAV in src/lib/navigation.ts only when CMS is empty; links to routes not in the router render as inactive labels — never create placeholder routes to satisfy nav.
+- Public header (SiteHeader.tsx) renders CMS navigation via navFromCms, falling back to FALLBACK_NAV (src/lib/navigation.ts) only when CMS is empty; unknown routes render as inactive labels — never create placeholder routes.
 - Public data for site chrome is read by the getSiteChrome server fn with the publishable key (anon RLS); route loaders ensure siteChromeQuery so SSR has the header.
 - Each homepage section is a Home page_section (config JSON, parsed in src/lib/*, read with the publishable key) — no per-section tables; per-section rules live in src/components/home/AGENTS.md.
 - Public footer (SiteShell) reads company/contact/social/brand from site_settings via getSiteChrome and footer columns from CMS navigation items in menu_group "footer", falling back to FALLBACK_FOOTER; links use SmartLink so missing routes render inactive.
@@ -31,6 +31,3 @@
 - Leads/bookings are inserted only by src/lib/inquiry.functions.ts (service role, honeypot, rate limit; optional verified bearer links client_user_id); clients read them only via my_requests()/my_bookings() (no internal fields); sales staff = private.is_sales_admin() (super_admin/admin/sales). Shared files live in private bucket client-private under files/<client id>/.
 - Booking availability uses sales-only booking_availability_rules/exceptions plus site_settings "booking"; public slots are computed server-side against active bookings, and a database exclusion constraint is the final overlap guard.
 - Public content route rules (work, services, AI Studio, insights/company) live in src/routes/AGENTS.md.
-- All public project previews render through src/components/work/PortfolioCard.tsx (16:9 frame, PORTFOLIO_GRID / PORTFOLIO_RAIL_W); never add context-specific card sizes — case-study inner media is exempt.
-- Public /team renders a single org chart (buildOrg in src/components/content/TeamStructure.tsx) from manager_id + department + leadership_level only; each person appears once and unlinked members fall under "Other Team Members" — never infer reporting lines from job titles.
-- Public job page sections (highlights, day-in-role, hiring process, FAQ, show_team) live in jobs.details JSON parsed by src/lib/job-details.ts and render via src/components/careers/JobLanding.tsx only when filled — no extra job tables.
