@@ -7,6 +7,7 @@ import { adminHead, must } from "@/lib/supabase/cms";
 import { PageHeader, Panel, LoadingRow, ErrorNote, AdminButton, TextArea, TextInput, ConfirmButton, formatDate, friendlyError } from "@/components/admin/cms";
 import { BOOKING_STATUSES, statusLabel } from "@/lib/inquiry";
 import { formatWhen } from "@/lib/client-data";
+import { isSafeUrl } from "@/components/admin/cms";
 
 export const Route = createFileRoute("/control-centre/_admin/bookings/$id")({
   head: () => adminHead("Booking"),
@@ -24,6 +25,7 @@ function BookingView() {
   useEffect(() => { if (q.data) { setNotes(q.data.internal_notes ?? ""); setMeeting(q.data.meeting_url ?? ""); setPublicNotes(q.data.public_notes ?? ""); } }, [q.data]);
 
   async function update(patch: { status?: string; internal_notes?: string | null; meeting_url?: string | null; public_notes?: string | null }, msg: string) {
+    if (patch.meeting_url && !isSafeUrl(patch.meeting_url, { allowInternal: false })) return void toast.error("Use a full https:// meeting link.");
     const { error } = await supabase.from("bookings").update(patch).eq("id", id);
     if (error) return void toast.error(friendlyError(error));
     toast.success(msg);
@@ -66,7 +68,7 @@ function BookingView() {
         </Panel>
         <Panel title="Client update" description="The meeting link is shown to a signed-in client only after this booking is confirmed.">
           <div className="grid gap-4">
-            <TextInput label="Meeting link" type="url" placeholder="https://" value={meeting} onChange={(e) => setMeeting(e.target.value)} />
+            <TextInput label="Meeting link" type="url" placeholder="https://" value={meeting} error={meeting && !isSafeUrl(meeting, { allowInternal: false }) ? "Use a full https:// link." : undefined} onChange={(e) => setMeeting(e.target.value)} />
             <TextArea label="Public instructions" value={publicNotes} onChange={(e) => setPublicNotes(e.target.value)} rows={4} />
             <AdminButton className="justify-self-start" variant="primary" disabled={meeting === (b.meeting_url ?? "") && publicNotes === (b.public_notes ?? "")} onClick={() => update({ meeting_url: meeting.trim() || null, public_notes: publicNotes.trim() || null }, "Client update saved")}>Save client update</AdminButton>
           </div>

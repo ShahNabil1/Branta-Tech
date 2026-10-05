@@ -25,7 +25,7 @@ function Bookings() {
                <p className="text-caption mt-1 text-muted-foreground">{b.booking_reference} · {b.duration_minutes} minutes · Requested {formatDay(b.created_at)}</p>
                {b.service_interest.length > 0 && <p className="text-small mt-3 text-muted-foreground">{b.service_interest.join(", ")}</p>}
                {b.public_notes && <p className="text-small mt-3 whitespace-pre-line text-foreground">{b.public_notes}</p>}
-               {b.meeting_url && <a href={b.meeting_url} target="_blank" rel="noreferrer" className="text-small mt-4 inline-flex underline underline-offset-4">Open meeting link</a>}
+               {b.meeting_url && /^https:\/\//.test(b.meeting_url) && <a href={b.meeting_url} target="_blank" rel="noreferrer" className="text-small mt-4 inline-flex underline underline-offset-4">Open meeting link</a>}
             </li>
           ))}
         </ul>
