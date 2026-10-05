@@ -41,7 +41,7 @@ export type PortfolioCardProps = {
   media: WorkMedia | null;
   /** Preview state (only one card plays at a time — owned by the parent). */
   playing?: boolean;
-  onPreview?: (on: boolean) => void;
+  onPreview?: ((on: boolean) => void) | undefined;
   /** Width class for rails; grids leave this empty to fill their column. */
   className?: string;
   headingLevel?: "h2" | "h3";
