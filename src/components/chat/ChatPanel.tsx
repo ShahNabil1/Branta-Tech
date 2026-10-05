@@ -10,7 +10,7 @@ import { BookingFlow } from "./BookingFlow";
 
 const KEY = "branta_chat_token";
 const FAIL = "Something went wrong. Please try again or talk to our team.";
-type SendBody = Parameters<typeof chatSend>[0]["data"];
+type SendBody = { token: string | null; page?: string; text?: string; action?: unknown };
 
 export default function ChatPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const openFn = useServerFn(chatOpen), sendFn = useServerFn(chatSend), syncFn = useServerFn(chatSync);
@@ -53,7 +53,7 @@ export default function ChatPanel({ open, onClose }: { open: boolean; onClose: (
   syncRef.current = sync;
 
   // Realtime ping from the team inbox (carries no content), with polling as a fallback during human chat.
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     if (!state.channel) return;
     const ch = supabase.channel(`chat-${state.channel}`).on("broadcast", { event: "ping" }, () => { void syncRef.current(); }).subscribe();
     return () => { void supabase.removeChannel(ch); };
@@ -72,11 +72,11 @@ export default function ChatPanel({ open, onClose }: { open: boolean; onClose: (
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  async function send(body: Omit<SendBody, "token">) {
+  async function send(body: Omit<SendBody, "token">): Promise<void> {
     if (busy) return;
     setBusy(true); setError(null); setMenu(false);
     try {
-      const r = await sendFn({ data: { ...body, token: token.current, page: window.location.pathname } });
+      const r = await sendFn({ data: { ...body, token: token.current, page: window.location.pathname } as never });
       if (!r.ok) { setError(r.error); return; }
       if (r.token && r.token !== token.current) { token.current = r.token; localStorage.setItem(KEY, r.token); }
       setState(r.state);
