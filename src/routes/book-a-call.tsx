@@ -175,7 +175,7 @@ function StepDetails({ values, setValue, errs }: { values: Values; setValue: (k:
     <Field id="name" label="Name" required error={errs["name"]}><input id="name" autoComplete="name" value={values.name} onChange={(e) => setValue("name", e.target.value)} className={inputCls} {...a("name")} /></Field>
     <Field id="phone" label="WhatsApp number" required error={errs["phone"]}><input id="phone" type="tel" autoComplete="tel" value={values.phone} onChange={(e) => setValue("phone", e.target.value)} className={inputCls} {...a("phone")} /></Field>
     <Field id="email" label="Email" required error={errs["email"]}><input id="email" type="email" autoComplete="email" value={values.email} onChange={(e) => setValue("email", e.target.value)} className={inputCls} {...a("email")} /></Field>
-    <Field id="company" label="Company (optional)"><input id="company" autoComplete="organization" value={values.company} onChange={(e) => setValue("company", e.target.value)} className={inputCls} /></Field>
+    <Field id="company" label="Company"><input id="company" autoComplete="organization" value={values.company} onChange={(e) => setValue("company", e.target.value)} className={inputCls} /></Field>
   </div></div>;
 }
 
