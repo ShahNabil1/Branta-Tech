@@ -66,7 +66,7 @@ export function PricingSection({ content }: P<"pricing">) {
               </p>
               {p.tagline && <p className="text-small mt-3 text-muted-foreground">{p.tagline}</p>}
               {p.features.length > 0 && (
-                <ul className="mt-6 grid gap-2.5 border-t border-border pt-6">
+                <ul className="mb-8 mt-6 grid gap-2.5 border-t border-border pt-6">
                   {p.features.map((f, i) => (
                     <li key={i} className="text-small flex gap-3 text-foreground"><span aria-hidden className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" />{f}</li>
                   ))}
@@ -74,7 +74,7 @@ export function PricingSection({ content }: P<"pricing">) {
               )}
               {p.cta_label && (
                 <SmartLink url={p.cta_url} pendingClassName="cursor-not-allowed opacity-60"
-                  className={cn(buttonVariants({ variant: p.highlighted ? "primary" : "secondary", size: "lg" }), "mt-8 w-full justify-center pt-0 md:mt-auto")}>
+                  className={cn(buttonVariants({ variant: p.highlighted ? "primary" : "secondary", size: "lg" }), "mt-auto w-full justify-center")}>
                   {p.cta_label}
                 </SmartLink>
               )}
