@@ -46,9 +46,12 @@ export type PortfolioCardProps = {
   className?: string;
   headingLevel?: "h2" | "h3";
   onFocusScroll?: boolean;
+  /** When set, clicking opens an inline player instead of navigating. */
+  onActivate?: (() => void) | undefined;
+  selected?: boolean;
 };
 
-export function PortfolioCard({ slug, title, label, client, media, playing = false, onPreview, className, headingLevel = "h3", onFocusScroll }: PortfolioCardProps) {
+export function PortfolioCard({ slug, title, label, client, media, playing = false, onPreview, className, headingLevel = "h3", onFocusScroll, onActivate, selected }: PortfolioCardProps) {
   const ref = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
     if (!playing || !ref.current || !onPreview) return;
@@ -61,10 +64,12 @@ export function PortfolioCard({ slug, title, label, client, media, playing = fal
   const H = headingLevel;
   return (
     <Link ref={ref} to="/work/$slug" params={{ slug }} draggable={false}
+      onClick={onActivate ? (e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; e.preventDefault(); onActivate(); } : undefined}
+      aria-current={selected || undefined}
       onMouseEnter={start} onMouseLeave={stop} onBlur={stop}
       onFocus={(e) => { if (onFocusScroll) e.currentTarget.scrollIntoView({ block: "nearest", inline: "nearest" }); start(); }}
       className={cn("group block min-w-0 rounded-[4px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent", className)}>
-      <div className="relative aspect-video w-full overflow-hidden rounded-[4px] bg-muted/10">
+      <div className={cn("relative aspect-video w-full overflow-hidden rounded-[4px] bg-muted/10", selected && "ring-2 ring-accent ring-offset-2 ring-offset-background")}>
         <WorkMediaView media={media} title={title} playing={playing} />
       </div>
       <div className="mt-3 flex min-h-[4.25rem] items-start justify-between gap-3">

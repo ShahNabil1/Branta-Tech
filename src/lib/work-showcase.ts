@@ -2,11 +2,11 @@
 export const HOME_GROUPS = [
   { key: "ai_commercial", label: "AI Commercial", tone: "warm", description: "Commercials, TVCs, OVCs and branded films built through AI-native production." },
   { key: "ai_motion", label: "AI Motion", tone: "dark", description: "Motion ads, animation and visual effects with AI in the pipeline." },
-  { key: "ai_content", label: "AI Content / UGC", tone: "white", description: "Social-first content, reels and UGC-style videos at scale." },
+  { key: "ai_content", label: "AI Content & UGC", tone: "white", description: "Social-first content, reels and UGC-style videos at scale." },
   { key: "ai_photography", label: "AI Photography", tone: "warm", description: "Product, fashion and campaign visuals created with AI." },
   { key: "brand_creative", label: "Brand & Creative", tone: "dark", description: "Identity, campaign creative, packaging and design." },
   { key: "web_digital", label: "Web & Digital", tone: "white", description: "Websites, landing pages, e-commerce and UI/UX." },
-  { key: "software_saas", label: "Software / SaaS", tone: "dark", description: "Custom software, SaaS and business platforms." },
+  { key: "software_saas", label: "Software & SaaS", tone: "dark", description: "Custom software, SaaS and business platforms." },
   { key: "ai_automation", label: "AI Automation", tone: "warm", description: "AI agents, chatbots and automated workflows." },
 ] as const;
 export type HomeGroupKey = (typeof HOME_GROUPS)[number]["key"];
