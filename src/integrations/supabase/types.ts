@@ -458,6 +458,38 @@ export type Database = {
           },
         ]
       }
+      chat_funnel_events: {
+        Row: {
+          created_at: string
+          event: string
+          id: string
+          ip_hash: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          id?: string
+          ip_hash?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          id?: string
+          ip_hash?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_funnel_events_visitor_id_fkey"
+            columns: ["visitor_id"]
+            isOneToOne: false
+            referencedRelation: "chat_visitors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_intent_phrases: {
         Row: {
           created_at: string
@@ -719,40 +751,60 @@ export type Database = {
         Row: {
           created_at: string
           email: string | null
+          first_conversation_id: string | null
           first_seen_at: string
           id: string
           ip_hash: string | null
           last_seen_at: string
+          lead_completed_at: string | null
           name: string | null
+          referrer: string | null
           session_hash: string
+          source_page: string | null
           user_id: string | null
           whatsapp: string | null
         }
         Insert: {
           created_at?: string
           email?: string | null
+          first_conversation_id?: string | null
           first_seen_at?: string
           id?: string
           ip_hash?: string | null
           last_seen_at?: string
+          lead_completed_at?: string | null
           name?: string | null
+          referrer?: string | null
           session_hash: string
+          source_page?: string | null
           user_id?: string | null
           whatsapp?: string | null
         }
         Update: {
           created_at?: string
           email?: string | null
+          first_conversation_id?: string | null
           first_seen_at?: string
           id?: string
           ip_hash?: string | null
           last_seen_at?: string
+          lead_completed_at?: string | null
           name?: string | null
+          referrer?: string | null
           session_hash?: string
+          source_page?: string | null
           user_id?: string | null
           whatsapp?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "chat_visitors_first_conversation_id_fkey"
+            columns: ["first_conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       client_files: {
         Row: {
