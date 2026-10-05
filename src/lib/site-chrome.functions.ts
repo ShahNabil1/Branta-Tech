@@ -8,6 +8,7 @@ export type SiteChrome = {
   contact: { email?: string; phone?: string; address?: string } | null;
   company: { company_name?: string; short_description?: string } | null;
   social: Partial<Record<"facebook" | "instagram" | "linkedin" | "youtube" | "x", string>> | null;
+  footer: Record<string, string | boolean | null> | null;
   featured: { title: string; slug: string; image: string; category: string | null } | null;
   /** Published service + service group slugs — /services/<slug> links activate only for these. */
   serviceSlugs: string[];
@@ -19,14 +20,14 @@ export type SiteChrome = {
  * Never throws — the header falls back to defaults if anything fails.
  */
 export const getSiteChrome = createServerFn({ method: "GET" }).handler(async (): Promise<SiteChrome> => {
-  const empty: SiteChrome = { navigation: null, brand: null, contact: null, company: null, social: null, featured: null, serviceSlugs: [] };
+  const empty: SiteChrome = { navigation: null, brand: null, contact: null, company: null, social: null, footer: null, featured: null, serviceSlugs: [] };
   const url = process.env["SUPABASE_URL"];
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
   if (!url || !key) return empty;
   const sb = createClient<Database>(url, key, { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } });
   try {
     const [settings, featured, svcs, grps] = await Promise.all([
-      sb.from("site_settings").select("setting_group,settings").in("setting_group", ["navigation", "brand", "contact", "company", "social"]),
+      sb.from("site_settings").select("setting_group,settings").in("setting_group", ["navigation", "brand", "contact", "company", "social", "footer"]),
       sb
         .from("portfolio_projects")
         .select("title,slug,cover_url,cover_type,portfolio_categories(name)")
@@ -48,6 +49,7 @@ export const getSiteChrome = createServerFn({ method: "GET" }).handler(async ():
       contact: get("contact") as SiteChrome["contact"],
       company: get("company") as SiteChrome["company"],
       social: get("social") as SiteChrome["social"],
+      footer: get("footer") as SiteChrome["footer"],
       featured:
         f && f.cover_url && /^https:\/\//.test(f.cover_url)
           ? { title: f.title, slug: f.slug, image: f.cover_url, category: f.portfolio_categories?.name ?? null }

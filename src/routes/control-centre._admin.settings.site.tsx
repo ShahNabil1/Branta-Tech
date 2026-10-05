@@ -10,13 +10,22 @@ export const Route = createFileRoute("/control-centre/_admin/settings/site")({
   component: SettingsRoute,
 });
 
-type FieldDef = { key: string; label: string; kind?: "url" | "email" | "textarea" };
+type FieldDef = { key: string; label: string; kind?: "url" | "link" | "email" | "textarea" | "select"; options?: string[] };
 const GROUPS: { group: string; title: string; fields: FieldDef[] }[] = [
   { group: "company", title: "Company", fields: [{ key: "company_name", label: "Company name" }, { key: "short_description", label: "Short description", kind: "textarea" }] },
   { group: "contact", title: "Contact", fields: [{ key: "email", label: "Email", kind: "email" }, { key: "phone", label: "Phone" }, { key: "address", label: "Address", kind: "textarea" }] },
   { group: "social", title: "Social", fields: ["facebook", "instagram", "linkedin", "youtube", "x"].map((k) => ({ key: k, label: k === "x" ? "X" : k.charAt(0).toUpperCase() + k.slice(1), kind: "url" as const })) },
   { group: "brand", title: "Brand", fields: [{ key: "logo_url", label: "Logo URL", kind: "url" }, { key: "logo_dark_url", label: "Logo (dark) URL", kind: "url" }, { key: "favicon_url", label: "Favicon URL", kind: "url" }] },
-  { group: "footer", title: "Footer", fields: [{ key: "footer_tagline", label: "Footer tagline" }, { key: "copyright_text", label: "Copyright text" }] },
+  { group: "footer", title: "Footer", fields: [
+    { key: "cta_eyebrow", label: "CTA eyebrow" }, { key: "cta_heading", label: "CTA heading", kind: "textarea" },
+    { key: "primary_label", label: "Primary CTA label" }, { key: "primary_url", label: "Primary CTA URL", kind: "link" },
+    { key: "secondary_label", label: "Secondary CTA label" }, { key: "secondary_url", label: "Secondary CTA URL", kind: "link" },
+    { key: "footer_tagline", label: "Footer short description", kind: "textarea" },
+    { key: "privacy_label", label: "Privacy link label" }, { key: "privacy_url", label: "Privacy link URL", kind: "link" },
+    { key: "terms_label", label: "Terms link label" }, { key: "terms_url", label: "Terms link URL", kind: "link" },
+    { key: "copyright_text", label: "Copyright text" }, { key: "wordmark_text", label: "Oversized wordmark text" },
+    { key: "show_wordmark", label: "Oversized wordmark", kind: "select", options: ["on", "off"] },
+    { key: "tone", label: "Background style", kind: "select", options: ["light", "tint"] }] },
   { group: "default_seo", title: "Default SEO", fields: [{ key: "title", label: "Title" }, { key: "description", label: "Description", kind: "textarea" }, { key: "og_image", label: "OG image URL", kind: "url" }] },
 ];
 
@@ -40,6 +49,7 @@ function SettingsRoute() {
 function fieldError(f: FieldDef, v: string) {
   if (!v) return null;
   if (f.kind === "url" && !isSafeUrl(v, { allowInternal: false })) return "Use a full https:// URL.";
+  if (f.kind === "link" && !isSafeUrl(v, { allowInternal: true })) return "Use a /path or full https:// URL.";
   if (f.kind === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Enter a valid email.";
   return null;
 }
@@ -78,10 +88,17 @@ function SettingsForm({ initial }: { initial: Values }) {
               {g.fields.map((fd) => {
                 const val = f.values[g.group]?.[fd.key] ?? "";
                 const onChange = (v: string) => f.set(g.group, { ...f.values[g.group], [fd.key]: v });
+                if (fd.kind === "select") return (
+                  <label key={fd.key} className="grid gap-1.5 text-small">{fd.label}
+                    <select value={val || fd.options![0]} onChange={(e) => onChange(e.target.value)} className="h-10 rounded-md border border-border bg-background px-3">
+                      {fd.options!.map((o) => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  </label>
+                );
                 return fd.kind === "textarea" ? (
                   <TextArea key={fd.key} label={fd.label} value={val} onChange={(e) => onChange(e.target.value)} className="md:col-span-2" />
                 ) : (
-                  <TextInput key={fd.key} label={fd.label} type={fd.kind === "email" ? "email" : "text"} placeholder={fd.kind === "url" ? "https://" : undefined}
+                  <TextInput key={fd.key} label={fd.label} type={fd.kind === "email" ? "email" : "text"} placeholder={fd.kind === "url" ? "https://" : fd.kind === "link" ? "/book-a-call" : undefined}
                     value={val} error={fieldError(fd, val)} onChange={(e) => onChange(e.target.value)} />
                 );
               })}

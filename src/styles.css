@@ -364,3 +364,10 @@
   box-shadow: 0 1px 0 rgb(36 22 15 / 0.04), 0 40px 80px -40px rgb(36 22 15 / 0.28);
 }
 @utility step-in { animation: cap-in 320ms var(--ease-out-expo) both; }
+
+/* Closing CTA + footer */
+.footer-tint { background: color-mix(in oklab, var(--accent) 7%, var(--warm)); }
+.footer-cta { background: linear-gradient(currentColor, currentColor) left bottom / 100% 1.5px no-repeat; transition: color .3s, background-size .3s; }
+.footer-cta:hover { color: var(--accent); }
+.footer-wordmark { font-size: clamp(5rem, 26vw, 26rem); margin-bottom: -0.12em; }
+.footer-light { background: #F7F7F5; }
