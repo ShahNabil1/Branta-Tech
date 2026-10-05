@@ -91,7 +91,7 @@ function Inbox() {
               <li key={c.id}>
                 <button type="button" onClick={() => setSel(c.id)} className={cn("block w-full px-3 py-2.5 text-left hover:bg-muted", sel === c.id && "bg-muted")}>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-small truncate font-medium">{c.chat_visitors?.name || "Guest"}</span>
+                    <span className="min-w-0"><span className="text-small block truncate font-medium">{c.chat_visitors?.name || "Guest"}</span>{(c.chat_visitors?.whatsapp || c.chat_visitors?.email) && <span className="text-caption block truncate text-muted-foreground">{[c.chat_visitors?.whatsapp, c.chat_visitors?.email].filter(Boolean).join(" · ")}</span>}</span>
                     <span className="text-caption shrink-0 text-muted-foreground">{new Date(c.last_message_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                   </div>
                   <div className="text-caption flex items-center gap-2 text-muted-foreground">

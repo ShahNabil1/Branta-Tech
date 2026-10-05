@@ -72,7 +72,7 @@ export default function ChatPanel({ open, onClose }: { open: boolean; onClose: (
   useEffect(() => {
     if (!open || !needsLead || !prefillComplete || auto.current || !profile) return;
     auto.current = true;
-    void identify({ name: profile.name ?? undefined, whatsapp: profile.whatsapp ?? undefined, email: profile.email ?? undefined });
+    void identify({ ...(profile.name ? { name: profile.name } : {}), ...(profile.whatsapp ? { whatsapp: profile.whatsapp } : {}), ...(profile.email ? { email: profile.email } : {}) });
   }, [open, needsLead, prefillComplete, profile, identify]);
   const firstName = profile?.complete ? (profile.name ?? "").trim().split(/\s+/)[0] : "";
   const opening = firstName ? (profile?.returning ? `Welcome back, ${firstName}.\nWhat would you like help with today?` : `Hi ${firstName}.\nWhat are you looking to create?`) : settings.opening;
