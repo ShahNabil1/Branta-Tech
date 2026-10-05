@@ -296,6 +296,8 @@ export type Database = {
           phone: string | null
           public_notes: string | null
           requested_start_at: string
+          service_group_id: string | null
+          service_id: string | null
           service_interest: string[]
           status: string
           timezone: string
@@ -319,6 +321,8 @@ export type Database = {
           phone?: string | null
           public_notes?: string | null
           requested_start_at: string
+          service_group_id?: string | null
+          service_id?: string | null
           service_interest?: string[]
           status?: string
           timezone: string
@@ -342,13 +346,30 @@ export type Database = {
           phone?: string | null
           public_notes?: string | null
           requested_start_at?: string
+          service_group_id?: string | null
+          service_id?: string | null
           service_interest?: string[]
           status?: string
           timezone?: string
           topic?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "bookings_service_group_id_fkey"
+            columns: ["service_group_id"]
+            isOneToOne: false
+            referencedRelation: "service_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chat_agents: {
         Row: {
@@ -475,6 +496,7 @@ export type Database = {
       chat_intents: {
         Row: {
           action: string | null
+          admin_notes: string | null
           answer: string
           answer_bn: string | null
           category_id: string | null
@@ -484,14 +506,20 @@ export type Database = {
           id: string
           is_published: boolean
           key: string
+          lang: string
           name: string
           priority: number
+          question: string | null
           quick_replies: Json
+          service_group_id: string | null
           service_id: string | null
+          suggested_actions: Json
+          topic: string
           updated_at: string
         }
         Insert: {
           action?: string | null
+          admin_notes?: string | null
           answer?: string
           answer_bn?: string | null
           category_id?: string | null
@@ -501,14 +529,20 @@ export type Database = {
           id?: string
           is_published?: boolean
           key: string
+          lang?: string
           name: string
           priority?: number
+          question?: string | null
           quick_replies?: Json
+          service_group_id?: string | null
           service_id?: string | null
+          suggested_actions?: Json
+          topic?: string
           updated_at?: string
         }
         Update: {
           action?: string | null
+          admin_notes?: string | null
           answer?: string
           answer_bn?: string | null
           category_id?: string | null
@@ -518,10 +552,15 @@ export type Database = {
           id?: string
           is_published?: boolean
           key?: string
+          lang?: string
           name?: string
           priority?: number
+          question?: string | null
           quick_replies?: Json
+          service_group_id?: string | null
           service_id?: string | null
+          suggested_actions?: Json
+          topic?: string
           updated_at?: string
         }
         Relationships: [
@@ -530,6 +569,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "portfolio_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_intents_service_group_id_fkey"
+            columns: ["service_group_id"]
+            isOneToOne: false
+            referencedRelation: "service_groups"
             referencedColumns: ["id"]
           },
           {

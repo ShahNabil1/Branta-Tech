@@ -143,7 +143,7 @@ export default function ChatPanel({ open, onClose }: { open: boolean; onClose: (
             onContact={(v) => send({ action: { type: "offline_contact", ...v } })} />
         ))}
         {booking && (
-          <BookingFlow onCancel={() => setBooking(false)} onStarted={() => send({ action: { type: "booking_started" } })}
+          <BookingFlow preselect={(() => { const c = [...msgs].reverse().find((m) => m.payload?.services?.length)?.payload?.services?.[0]; return c ? { groupId: c.groupId, serviceId: c.id } : undefined; })()} onCancel={() => setBooking(false)} onStarted={() => send({ action: { type: "booking_started" } })}
             onDone={(b) => { setBooking(false); void send({ action: { type: "booking_done", ...b } }); }} />
         )}
         {busy && <div aria-label="Assistant is replying" className="flex gap-1 px-2"><Dot /><Dot d="150ms" /><Dot d="300ms" /></div>}
@@ -195,7 +195,7 @@ function Message({ m, last, busy, onQuick, onContact }: {
   const p = m.payload;
   return (
     <div className="space-y-2">
-      {m.type !== "service_card" && <Bubble from={m.from}>{m.text}</Bubble>}
+      <Bubble from={m.from}>{m.text}</Bubble>
       {p?.replies && p.replies.length > 0 && last && (
         <div className="flex flex-wrap gap-2">{p.replies.map((r) => <Chip key={r} disabled={busy} onClick={() => onQuick(r)}>{r}</Chip>)}</div>
       )}
@@ -203,9 +203,10 @@ function Message({ m, last, busy, onQuick, onContact }: {
         <div className="flex snap-x gap-2 overflow-x-auto pb-1">
           {p.services.map((s) => (
             <Link key={s.slug} to="/services/$slug" params={{ slug: s.slug }} className="w-56 shrink-0 snap-start rounded-[14px] border border-border bg-background p-3 hover:border-accent">
+              {s.group && <p className="text-caption uppercase tracking-wide text-muted-foreground">{s.group}</p>}
               <p className="text-small font-medium">{s.name}</p>
               {s.summary && <p className="text-caption mt-1 line-clamp-3 text-muted-foreground">{s.summary}</p>}
-              <p className="text-caption mt-2 text-accent">View service →</p>
+              <p className="text-caption mt-2 text-accent">Learn more →</p>
             </Link>
           ))}
         </div>
