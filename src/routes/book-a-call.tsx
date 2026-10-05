@@ -102,7 +102,7 @@ function BookCall() {
           <div className="grid gap-10 lg:grid-cols-[minmax(0,45fr)_minmax(0,55fr)] lg:gap-12">
             <div className="flex flex-col">
               <Eyebrow>BOOK A CALL</Eyebrow>
-              <h1 className="text-display mt-5 max-w-[14ch]">Let’s talk about what you’re building.</h1>
+              <h1 className="text-h1 mt-5 max-w-[16ch]">Let’s talk about what you’re building.</h1>
               <p className="text-body-lg mt-5 max-w-xl text-muted-foreground">A focused conversation to understand your idea, challenge or opportunity and see how Branta can help.</p>
               <p className="text-eyebrow mt-7 flex items-center gap-2 text-accent"><Clock3 className="size-4" aria-hidden />{data.settings.durationMinutes} MINUTE DISCOVERY CALL</p>
               {media && <div className="mt-8"><SectionMedia item={{ ...media, aspect: "16:9" }} className="rounded-2xl" eager /></div>}
