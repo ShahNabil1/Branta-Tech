@@ -14,7 +14,7 @@ export type BookingSettings = {
   processMedia: SectionMediaItem[];
 };
 
-export type BookingSlot = { iso: string; label: string };
+export type BookingSlot = { iso: string; label: string; booked?: boolean };
 export type BookingDay = { date: string; slots: BookingSlot[] };
 
 const obj = (v: unknown) => (v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : {});

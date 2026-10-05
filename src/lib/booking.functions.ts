@@ -68,7 +68,7 @@ function slotsForDate(date: string, timezone: string, duration: number, buffer: 
   const windows = special.length ? special.map((e) => ({ start_time: e.start_time as string, end_time: e.end_time as string })) : rules.filter((r) => r.day_of_week === day);
   const blocks = dayExceptions.filter((e) => e.kind === "blocked" && e.start_time && e.end_time);
   const earliest = Date.now() + notice * 3_600_000;
-  const out: string[] = [];
+  const out: { iso: string; booked: boolean }[] = [];
   for (const w of windows) {
     for (let mins = clockMinutes(w.start_time); mins + duration <= clockMinutes(w.end_time); mins += duration + buffer) {
       const hh = String(Math.floor(mins / 60)).padStart(2, "0");
@@ -79,8 +79,8 @@ function slotsForDate(date: string, timezone: string, duration: number, buffer: 
       if (!iso || blocked) continue;
       const start = new Date(iso).getTime();
       const end = start + duration * 60_000;
-      if (start < earliest || busy.some((b) => start < b.end + buffer * 60_000 && end + buffer * 60_000 > b.start)) continue;
-      out.push(iso);
+      if (start < earliest) continue;
+      out.push({ iso, booked: busy.some((b) => start < b.end + buffer * 60_000 && end + buffer * 60_000 > b.start) });
     }
   }
   return out;
@@ -108,8 +108,8 @@ export const getBookingExperience = createServerFn({ method: "GET" }).handler(as
   const days: BookingDay[] = [];
   for (let i = 0; i <= settings.maximumAdvanceDays; i += 1) {
     const date = addDays(startDate, i);
-    const isos = slotsForDate(date, settings.timezone, settings.durationMinutes, settings.bufferMinutes, settings.minimumNoticeHours, rules ?? [], exceptions ?? [], busy);
-    if (isos.length) days.push({ date, slots: isos.map((iso) => ({ iso, label: new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: settings.timezone }).format(new Date(iso)) })) });
+    const found = slotsForDate(date, settings.timezone, settings.durationMinutes, settings.bufferMinutes, settings.minimumNoticeHours, rules ?? [], exceptions ?? [], busy);
+    if (found.length) days.push({ date, slots: found.map(({ iso, booked }) => ({ iso, booked, label: new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: settings.timezone }).format(new Date(iso)) })) });
   }
   if (settings.introMedia[0]?.type === "vimeo" && !settings.introMedia[0].poster_url) {
     const { vimeoId } = await import("@/lib/hero");
