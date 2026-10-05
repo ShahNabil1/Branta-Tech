@@ -12,7 +12,7 @@ export type MyApplicationDetail = MyApplication & {
 
 /** Applicant-friendly wording for internal statuses. */
 export const STATUS_LABEL: Record<string, string> = {
-  new: "Submitted", reviewing: "Under Review", shortlisted: "Shortlisted", interview: "Interview Scheduled",
+  new: "Submitted", reviewing: "Under Review", shortlisted: "Shortlisted", interview: "Interview Scheduled", assignment: "Assignment", selected: "Selected",
   offer: "Offer", hired: "Hired", rejected: "Not selected", withdrawn: "Withdrawn",
 };
 export const statusLabel = (s: string) => STATUS_LABEL[s] ?? "Submitted";
