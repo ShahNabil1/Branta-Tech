@@ -27,25 +27,25 @@ function SiteFooter() {
   const cols = footerFromCms(data?.navigation) ?? FALLBACK_FOOTER;
   const name = text(data?.company?.company_name) ?? "Branta Tech";
   const tagline = text(data?.company?.short_description) ?? "Creative. AI. Technology.";
-  const desc = text(ft.footer_tagline) ?? "AI-powered creative, software and automation for ambitious brands.";
+  const desc = text(ft["footer_tagline"]) ?? "AI-powered creative, software and automation for ambitious brands.";
   const email = text(data?.contact?.email) ?? "hello@brantatech.com";
   const phone = text(data?.contact?.phone);
   const address = text(data?.contact?.address);
   const socials = SOCIAL.map((s) => ({ ...s, url: https(data?.social?.[s.key]) })).filter((s) => s.url);
-  const eyebrow = text(ft.cta_eyebrow) ?? "Let’s build together";
-  const heading = text(ft.cta_heading) ?? "Let’s create something that moves your brand forward.";
+  const eyebrow = text(ft["cta_eyebrow"]) ?? "Let’s build together";
+  const heading = text(ft["cta_heading"]) ?? "Let’s create something that moves your brand forward.";
   const ctas = [
-    { label: text(ft.primary_label) ?? "Book a Call", url: link(ft.primary_url, "/book-a-call") },
-    { label: text(ft.secondary_label) ?? "Explore Careers", url: link(ft.secondary_url, "/careers") },
+    { label: text(ft["primary_label"]) ?? "Book a Call", url: link(ft["primary_url"], "/book-a-call") },
+    { label: text(ft["secondary_label"]) ?? "Explore Careers", url: link(ft["secondary_url"], "/careers") },
   ];
   const legal = [
-    { label: text(ft.privacy_label) ?? "Privacy Policy", url: link(ft.privacy_url, "/privacy") },
-    { label: text(ft.terms_label) ?? "Terms", url: link(ft.terms_url, "/terms") },
+    { label: text(ft["privacy_label"]) ?? "Privacy Policy", url: link(ft["privacy_url"], "/privacy") },
+    { label: text(ft["terms_label"]) ?? "Terms", url: link(ft["terms_url"], "/terms") },
   ];
-  const copyright = text(ft.copyright_text) ?? `© ${new Date().getFullYear()} ${name}. All rights reserved.`;
-  const showMark = text(ft.show_wordmark) !== "off";
-  const mark = text(ft.wordmark_text) ?? "Branta";
-  const tint = text(ft.tone) === "tint";
+  const copyright = text(ft["copyright_text"]) ?? `© ${new Date().getFullYear()} ${name}. All rights reserved.`;
+  const showMark = text(ft["show_wordmark"]) !== "off";
+  const mark = text(ft["wordmark_text"]) ?? "Branta";
+  const tint = text(ft["tone"]) === "tint";
 
   return (
     <footer className={tint ? "footer-tint text-foreground" : "footer-light text-foreground"}>
