@@ -3,7 +3,7 @@ import { useState } from "react";
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  LayoutDashboard, FileText, Newspaper, UserRound, Briefcase, Inbox, Target, CalendarClock, Menu, Layers, Image, FolderOpen, Settings, Users, LogOut, PanelLeft,
+  LayoutDashboard, FileText, Newspaper, UserRound, Briefcase, Inbox, Target, CalendarClock, Menu, Layers, Image, FolderOpen, Settings, Users, LogOut, PanelLeft, Quote,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getAdminSession, CMS_ROLES } from "@/lib/supabase/admin-access";
