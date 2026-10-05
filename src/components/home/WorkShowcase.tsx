@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { X } from "lucide-react";
-import { BrantaVideo } from "@/components/media/BrantaVideo";
+import { WorkMediaModal } from "@/components/work/WorkMediaModal";
 import { Link } from "@tanstack/react-router";
 import { Section, SiteContainer } from "@/components/layout/primitives";
 import { PortfolioCard, PORTFOLIO_RAIL_W } from "@/components/work/PortfolioCard";
@@ -36,6 +35,7 @@ export function WorkShowcase({ data }: { data: NonNullable<Data> }) {
 
   return (
     <div id="work-showcase">
+      <WorkMediaModal card={active?.card ?? null} onClose={() => setActive(null)} />
       {rows.map((row, i) => {
         const featured = row.key === "featured";
         return (
@@ -61,9 +61,8 @@ export function WorkShowcase({ data }: { data: NonNullable<Data> }) {
               duration={data.speed * (VARIANCE[i % VARIANCE.length] ?? 1)}
               live={data.hoverPreview}
               headingLevel="h3" activeSlug={active?.row === row.key ? active.card.slug : null}
-              onActivate={(card) => { setActive(active?.row === row.key && active.card.slug === card.slug ? null : { row: row.key, card }); }}
+              onActivate={(card) => { setActive({ row: row.key, card }); }}
             />
-            {active?.row === row.key && <InlinePlayer key={active.card.slug} card={active.card} onClose={() => setActive(null)} />}
           </Section>
         );
       })}
@@ -110,7 +109,7 @@ function WorkRow({ rowKey, items, reverse, animated, duration, live, headingLeve
         className={cn("relative shrink-0 snap-start transition-transform duration-500 ease-out hover:z-10 hover:scale-[1.14] focus-within:z-10 focus-within:scale-[1.14] motion-reduce:hover:scale-100", PORTFOLIO_RAIL_W)}>
           <LiveCard enabled={live && !!p.media && p.media.type !== "image"}>{(on) => <PortfolioCard playing={on} slug={p.slug} title={p.title} label={p.category?.name ?? p.services[0]?.name ?? null} client={p.client} media={p.media}
             headingLevel={headingLevel} onFocusScroll={!animated}
-            onActivate={() => onActivate(p)} selected={!dup && activeSlug === p.slug} />}</LiveCard>
+            onActivate={() => onActivate(p)} />}</LiveCard>
       </div>
     );
   };
@@ -131,53 +130,6 @@ function WorkRow({ rowKey, items, reverse, animated, duration, live, headingLeve
         </ul>
       )}
     </div>
-  );
-}
-
-/** One inline player per page (owned by WorkShowcase). Opens beneath the selected row; poster-first, sound off by default. */
-function InlinePlayer({ card, onClose }: { card: WorkCard; onClose: () => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    ref.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-  const m = card.media;
-  const isVideo = m && (m.type === "vimeo" || m.type === "video");
-  const poster = m ? (m.type === "image" ? m.url : m.poster) : null;
-  const label = card.category?.name ?? card.services[0]?.name ?? null;
-  return (
-    <SiteContainer>
-      <div ref={ref} role="region" aria-label={`Now showing: ${card.title}`}
-        className="mt-10 grid scroll-mt-24 gap-6 border-t border-border pt-8 md:grid-cols-[minmax(0,760px)_1fr] md:items-end">
-        <div className="relative aspect-video w-full overflow-hidden rounded-[6px] bg-muted/10">
-          {isVideo ? (
-            <BrantaVideo kind={m.type as "vimeo" | "video"} url={m.url} poster={poster} alt={m.alt || card.title}
-              priority="critical" autoplay loop={false} sound playButton active cover={false} />
-          ) : poster ? (
-            <img src={poster} alt={m?.alt || card.title} className="absolute inset-0 h-full w-full object-cover" />
-          ) : (
-            <div className="text-caption flex h-full items-center justify-center text-muted-foreground">Media coming soon</div>
-          )}
-        </div>
-        <div className="flex flex-col gap-4">
-          <div>
-            {label && <p className="text-eyebrow flex items-center gap-2 text-muted-foreground"><span aria-hidden className="size-1.5 rounded-full bg-accent" />{label}</p>}
-            <h3 className="text-h3 mt-3 text-foreground">{card.title}</h3>
-            {card.client && <p className="text-small mt-1 text-muted-foreground">{card.client}</p>}
-          </div>
-          <div className="flex flex-wrap items-center gap-4">
-            <Link to="/work/$slug" params={{ slug: card.slug }} className="text-small group inline-flex items-center gap-2 font-medium text-foreground underline decoration-accent underline-offset-8 hover:text-accent">
-              View Case Study<span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
-            </Link>
-            <button type="button" onClick={onClose} className="text-small inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-muted-foreground transition-colors hover:border-accent hover:text-foreground">
-              <X className="size-4" aria-hidden /> Close
-            </button>
-          </div>
-        </div>
-      </div>
-    </SiteContainer>
   );
 }
 
