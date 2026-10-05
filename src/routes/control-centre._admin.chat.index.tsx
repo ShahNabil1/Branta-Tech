@@ -13,7 +13,7 @@ export const Route = createFileRoute("/control-centre/_admin/chat/")({
   component: Inbox,
 });
 
-type Conv = Tables<"chat_conversations"> & { chat_visitors: Pick<Tables<"chat_visitors">, "name" | "email" | "whatsapp"> | null };
+type Conv = Tables<"chat_conversations"> & { chat_visitors: Pick<Tables<"chat_visitors">, "name" | "email" | "whatsapp"> & { source_page?: string | null; referrer?: string | null } | null };
 type Msg = Tables<"chat_messages">;
 const FILTERS = ["all", "waiting", "active", "mine", "closed"] as const;
 const STATUS: Record<string, string> = { active: "Assistant", waiting_for_agent: "Waiting", human_active: "With team", closed: "Closed" };
@@ -41,7 +41,7 @@ function Inbox() {
   const agents = useQuery({ queryKey: ["chat", "agents"], queryFn: () => must(supabase.from("chat_agents").select("*").order("display_name")) });
   const convs = useQuery({
     queryKey: ["chat", "convs"],
-    queryFn: () => must(supabase.from("chat_conversations").select("*, chat_visitors(name,email,whatsapp)").order("last_message_at", { ascending: false }).limit(200)) as Promise<Conv[]>,
+    queryFn: () => must(supabase.from("chat_conversations").select("*, chat_visitors(name,email,whatsapp,source_page,referrer)").order("last_message_at", { ascending: false }).limit(200)) as Promise<Conv[]>,
   });
 
   useEffect(() => {
@@ -91,7 +91,7 @@ function Inbox() {
               <li key={c.id}>
                 <button type="button" onClick={() => setSel(c.id)} className={cn("block w-full px-3 py-2.5 text-left hover:bg-muted", sel === c.id && "bg-muted")}>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-small truncate font-medium">{c.chat_visitors?.name || "Guest"}</span>
+                    <span className="min-w-0"><span className="text-small block truncate font-medium">{c.chat_visitors?.name || "Guest"}</span>{(c.chat_visitors?.whatsapp || c.chat_visitors?.email) && <span className="text-caption block truncate text-muted-foreground">{[c.chat_visitors?.whatsapp, c.chat_visitors?.email].filter(Boolean).join(" · ")}</span>}</span>
                     <span className="text-caption shrink-0 text-muted-foreground">{new Date(c.last_message_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                   </div>
                   <div className="text-caption flex items-center gap-2 text-muted-foreground">
@@ -185,7 +185,7 @@ function Thread({ conv, me, agents }: { conv: Conv; me: { id: string; name: stri
         <h2 className="text-h4 mb-3">Visitor</h2>
         <dl className="grid gap-2">
           {[
-            ["Name", conv.chat_visitors?.name || "Guest"], ["Email", conv.chat_visitors?.email], ["WhatsApp", conv.chat_visitors?.whatsapp],
+            ["Name", conv.chat_visitors?.name || "Guest"], ["Email", conv.chat_visitors?.email], ["WhatsApp", conv.chat_visitors?.whatsapp], ["Lead source", conv.chat_visitors?.source_page], ["Referrer", conv.chat_visitors?.referrer],
             ["Signed-in account", conv.user_id ? "Yes" : "No"], ["Source page", conv.source_page], ["Topic", conv.handoff_topic],
             ["Interested service", conv.interested_service],
             ["Booking", booking.data ? `${booking.data.booking_reference} · ${new Date(booking.data.requested_start_at).toLocaleString()} · ${booking.data.status}` : conv.booking_id ? "Linked" : null],

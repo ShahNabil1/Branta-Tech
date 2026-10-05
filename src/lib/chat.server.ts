@@ -1,5 +1,6 @@
 import { z } from "zod";
-import type { ChatMsg, ChatSettings, ChatState, QuickAction } from "./chat/types";
+import type { ChatMsg, ChatSettings, ChatState, LeadProfile, QuickAction } from "./chat/types";
+import { FUNNEL_EVENTS, LEAD_EMAIL_RE, LEAD_NAME_RE, LEAD_PHONE_RE, normalizePhone } from "./chat/types";
 
 /**
  * Branta Assistant server boundary. Guests never query chat tables directly: every call
@@ -94,6 +95,112 @@ async function quickActions(sb: Ctx["sb"]): Promise<QuickAction[]> {
   return (data ?? []).map((q) => ({ label: q.label, type: q.action_type as QuickAction["type"], target: q.target }));
 }
 
+type VisitorRow = { id: string; name: string | null; whatsapp: string | null; email: string | null; lead_completed_at: string | null; first_conversation_id: string | null; source_page: string | null };
+const VIS_COLS = "id,name,whatsapp,email,lead_completed_at,first_conversation_id,source_page";
+
+async function findVisitor(c: Ctx, token: string | null): Promise<VisitorRow | null> {
+  if (!token || token.length < 20 || token.length > 100) return null;
+  const { data } = await c.sb.from("chat_visitors").select(VIS_COLS as "id").eq("session_hash", c.hash(token)).maybeSingle();
+  return (data as unknown as VisitorRow) ?? null;
+}
+
+const leadDone = (s: ChatSettings, v: { name: string | null; whatsapp: string | null; email: string | null }) =>
+  !s.lead.enabled || ((!s.lead.requireName || !!v.name) && (!s.lead.requireWhatsapp || !!v.whatsapp) && (!s.lead.requireEmail || !!v.email));
+
+/** Lead profile for the caller: own visitor row, else signed-in profile values as a prefill. */
+async function leadProfile(c: Ctx, s: ChatSettings, v: VisitorRow | null, hasHistory: boolean): Promise<LeadProfile> {
+  let p = { name: v?.name ?? null, whatsapp: v?.whatsapp ?? null, email: v?.email ?? null };
+  if (c.userId && (!p.name || !p.whatsapp || !p.email)) {
+    const [{ data: prof }, { data: u }] = await Promise.all([
+      c.sb.from("profiles").select("full_name,phone").eq("id", c.userId).maybeSingle(),
+      c.sb.auth.admin.getUserById(c.userId),
+    ]);
+    const phone = prof?.phone ? normalizePhone(prof.phone) : "";
+    p = {
+      name: p.name ?? (prof?.full_name && LEAD_NAME_RE.test(prof.full_name.trim()) ? prof.full_name.trim() : null),
+      whatsapp: p.whatsapp ?? (LEAD_PHONE_RE.test(phone) ? phone : null),
+      email: p.email ?? (u.user?.email && LEAD_EMAIL_RE.test(u.user.email) ? u.user.email : null),
+    };
+  }
+  return { ...p, complete: !!v && leadDone(s, v), returning: hasHistory };
+}
+
+/** Funnel tracking: fixed event names only, per-network cap, no content stored. */
+export const TrackInput = z.object({ token: z.string().max(100).nullable(), event: z.enum(FUNNEL_EVENTS) });
+export async function doTrack(data: z.infer<typeof TrackInput>) {
+  try {
+    const c = await ctx();
+    const hourAgo = new Date(Date.now() - 3600_000).toISOString();
+    const { count } = await c.sb.from("chat_funnel_events" as never).select("id", { count: "exact", head: true }).eq("ip_hash", c.ipHash).gte("created_at", hourAgo);
+    if ((count ?? 0) >= 300) return { ok: true as const };
+    const v = await findVisitor(c, data.token);
+    await c.sb.from("chat_funnel_events" as never).insert({ event: data.event, visitor_id: v?.id ?? null, ip_hash: c.ipHash } as never);
+    return { ok: true as const };
+  } catch {
+    return { ok: true as const };
+  }
+}
+
+/** Lead onboarding submit: validates, creates/updates the caller's own visitor and its first conversation. */
+export const IdentifyInput = z.object({
+  token: z.string().max(100).nullable(),
+  name: z.string().max(200).optional(), whatsapp: z.string().max(40).optional(), email: z.string().max(254).optional(),
+  page: z.string().max(300).optional(), referrer: z.string().max(500).optional(),
+});
+const SAVE_FAIL = "We couldn’t save that just yet. Please try again.";
+export async function doIdentify(data: z.infer<typeof IdentifyInput>) {
+  try {
+    const c = await ctx();
+    const settings = await loadSettings(c.sb);
+    const existing = await findVisitor(c, data.token);
+    const name = data.name !== undefined ? clean(data.name).replace(/\s+/g, " ").slice(0, 80) : existing?.name ?? null;
+    const whatsapp = data.whatsapp !== undefined ? normalizePhone(data.whatsapp) : existing?.whatsapp ?? null;
+    const email = data.email !== undefined ? data.email.trim().toLowerCase() : existing?.email ?? null;
+    if (name && !LEAD_NAME_RE.test(name)) return { ok: false as const, field: "name", error: "Please enter your name using letters only." };
+    if (whatsapp && !LEAD_PHONE_RE.test(whatsapp)) return { ok: false as const, field: "whatsapp", error: "Please enter a valid WhatsApp number with country code." };
+    if (email && !LEAD_EMAIL_RE.test(email)) return { ok: false as const, field: "email", error: "Please enter a valid email address." };
+    const vals = { name: name || null, whatsapp: whatsapp || null, email: email || null };
+    if (!leadDone(settings, vals)) return { ok: false as const, field: null, error: "Please complete the required details." };
+
+    const hourAgo = new Date(Date.now() - 3600_000).toISOString();
+    const page = data.page?.slice(0, 300) || null;
+    let ref: string | null = null;
+    try { if (data.referrer) { const u = new URL(data.referrer); ref = `${u.origin}${u.pathname}`.slice(0, 300); } } catch { ref = null; }
+
+    let token = data.token;
+    let visitor = existing;
+    if (!visitor) {
+      const { count } = await c.sb.from("chat_visitors").select("id", { count: "exact", head: true }).eq("ip_hash", c.ipHash).gte("created_at", hourAgo);
+      if ((count ?? 0) >= 15) return { ok: false as const, field: null, error: "Too many new chats from your network. Please try again later." };
+      token = c.newToken();
+      const { data: v, error } = await c.sb.from("chat_visitors")
+        .insert({ session_hash: c.hash(token), ip_hash: c.ipHash, user_id: c.userId, ...vals, source_page: page, referrer: ref, lead_completed_at: new Date().toISOString() } as never)
+        .select(VIS_COLS as "id").single();
+      if (error) throw error;
+      visitor = v as unknown as VisitorRow;
+    } else {
+      const { error } = await c.sb.from("chat_visitors").update({
+        ...vals, last_seen_at: new Date().toISOString(), ...(c.userId ? { user_id: c.userId } : {}),
+        ...(visitor.lead_completed_at ? {} : { lead_completed_at: new Date().toISOString() }),
+        ...(visitor.source_page ? {} : { source_page: page, referrer: ref }),
+      } as never).eq("id", visitor.id);
+      if (error) throw error;
+    }
+    const { data: conv } = await c.sb.from("chat_conversations").select(CONV_COLS).eq("visitor_id", visitor.id).neq("status", "closed").order("created_at", { ascending: false }).limit(1).maybeSingle();
+    let cv = conv;
+    if (!cv) {
+      const { data: nc, error } = await c.sb.from("chat_conversations").insert({ visitor_id: visitor.id, user_id: c.userId, source_page: page }).select(CONV_COLS).single();
+      if (error) throw error;
+      cv = nc;
+    }
+    if (!visitor.first_conversation_id) await c.sb.from("chat_visitors").update({ first_conversation_id: cv.id } as never).eq("id", visitor.id);
+    await c.sb.from("chat_funnel_events" as never).insert({ event: "lead_completed", visitor_id: visitor.id, ip_hash: c.ipHash } as never);
+    return { ok: true as const, token, state: await state(c.sb, cv), profile: { ...vals, complete: true, returning: false } as LeadProfile };
+  } catch {
+    return { ok: false as const, field: null, error: SAVE_FAIL };
+  }
+}
+
 /** First load / refresh: settings, shortcuts and (if the token is valid) the visitor's own history. */
 export const OpenInput = z.object({ token: z.string().max(100).nullable() });
 export async function doOpen(data: z.infer<typeof OpenInput>) {
@@ -101,9 +208,12 @@ export async function doOpen(data: z.infer<typeof OpenInput>) {
       const c = await ctx();
       const settings = await loadSettings(c.sb);
       const conv = await findConversation(c, data.token);
+      const msgs = conv ? await messages(c.sb, conv.id) : [];
+      const visitor = await findVisitor(c, data.token);
       return {
         ok: true as const, settings, quickActions: await quickActions(c.sb), online: await teamOnline(c.sb, settings),
-        state: await state(c.sb, conv), messages: conv ? await messages(c.sb, conv.id) : [],
+        state: await state(c.sb, conv), messages: msgs,
+        profile: await leadProfile(c, settings, visitor, !!visitor?.lead_completed_at && (msgs.length > 0 || !!conv)),
       };
     } catch {
       return { ok: false as const, error: FAIL };
@@ -149,6 +259,10 @@ export async function doSend(data: z.infer<typeof SendInput>) {
       const settings = await loadSettings(c.sb);
       if (!settings.enabled) return { ok: false as const, error: FAIL };
       let token = data.token;
+      if (settings.lead.enabled) {
+        const v = await findVisitor(c, token);
+        if (!v || !leadDone(settings, v)) return { ok: false as const, error: "Please finish introducing yourself first." };
+      }
       let conv = await findConversation(c, token);
       const act = data.action;
       const text = data.text ? clean(data.text) : "";
