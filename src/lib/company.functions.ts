@@ -126,7 +126,7 @@ export const getJobs = createServerFn({ method: "GET" }).handler(async (): Promi
     // "Auto close" jobs drop off the listing once the deadline passes.
     const hide = j.window === "closed" && j.details.application.after_deadline === "auto_close";
     return hide ? null : { slug: j.slug, title: j.title, department: j.department, type: j.type, location: j.location, workMode: j.workMode, summary: j.summary, featured: j.featured, urgent: j.urgent, deadlineAt: j.deadlineAt, salary: j.salary, window: j.window, vacancies: j.vacancies };
-  }).filter((x): x is JobCard => !!x).sort((a, b) => Number(b.urgent && b.featured) - Number(a.urgent && a.featured));
+  }).filter((x): x is JobCard => !!x);
 });
 
 /** Published job by slug; an old slug of a published job resolves to { redirect }. */

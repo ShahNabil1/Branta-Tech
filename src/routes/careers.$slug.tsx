@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react";
 import { SiteShell } from "@/components/layout/SiteShell";
 import { Section, SiteContainer } from "@/components/layout/primitives";
 import { JobBadges, JobBody, JobFacts } from "@/components/careers/JobDetail";
-import { formatDeadline, type FormKey } from "@/lib/job-details";
+import { FORM_LABEL, formatDeadline, type FormKey, type PublicQuestion } from "@/lib/job-details";
 import { buttonVariants } from "@/components/ui/brand-button";
 import { siteChromeQuery } from "@/lib/navigation";
 import { jobQuery, type Job } from "@/lib/company.functions";
@@ -170,6 +170,8 @@ function ApplyFields({ job, prefill, email }: { job: Job; prefill: Record<string
   const [error, setError] = useState<string | null>(null);
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [file, setFile] = useState<File | null>(null);
+  const fields = job.details.form.filter((x) => x.enabled);
+  const resumeField = fields.find((x) => x.key === "resume");
   const getSaved = useServerFn(getMyResume);
   const [saved, setSaved] = useState<MyResume>(null);
   useEffect(() => { getSaved().then(setSaved).catch(() => setSaved(null)); }, [getSaved]);
@@ -189,8 +191,8 @@ function ApplyFields({ job, prefill, email }: { job: Job; prefill: Record<string
     fd.set("job_slug", job.slug);
     fd.set("started_at", String(started.current));
     if (file) fd.set("resume", file);
-    else if (saved) fd.set("use_saved", "1");
-    else { setErrs({ resume: "Attach your CV" }); return setError("Please attach your CV."); }
+    else if (resumeField && saved) fd.set("use_saved", "1");
+    else if (resumeField?.required) { setErrs({ resume: "Attach your CV" }); return setError("Please attach your CV."); }
     setBusy(true); setError(null); setErrs({});
     try {
       const r = await submit({ data: fd });
@@ -214,25 +216,59 @@ function ApplyFields({ job, prefill, email }: { job: Job; prefill: Record<string
       <div className="mt-6 flex flex-col gap-5">
         <Field id="full_name" label="Full name" required error={errs["full_name"]}><input id="full_name" name="full_name" defaultValue={prefill["full_name"]} required autoComplete="name" className={cn(fieldCls, "h-11")} {...a("full_name")} /></Field>
         <Field id="email" label="Email" required error={errs["email"]}><input id="email" name="email" defaultValue={email} type="email" required autoComplete="email" className={cn(fieldCls, "h-11")} {...a("email")} /></Field>
-        <Field id="phone" label="Phone" required error={errs["phone"]}><input id="phone" name="phone" defaultValue={prefill["phone"]} type="tel" required autoComplete="tel" className={cn(fieldCls, "h-11")} {...a("phone")} /></Field>
-        <Field id="location" label="Location" error={errs["location"]}><input id="location" name="location" defaultValue={prefill["location"]} autoComplete="address-level2" className={cn(fieldCls, "h-11")} {...a("location")} /></Field>
-        <Field id="portfolio_url" label="Portfolio link" error={errs["portfolio_url"]}><input id="portfolio_url" name="portfolio_url" defaultValue={prefill["portfolio_url"]} type="url" placeholder="https://" className={cn(fieldCls, "h-11")} {...a("portfolio_url")} /></Field>
-        <Field id="linkedin_url" label="LinkedIn" error={errs["linkedin_url"]}><input id="linkedin_url" name="linkedin_url" defaultValue={prefill["linkedin_url"]} type="url" placeholder="https://linkedin.com/in/…" className={cn(fieldCls, "h-11")} {...a("linkedin_url")} /></Field>
-        <Field id="cover_note" label="Cover note" required error={errs["cover_note"]}><textarea id="cover_note" name="cover_note" required rows={6} className={cn(fieldCls, "py-2")} {...a("cover_note")} /></Field>
-        <Field id="resume" label="CV / résumé" required error={errs["resume"]} hint="PDF, DOC or DOCX, up to 5 MB">
+        {fields.filter((x) => x.key !== "resume").map((x) => <ConfigField key={x.key} k={x.key} required={x.required} prefill={prefill} err={errs[x.key]} a={a} />)}
+        {resumeField && (
+        <Field id="resume" label="CV / résumé" required={resumeField.required} error={errs["resume"]} hint="PDF, DOC or DOCX, up to 5 MB">
           <input id="resume" type="file" accept={RESUME_ACCEPT} onChange={(e) => pick(e.target.files?.[0])}
             className="text-small block w-full file:mr-4 file:rounded-sm file:border file:border-input file:bg-surface file:px-3 file:py-2 file:text-foreground" {...a("resume")} />
           {file ? <p className="text-caption mt-1 text-foreground" aria-live="polite">Attached: {file.name} ({Math.ceil(file.size / 1024)} KB)</p>
             : saved && <p className="text-caption mt-1 text-foreground" aria-live="polite">Using your saved CV: {saved.file_name}. Choose a file to send a different one.</p>}
-        </Field>
+        </Field>)}
+        {job.questions.map((q) => <QuestionField key={q.id} q={q} err={errs[`q_${q.id}`]} a={a} />)}
         <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
           <label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
         </div>
         <button type="submit" disabled={busy} className={cn(buttonVariants({ variant: "primary", size: "lg" }), "w-full")}>
-          {busy && <Loader2 className="mr-2 size-4 animate-spin" aria-hidden />}{busy ? "Sending…" : "Send application"}
+          {busy && <Loader2 className="mr-2 size-4 animate-spin" aria-hidden />}{busy ? "Sending…" : job.details.application.cta_label === "Apply Now" ? "Send application" : job.details.application.cta_label}
         </button>
         <p className="text-caption text-muted-foreground">Your details and CV are only seen by the Branta hiring team.</p>
       </div>
     </form>
   );
+}
+
+type A = (k: string) => Record<string, unknown>;
+const FILE_ACCEPT = ".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp";
+const INPUT: Partial<Record<FormKey, { type?: string; auto?: string; area?: boolean; ph?: string; accept?: string }>> = {
+  phone: { type: "tel", auto: "tel" }, location: { auto: "street-address" }, linkedin_url: { type: "url", ph: "https://linkedin.com/in/…" }, portfolio_url: { type: "url", ph: "https://" },
+  website_url: { type: "url", ph: "https://" }, current_company: { auto: "organization" }, current_position: { auto: "organization-title" }, education: { area: true }, experience: { area: true },
+  joining_date: { type: "date" }, cover_note: { area: true }, portfolio_file: { type: "file", accept: FILE_ACCEPT }, photo: { type: "file", accept: ".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" },
+};
+function ConfigField({ k, required, prefill, err, a }: { k: FormKey; required: boolean; prefill: Record<string, string>; err?: string | undefined; a: A }) {
+  const c = INPUT[k] ?? {};
+  const label = FORM_LABEL[k];
+  if (c.type === "file") return <Field id={k} label={label} required={required} error={err} hint="PDF, PNG, JPG or WEBP, up to 5 MB"><input id={k} name={`file_${k}`} type="file" accept={c.accept} className="text-small block w-full file:mr-4 file:rounded-sm file:border file:border-input file:bg-surface file:px-3 file:py-2 file:text-foreground" {...a(k)} /></Field>;
+  return (
+    <Field id={k} label={label} required={required} error={err}>
+      {c.area ? <textarea id={k} name={k} required={required} rows={k === "cover_note" ? 6 : 3} className={cn(fieldCls, "py-2")} {...a(k)} />
+        : <input id={k} name={k} type={c.type ?? "text"} required={required} defaultValue={prefill[k]} autoComplete={c.auto} placeholder={c.ph} className={cn(fieldCls, "h-11")} {...a(k)} />}
+    </Field>
+  );
+}
+function QuestionField({ q, err, a }: { q: PublicQuestion; err?: string | undefined; a: A }) {
+  const id = `q_${q.id}`;
+  const choice = (type: "radio" | "checkbox", opts: string[]) => (
+    <fieldset aria-describedby={err ? `${id}-err` : undefined} className="flex flex-col gap-2">
+      <legend className="sr-only">{q.label}</legend>
+      {opts.map((o) => <label key={o} className="text-small flex items-center gap-2 text-foreground"><input type={type} name={id} value={o} className="size-4 accent-[var(--accent)]" />{o}</label>)}
+    </fieldset>
+  );
+  const body = q.type === "long" ? <textarea id={id} name={id} rows={4} className={cn(fieldCls, "py-2")} {...a(id)} />
+    : q.type === "yesno" ? choice("radio", ["Yes", "No"])
+    : q.type === "single" ? choice("radio", q.options)
+    : q.type === "multi" ? choice("checkbox", q.options)
+    : q.type === "dropdown" ? <select id={id} name={id} className={cn(fieldCls, "h-11")} {...a(id)}><option value="">Choose…</option>{q.options.map((o) => <option key={o}>{o}</option>)}</select>
+    : q.type === "file" ? <input id={id} name={`qf_${q.id}`} type="file" accept={FILE_ACCEPT} className="text-small block w-full file:mr-4 file:rounded-sm file:border file:border-input file:bg-surface file:px-3 file:py-2 file:text-foreground" {...a(id)} />
+    : <input id={id} name={id} type={q.type === "number" ? "number" : q.type === "date" ? "date" : q.type === "url" ? "url" : "text"} className={cn(fieldCls, "h-11")} {...a(id)} />;
+  return <Field id={id} label={q.label} required={q.required} error={err} hint={q.help || undefined}>{body}</Field>;
 }
