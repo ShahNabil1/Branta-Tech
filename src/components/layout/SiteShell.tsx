@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useReveal } from "@/hooks/use-reveal";
 import { useQuery } from "@tanstack/react-query";
 import { SiteContainer } from "./primitives";
+import { ChatLauncher } from "@/components/chat/ChatLauncher";
 import { SiteHeader, SmartLink } from "./SiteHeader";
 import { FALLBACK_FOOTER, footerFromCms, siteChromeQuery } from "@/lib/navigation";
 
@@ -126,6 +127,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
         {children}
       </main>
       <SiteFooter />
+      <ChatLauncher />
     </div>
   );
 }
