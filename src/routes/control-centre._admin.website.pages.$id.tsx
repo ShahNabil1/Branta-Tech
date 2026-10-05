@@ -15,10 +15,6 @@ import {
 import { HeroFields } from "@/components/admin/HeroFields";
 import { heroMediaErrors } from "@/lib/hero";
 import { CapabilityFields } from "@/components/admin/CapabilityFields";
-import { AiFilmFields } from "@/components/admin/AiFilmFields";
-import { AiImageFields } from "@/components/admin/AiImageFields";
-import { WebSoftwareFields } from "@/components/admin/WebSoftwareFields";
-import { AutomationFields } from "@/components/admin/AutomationFields";
 import { HomeClosingFields } from "@/components/admin/HomeClosingFields";
 import { TrustFields } from "@/components/admin/TrustFields";
 import { SeoFields, seoFrom, seoPayload, seoErrors, emptySeo, type SeoValues } from "@/components/admin/SeoFields";
@@ -206,7 +202,7 @@ function Sections({ pageId }: { pageId: string }) {
   );
 }
 
-const SECTION_TYPES = ["hero", "trust_proof", "capability_explorer", "featured_work", "ai_film_showcase", "ai_image_showcase", "web_software_showcase", "automation_showcase", "process", "client_logos", "insights_teaser", "careers_teaser", "final_cta", "studio_hero", "studio_entry", "text", "media", "cta", "services", "portfolio", "logos", "custom"].map((v) => ({ value: v, label: v }));
+const SECTION_TYPES = ["hero", "trust_proof", "capability_explorer", "client_logos", "studio_hero", "studio_entry", "text", "media", "cta", "services", "portfolio", "logos", "custom"].map((v) => ({ value: v, label: v }));
 
 function SectionForm({ section, onSaved }: { section: Section; onSaved: () => void }) {
   const init = {
@@ -274,11 +270,7 @@ function SectionForm({ section, onSaved }: { section: Section; onSaved: () => vo
       <CheckboxInput label="Visible" checked={v.is_visible} onChange={(b) => f.set("is_visible", b)} />
       {v.section_type === "trust_proof" && <TrustFields config={v.config} onChange={(c) => f.set("config", c)} />}
       {v.section_type === "hero" && <HeroFields config={v.config} onChange={(c) => f.set("config", c)} />}
-      {v.section_type === "web_software_showcase" && <WebSoftwareFields config={v.config} onChange={(c) => f.set("config", c)} />}
-      {["process", "client_logos", "insights_teaser", "careers_teaser", "final_cta"].includes(v.section_type) && <HomeClosingFields type={v.section_type} config={v.config} onChange={(c) => f.set("config", c)} />}
-      {v.section_type === "automation_showcase" && <AutomationFields config={v.config} onChange={(c) => f.set("config", c)} />}
-      {v.section_type === "ai_image_showcase" && <AiImageFields config={v.config} onChange={(c) => f.set("config", c)} />}
-      {v.section_type === "ai_film_showcase" && <AiFilmFields config={v.config} onChange={(c) => f.set("config", c)} />}
+      {v.section_type === "client_logos" && <HomeClosingFields type={v.section_type} config={v.config} onChange={(c) => f.set("config", c)} />}
       {v.section_type === "capability_explorer" && <CapabilityFields config={v.config} onChange={(c) => f.set("config", c)} />}
       <div className="md:col-span-2">
         <button type="button" className="text-caption text-muted-foreground underline underline-offset-4" onClick={() => setAdvanced((a) => !a)}>
