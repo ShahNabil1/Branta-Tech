@@ -88,11 +88,12 @@ function slotsForDate(date: string, timezone: string, duration: number, buffer: 
 export const getBookingExperience = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
   if (!sb) return { settings: parseBookingSettings(null), services: [] as string[], days: [] as BookingDay[] };
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const [{ data: setting }, { data: services }, { data: rules }, { data: exceptions }] = await Promise.all([
     sb.from("site_settings").select("settings").eq("setting_group", "booking").maybeSingle(),
     sb.from("services").select("name").eq("status", "published").order("sort_order"),
-    sb.from("booking_availability_rules").select("day_of_week,start_time,end_time").eq("enabled", true).order("sort_order"),
-    sb.from("booking_availability_exceptions").select("exception_date,kind,start_time,end_time"),
+    supabaseAdmin.from("booking_availability_rules").select("day_of_week,start_time,end_time").eq("enabled", true).order("sort_order"),
+    supabaseAdmin.from("booking_availability_exceptions").select("exception_date,kind,start_time,end_time"),
   ]);
   const settings = parseBookingSettings(setting?.settings);
   const published = (services ?? []).map((s) => s.name);
@@ -100,7 +101,6 @@ export const getBookingExperience = createServerFn({ method: "GET" }).handler(as
   const displayServices = [...selected, ...(settings.enabledServices.includes("Something Else") ? ["Something Else"] : [])];
   const startDate = officeDate(new Date(), settings.timezone);
   const endIso = localToIso(addDays(startDate, settings.maximumAdvanceDays + 1), "00:00", settings.timezone) ?? new Date(Date.now() + 32 * 86400_000).toISOString();
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: rows } = await supabaseAdmin.from("bookings").select("requested_start_at,duration_minutes,status")
     .gte("requested_start_at", new Date().toISOString()).lt("requested_start_at", endIso).in("status", ["requested", "confirmed", "reschedule_requested"]);
   const busy = (rows ?? []).map((b) => ({ start: new Date(b.requested_start_at).getTime(), end: new Date(b.requested_start_at).getTime() + b.duration_minutes * 60_000 }));
