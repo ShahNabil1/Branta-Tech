@@ -817,8 +817,10 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
+          homepage_group: string | null
           id: string
           name: string
+          show_on_homepage: boolean
           slug: string
           sort_order: number
           status: string
@@ -827,8 +829,10 @@ export type Database = {
         Insert: {
           created_at?: string
           description?: string | null
+          homepage_group?: string | null
           id?: string
           name: string
+          show_on_homepage?: boolean
           slug: string
           sort_order?: number
           status?: string
@@ -837,8 +841,10 @@ export type Database = {
         Update: {
           created_at?: string
           description?: string | null
+          homepage_group?: string | null
           id?: string
           name?: string
+          show_on_homepage?: boolean
           slug?: string
           sort_order?: number
           status?: string

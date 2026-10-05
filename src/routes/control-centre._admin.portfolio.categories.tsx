@@ -5,9 +5,10 @@ import { toast } from "sonner";
 import { ArrowLeft, ArrowDown, ArrowUp, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import { HOME_GROUP_OPTIONS } from "@/lib/work-showcase";
 import { adminHead, must } from "@/lib/supabase/cms";
 import {
-  PageHeader, Panel, TextInput, TextArea, SelectInput, AdminButton, ConfirmButton, LoadingRow, ErrorNote, EmptyState, StatusBadge,
+  PageHeader, Panel, CheckboxInput, TextInput, TextArea, SelectInput, AdminButton, ConfirmButton, LoadingRow, ErrorNote, EmptyState, StatusBadge,
   STATUS_OPTIONS, SLUG_RE, useAutoSlug, useFormState, friendlyError, nullIfEmpty,
   swapped, formatDate,
 } from "@/components/admin/cms";
@@ -68,6 +69,7 @@ function CategoriesPage() {
             <div className="flex flex-wrap items-center gap-2 px-4 py-3">
               <span className="text-small min-w-0 flex-1 font-medium">{c.name} <span className="font-mono text-muted-foreground">/{c.slug}</span>
                 <span className="text-caption block font-normal text-muted-foreground">Created {formatDate(c.created_at)} · Updated {formatDate(c.updated_at)}</span></span>
+              <span className="text-caption text-muted-foreground">{c.show_on_homepage && c.homepage_group ? (HOME_GROUP_OPTIONS.find((o) => o.value === c.homepage_group)?.label ?? "") : "Not on homepage"}</span>
               <span className="text-caption text-muted-foreground">{counts.data ? `${counts.data.get(c.id) ?? 0} project${(counts.data.get(c.id) ?? 0) === 1 ? "" : "s"}` : "…"}</span>
               <StatusBadge status={c.status} />
               <AdminButton size="sm" variant="ghost" aria-label="Move up" disabled={i === 0} onClick={() => move(i, -1)}><ArrowUp className="size-3.5" /></AdminButton>
@@ -92,6 +94,8 @@ function CategoryForm({ category, nextOrder, onDone }: { category: Tables<"portf
     description: category?.description ?? "",
     sort_order: String(category?.sort_order ?? nextOrder),
     status: category?.status ?? "draft",
+    homepage_group: category?.homepage_group ?? "",
+    show_on_homepage: category?.show_on_homepage ?? true,
   });
   const slug = useAutoSlug(category?.slug ?? "", !category);
   const v = f.values;
@@ -102,7 +106,7 @@ function CategoryForm({ category, nextOrder, onDone }: { category: Tables<"portf
     if (!v.name.trim()) return f.fail("Name is required.");
     if (!slug.slug || slugError) return f.fail(slugError ?? "Slug is required.");
     f.begin();
-    const payload = { name: v.name.trim(), slug: slug.slug, description: nullIfEmpty(v.description), sort_order: Math.round(Number(v.sort_order) || 0), status: v.status };
+    const payload = { name: v.name.trim(), slug: slug.slug, description: nullIfEmpty(v.description), sort_order: Math.round(Number(v.sort_order) || 0), status: v.status, homepage_group: v.homepage_group || null, show_on_homepage: v.show_on_homepage };
     const { error } = category
       ? await supabase.from("portfolio_categories").update(payload).eq("id", category.id)
       : await supabase.from("portfolio_categories").insert(payload);
@@ -119,6 +123,8 @@ function CategoryForm({ category, nextOrder, onDone }: { category: Tables<"portf
       <TextArea label="Description" value={v.description} onChange={(e) => f.set("description", e.target.value)} className="md:col-span-2" />
       <TextInput label="Sort order" type="number" value={v.sort_order} onChange={(e) => f.set("sort_order", e.target.value)} />
       <SelectInput label="Status" value={v.status} options={STATUS_OPTIONS} onChange={(e) => f.set("status", e.target.value)} />
+      <SelectInput label="Homepage group" hint="Published projects in this category appear in this homepage work row." value={v.homepage_group} options={HOME_GROUP_OPTIONS} onChange={(e) => f.set("homepage_group", e.target.value)} />
+      <div className="self-end pb-2"><CheckboxInput label="Show on homepage" checked={v.show_on_homepage} onChange={(b) => f.set("show_on_homepage", b)} /></div>
       <div className="flex items-center gap-3 md:col-span-2">
         <AdminButton variant="primary" onClick={save} disabled={f.state === "saving"}>{f.state === "saving" ? "Saving…" : "Save category"}</AdminButton>
         <AdminButton variant="ghost" onClick={onDone}>Cancel</AdminButton>
