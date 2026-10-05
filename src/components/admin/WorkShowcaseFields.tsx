@@ -20,7 +20,7 @@ export function WorkShowcaseFields({ config, onChange }: { config: string; onCha
         <TextInput label="Maximum featured projects" type="number" min={1} max={16} value={String(c.maxFeatured)} onChange={(e) => write({ max_featured: Number(e.target.value) })} />
         <TextInput label="Row speed (seconds per loop, 20–90)" type="number" min={20} max={90} value={String(c.speed)} onChange={(e) => write({ speed: Number(e.target.value) })} />
         <CheckboxInput label="Show category jump navigation" checked={c.showJumpNav} onChange={(b) => write({ show_jump_nav: b })} />
-        <CheckboxInput label="Hover video preview" checked={c.hoverPreview} onChange={(b) => write({ hover_preview: b })} />
+        <CheckboxInput label="Live muted video in rows (video projects play automatically)" checked={c.hoverPreview} onChange={(b) => write({ hover_preview: b })} />
       </div>
       <p className="text-small font-medium">Category row order</p>
       {order.map((k, i) => {

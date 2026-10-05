@@ -26,7 +26,6 @@ function useAnimatedRows() {
 
 export function WorkShowcase({ data }: { data: NonNullable<Data> }) {
   const animated = useAnimatedRows();
-  const [playing, setPlaying] = useState<string | null>(null);
   const [active, setActive] = useState<{ row: string; card: WorkCard } | null>(null);
   const rows = [
     ...(data.featured.length ? [{ key: "featured", label: "Featured", tone: "dark" as const, items: data.featured, description: "", exploreUrl: data.ctaUrl }] : []),
@@ -60,9 +59,9 @@ export function WorkShowcase({ data }: { data: NonNullable<Data> }) {
             <WorkRow
               rowKey={row.key} items={row.items} reverse={i % 2 === 0} animated={animated}
               duration={data.speed * (VARIANCE[i % VARIANCE.length] ?? 1)}
-              playing={data.hoverPreview ? playing : null} setPlaying={data.hoverPreview ? setPlaying : null}
+              live={data.hoverPreview}
               headingLevel="h3" activeSlug={active?.row === row.key ? active.card.slug : null}
-              onActivate={(card) => { setPlaying(null); setActive(active?.row === row.key && active.card.slug === card.slug ? null : { row: row.key, card }); }}
+              onActivate={(card) => { setActive(active?.row === row.key && active.card.slug === card.slug ? null : { row: row.key, card }); }}
             />
             {active?.row === row.key && <InlinePlayer key={active.card.slug} card={active.card} onClose={() => setActive(null)} />}
           </Section>
@@ -93,10 +92,10 @@ function RowHeader({ eyebrow, title, body, cta, children }: { eyebrow: string; t
   );
 }
 
-function WorkRow({ rowKey, items, reverse, animated, duration, playing, setPlaying, headingLevel, activeSlug, onActivate }: {
+function WorkRow({ rowKey, items, reverse, animated, duration, live, headingLevel, activeSlug, onActivate }: {
   activeSlug: string | null; onActivate: (card: WorkCard) => void;
   rowKey: string; items: WorkCard[]; reverse: boolean; animated: boolean; duration: number;
-  playing: string | null; setPlaying: ((id: string | null) => void) | null; headingLevel: "h3";
+  live: boolean; headingLevel: "h3";
 }) {
   const ref = useReveal<HTMLDivElement>(0.05);
   // Fill the loop so short rows still span wide screens; the second half is a visual duplicate.
@@ -109,10 +108,9 @@ function WorkRow({ rowKey, items, reverse, animated, duration, playing, setPlayi
     return (
       <div key={id} aria-hidden={dup || undefined} inert={dup || undefined}
         className={cn("relative shrink-0 snap-start transition-transform duration-500 ease-out hover:z-10 hover:scale-[1.14] focus-within:z-10 focus-within:scale-[1.14] motion-reduce:hover:scale-100", PORTFOLIO_RAIL_W)}>
-          <PortfolioCard slug={p.slug} title={p.title} label={p.category?.name ?? p.services[0]?.name ?? null} client={p.client} media={p.media}
-            playing={playing === id} onPreview={setPlaying ? (on) => setPlaying(on ? id : null) : undefined}
+          <LiveCard enabled={live && !!p.media && p.media.type !== "image"}>{(on) => <PortfolioCard playing={on} slug={p.slug} title={p.title} label={p.category?.name ?? p.services[0]?.name ?? null} client={p.client} media={p.media}
             headingLevel={headingLevel} onFocusScroll={!animated}
-            onActivate={() => onActivate(p)} selected={!dup && activeSlug === p.slug} />
+            onActivate={() => onActivate(p)} selected={!dup && activeSlug === p.slug} />}</LiveCard>
       </div>
     );
   };
@@ -181,4 +179,27 @@ function InlinePlayer({ card, onClose }: { card: WorkCard; onClose: () => void }
       </div>
     </SiteContainer>
   );
+}
+
+/**
+ * Live muted tile: the card's video mounts only while the card is on (or just beside) the screen,
+ * so a row never holds more players than the visible cards. Leaving the screen keeps the player
+ * for a few seconds so moving rows don't flicker back to posters.
+ */
+function LiveCard({ enabled, children }: { enabled: boolean; children: (on: boolean) => React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!enabled || !el) return;
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const io = new IntersectionObserver(([e]) => {
+      clearTimeout(t);
+      if (e?.isIntersecting) setOn(true);
+      else t = setTimeout(() => setOn(false), 4000);
+    }, { rootMargin: "150px 120px" });
+    io.observe(el);
+    return () => { clearTimeout(t); io.disconnect(); };
+  }, [enabled]);
+  return <div ref={ref}>{children(enabled && on)}</div>;
 }
