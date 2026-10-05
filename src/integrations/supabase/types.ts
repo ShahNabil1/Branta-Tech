@@ -212,53 +212,134 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_availability_exceptions: {
+        Row: {
+          created_at: string
+          end_time: string | null
+          exception_date: string
+          id: string
+          kind: string
+          reason: string | null
+          start_time: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_time?: string | null
+          exception_date: string
+          id?: string
+          kind: string
+          reason?: string | null
+          start_time?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string | null
+          exception_date?: string
+          id?: string
+          kind?: string
+          reason?: string | null
+          start_time?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      booking_availability_rules: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          enabled: boolean
+          end_time: string
+          id: string
+          sort_order: number
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          enabled?: boolean
+          end_time: string
+          id?: string
+          sort_order?: number
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          enabled?: boolean
+          end_time?: string
+          id?: string
+          sort_order?: number
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
+          booking_reference: string
           client_user_id: string | null
           company: string | null
           created_at: string
+          duration_minutes: number
           email: string
           id: string
           internal_notes: string | null
           ip_hash: string | null
+          meeting_url: string | null
           name: string
           notes: string | null
           phone: string | null
+          public_notes: string | null
           requested_start_at: string
+          service_interest: string[]
           status: string
           timezone: string
           topic: string
           updated_at: string
         }
         Insert: {
+          booking_reference: string
           client_user_id?: string | null
           company?: string | null
           created_at?: string
+          duration_minutes?: number
           email: string
           id?: string
           internal_notes?: string | null
           ip_hash?: string | null
+          meeting_url?: string | null
           name: string
           notes?: string | null
           phone?: string | null
+          public_notes?: string | null
           requested_start_at: string
+          service_interest?: string[]
           status?: string
           timezone: string
           topic: string
           updated_at?: string
         }
         Update: {
+          booking_reference?: string
           client_user_id?: string | null
           company?: string | null
           created_at?: string
+          duration_minutes?: number
           email?: string
           id?: string
           internal_notes?: string | null
           ip_hash?: string | null
+          meeting_url?: string | null
           name?: string
           notes?: string | null
           phone?: string | null
+          public_notes?: string | null
           requested_start_at?: string
+          service_interest?: string[]
           status?: string
           timezone?: string
           topic?: string
@@ -1467,9 +1548,14 @@ export type Database = {
       my_bookings: {
         Args: never
         Returns: {
+          booking_reference: string
           created_at: string
+          duration_minutes: number
           id: string
+          meeting_url: string
+          public_notes: string
           requested_start_at: string
+          service_interest: string[]
           status: string
           timezone: string
           topic: string
