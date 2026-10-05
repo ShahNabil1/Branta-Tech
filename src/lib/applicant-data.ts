@@ -39,11 +39,13 @@ export async function withdrawMyApplication(id: string) {
 export async function fetchApplyPrefill(userId: string) {
   const [{ data: p }, { data: a }] = await Promise.all([
     supabase.from("profiles").select("full_name, phone").eq("id", userId).maybeSingle(),
-    db.from("applicant_profiles").select("current_location, portfolio_url, linkedin_url").eq("user_id", userId).maybeSingle(),
+    db.from("applicant_profiles").select("current_location, portfolio_url, linkedin_url, github_url, behance_url, website_url").eq("user_id", userId).maybeSingle(),
   ]);
+  const s = (v: unknown) => (typeof v === "string" ? v : "");
   return {
     full_name: p?.full_name ?? "", phone: p?.phone ?? "",
-    location: (a?.current_location as string) ?? "", portfolio_url: (a?.portfolio_url as string) ?? "", linkedin_url: (a?.linkedin_url as string) ?? "",
+    location: s(a?.current_location), portfolio_url: s(a?.portfolio_url), linkedin_url: s(a?.linkedin_url),
+    github_url: s(a?.github_url), behance_url: s(a?.behance_url), website_url: s(a?.website_url),
   };
 }
 

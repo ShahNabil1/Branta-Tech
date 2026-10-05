@@ -230,6 +230,7 @@ export const submitApplication = createServerFn({ method: "POST" })
       console.error("application insert failed", ins.error.message);
       return { ok: false, error: "We couldn't send your application. Please try again." };
     }
+    await supabaseAdmin.from("application_drafts" as never).delete().eq("user_id", who.id).eq("job_id", job.id);
     return { ok: true, id: (ins.data as { id: string }).id };
   });
 
