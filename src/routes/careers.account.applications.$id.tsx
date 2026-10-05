@@ -21,7 +21,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     </section>
   );
 }
-const Line = ({ main, sub }: { main: string; sub?: string }) => (
+const Line = ({ main, sub }: { main: string; sub?: string | undefined }) => (
   <div className="py-4"><p className="text-body text-foreground">{main}</p>{sub && <p className="text-small mt-1 whitespace-pre-line text-muted-foreground">{sub}</p>}</div>
 );
 
