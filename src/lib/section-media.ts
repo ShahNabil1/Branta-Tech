@@ -1,6 +1,6 @@
 /** Shared homepage media items stored in page_sections.config.media_items. Client-safe parsing. */
 import { vimeoId } from "@/lib/hero";
-import { parsePriority, type VideoPriority } from "@/components/media/BrantaVideo";
+import { parsePriority, type VideoPriority } from "@/lib/video-priority";
 
 export type MediaType = "image" | "video" | "vimeo";
 export const ASPECTS = ["16:9", "4:5", "1:1", "4:3", "portrait", "wide", "full"] as const;

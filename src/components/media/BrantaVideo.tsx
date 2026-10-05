@@ -18,10 +18,8 @@ import { SoundToggle, useVideoSound } from "@/components/media/SoundToggle";
 import { vimeoId } from "@/lib/hero";
 import { cn } from "@/lib/utils";
 
-export type VideoPriority = "critical" | "high" | "lazy";
-export const PRIORITY_OPTIONS: [VideoPriority | "auto", string][] = [["auto", "Automatic"], ["critical", "Load immediately"], ["high", "Load early"], ["lazy", "Load when needed"]];
-export const parsePriority = (v: unknown): VideoPriority | "auto" => (v === "critical" || v === "high" || v === "lazy" ? v : "auto");
-export const resolvePriority = (v: VideoPriority | "auto" | undefined, fallback: VideoPriority): VideoPriority => (!v || v === "auto" ? fallback : v);
+export { PRIORITY_OPTIONS, parsePriority, resolvePriority, type VideoPriority } from "@/lib/video-priority";
+import type { VideoPriority } from "@/lib/video-priority";
 
 const ORIGIN = "https://player.vimeo.com";
 const MARGIN: Record<VideoPriority, string> = { critical: "1200px", high: "900px", lazy: "250px" };
