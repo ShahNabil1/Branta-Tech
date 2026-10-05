@@ -139,7 +139,7 @@ export default function ChatPanel({ open, onClose }: { open: boolean; onClose: (
         {msgs.length === 0 && actions.length > 0 && (
           <div className="flex flex-wrap gap-2">{actions.map((a) => <Chip key={a.label} onClick={() => runAction(a)} disabled={busy}>{a.label}</Chip>)}</div>
         )}
-        {msgs.filter((m) => m.intent_hidden !== true).map((m, i) => (
+        {msgs.map((m, i) => (
           <Message key={m.id} m={m} last={i === msgs.length - 1} busy={busy} onQuick={(l) => m.payload?.kind === "handoff_topic" ? send({ action: { type: "handoff_topic", topic: l } }) : quick(l)}
             onContact={(v) => send({ action: { type: "offline_contact", ...v } })} />
         ))}
@@ -189,7 +189,7 @@ function Bubble({ from, children }: { from: ChatMsg["from"]; children: React.Rea
 }
 
 function Message({ m, last, busy, onQuick, onContact }: {
-  m: ChatMsg & { intent_hidden?: boolean }; last: boolean; busy: boolean; onQuick: (l: string) => void;
+  m: ChatMsg; last: boolean; busy: boolean; onQuick: (l: string) => void;
   onContact: (v: { name: string; email: string; whatsapp: string; message: string }) => void;
 }) {
   if (m.type === "system" && m.text === "Booking started") return null;
