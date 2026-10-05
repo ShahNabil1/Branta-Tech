@@ -3,7 +3,7 @@ import { useState } from "react";
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  LayoutDashboard, FileText, Newspaper, UserRound, Briefcase, Inbox, Target, CalendarClock, Menu, Layers, Image, FolderOpen, Settings, Users, LogOut, PanelLeft, Quote, Award,
+  LayoutDashboard, FileText, Newspaper, UserRound, Briefcase, Inbox, Target, CalendarClock, Menu, Layers, Image, FolderOpen, Settings, Users, LogOut, PanelLeft, Quote, Award, MessagesSquare, BookOpen, Zap, HelpCircle, SlidersHorizontal,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getAdminSession, CMS_ROLES } from "@/lib/supabase/admin-access";
@@ -53,6 +53,17 @@ const groups = [
       { label: "Leads", icon: Target, to: "/control-centre/leads" as const },
       { label: "Bookings", icon: CalendarClock, to: "/control-centre/bookings" as const },
       { label: "Availability", icon: CalendarClock, to: "/control-centre/bookings/availability" as const },
+    ],
+  },
+  {
+    title: "Chat",
+    access: "sales",
+    items: [
+      { label: "Inbox", icon: MessagesSquare, to: "/control-centre/chat" as const },
+      { label: "Knowledge Base", icon: BookOpen, to: "/control-centre/chat/knowledge" as const },
+      { label: "Quick Actions", icon: Zap, to: "/control-centre/chat/quick-actions" as const },
+      { label: "Unanswered", icon: HelpCircle, to: "/control-centre/chat/unanswered" as const },
+      { label: "Chat Settings", icon: SlidersHorizontal, to: "/control-centre/chat/settings" as const },
     ],
   },
   {
