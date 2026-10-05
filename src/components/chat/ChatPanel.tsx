@@ -157,7 +157,7 @@ export default function ChatPanel({ open, onClose }: { open: boolean; onClose: (
       </div>
 
       <form className="flex items-end gap-2 border-t border-border bg-background p-3" onSubmit={(e) => { e.preventDefault(); const t = text.trim(); if (!t) return; setText(""); void send({ text: t }); }}>
-        <label htmlFor="branta-chat-input" className="sr-only">Message</label>
+        <label htmlFor="branta-chat-input" className="sr-only">Type your message</label>
         <textarea id="branta-chat-input" ref={input} rows={1} maxLength={1200} value={text} onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); e.currentTarget.form?.requestSubmit(); } }}
           placeholder={humanMode ? "Message the Branta team..." : settings.placeholder}
