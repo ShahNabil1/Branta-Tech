@@ -272,10 +272,13 @@ export type Database = {
       }
       job_applications: {
         Row: {
+          answers: Json
           applicant_user_id: string | null
           cover_note: string
           created_at: string
+          eligibility_passed: boolean | null
           email: string
+          extra: Json
           full_name: string
           id: string
           ip_hash: string | null
@@ -291,10 +294,13 @@ export type Database = {
           withdrawn_at: string | null
         }
         Insert: {
+          answers?: Json
           applicant_user_id?: string | null
           cover_note: string
           created_at?: string
+          eligibility_passed?: boolean | null
           email: string
+          extra?: Json
           full_name: string
           id?: string
           ip_hash?: string | null
@@ -310,10 +316,13 @@ export type Database = {
           withdrawn_at?: string | null
         }
         Update: {
+          answers?: Json
           applicant_user_id?: string | null
           cover_note?: string
           created_at?: string
+          eligibility_passed?: boolean | null
           email?: string
+          extra?: Json
           full_name?: string
           id?: string
           ip_hash?: string | null
@@ -394,62 +403,109 @@ export type Database = {
           },
         ]
       }
+      job_slug_redirects: {
+        Row: {
+          created_at: string
+          job_id: string
+          old_slug: string
+        }
+        Insert: {
+          created_at?: string
+          job_id: string
+          old_slug: string
+        }
+        Update: {
+          created_at?: string
+          job_id?: string
+          old_slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_slug_redirects_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       jobs: {
         Row: {
           created_at: string
+          deadline_at: string | null
           department: string | null
           description_html: string | null
           description_json: Json
+          details: Json
           employment_type: string | null
           featured: boolean
           id: string
+          job_code: string | null
           location: string | null
+          open_at: string | null
           published_at: string | null
           requirements_json: Json
+          seo: Json
           slug: string
           sort_order: number
           status: string
           summary: string | null
           title: string
           updated_at: string
+          urgent: boolean
+          vacancies: number | null
           work_mode: string | null
         }
         Insert: {
           created_at?: string
+          deadline_at?: string | null
           department?: string | null
           description_html?: string | null
           description_json?: Json
+          details?: Json
           employment_type?: string | null
           featured?: boolean
           id?: string
+          job_code?: string | null
           location?: string | null
+          open_at?: string | null
           published_at?: string | null
           requirements_json?: Json
+          seo?: Json
           slug: string
           sort_order?: number
           status?: string
           summary?: string | null
           title: string
           updated_at?: string
+          urgent?: boolean
+          vacancies?: number | null
           work_mode?: string | null
         }
         Update: {
           created_at?: string
+          deadline_at?: string | null
           department?: string | null
           description_html?: string | null
           description_json?: Json
+          details?: Json
           employment_type?: string | null
           featured?: boolean
           id?: string
+          job_code?: string | null
           location?: string | null
+          open_at?: string | null
           published_at?: string | null
           requirements_json?: Json
+          seo?: Json
           slug?: string
           sort_order?: number
           status?: string
           summary?: string | null
           title?: string
           updated_at?: string
+          urgent?: boolean
+          vacancies?: number | null
           work_mode?: string | null
         }
         Relationships: []
