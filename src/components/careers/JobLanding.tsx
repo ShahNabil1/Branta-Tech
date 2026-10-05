@@ -59,6 +59,7 @@ export function RoleTabs({ j }: { j: PublicJob }) {
   const [tab, setTab] = useState(0);
   if (!tabs.length) return null;
   const cur = tabs[Math.min(tab, tabs.length - 1)]!;
+  if (tabs.length === 1) return <LandingBlock id="role" title={cur[1]}>{cur[2]}</LandingBlock>;
   return (
     <LandingBlock id="role" title="The work">
       <div role="tablist" aria-label="Role details" className="flex gap-1 rounded-md border border-border bg-muted p-1"

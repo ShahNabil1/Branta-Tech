@@ -129,15 +129,15 @@ export function JobView({ j, preview }: { j: Job; preview?: boolean }) {
 function ApplyEntry({ job }: { job: Job }) {
   const a = job.details.application;
   const box = "rounded-md border border-border bg-surface p-6 md:p-8";
-  if (job.window === "not_yet") return <div className={box}><h2 className="text-h2 text-foreground">Applications open soon</h2><p className="text-body mt-4 text-muted-foreground">Applications open on {formatDeadline(job.openAt)}.</p></div>;
-  if (job.window === "closed") return <div className={box}><h2 className="text-h2 text-foreground">Applications closed</h2><p className="text-body mt-4 text-muted-foreground">This role is no longer accepting applications.</p><Link to="/careers" className="text-body mt-6 inline-block underline underline-offset-4">See open roles</Link></div>;
+  if (job.window === "not_yet") return <div className={box}><h2 className="text-h3 text-foreground">Applications open soon</h2><p className="text-body mt-4 text-muted-foreground">Applications open on {formatDeadline(job.openAt)}.</p></div>;
+  if (job.window === "closed") return <div className={box}><h2 className="text-h3 text-foreground">Applications closed</h2><p className="text-body mt-4 text-muted-foreground">This role is no longer accepting applications.</p><Link to="/careers" className="text-body mt-6 inline-block underline underline-offset-4">See open roles</Link></div>;
   if (a.method !== "form") {
     const href = a.method === "email" && a.email ? `mailto:${a.email}?subject=${encodeURIComponent(`Application: ${job.title}`)}`
       : a.method === "link" && /^https:\/\//.test(a.url) ? a.url
       : a.method === "whatsapp" && a.whatsapp ? `https://wa.me/${a.whatsapp.replace(/[^\d]/g, "")}` : null;
     return (
       <div className={box}>
-        <h2 className="text-h2 text-foreground">How to apply</h2>
+        <h2 className="text-h3 text-foreground">How to apply</h2>
         {a.custom_text && <p className="text-body mt-4 whitespace-pre-line text-muted-foreground">{a.custom_text}</p>}
         {href && <a href={href} target={a.method === "email" ? undefined : "_blank"} rel="noopener noreferrer" className={cn(buttonVariants({ variant: "primary", size: "lg" }), "mt-6 w-full")}>{a.cta_label || "Apply Now"}</a>}
       </div>
@@ -174,7 +174,7 @@ function ApplyForm({ job }: { job: Job }) {
   if (gate.kind === "applied") return <AppliedCard id={gate.id} title={job.title} already />;
   if (gate.kind === "signed-out") return (
     <div className={box}>
-      <h2 className="text-h2 text-foreground">Apply</h2>
+      <h2 className="text-h3 text-foreground">Apply</h2>
       <p className="text-body mt-4 text-muted-foreground">Sign in or create an applicant account to apply. You'll come straight back to this application, and you can follow it afterwards.</p>
       <div className="mt-6 flex flex-col gap-3">
         <Link to="/careers/sign-in" search={{ next }} className={cn(buttonVariants({ variant: "primary", size: "lg" }), "w-full")}>Sign in to apply</Link>
@@ -184,7 +184,7 @@ function ApplyForm({ job }: { job: Job }) {
   );
   return (
     <div className={box}>
-      <h2 className="text-h2 text-foreground">Apply</h2>
+      <h2 className="text-h3 text-foreground">Apply</h2>
       <p className="text-body mt-4 text-muted-foreground">{gate.draft ? "You have an unfinished application for this role. Pick up where you left off." : "A short step-by-step application. Your progress saves automatically, so you can finish later."}</p>
       <Link to="/careers/$slug/apply" params={{ slug: job.slug }} className={cn(buttonVariants({ variant: "primary", size: "lg" }), "mt-6 w-full")}>{gate.draft ? "Continue Application" : job.details.application.cta_label || "Apply Now"}</Link>
     </div>
