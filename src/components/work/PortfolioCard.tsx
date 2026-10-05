@@ -23,7 +23,7 @@ export function WorkMediaView({ media: m, title, alt, playing }: { media: WorkMe
   return (
     <>
       {poster ? (
-        <img src={poster} alt={alt ?? m.alt ?? title} loading="lazy" decoding="async" draggable={false} tabIndex={tabIndex}
+        <img src={poster} alt={alt ?? m.alt ?? title} loading="lazy" decoding="async" draggable={false}
           className={cn("absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100", pos)} />
       ) : <div className="absolute inset-0 bg-muted/10" />}
       {(m.type === "vimeo" || m.type === "video") && playing && (
@@ -64,7 +64,7 @@ export function PortfolioCard({ slug, title, label, client, media, playing = fal
   const stop = () => onPreview?.(false);
   const H = headingLevel;
   return (
-    <Link ref={ref} to="/work/$slug" params={{ slug }} draggable={false}
+    <Link ref={ref} to="/work/$slug" params={{ slug }} draggable={false} tabIndex={tabIndex}
       onClick={onActivate ? (e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; e.preventDefault(); onActivate(); } : undefined}
       aria-current={selected || undefined}
       onMouseEnter={start} onMouseLeave={stop} onBlur={stop}
