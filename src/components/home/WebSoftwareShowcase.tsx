@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Volume2, VolumeX } from "lucide-react";
+import { SoundToggle, useVideoSound } from "@/components/media/SoundToggle";
 import { Eyebrow, Section, SiteContainer } from "@/components/layout/primitives";
 import { HeroAction } from "@/components/home/Hero";
 import type { WebSoftware, WebWork } from "@/lib/web-software.functions";
@@ -13,13 +13,7 @@ function Promo({ id, poster, title }: { id: string | null; poster: string | null
   const frame = useRef<HTMLIFrameElement>(null);
   const [mount, setMount] = useState(false);
   const [ready, setReady] = useState(false);
-  const [sound, setSound] = useState(false);
-
-  const toggleSound = () => {
-    const next = !sound;
-    setSound(next);
-    frame.current?.contentWindow?.postMessage(JSON.stringify({ method: "setVolume", value: next ? 1 : 0 }), "https://player.vimeo.com");
-  };
+  const sound = useVideoSound({ kind: "vimeo", ref: frame }, mount && ready);
 
   useEffect(() => {
     if (!id || !box.current) return;
@@ -57,17 +51,7 @@ function Promo({ id, poster, title }: { id: string | null; poster: string | null
           className={cn("pointer-events-none absolute inset-0 h-full w-full border-0 transition-opacity duration-700", ready ? "opacity-100" : "opacity-0")}
         />
       )}
-      {ready && (
-        <button
-          type="button"
-          onClick={toggleSound}
-          aria-label={sound ? "Mute film sound" : "Play film sound"}
-          aria-pressed={sound}
-          className="absolute bottom-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background/70 text-foreground backdrop-blur-sm transition-colors hover:bg-background"
-        >
-          {sound ? <Volume2 className="h-4 w-4" aria-hidden /> : <VolumeX className="h-4 w-4" aria-hidden />}
-        </button>
-      )}
+      {ready && <SoundToggle on={sound.on} onToggle={sound.toggle} />}
     </div>
   );
 }
