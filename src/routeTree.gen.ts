@@ -70,6 +70,7 @@ import { Route as ControlCentreAdminServicesIdRouteImport } from './routes/contr
 import { Route as ControlCentreAdminServicesGroupsRouteImport } from './routes/control-centre._admin.services.groups'
 import { Route as ControlCentreAdminSettingsSiteRouteImport } from './routes/control-centre._admin.settings.site'
 import { Route as ControlCentreAdminWebsiteNavigationRouteImport } from './routes/control-centre._admin.website.navigation'
+import { Route as ControlCentreAdminWebsiteTestimonialsRouteImport } from './routes/control-centre._admin.website.testimonials'
 import { Route as ControlCentreAdminCareersApplicationsIndexRouteImport } from './routes/control-centre._admin.careers.applications.index'
 import { Route as ControlCentreAdminCareersApplicationsIdRouteImport } from './routes/control-centre._admin.careers.applications.$id'
 import { Route as ControlCentreAdminCareersJobsIndexRouteImport } from './routes/control-centre._admin.careers.jobs.index'
@@ -405,6 +406,12 @@ const ControlCentreAdminWebsiteNavigationRoute =
     path: '/website/navigation',
     getParentRoute: () => ControlCentreAdminRoute,
   } as any)
+const ControlCentreAdminWebsiteTestimonialsRoute =
+  ControlCentreAdminWebsiteTestimonialsRouteImport.update({
+    id: '/website/testimonials',
+    path: '/website/testimonials',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
 const ControlCentreAdminCareersApplicationsIndexRoute =
   ControlCentreAdminCareersApplicationsIndexRouteImport.update({
     id: '/careers/applications/',
@@ -509,6 +516,7 @@ export interface FileRoutesByFullPath {
   '/control-centre/services/groups': typeof ControlCentreAdminServicesGroupsRoute
   '/control-centre/settings/site': typeof ControlCentreAdminSettingsSiteRoute
   '/control-centre/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
+  '/control-centre/website/testimonials': typeof ControlCentreAdminWebsiteTestimonialsRoute
   '/careers/account/applications/': typeof CareersAccountApplicationsIndexRoute
   '/control-centre/bookings/': typeof ControlCentreAdminBookingsIndexRoute
   '/control-centre/insights/': typeof ControlCentreAdminInsightsIndexRoute
@@ -576,6 +584,7 @@ export interface FileRoutesByTo {
   '/control-centre/services/groups': typeof ControlCentreAdminServicesGroupsRoute
   '/control-centre/settings/site': typeof ControlCentreAdminSettingsSiteRoute
   '/control-centre/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
+  '/control-centre/website/testimonials': typeof ControlCentreAdminWebsiteTestimonialsRoute
   '/careers/account/applications': typeof CareersAccountApplicationsIndexRoute
   '/control-centre/bookings': typeof ControlCentreAdminBookingsIndexRoute
   '/control-centre/insights': typeof ControlCentreAdminInsightsIndexRoute
@@ -648,6 +657,7 @@ export interface FileRoutesById {
   '/control-centre/_admin/services/groups': typeof ControlCentreAdminServicesGroupsRoute
   '/control-centre/_admin/settings/site': typeof ControlCentreAdminSettingsSiteRoute
   '/control-centre/_admin/website/navigation': typeof ControlCentreAdminWebsiteNavigationRoute
+  '/control-centre/_admin/website/testimonials': typeof ControlCentreAdminWebsiteTestimonialsRoute
   '/careers/account/applications/': typeof CareersAccountApplicationsIndexRoute
   '/control-centre/_admin/bookings/': typeof ControlCentreAdminBookingsIndexRoute
   '/control-centre/_admin/insights/': typeof ControlCentreAdminInsightsIndexRoute
@@ -720,6 +730,7 @@ export interface FileRouteTypes {
     | '/control-centre/services/groups'
     | '/control-centre/settings/site'
     | '/control-centre/website/navigation'
+    | '/control-centre/website/testimonials'
     | '/careers/account/applications/'
     | '/control-centre/bookings/'
     | '/control-centre/insights/'
@@ -787,6 +798,7 @@ export interface FileRouteTypes {
     | '/control-centre/services/groups'
     | '/control-centre/settings/site'
     | '/control-centre/website/navigation'
+    | '/control-centre/website/testimonials'
     | '/careers/account/applications'
     | '/control-centre/bookings'
     | '/control-centre/insights'
@@ -858,6 +870,7 @@ export interface FileRouteTypes {
     | '/control-centre/_admin/services/groups'
     | '/control-centre/_admin/settings/site'
     | '/control-centre/_admin/website/navigation'
+    | '/control-centre/_admin/website/testimonials'
     | '/careers/account/applications/'
     | '/control-centre/_admin/bookings/'
     | '/control-centre/_admin/insights/'
@@ -1333,6 +1346,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlCentreAdminWebsiteNavigationRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
+    '/control-centre/_admin/website/testimonials': {
+      id: '/control-centre/_admin/website/testimonials'
+      path: '/website/testimonials'
+      fullPath: '/control-centre/website/testimonials'
+      preLoaderRoute: typeof ControlCentreAdminWebsiteTestimonialsRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
     '/control-centre/_admin/careers/applications/': {
       id: '/control-centre/_admin/careers/applications/'
       path: '/careers/applications'
@@ -1426,6 +1446,7 @@ interface ControlCentreAdminRouteChildren {
   ControlCentreAdminServicesGroupsRoute: typeof ControlCentreAdminServicesGroupsRoute
   ControlCentreAdminSettingsSiteRoute: typeof ControlCentreAdminSettingsSiteRoute
   ControlCentreAdminWebsiteNavigationRoute: typeof ControlCentreAdminWebsiteNavigationRoute
+  ControlCentreAdminWebsiteTestimonialsRoute: typeof ControlCentreAdminWebsiteTestimonialsRoute
   ControlCentreAdminBookingsIndexRoute: typeof ControlCentreAdminBookingsIndexRoute
   ControlCentreAdminInsightsIndexRoute: typeof ControlCentreAdminInsightsIndexRoute
   ControlCentreAdminLeadsIndexRoute: typeof ControlCentreAdminLeadsIndexRoute
@@ -1460,6 +1481,8 @@ const ControlCentreAdminRouteChildren: ControlCentreAdminRouteChildren = {
   ControlCentreAdminSettingsSiteRoute: ControlCentreAdminSettingsSiteRoute,
   ControlCentreAdminWebsiteNavigationRoute:
     ControlCentreAdminWebsiteNavigationRoute,
+  ControlCentreAdminWebsiteTestimonialsRoute:
+    ControlCentreAdminWebsiteTestimonialsRoute,
   ControlCentreAdminBookingsIndexRoute: ControlCentreAdminBookingsIndexRoute,
   ControlCentreAdminInsightsIndexRoute: ControlCentreAdminInsightsIndexRoute,
   ControlCentreAdminLeadsIndexRoute: ControlCentreAdminLeadsIndexRoute,
