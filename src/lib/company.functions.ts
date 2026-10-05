@@ -112,10 +112,19 @@ export const getCompanyPage = createServerFn({ method: "GET" })
     };
   });
 
-export type JobCard = Pick<PublicJob, "slug" | "title" | "department" | "type" | "location" | "workMode" | "summary" | "featured" | "urgent" | "deadlineAt" | "salary" | "window" | "vacancies">;
+export type JobCard = Pick<PublicJob, "slug" | "title" | "department" | "type" | "location" | "workMode" | "summary" | "featured" | "urgent" | "deadlineAt" | "salary" | "window" | "vacancies" | "experience" | "publishedAt"> & {
+  experienceKind: string; skills: string[]; salaryValue: number | null;
+};
 export type Job = PublicJob;
 const JOB_COLS = "slug,title,department,employment_type,location,work_mode,summary,featured,urgent,vacancies,job_code,open_at,deadline_at,published_at,details,status";
 export const isInternship = (j: { type: string | null }) => /intern/i.test(j.type ?? "");
+
+/** Comparable public salary figure (only when a real amount is published). */
+function salaryValue(c: { type: string; amount: string; min: string; max: string; text: string }): number | null {
+  if (!["fixed", "range", "salary_commission", "stipend", "project"].includes(c.type)) return null;
+  const n = Number((c.max || c.amount || c.min).replace(/[^\d.]/g, ""));
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
 
 export const getJobs = createServerFn({ method: "GET" }).handler(async (): Promise<JobCard[]> => {
   const sb = pub();
@@ -125,7 +134,9 @@ export const getJobs = createServerFn({ method: "GET" }).handler(async (): Promi
     const j = toPublicJob(r as JobRowLike);
     // "Auto close" jobs drop off the listing once the deadline passes.
     const hide = j.window === "closed" && j.details.application.after_deadline === "auto_close";
-    return hide ? null : { slug: j.slug, title: j.title, department: j.department, type: j.type, location: j.location, workMode: j.workMode, summary: j.summary, featured: j.featured, urgent: j.urgent, deadlineAt: j.deadlineAt, salary: j.salary, window: j.window, vacancies: j.vacancies };
+    return hide ? null : { slug: j.slug, title: j.title, department: j.department, type: j.type, location: j.location, workMode: j.workMode, summary: j.summary, featured: j.featured, urgent: j.urgent, deadlineAt: j.deadlineAt, salary: j.salary, window: j.window, vacancies: j.vacancies,
+      experience: j.experience, experienceKind: j.details.experience.kind, publishedAt: j.publishedAt, skills: j.details.skills.map((x) => x.name),
+      salaryValue: salaryValue(j.details.comp) };
   }).filter((x): x is JobCard => !!x);
 });
 
