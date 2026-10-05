@@ -6,6 +6,7 @@ export type MatchIntent = { id: string; key: string; priority: number; phrases: 
 export type MatchResult = { key: string; id: string; score: number };
 
 const BN = /[\u0980-\u09FF]/g;
+const HAS_BN = /[\u0980-\u09FF]/;
 
 export function normalize(s: string) {
   return s.normalize("NFKC").toLowerCase()
@@ -27,8 +28,7 @@ export function phraseScore(msg: string, phrase: string): number {
   if (!p) return 0;
   if (msg === p) return 100;
   const pt = tokens(p);
-  if (` ${msg} `.includes(` ${p} `) || (BN.test(p) && msg.includes(p))) return 30 + 8 * pt.length;
-  BN.lastIndex = 0;
+  if (` ${msg} `.includes(` ${p} `) || (HAS_BN.test(p) && msg.includes(p))) return 30 + 8 * pt.length;
   if (pt.length < 2) return 0;
   const mt = new Set(tokens(msg));
   const hit = pt.filter((t) => mt.has(t)).length;
