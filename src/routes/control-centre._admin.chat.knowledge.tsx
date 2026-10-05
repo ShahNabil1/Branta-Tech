@@ -158,7 +158,7 @@ function Editor({ entry, refs, prefill, topics }: { entry: I | null; refs: Refs;
     <div className="max-w-4xl">
       <button type="button" onClick={() => navigate({ to: "/control-centre/chat/knowledge", search: {} })} className="text-small mb-4 inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" /> Knowledge Base</button>
       <PageHeader eyebrow="Chat · Knowledge entry" title={entry ? entry.name : "New knowledge entry"}
-        description={prefill.q && !entry ? `From an unanswered question${prefill.asked ? ` (asked ${prefill.asked}×)` : ""}. Add the approved answer and publish.` : undefined}
+        description={prefill.q && !entry ? `From an unanswered question${prefill.asked ? ` (asked ${prefill.asked}×)` : ""}. Add the approved answer and publish.` : ""}
         actions={entry && <ConfirmButton title="Delete this entry?" description="Its training phrases are deleted too." onConfirm={remove}>Delete</ConfirmButton>} />
       <div role="tablist" className="mb-4 flex flex-wrap gap-1 border-b border-border">
         {SECTIONS.map((x) => (
