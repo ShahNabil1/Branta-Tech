@@ -61,7 +61,7 @@ export function PricingSection({ content }: P<"pricing">) {
               </div>
               <p className="mt-5 flex flex-wrap items-baseline gap-x-2 text-foreground">
                 {pr.prefix && <span className="text-small text-muted-foreground">{pr.prefix}</span>}
-                <span className="text-h2 font-medium">{pr.main}</span>
+                <span className="text-h3 font-medium">{pr.main}</span>
                 {pr.suffix && <span className="text-small text-muted-foreground">{pr.suffix}</span>}
               </p>
               {p.tagline && <p className="text-small mt-3 text-muted-foreground">{p.tagline}</p>}
