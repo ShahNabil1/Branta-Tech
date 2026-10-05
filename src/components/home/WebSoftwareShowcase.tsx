@@ -1,57 +1,17 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { SoundToggle, useVideoSound } from "@/components/media/SoundToggle";
+import { BrantaVideo } from "@/components/media/BrantaVideo";
 import { Eyebrow, Section, SiteContainer } from "@/components/layout/primitives";
 import { HeroAction } from "@/components/home/Hero";
 import type { WebSoftware, WebWork } from "@/lib/web-software.functions";
 import { cn } from "@/lib/utils";
 import { PortfolioCard, PORTFOLIO_GRID } from "@/components/work/PortfolioCard";
 
-/** Poster first; on desktop the muted background player mounts near the viewport and fades in once Vimeo reports playback. */
+/** Promo film via BrantaVideo: poster first, prepares early (mobile included), fades in once playing. */
 function Promo({ id, poster, title }: { id: string | null; poster: string | null; title: string }) {
-  const box = useRef<HTMLDivElement>(null);
-  const frame = useRef<HTMLIFrameElement>(null);
-  const [mount, setMount] = useState(false);
-  const [ready, setReady] = useState(false);
-  const sound = useVideoSound({ kind: "vimeo", ref: frame }, mount && ready);
-
-  useEffect(() => {
-    if (!id || !box.current) return;
-    const desktop = window.matchMedia("(min-width: 768px) and (hover: hover)").matches;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!desktop || reduce) return;
-    const io = new IntersectionObserver(([e]) => setMount(!!e?.isIntersecting), { rootMargin: "200px" });
-    io.observe(box.current);
-    return () => io.disconnect();
-  }, [id]);
-
-  useEffect(() => {
-    if (!mount) { setReady(false); return; }
-    const onMsg = (e: MessageEvent) => {
-      if (e.origin !== "https://player.vimeo.com" || e.source !== frame.current?.contentWindow) return;
-      let d: { event?: string } = {};
-      try { d = typeof e.data === "string" ? JSON.parse(e.data) : e.data; } catch { return; }
-      if (d.event === "ready") frame.current?.contentWindow?.postMessage(JSON.stringify({ method: "addEventListener", value: "play" }), "https://player.vimeo.com");
-      if (d.event === "play") setReady(true);
-    };
-    window.addEventListener("message", onMsg);
-    return () => window.removeEventListener("message", onMsg);
-  }, [mount]);
-
   return (
-    <div ref={box} className="relative aspect-video w-full overflow-hidden rounded-[6px] bg-muted/10">
-      {poster && <img src={poster} alt={`${title} promo film`} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />}
-      {mount && id && (
-        <iframe
-          ref={frame}
-          title={`${title} promo film`}
-          src={`https://player.vimeo.com/video/${id}?background=1&autoplay=1&muted=1&loop=1&dnt=1`}
-          allow="autoplay; fullscreen"
-          tabIndex={-1}
-          className={cn("pointer-events-none absolute inset-0 h-full w-full border-0 transition-opacity duration-700", ready ? "opacity-100" : "opacity-0")}
-        />
-      )}
-      {ready && <SoundToggle on={sound.on} onToggle={sound.toggle} />}
+    <div className="relative aspect-video w-full overflow-hidden rounded-[6px] bg-muted/10">
+      {id ? <BrantaVideo kind="vimeo" url={`https://vimeo.com/${id}`} poster={poster} alt={`${title} promo film`} priority="high" sound playButton />
+        : poster && <img src={poster} alt={`${title} promo film`} loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />}
     </div>
   );
 }
