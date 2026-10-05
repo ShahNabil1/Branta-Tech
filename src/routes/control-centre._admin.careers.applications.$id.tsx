@@ -112,7 +112,7 @@ function ApplicationView() {
       </Panel>}
 
       {tab === "Experience" && <div className="grid gap-6">
-        <Panel title="Work experience" description={r.has_experience === "no" ? "The applicant said they have no work experience." : undefined}>
+        <Panel title="Work experience" {...(r.has_experience === "no" ? { description: "The applicant said they have no work experience." } : {})}>
           {r.experience.length ? <ol className="grid gap-4">{r.experience.map((e, n) => (
             <li key={n} className="rounded-sm border border-border p-4">
               <p className="text-small font-medium">{e.title} — {e.company}</p>

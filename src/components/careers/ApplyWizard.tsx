@@ -24,7 +24,7 @@ const IMG_ACCEPT = ".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp";
 const fileCls = "text-small block w-full file:mr-4 file:rounded-sm file:border file:border-input file:bg-surface file:px-3 file:py-2 file:text-foreground";
 const URL_RE = /^https?:\/\/[^\s"<>]+$/;
 
-export function Field({ id, label, required, error, hint, children, className }: { id: string; label: string; required?: boolean; error?: string | undefined; hint?: string | undefined; children: React.ReactNode; className?: string }) {
+export function Field({ id, label, required, error, hint, children, className }: { id: string; label: string; required?: boolean; error?: string | undefined; hint?: string | undefined; children: React.ReactNode; className?: string | undefined }) {
   return (
     <div className={className}>
       <label htmlFor={id} className="text-small mb-1.5 block font-medium text-foreground">{label}{required ? <span aria-hidden className="text-accent"> *</span> : <span className="font-normal text-muted-foreground"> (optional)</span>}</label>
