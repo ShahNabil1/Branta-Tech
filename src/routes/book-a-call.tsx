@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, ArrowRight, CalendarDays, Check, CheckCircle2, Clock3, Loader2, MessageSquareText, Search, Sparkles } from "lucide-react";
 import { SiteShell } from "@/components/layout/SiteShell";
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/book-a-call")({
   component: BookCall,
 });
 
-const STEPS = ["Your details", "What you need", "Choose a date", "Choose a time", "Review"];
+const STEPS = ["Details", "Need", "Date", "Time", "Confirm"];
 const CALL_STEPS = [
   { icon: Search, n: "01", title: "Understand", body: "We unpack the idea, challenge and context." },
   { icon: MessageSquareText, n: "02", title: "Explore", body: "We discuss possibilities, priorities and constraints." },
@@ -36,6 +36,7 @@ function dayKey(date: Date) {
 
 function BookCall() {
   const { data } = useSuspenseQuery(bookingExperienceQuery);
+  const queryClient = useQueryClient();
   const submit = useServerFn(submitBooking);
   const { user } = useClientSession();
   const startRef = useRef(Date.now());
@@ -52,10 +53,11 @@ function BookCall() {
   const [values, setValues] = useState({ name: (user?.user_metadata?.["full_name"] as string) ?? "", email: user?.email ?? "", phone: "", company: "", topic: "", notes: "" });
   useEffect(() => { setTz(Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"); }, []);
 
-  const available = useMemo(() => new Set(data.days.map((d) => d.date)), [data.days]);
+  const available = useMemo(() => new Set(data.days.filter((d) => d.slots.some((x) => !x.booked)).map((d) => d.date)), [data.days]);
+  const fullyBooked = useMemo(() => new Set(data.days.filter((d) => d.slots.every((x) => x.booked)).map((d) => d.date)), [data.days]);
   const dateString = date ? dayKey(date) : "";
   const officeSlots = data.days.find((d) => d.date === dateString)?.slots ?? [];
-  const currentSlot = officeSlots.find((s) => s.iso === slot);
+  const currentSlot = officeSlots.find((s) => s.iso === slot && !s.booked);
   const userTime = (iso: string) => new Intl.DateTimeFormat("en-GB", { hour: "numeric", minute: "2-digit", timeZone: tz }).format(new Date(iso));
   const longDate = (iso: string) => new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: data.settings.timezone }).format(new Date(iso));
   const setValue = (key: keyof typeof values, value: string) => setValues((v) => ({ ...v, [key]: value }));
@@ -65,7 +67,7 @@ function BookCall() {
     if (step === 0) {
       if (values.name.trim().length < 2) e["name"] = "Enter your name";
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) e["email"] = "Enter a valid email";
-      if (values.phone && !/^[+\d\s().-]{6,}$/.test(values.phone)) e["phone"] = "Check the phone number";
+      if (!/^[+\d\s().-]{6,}$/.test(values.phone)) e["phone"] = "Enter your WhatsApp number";
     }
     if (step === 1 && !selectedServices.length) e["services"] = "Choose at least one service";
     if (step === 1 && values.topic.trim().length < 3) e["topic"] = "Tell us briefly what you want to discuss";
@@ -86,7 +88,7 @@ function BookCall() {
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         setError(result.error); setErrs(result.fields ?? {});
-        if (result.fields?.["time"]) setStep(3);
+        if (result.fields?.["time"]) { setSlot(""); setStep(3); void queryClient.invalidateQueries({ queryKey: bookingExperienceQuery.queryKey }); }
       }
     } catch { setError("We couldn't send your request. Please try again."); }
     finally { setBusy(false); }
@@ -95,72 +97,76 @@ function BookCall() {
   const media = data.settings.introMedia[0];
   return (
     <SiteShell>
-      <main>
-        <section className="dark overflow-hidden bg-background pb-14 pt-16 text-foreground md:pb-24 md:pt-24">
-          <SiteContainer wide>
-            <Eyebrow>BOOK A CALL</Eyebrow>
-            <div className="mt-5 grid gap-10 lg:grid-cols-12 lg:items-end">
-              <div className="lg:col-span-7">
-                <h1 className="text-display-xl max-w-[12ch]">Let's talk about what you're building.</h1>
-                <p className="text-body-lg mt-6 max-w-2xl text-muted-foreground">A focused conversation to understand your idea, challenge or opportunity — and see how Branta can help.</p>
-                <Button className="mt-8" size="lg" onClick={() => bookingRef.current?.scrollIntoView({ behavior: "smooth" })}>Choose a time <ArrowRight className="size-4" aria-hidden /></Button>
+      <main className="booking-atmosphere px-3 py-8 sm:px-6 md:py-14">
+        <div className="booking-frame mx-auto max-w-[1360px] rounded-[28px] border border-border p-5 sm:p-8 lg:p-12">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,45fr)_minmax(0,55fr)] lg:gap-12">
+            <div className="flex flex-col">
+              <Eyebrow>BOOK A CALL</Eyebrow>
+              <h1 className="text-display mt-5 max-w-[14ch]">Let’s talk about what you’re building.</h1>
+              <p className="text-body-lg mt-5 max-w-xl text-muted-foreground">A focused conversation to understand your idea, challenge or opportunity and see how Branta can help.</p>
+              <p className="text-eyebrow mt-7 flex items-center gap-2 text-accent"><Clock3 className="size-4" aria-hidden />{data.settings.durationMinutes} MINUTE DISCOVERY CALL</p>
+              {media && <div className="mt-8"><SectionMedia item={{ ...media, aspect: "16:9" }} className="rounded-2xl" eager /></div>}
+              <div className="mt-8 border-t border-border pt-6">
+                <p className="text-small font-medium">What we’ll cover</p>
+                <ul className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2">
+                  {COVER.map((c) => <li key={c} className="text-small flex items-center gap-2.5 text-muted-foreground"><Check className="size-4 shrink-0 text-accent" aria-hidden />{c}</li>)}
+                </ul>
               </div>
-              <div className="text-small flex items-center gap-3 text-muted-foreground lg:col-span-3 lg:col-start-10"><Clock3 className="size-5 text-accent" aria-hidden />{data.settings.durationMinutes}-minute discovery call</div>
+              <p className="text-caption mt-6 text-muted-foreground">No obligation. We confirm every time personally before sending a meeting link.</p>
             </div>
-            {media && <div className="mt-12 md:mt-16"><SectionMedia item={media} className="rounded-md" eager /></div>}
-          </SiteContainer>
-        </section>
 
-        <section className="bg-[var(--warm)] py-16 md:py-24">
-          <SiteContainer>
-            <Eyebrow>THE CONVERSATION</Eyebrow>
-            <h2 className="text-h1 mt-4 max-w-2xl">What happens in 30 minutes?</h2>
-            <div className="mt-12 grid border-y border-border md:grid-cols-4">
-              {CALL_STEPS.map(({ icon: Icon, n, title, body }, i) => <article key={title} className={cn("py-7 md:px-6", i > 0 && "border-t border-border md:border-l md:border-t-0")}>
-                <div className="flex items-center justify-between"><span className="text-caption text-muted-foreground">{n}</span><Icon className="size-5 text-accent" aria-hidden /></div>
-                <h3 className="text-h3 mt-10">{title}</h3><p className="text-small mt-3 text-muted-foreground">{body}</p>
-              </article>)}
-            </div>
-            {data.settings.processMedia[0] && <div className="mt-12 md:mt-16"><SectionMedia item={data.settings.processMedia[0]} className="rounded-md" /></div>}
-          </SiteContainer>
-        </section>
-
-        <section ref={bookingRef} className="scroll-mt-20 bg-background py-16 md:py-24">
-          <SiteContainer wide>
-            {confirmation ? <Confirmation reference={confirmation.reference} confirmed={confirmation.status === "confirmed"} user={!!user} slot={slot} timezone={tz} services={selectedServices} duration={data.settings.durationMinutes} /> : (
-              <form onSubmit={onSubmit} className="grid gap-8 lg:grid-cols-[300px_minmax(0,1fr)]" noValidate>
-                <aside className="lg:sticky lg:top-28 lg:self-start">
-                  <Eyebrow>YOUR CALL</Eyebrow><h2 className="text-h2 mt-4">Book your discovery session.</h2>
-                  <ol className="mt-8 grid grid-cols-5 gap-1 lg:grid-cols-1 lg:gap-0">
-                    {STEPS.map((label, i) => <li key={label} className={cn("relative flex items-center gap-3 border-border py-3 lg:border-l lg:pl-5", i <= step ? "text-foreground" : "text-muted-foreground")}>
-                      <span className={cn("flex size-7 shrink-0 items-center justify-center rounded-full border text-caption", i < step ? "border-accent bg-accent text-accent-foreground" : i === step ? "border-foreground" : "border-border")}>{i < step ? <Check className="size-3.5" /> : i + 1}</span>
-                      <span className="text-small hidden lg:block">{label}</span>
-                    </li>)}
-                  </ol>
-                  <div className="text-caption mt-7 border-t border-border pt-5 text-muted-foreground"><p>{data.settings.durationMinutes} minutes</p><p className="mt-1">Times shown in {tz.replace(/_/g, " ")}</p></div>
-                </aside>
-                <div className="min-h-[560px] rounded-md border border-border bg-surface p-5 sm:p-8 md:p-10">
-                  <div className="mb-8 flex items-center justify-between"><span className="text-eyebrow text-muted-foreground">STEP {step + 1} OF 5</span><span className="text-caption text-muted-foreground">{STEPS[step]}</span></div>
-                  {error && <div className="mb-6"><FormAlert>{error}</FormAlert></div>}
-                  {step === 0 && <StepDetails values={values} setValue={setValue} errs={errs} />}
-                  {step === 1 && <StepNeeds services={data.services} selected={selectedServices} setSelected={setSelectedServices} values={values} setValue={setValue} errs={errs} />}
-                  {step === 2 && <StepDate value={date} onChange={(d) => { setDate(d); setSlot(""); }} available={available} min={data.days[0]?.date} max={data.days.at(-1)?.date} error={errs["date"]} />}
-                  {step === 3 && <StepTime date={dateString} slots={officeSlots} value={slot} onChange={setSlot} userTime={userTime} officeZone={data.settings.timezone} userZone={tz} error={errs["time"]} />}
-                  {step === 4 && currentSlot && <StepReview values={values} services={selectedServices} iso={currentSlot.iso} longDate={longDate} userTime={userTime} timezone={tz} duration={data.settings.durationMinutes} />}
-                  <Honeypot />
-                  <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
-                    {step > 0 ? <Button type="button" variant="ghost" onClick={() => setStep((s) => s - 1)}><ArrowLeft className="size-4" /> Back</Button> : <span />}
-                    {step < 4 ? <Button type="button" onClick={() => validate(step + 1)}>Continue <ArrowRight className="size-4" /></Button> : <Button type="submit" size="lg" disabled={busy}>{busy && <Loader2 className="size-4 animate-spin" />}{busy ? "Checking time…" : "Request this call"}</Button>}
-                  </div>
+            <div ref={bookingRef} className="scroll-mt-24">
+              <div className="overflow-hidden rounded-2xl border border-border bg-surface lg:sticky lg:top-24">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4 sm:px-7">
+                  <div><p className="text-body font-medium">Discovery Call</p><p className="text-caption text-muted-foreground">Branta Tech</p></div>
+                  <div className="text-caption flex items-center gap-4 text-muted-foreground"><span className="flex items-center gap-1.5"><Clock3 className="size-3.5" aria-hidden />{data.settings.durationMinutes} min</span><span className="flex items-center gap-1.5"><CalendarDays className="size-3.5" aria-hidden />{tz.replace(/_/g, " ")}</span></div>
                 </div>
-              </form>
-            )}
-          </SiteContainer>
+                {confirmation ? <div className="step-in p-5 sm:p-8"><Confirmation reference={confirmation.reference} confirmed={confirmation.status === "confirmed"} user={!!user} slot={slot} timezone={tz} duration={data.settings.durationMinutes} /></div> : (
+                  <form onSubmit={onSubmit} className="p-5 sm:p-7" noValidate>
+                    <ol className="flex items-center gap-1.5" aria-label="Booking steps">
+                      {STEPS.map((label, i) => <li key={label} aria-current={i === step ? "step" : undefined} className="flex flex-1 flex-col gap-2">
+                        <span className={cn("h-1 rounded-full transition-colors", i <= step ? "bg-accent" : "bg-border")} />
+                        <span className={cn("text-caption hidden sm:block", i === step ? "text-foreground" : "text-muted-foreground")}>{label}</span>
+                      </li>)}
+                    </ol>
+                    <p className="text-caption mt-3 text-muted-foreground sm:hidden">Step {step + 1} of 5 · {STEPS[step]}</p>
+                    {error && <div className="mt-6"><FormAlert>{error}</FormAlert></div>}
+                    <div key={step} className="step-in mt-7 min-h-[420px]">
+                      {step === 0 && <StepDetails values={values} setValue={setValue} errs={errs} />}
+                      {step === 1 && <StepNeeds services={data.services} selected={selectedServices} setSelected={setSelectedServices} values={values} setValue={setValue} errs={errs} />}
+                      {step === 2 && <StepDate value={date} onChange={(d) => { setDate(d); setSlot(""); if (d) { setErrs({}); setError(null); } }} available={available} full={fullyBooked} min={data.days[0]?.date} max={data.days.at(-1)?.date} error={errs["date"]} />}
+                      {step === 3 && <StepTime date={dateString} slots={officeSlots} value={slot} onChange={setSlot} userTime={userTime} officeZone={data.settings.timezone} error={errs["time"]} />}
+                      {step === 4 && currentSlot && <StepReview values={values} services={selectedServices} iso={currentSlot.iso} longDate={longDate} userTime={userTime} timezone={tz} duration={data.settings.durationMinutes} />}
+                    </div>
+                    <Honeypot />
+                    <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
+                      {step > 0 ? <Button type="button" variant="ghost" onClick={() => { setStep((s) => s - 1); setError(null); }}><ArrowLeft className="size-4" /> Back</Button> : <span />}
+                      {step < 4 ? <Button type="button" onClick={() => validate(step + 1)}>Continue <ArrowRight className="size-4" /></Button> : <Button type="submit" size="lg" disabled={busy}>{busy && <Loader2 className="size-4 animate-spin" />}{busy ? "Checking time…" : "Confirm Booking"}</Button>}
+                    </div>
+                  </form>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <section className="mx-auto mt-6 max-w-[1360px] rounded-[28px] border border-border bg-surface/80 p-5 sm:p-8 lg:p-12">
+          <Eyebrow>THE CONVERSATION</Eyebrow>
+          <h2 className="text-h2 mt-4">What happens in 30 minutes?</h2>
+          <div className="mt-8 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
+            {CALL_STEPS.map(({ icon: Icon, n, title, body }) => <article key={title} className="bg-surface p-6">
+              <div className="flex items-center justify-between"><span className="text-caption text-muted-foreground">{n}</span><Icon className="size-5 text-accent" aria-hidden /></div>
+              <h3 className="text-h4 mt-8">{title}</h3><p className="text-small mt-2 text-muted-foreground">{body}</p>
+            </article>)}
+          </div>
+          {data.settings.processMedia[0] && <div className="mt-8"><SectionMedia item={data.settings.processMedia[0]} className="rounded-2xl" /></div>}
         </section>
       </main>
     </SiteShell>
   );
 }
+
+const COVER = ["Your goal", "What you want to build", "What’s currently blocking you", "Possible direction", "Next steps"];
 
 type Values = { name: string; email: string; phone: string; company: string; topic: string; notes: string };
 function StepDetails({ values, setValue, errs }: { values: Values; setValue: (k: keyof Values, v: string) => void; errs: Record<string, string> }) {
