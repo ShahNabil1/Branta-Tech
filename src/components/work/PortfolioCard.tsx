@@ -49,9 +49,10 @@ export type PortfolioCardProps = {
   /** When set, clicking opens an inline player instead of navigating. */
   onActivate?: (() => void) | undefined;
   selected?: boolean;
+  tabIndex?: number | undefined;
 };
 
-export function PortfolioCard({ slug, title, label, client, media, playing = false, onPreview, className, headingLevel = "h3", onFocusScroll, onActivate, selected }: PortfolioCardProps) {
+export function PortfolioCard({ slug, title, label, client, media, playing = false, onPreview, className, headingLevel = "h3", onFocusScroll, onActivate, selected, tabIndex }: PortfolioCardProps) {
   const ref = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
     if (!playing || !ref.current || !onPreview) return;
@@ -63,7 +64,7 @@ export function PortfolioCard({ slug, title, label, client, media, playing = fal
   const stop = () => onPreview?.(false);
   const H = headingLevel;
   return (
-    <Link ref={ref} to="/work/$slug" params={{ slug }} draggable={false}
+    <Link ref={ref} to="/work/$slug" params={{ slug }} draggable={false} tabIndex={tabIndex}
       onClick={onActivate ? (e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; e.preventDefault(); onActivate(); } : undefined}
       aria-current={selected || undefined}
       onMouseEnter={start} onMouseLeave={stop} onBlur={stop}

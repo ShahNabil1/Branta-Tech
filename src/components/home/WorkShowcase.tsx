@@ -105,10 +105,10 @@ function WorkRow({ rowKey, items, reverse, animated, duration, live, headingLeve
     const dup = idx >= items.length;
     const id = `${rowKey}:${idx}`;
     return (
-      <div key={id} aria-hidden={dup || undefined} inert={dup || undefined}
+      <div key={id} aria-hidden={dup || undefined}
         className={cn("relative shrink-0 snap-start transition-transform duration-500 ease-out hover:z-10 hover:scale-[1.14] focus-within:z-10 focus-within:scale-[1.14] motion-reduce:hover:scale-100", PORTFOLIO_RAIL_W)}>
           <LiveCard enabled={live && !!p.media && p.media.type !== "image"}>{(on) => <PortfolioCard playing={on} slug={p.slug} title={p.title} label={p.category?.name ?? p.services[0]?.name ?? null} client={p.client} media={p.media}
-            headingLevel={headingLevel} onFocusScroll={!animated}
+            headingLevel={headingLevel} onFocusScroll={!animated} tabIndex={dup ? -1 : undefined}
             onActivate={() => onActivate(p)} />}</LiveCard>
       </div>
     );
