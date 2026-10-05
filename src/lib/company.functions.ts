@@ -4,6 +4,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 import { isHttps, parseBlocks, type Block } from "./rich-text";
+import { toPublicJob, type JobRowLike, type PublicJob } from "./job-details";
 
 /** Public reads for Insights, About, Team and Careers — publishable key, anon RLS (published only). */
 function pub() {
@@ -111,29 +112,36 @@ export const getCompanyPage = createServerFn({ method: "GET" })
     };
   });
 
-export type JobCard = { slug: string; title: string; department: string | null; type: string | null; location: string | null; workMode: string | null; summary: string | null; featured: boolean };
-export type Job = JobCard & { blocks: Block[]; requirements: string[]; publishedAt: string | null };
-const JOB_COLS = "slug,title,department,employment_type,location,work_mode,summary,featured";
-type JobRow = { slug: string; title: string; department: string | null; employment_type: string | null; location: string | null; work_mode: string | null; summary: string | null; featured: boolean };
-const toJob = (j: JobRow): JobCard => ({ slug: j.slug, title: j.title, department: j.department, type: j.employment_type, location: j.location, workMode: j.work_mode, summary: j.summary, featured: j.featured });
+export type JobCard = Pick<PublicJob, "slug" | "title" | "department" | "type" | "location" | "workMode" | "summary" | "featured" | "urgent" | "deadlineAt" | "salary" | "window" | "vacancies">;
+export type Job = PublicJob;
+const JOB_COLS = "slug,title,department,employment_type,location,work_mode,summary,featured,urgent,vacancies,job_code,open_at,deadline_at,published_at,details,status";
 export const isInternship = (j: { type: string | null }) => /intern/i.test(j.type ?? "");
 
 export const getJobs = createServerFn({ method: "GET" }).handler(async (): Promise<JobCard[]> => {
   const sb = pub();
   if (!sb) return [];
   const { data } = await sb.from("jobs").select(JOB_COLS).eq("status", "published").order("featured", { ascending: false }).order("published_at", { ascending: false, nullsFirst: false }).order("sort_order");
-  return (data ?? []).map(toJob);
+  return (data ?? []).map((r) => {
+    const j = toPublicJob(r as JobRowLike);
+    // "Auto close" jobs drop off the listing once the deadline passes.
+    const hide = j.window === "closed" && j.details.application.after_deadline === "auto_close";
+    return hide ? null : { slug: j.slug, title: j.title, department: j.department, type: j.type, location: j.location, workMode: j.workMode, summary: j.summary, featured: j.featured, urgent: j.urgent, deadlineAt: j.deadlineAt, salary: j.salary, window: j.window, vacancies: j.vacancies };
+  }).filter((x): x is JobCard => !!x).sort((a, b) => Number(b.urgent && b.featured) - Number(a.urgent && a.featured));
 });
 
+/** Published job by slug; an old slug of a published job resolves to { redirect }. */
 export const getJob = createServerFn({ method: "GET" })
   .inputValidator((d: { slug: string }) => z.object({ slug: z.string().min(1).max(120) }).parse(d))
-  .handler(async ({ data }): Promise<Job | null> => {
+  .handler(async ({ data }): Promise<Job | { redirect: string } | null> => {
     const sb = pub();
     if (!sb) return null;
-    const { data: j } = await sb.from("jobs").select(`${JOB_COLS},description_json,requirements_json,published_at`).eq("slug", data.slug).eq("status", "published").maybeSingle();
-    if (!j) return null;
-    const reqs = Array.isArray(j.requirements_json) ? j.requirements_json.filter((x): x is string => typeof x === "string" && !!x.trim()) : [];
-    return { ...toJob(j), blocks: parseBlocks(j.description_json), requirements: reqs, publishedAt: j.published_at };
+    const { data: j } = await sb.from("jobs").select(`${JOB_COLS},description_json,requirements_json,seo`).eq("slug", data.slug).eq("status", "published").maybeSingle();
+    if (j) return toPublicJob(j as JobRowLike);
+    const { data: r } = await sb.from("job_slug_redirects" as never).select("job_id").eq("old_slug", data.slug).maybeSingle();
+    const jobId = (r as { job_id: string } | null)?.job_id;
+    if (!jobId) return null;
+    const { data: target } = await sb.from("jobs").select("slug").eq("id", jobId).eq("status", "published").maybeSingle();
+    return target ? { redirect: target.slug } : null;
   });
 
 const FIVE = 5 * 60_000;

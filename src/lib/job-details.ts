@@ -107,7 +107,7 @@ function shape<T extends R>(def: T, raw: unknown): T {
   }
   return out as T;
 }
-const items = (v: unknown): Item[] => arr(v).map((x) => ({ id: str(x["id"], 20) || uid(), text: str(x["text"], 600), enabled: x["enabled"] !== false })).filter((x) => x.text.trim() || true);
+const items = (v: unknown): Item[] => arr(v).map((x) => ({ id: str(x["id"], 20) || uid(), text: str(x["text"], 600), enabled: x["enabled"] !== false }));
 
 export function parseDetails(raw: unknown): JobDetails {
   const r = obj(raw);
