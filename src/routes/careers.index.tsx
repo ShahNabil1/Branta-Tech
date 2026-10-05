@@ -236,14 +236,7 @@ function CareersPage() {
         <SiteContainer>
           <div className="grid gap-6 lg:grid-cols-[minmax(0,23fr)_minmax(0,54fr)_minmax(0,23fr)]">
             {/* Left: applicant summary (collapsible on small screens) */}
-            <aside className="order-2 lg:order-1" aria-label="Your applicant summary">
-              <details className="group rounded-md border border-border bg-surface lg:hidden">
-                <summary className="text-small flex cursor-pointer list-none items-center justify-between px-4 py-3 text-foreground">
-                  {me ? `${me.name.split(" ")[0]} · ${me.apps.filter((a) => ACTIVE(a.status)).length} active applications` : "Your applicant account"}
-                  <span className="text-muted-foreground group-open:rotate-180">⌄</span>
-                </summary>
-                <div className="border-t border-border p-3"><ApplicantPanel me={me} /></div>
-              </details>
+            <aside className="hidden lg:block" aria-label="Your applicant summary">
               <div className="hidden lg:sticky lg:top-24 lg:block"><ApplicantPanel me={me} /></div>
             </aside>
 
@@ -262,6 +255,13 @@ function CareersPage() {
                 </form>
               </div>
 
+              <details className="group mt-4 rounded-md border border-border bg-surface lg:hidden">
+                <summary className="text-small flex cursor-pointer list-none items-center justify-between px-4 py-3 text-foreground">
+                  {me ? `${me.name.split(" ")[0]} · ${me.apps.filter((a) => ACTIVE(a.status)).length} active applications` : "Your applicant account"}
+                  <span className="text-muted-foreground group-open:rotate-180">⌄</span>
+                </summary>
+                <div className="border-t border-border p-3"><ApplicantPanel me={me} /></div>
+              </details>
               <div id="open-roles" className="mt-6 flex scroll-mt-24 flex-wrap items-center justify-between gap-3">
                 <p className="text-small text-muted-foreground" aria-live="polite"><span className="font-medium text-foreground">{shown.length}</span> {shown.length === 1 ? "role" : "roles"}</p>
                 <div className="flex items-center gap-2">
