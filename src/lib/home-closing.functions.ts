@@ -5,6 +5,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { listPublishedPosts, type PostCard } from "./company.functions";
 import { httpsUrl, maxItems, parseLogos, parseSteps, secondaryCta, type ClientLogo, type ProcessStep } from "./home-closing";
 import { parseMediaItems, type SectionMediaItem } from "./section-media";
+import { parsePlans, parseSnapshotItems, type PricingPlan } from "./home-engage";
 import { parseStats, publicFundedBy, showLogos, type FundedBy, type TrustStat } from "./trust";
 
 type Intro = { eyebrow: string; title: string; body: string; ctaLabel: string; ctaUrl: string };
@@ -16,9 +17,12 @@ export type HomeClosing = {
   finalCta: (Intro & { secondary: { label: string; url: string }; background: SectionMediaItem | null }) | null;
   /** trust_proof section; logos reuse the client_logos section data. */
   trust: (Intro & { logos: ClientLogo[]; stats: TrustStat[]; fundedBy: FundedBy | null }) | null;
+  services: (Intro & { items: { label: string; description: string; url: string }[] }) | null;
+  pricing: (Intro & { plans: PricingPlan[] }) | null;
+  bookCall: (Intro & { secondary: { label: string; url: string } }) | null;
 };
-const EMPTY: HomeClosing = { process: null, clients: null, insights: null, careers: null, finalCta: null, trust: null };
-const TYPES = ["process", "client_logos", "insights_teaser", "careers_teaser", "final_cta", "trust_proof"];
+const EMPTY: HomeClosing = { process: null, clients: null, insights: null, careers: null, finalCta: null, trust: null, services: null, pricing: null, bookCall: null };
+const TYPES = ["process", "client_logos", "insights_teaser", "careers_teaser", "final_cta", "trust_proof", "services_snapshot", "pricing", "book_call_cta"];
 
 /** Closing homepage sections in one read (publishable key, anon RLS). Never throws. */
 export const getHomeClosing = createServerFn({ method: "GET" }).handler(async (): Promise<HomeClosing> => {
@@ -52,6 +56,27 @@ export const getHomeClosing = createServerFn({ method: "GET" }).handler(async ()
         if (!t) return null;
         const tl = showLogos(t.config) ? logos : [], stats = parseStats(t.config, true), fundedBy = publicFundedBy(t.config);
         return tl.length || stats.length || fundedBy ? { ...intro(t), logos: tl, stats, fundedBy } : null;
+      })(),
+      services: await (async () => {
+        const s = get("services_snapshot");
+        if (!s) return null;
+        const items = parseSnapshotItems(s.config).filter((i) => i.enabled && i.label);
+        const [sv, gr] = await Promise.all([
+          sb.from("services").select("slug,short_description").eq("status", "published"),
+          sb.from("service_groups").select("slug,short_description").eq("status", "published"),
+        ]);
+        const known = new Map([...(gr.data ?? []), ...(sv.data ?? [])].map((r) => [r.slug, r.short_description ?? ""]));
+        const out = items.map((i) => ({ label: i.label, description: i.description || known.get(i.slug) || "", url: i.slug ? `/services/${i.slug}` : "" }));
+        return out.length ? { ...intro(s), items: out } : null;
+      })(),
+      pricing: (() => {
+        const s = get("pricing");
+        const plans = s ? parsePlans(s.config).filter((p) => p.enabled && p.name) : [];
+        return s && plans.length ? { ...intro(s), plans } : null;
+      })(),
+      bookCall: (() => {
+        const s = get("book_call_cta");
+        return s ? { ...intro(s), secondary: secondaryCta(s.config) } : null;
       })(),
     };
   } catch {

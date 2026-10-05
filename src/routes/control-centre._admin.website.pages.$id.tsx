@@ -16,6 +16,7 @@ import { HeroFields } from "@/components/admin/HeroFields";
 import { heroMediaErrors } from "@/lib/hero";
 import { CapabilityFields } from "@/components/admin/CapabilityFields";
 import { HomeClosingFields } from "@/components/admin/HomeClosingFields";
+import { HomeEngageFields } from "@/components/admin/HomeEngageFields";
 import { TrustFields } from "@/components/admin/TrustFields";
 import { SeoFields, seoFrom, seoPayload, seoErrors, emptySeo, type SeoValues } from "@/components/admin/SeoFields";
 
@@ -202,7 +203,7 @@ function Sections({ pageId }: { pageId: string }) {
   );
 }
 
-const SECTION_TYPES = ["hero", "trust_proof", "capability_explorer", "client_logos", "studio_hero", "studio_entry", "text", "media", "cta", "services", "portfolio", "logos", "custom"].map((v) => ({ value: v, label: v }));
+const SECTION_TYPES = ["hero", "trust_proof", "capability_explorer", "services_snapshot", "pricing", "book_call_cta", "client_logos", "studio_hero", "studio_entry", "text", "media", "cta", "services", "portfolio", "logos", "custom"].map((v) => ({ value: v, label: v }));
 
 function SectionForm({ section, onSaved }: { section: Section; onSaved: () => void }) {
   const init = {
@@ -270,6 +271,7 @@ function SectionForm({ section, onSaved }: { section: Section; onSaved: () => vo
       <CheckboxInput label="Visible" checked={v.is_visible} onChange={(b) => f.set("is_visible", b)} />
       {v.section_type === "trust_proof" && <TrustFields config={v.config} onChange={(c) => f.set("config", c)} />}
       {v.section_type === "hero" && <HeroFields config={v.config} onChange={(c) => f.set("config", c)} />}
+      {["services_snapshot", "pricing", "book_call_cta"].includes(v.section_type) && <HomeEngageFields type={v.section_type} config={v.config} onChange={(c) => f.set("config", c)} />}
       {v.section_type === "client_logos" && <HomeClosingFields type={v.section_type} config={v.config} onChange={(c) => f.set("config", c)} />}
       {v.section_type === "capability_explorer" && <CapabilityFields config={v.config} onChange={(c) => f.set("config", c)} />}
       <div className="md:col-span-2">
