@@ -146,8 +146,8 @@ export const submitBooking = createServerFn({ method: "POST" })
 
     const { getBookingExperience } = await import("./booking.functions");
     const experience = await getBookingExperience();
-    const offered = experience.days.some((day) => day.slots.some((slot) => slot.iso === new Date(when).toISOString()));
-    if (!offered) return { ok: false, error: "That time is no longer available. Please choose another.", fields: { time: "Choose a current available time" } };
+    const offered = experience.days.some((day) => day.slots.some((slot) => !slot.booked && slot.iso === new Date(when).toISOString()));
+    if (!offered) return { ok: false, error: "That time was just booked. Please choose another available slot.", fields: { time: "Choose a current available time" } };
 
     const { supabaseAdmin, ipHash, userId, randomUUID } = await context("bookings");
     const hourAgo = new Date(Date.now() - 3600_000).toISOString();
@@ -176,7 +176,7 @@ export const submitBooking = createServerFn({ method: "POST" })
       status: cfg["instant_confirmation"] === true ? "confirmed" : "requested",
     }).select("booking_reference,status").single();
     if (ins.error) {
-      if (ins.error.code === "23505" || ins.error.code === "23P01") return { ok: false, error: "That time was just taken. Please choose another available time.", fields: { time: "This time is no longer available" } };
+      if (ins.error.code === "23505" || ins.error.code === "23P01") return { ok: false, error: "That time was just booked. Please choose another available slot.", fields: { time: "This time is no longer available" } };
       console.error("booking insert failed", ins.error.message);
       return { ok: false, error: "We couldn't send your request. Please try again." };
     }

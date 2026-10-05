@@ -351,3 +351,16 @@
   background-color: var(--dark-alt);
   background-image: radial-gradient(45% 70% at 90% 50%, color-mix(in oklab, #FF5D00 14%, transparent), transparent 70%);
 }
+
+@utility booking-atmosphere {
+  background:
+    radial-gradient(60% 55% at 12% 8%, color-mix(in oklab, #FFB07A 70%, transparent), transparent 70%),
+    radial-gradient(50% 50% at 92% 20%, color-mix(in oklab, #BFD3F2 55%, transparent), transparent 70%),
+    radial-gradient(70% 60% at 70% 100%, color-mix(in oklab, #FF5D00 28%, transparent), transparent 70%),
+    #FFF3EA;
+}
+@utility booking-frame {
+  background: #FFFDFC;
+  box-shadow: 0 1px 0 rgb(36 22 15 / 0.04), 0 40px 80px -40px rgb(36 22 15 / 0.28);
+}
+@utility step-in { animation: cap-in 320ms var(--ease-out-expo) both; }
