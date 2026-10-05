@@ -1,4 +1,4 @@
-import { SoundToggle, useVideoSound } from "@/components/media/SoundToggle";
+import { BrantaVideo } from "@/components/media/BrantaVideo";
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type RefObject } from "react";
 import { cn } from "@/lib/utils";
 import { SiteContainer } from "@/components/layout/primitives";
@@ -30,113 +30,15 @@ function ImageLayer({ item, active }: { item: Item; active: boolean }) {
   );
 }
 
-/** True while the element is near/in the viewport — players only run while visible. */
-function useInView<T extends Element>(ref: RefObject<T | null>) {
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(([e]) => setInView(!!e?.isIntersecting), { rootMargin: "100px" });
-    io.observe(el);
-    return () => io.disconnect();
-  }, [ref]);
-  return inView;
-}
-
-function useMotionAllowed() {
-  const [allow, setAllow] = useState(false);
-  useEffect(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const save = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
-    setAllow(!reduced && !save);
-  }, []);
-  return allow;
-}
-
 const LAYER = "absolute inset-0 transition-[opacity,transform] duration-[350ms] ease-[var(--ease-out-expo)]";
 
-/** Poster that disappears quietly if it fails to load (never a broken image icon). */
-function Poster({ src, alt }: { src: string; alt: string }) {
-  const [bad, setBad] = useState(false);
-  if (!src || bad) return null;
-  return <img src={src} alt={alt} decoding="async" onError={() => setBad(true)} className="absolute inset-0 size-full object-cover" />;
-}
-
-function VimeoLayer({ item, active }: { item: Item; active: boolean }) {
-  const m = item.media;
-  const id = vimeoId(m.url);
-  const box = useRef<HTMLDivElement>(null);
-  const frame = useRef<HTMLIFrameElement>(null);
-  const inView = useInView(box);
-  const allow = useMotionAllowed();
-  const [playing, setPlaying] = useState(false);
-  const run = active && inView && allow && m.autoplay && !!id;
-  const sound = useVideoSound({ kind: "vimeo", ref: frame }, run && playing);
-  useEffect(() => {
-    if (!run) { setPlaying(false); return; }
-    const onMsg = (e: MessageEvent) => {
-      if (e.origin !== "https://player.vimeo.com" || e.source !== frame.current?.contentWindow) return;
-      let d: { event?: string } = {};
-      try { d = typeof e.data === "string" ? JSON.parse(e.data) : e.data; } catch { return; }
-      if (d.event === "ready") {
-        for (const v of ["play", "timeupdate"]) frame.current?.contentWindow?.postMessage(JSON.stringify({ method: "addEventListener", value: v }), "https://player.vimeo.com");
-      }
-      if (d.event === "play" || d.event === "timeupdate" || d.event === "playProgress") setPlaying(true);
-    };
-    window.addEventListener("message", onMsg);
-    return () => window.removeEventListener("message", onMsg);
-  }, [run]);
-  return (
-    <div ref={box} aria-hidden={!active} className={cn(LAYER, active ? "scale-100 opacity-100" : "scale-[1.02] opacity-0")}>
-      <Poster src={m.poster_url} alt={m.alt} />
-      {/* Only the active, visible capability mounts its player; anything else unmounts it (stops playback). */}
-      {run && (
-        <iframe
-          ref={frame}
-          title={m.alt || `${item.label} video`}
-          tabIndex={-1}
-          src={`https://player.vimeo.com/video/${id}?background=1&autoplay=1&muted=1&loop=${m.loop ? 1 : 0}&autopause=0&dnt=1`}
-          allow="autoplay; fullscreen; picture-in-picture"
-          className={cn("pointer-events-none absolute inset-0 size-full border-0 transition-opacity duration-500", playing ? "opacity-100" : "opacity-0")}
-        />
-      )}
-      {run && playing && <SoundToggle on={sound.on} onToggle={sound.toggle} />}
-    </div>
-  );
-}
-
+/** Only the active tab mounts a player (BrantaVideo, high priority); inactive tabs show their poster only. */
 function VideoLayer({ item, active }: { item: Item; active: boolean }) {
   const m = item.media;
-  const box = useRef<HTMLDivElement>(null);
-  const ref = useRef<HTMLVideoElement>(null);
-  const inView = useInView(box);
-  const allow = useMotionAllowed();
-  const [playing, setPlaying] = useState(false);
-  const [failed, setFailed] = useState(false);
-  const run = active && inView && allow && m.autoplay && !failed;
-  const sound = useVideoSound({ kind: "video", ref }, run && playing);
-  useEffect(() => {
-    const v = ref.current;
-    if (!v) return;
-    if (run) void v.play().catch(() => setPlaying(false)); // blocked autoplay keeps the poster
-    else { v.pause(); setPlaying(false); }
-  }, [run]);
   return (
-    <div ref={box} aria-hidden={!active} className={cn(LAYER, active ? "scale-100 opacity-100" : "scale-[1.02] opacity-0")}>
-      <Poster src={m.poster_url} alt={m.alt} />
-      {/* The file only starts loading once its tab has been active while visible. */}
-      {(run || playing) && (
-        <video
-          ref={ref}
-          src={m.url}
-          muted loop={m.loop} playsInline autoPlay preload="auto"
-          aria-label={m.alt || undefined}
-          onPlaying={() => setPlaying(true)}
-          onError={() => { setFailed(true); setPlaying(false); }}
-          className={cn("absolute inset-0 size-full object-cover transition-opacity duration-500", playing ? "opacity-100" : "opacity-0")}
-        />
-      )}
-      {run && playing && <SoundToggle on={sound.on} onToggle={sound.toggle} />}
+    <div aria-hidden={!active} className={cn(LAYER, active ? "scale-100 opacity-100" : "scale-[1.02] opacity-0")}>
+      <BrantaVideo kind={m.type === "vimeo" ? "vimeo" : "video"} url={m.url} poster={m.poster_url} alt={m.alt || `${item.label} video`}
+        priority="high" active={active} autoplay={m.autoplay} loop={m.loop} sound={active} playButton={active} />
     </div>
   );
 }
@@ -175,7 +77,7 @@ function EmptyMedia({ item, active }: { item: Item; active: boolean }) {
 function MediaLayer({ item, active }: { item: Item; active: boolean }) {
   const m = item.media;
   if (m.type === "workflow") return <WorkflowLayer item={item} active={active} />;
-  if (m.type === "vimeo" && vimeoId(m.url)) return <VimeoLayer item={item} active={active} />;
+  if (m.type === "vimeo" && vimeoId(m.url)) return <VideoLayer item={item} active={active} />;
   if (m.type === "video" && m.url) return <VideoLayer item={item} active={active} />;
   if ((m.type === "vimeo" || m.type === "video") && m.poster_url) return <ImageLayer item={{ ...item, media: { ...m, url: m.poster_url } }} active={active} />;
   if (m.type === "image" && m.url) return <ImageLayer item={item} active={active} />;
