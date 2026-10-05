@@ -40,6 +40,8 @@ export function LeadOnboarding({ settings, prefill, busy, error, onTrack, onSubm
   const [ok, setOk] = useState(false);
   const [echo, setEcho] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+  const latest = useRef(vals);
+  latest.current = vals;
 
   useEffect(() => {
     try {
@@ -50,12 +52,15 @@ export function LeadOnboarding({ settings, prefill, busy, error, onTrack, onSubm
   }, []);
   useEffect(() => { if (scene !== "welcome" && scene !== "done" && !typing) inputRef.current?.focus({ preventScroll: true }); }, [scene, typing]);
 
-  const name = vals.name.trim() || prefill.name || "";
-  const values = (): LeadValues => ({
-    ...(steps.includes("name") || prefill.name ? { name: name } : {}),
-    ...(steps.includes("whatsapp") ? { whatsapp: `${vals.code}${vals.local}` } : prefill.whatsapp ? { whatsapp: prefill.whatsapp } : {}),
-    ...(steps.includes("email") || prefill.email ? { email: (vals.email || prefill.email || "").trim() } : {}),
-  });
+  const values = (): LeadValues => {
+    const v = latest.current;
+    const name = v.name.trim() || prefill.name || "";
+    return {
+      ...(name ? { name } : {}),
+      ...(steps.includes("whatsapp") ? { whatsapp: normalizePhone(`${v.code}${v.local.replace(/[\s().-]/g, "").replace(/^0+/, "")}`) } : prefill.whatsapp ? { whatsapp: prefill.whatsapp } : {}),
+      ...((v.email || prefill.email) ? { email: (v.email || prefill.email || "").trim() } : {}),
+    };
+  };
 
   function go(next: Scene, line?: string) {
     setOk(false);
@@ -86,7 +91,6 @@ export function LeadOnboarding({ settings, prefill, busy, error, onTrack, onSubm
     const err = check(f);
     setFieldErr(err);
     if (err) return;
-    if (f === "whatsapp") setVals((v) => ({ ...v, local: v.local.replace(/[\s().-]/g, "").replace(/^0+/, "") }));
     setOk(true);
     onTrack(`${f}_completed`);
     const nxt = nextAfter(f);

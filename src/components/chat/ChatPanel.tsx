@@ -3,10 +3,11 @@ import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { MoreHorizontal, Send, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { chatOpen, chatSend, chatSync } from "@/lib/chat.functions";
-import { DEFAULT_CHAT_SETTINGS, type ChatMsg, type ChatSettings, type ChatState, type QuickAction } from "@/lib/chat/types";
+import { chatIdentify, chatOpen, chatSend, chatSync, chatTrack } from "@/lib/chat.functions";
+import { DEFAULT_CHAT_SETTINGS, type ChatMsg, type ChatSettings, type ChatState, type LeadProfile, type QuickAction } from "@/lib/chat/types";
 import { cn } from "@/lib/utils";
 import { BookingFlow } from "./BookingFlow";
+import { LeadOnboarding, type LeadValues } from "./LeadOnboarding";
 
 const KEY = "branta_chat_token";
 const FAIL = "Something went wrong. Please try again or talk to our team.";
@@ -14,6 +15,11 @@ type SendBody = { token: string | null; page?: string; text?: string; action?: u
 
 export default function ChatPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const openFn = useServerFn(chatOpen), sendFn = useServerFn(chatSend), syncFn = useServerFn(chatSync);
+  const identifyFn = useServerFn(chatIdentify), trackFn = useServerFn(chatTrack);
+  const [profile, setProfile] = useState<LeadProfile | null>(null);
+  const [leadBusy, setLeadBusy] = useState(false);
+  const [leadErr, setLeadErr] = useState<string | null>(null);
+  const tracked = useRef(false);
   const [settings, setSettings] = useState<ChatSettings>(DEFAULT_CHAT_SETTINGS);
   const [actions, setActions] = useState<QuickAction[]>([]);
   const [online, setOnline] = useState(false);
@@ -39,9 +45,37 @@ export default function ChatPanel({ open, onClose }: { open: boolean; onClose: (
     token.current = localStorage.getItem(KEY);
     openFn({ data: { token: token.current } }).then((r) => {
       if (!r.ok) return setError(FAIL);
-      setSettings(r.settings); setActions(r.quickActions); setOnline(r.online); setState(r.state); setMsgs(r.messages);
+      setSettings(r.settings); setActions(r.quickActions); setOnline(r.online); setState(r.state); setMsgs(r.messages); setProfile(r.profile);
     }).catch(() => setError(FAIL)).finally(() => setLoaded(true));
   }, [openFn]);
+
+  const track = useCallback((event: string) => { void trackFn({ data: { token: token.current, event } }).catch(() => null); }, [trackFn]);
+  useEffect(() => { if (open && loaded && !tracked.current) { tracked.current = true; track("widget_opened"); } }, [open, loaded, track]);
+
+  const identify = useCallback(async (v: LeadValues): Promise<boolean> => {
+    setLeadBusy(true); setLeadErr(null);
+    try {
+      const r = await identifyFn({ data: { token: token.current, ...v, page: window.location.pathname, referrer: document.referrer || undefined } });
+      if (!r.ok) { setLeadErr(r.error); return false; }
+      if (r.token && r.token !== token.current) { token.current = r.token; localStorage.setItem(KEY, r.token); }
+      setState(r.state);
+      await new Promise((res) => setTimeout(res, 700));
+      setProfile(r.profile); track("chat_started");
+      return true;
+    } catch { setLeadErr("We couldn’t save that just yet. Please try again."); return false; } finally { setLeadBusy(false); }
+  }, [identifyFn, track]);
+
+  // Signed-in visitors whose profile already has every required value skip the scenes.
+  const auto = useRef(false);
+  const needsLead = settings.lead.enabled && loaded && !!profile && !profile.complete;
+  const prefillComplete = !!profile && (!settings.lead.requireName || !!profile.name) && (!settings.lead.requireWhatsapp || !!profile.whatsapp) && (!settings.lead.requireEmail || !!profile.email);
+  useEffect(() => {
+    if (!open || !needsLead || !prefillComplete || auto.current || !profile) return;
+    auto.current = true;
+    void identify({ name: profile.name ?? undefined, whatsapp: profile.whatsapp ?? undefined, email: profile.email ?? undefined });
+  }, [open, needsLead, prefillComplete, profile, identify]);
+  const firstName = profile?.complete ? (profile.name ?? "").trim().split(/\s+/)[0] : "";
+  const opening = firstName ? (profile?.returning ? `Welcome back, ${firstName}.\nWhat would you like help with today?` : `Hi ${firstName}.\nWhat are you looking to create?`) : settings.opening;
 
   const sync = useCallback(async () => {
     if (!token.current) return;
@@ -116,7 +150,7 @@ export default function ChatPanel({ open, onClose }: { open: boolean; onClose: (
       <header className="flex items-start justify-between gap-3 border-b border-border bg-surface px-5 py-4">
         <div className="min-w-0">
           <p className="text-small font-semibold">{settings.title}</p>
-          <p className="text-caption text-muted-foreground">{settings.subtitle}</p>
+          <p className="text-caption text-muted-foreground">{firstName ? `Here to help, ${firstName}.` : settings.subtitle}</p>
           <p className="text-caption mt-1 flex items-center gap-1.5 text-muted-foreground"><span aria-hidden className={cn("size-1.5 rounded-full", online || state.status === "human_active" ? "bg-accent" : "bg-muted-foreground/50")} />{statusLabel}</p>
         </div>
         <div className="relative flex items-center gap-1">
@@ -132,9 +166,14 @@ export default function ChatPanel({ open, onClose }: { open: boolean; onClose: (
         </div>
       </header>
 
+      {(needsLead || (settings.lead.enabled && !loaded)) ? (
+        !loaded || !profile ? <div className="flex flex-1 items-center justify-center" aria-label="Loading"><Dot /></div>
+        : prefillComplete ? <div className="text-small flex flex-1 items-center justify-center text-muted-foreground">{leadErr ?? "Getting things ready…"}</div>
+        : <LeadOnboarding settings={settings.lead} prefill={profile} busy={leadBusy} error={leadErr} onTrack={track} onSubmit={identify} />
+      ) : <>
       <div ref={list} className="flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4" aria-live="polite">
         {privacy && <p className="text-caption rounded-[12px] border border-border bg-surface p-3 text-muted-foreground">Branta Assistant answers from Branta's own published information — no outside AI service. Messages are stored so our team can help you. Contact details are only used to reply or arrange the call you request.</p>}
-        <Bubble from="assistant">{settings.opening}</Bubble>
+        <Bubble from="assistant">{opening}</Bubble>
         {msgs.length === 0 && actions.length > 0 && (
           <div className="flex flex-wrap gap-2">{actions.map((a) => <Chip key={a.label} onClick={() => runAction(a)} disabled={busy}>{a.label}</Chip>)}</div>
         )}
@@ -164,6 +203,7 @@ export default function ChatPanel({ open, onClose }: { open: boolean; onClose: (
           className="text-small max-h-28 min-h-11 flex-1 resize-none rounded-[14px] border border-border bg-surface px-3 py-2.5 outline-none focus:border-accent" />
         <button type="submit" aria-label="Send" disabled={busy || !text.trim()} className="grid size-11 shrink-0 place-items-center rounded-full bg-accent text-accent-foreground disabled:opacity-40"><Send className="size-4" /></button>
       </form>
+      </>}
     </div>
   );
 }
