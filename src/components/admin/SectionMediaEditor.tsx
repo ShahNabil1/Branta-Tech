@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { MEDIA_BUCKET, publicUrl } from "@/lib/supabase/cms";
 import { AdminButton, CheckboxInput, ConfirmButton, SelectInput, TextInput, friendlyError } from "@/components/admin/cms";
 import { SectionMedia } from "@/components/media/SectionMedia";
+import { PRIORITY_OPTIONS } from "@/components/media/BrantaVideo";
 import { vimeoId } from "@/lib/hero";
 import { ASPECTS, POSITIONS, isDirectVideo, isHttps, isRenderable, newMediaItem, type Aspect, type SectionMediaItem } from "@/lib/section-media";
 
@@ -128,7 +129,10 @@ export function SectionMediaEditor({ items, onChange, max = 12, defaultAspect = 
                   <CheckboxInput label="Autoplay (always muted)" checked={m.autoplay} onChange={(autoplay) => upd(i, { autoplay, muted: autoplay ? true : m.muted })} />
                   <CheckboxInput label="Loop" checked={m.loop} onChange={(loop) => upd(i, { loop })} />
                   <CheckboxInput label="Muted" checked={m.muted || m.autoplay} onChange={(muted) => upd(i, { muted })} />
+                  <CheckboxInput label="Show sound control" checked={m.sound_control} onChange={(sound_control) => upd(i, { sound_control })} />
                 </div>
+                <SelectInput label="Loading" hint="Automatic picks the best option for this section." value={m.priority} onChange={(e) => upd(i, { priority: e.target.value as SectionMediaItem["priority"] })}
+                  options={PRIORITY_OPTIONS.map(([value, label]) => ({ value, label }))} />
               </>}
               <div className="grid gap-3 sm:grid-cols-2">
                 <TextInput label="Alt text" hint="Describe the image for screen readers. Leave empty only if purely decorative." value={m.alt} onChange={(e) => upd(i, { alt: e.target.value })} />
