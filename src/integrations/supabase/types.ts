@@ -1429,6 +1429,16 @@ export type Database = {
           withdrawn_at: string
         }[]
       }
+      my_application_extra: {
+        Args: { _id: string }
+        Returns: {
+          answers: Json
+          department: string
+          extra: Json
+          job_location: string
+          work_mode: string
+        }[]
+      }
       my_applications: {
         Args: never
         Returns: {
@@ -1438,6 +1448,20 @@ export type Database = {
           job_title: string
           status: string
           submitted_at: string
+        }[]
+      }
+      my_applications_full: {
+        Args: never
+        Returns: {
+          department: string
+          employment_type: string
+          id: string
+          job_slug: string
+          job_title: string
+          location: string
+          status: string
+          submitted_at: string
+          work_mode: string
         }[]
       }
       my_bookings: {

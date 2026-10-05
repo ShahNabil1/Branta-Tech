@@ -14,11 +14,11 @@ function MyApplications() {
     <div className="max-w-3xl">
       <AccountTitle title="My Applications" intro="Every role you've applied for at Branta." />
       {q.isLoading ? <p className="text-body text-muted-foreground"><Loader2 className="mr-2 inline size-4 animate-spin" />Loading…</p>
-        : q.isError ? <p role="alert" className="text-body text-destructive">We couldn't load your applications. Please refresh.</p>
+        : q.isError ? <p role="alert" className="text-body text-destructive">We couldn't load your applications. <button type="button" onClick={() => q.refetch()} className="underline underline-offset-4">Try again</button></p>
         : !q.data?.length ? (
           <div className="rounded-sm border border-border bg-surface p-6 md:p-8">
-            <p className="text-body text-foreground">You haven't applied for any roles yet.</p>
-            <Link to="/careers" className={buttonVariants({ variant: "primary", size: "md" }) + " mt-5"}>Browse open roles</Link>
+            <p className="text-body text-foreground">No applications yet.</p>
+            <Link to="/careers" className={buttonVariants({ variant: "primary", size: "md" }) + " mt-5"}>Browse Open Roles</Link>
           </div>
         ) : (
           <ul className="divide-y divide-border rounded-sm border border-border bg-surface">
@@ -27,7 +27,8 @@ function MyApplications() {
                 <Link to="/careers/account/applications/$id" params={{ id: a.id }} className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted">
                   <div className="min-w-0 flex-1">
                     <p className="text-body truncate font-medium text-foreground">{a.job_title}</p>
-                    <p className="text-small mt-1 text-muted-foreground">{[a.employment_type, `Applied ${fmtDate(a.submitted_at)}`].filter(Boolean).join(" · ")}</p>
+                    <p className="text-small mt-1 text-muted-foreground">Applied {fmtDate(a.submitted_at)}</p>
+                    {[a.location, a.employment_type, a.work_mode, a.department].some(Boolean) && <p className="text-caption mt-1 text-muted-foreground">{[a.location, a.employment_type, a.work_mode, a.department].filter(Boolean).join(" · ")}</p>}
                   </div>
                   <StatusPill status={a.status} />
                   <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
