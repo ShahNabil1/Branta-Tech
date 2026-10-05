@@ -370,3 +370,4 @@
 .footer-cta { background: linear-gradient(currentColor, currentColor) left bottom / 100% 1.5px no-repeat; transition: color .3s, background-size .3s; }
 .footer-cta:hover { color: var(--accent); }
 .footer-wordmark { font-size: clamp(5rem, 26vw, 26rem); margin-bottom: -0.12em; }
+.footer-light { background: #F7F7F5; }

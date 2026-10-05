@@ -48,7 +48,7 @@ function SiteFooter() {
   const tint = text(ft.tone) === "tint";
 
   return (
-    <footer className={tint ? "footer-tint text-foreground" : "bg-[var(--warm-white,#F7F7F5)] text-foreground"}>
+    <footer className={tint ? "footer-tint text-foreground" : "footer-light text-foreground"}>
       <SiteContainer wide className="pt-20 md:pt-28">
         {/* CTA band */}
         <div className="grid gap-10 border-b border-border pb-16 md:pb-24 lg:grid-cols-12 lg:items-end">
