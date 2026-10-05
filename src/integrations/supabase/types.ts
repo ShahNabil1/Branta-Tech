@@ -1458,6 +1458,74 @@ export type Database = {
           },
         ]
       }
+      testimonials: {
+        Row: {
+          client_name: string
+          client_role: string | null
+          company: string | null
+          created_at: string
+          featured: boolean
+          id: string
+          kind: string
+          photo_url: string | null
+          project_id: string | null
+          quote: string | null
+          service_label: string | null
+          sort_order: number
+          status: string
+          updated_at: string
+          video_poster_url: string | null
+          video_type: string | null
+          video_url: string | null
+        }
+        Insert: {
+          client_name: string
+          client_role?: string | null
+          company?: string | null
+          created_at?: string
+          featured?: boolean
+          id?: string
+          kind?: string
+          photo_url?: string | null
+          project_id?: string | null
+          quote?: string | null
+          service_label?: string | null
+          sort_order?: number
+          status?: string
+          updated_at?: string
+          video_poster_url?: string | null
+          video_type?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          client_name?: string
+          client_role?: string | null
+          company?: string | null
+          created_at?: string
+          featured?: boolean
+          id?: string
+          kind?: string
+          photo_url?: string | null
+          project_id?: string | null
+          quote?: string | null
+          service_label?: string | null
+          sort_order?: number
+          status?: string
+          updated_at?: string
+          video_poster_url?: string | null
+          video_type?: string | null
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "testimonials_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
