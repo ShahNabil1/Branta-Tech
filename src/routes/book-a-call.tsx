@@ -18,7 +18,7 @@ import { pageMeta, canonical } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/book-a-call")({
-  validateSearch: (s: Record<string, unknown>): { group?: string; service?: string } => ({
+  validateSearch: (s: Record<string, unknown>): { group?: string | undefined; service?: string | undefined } => ({
     group: typeof s["group"] === "string" ? s["group"].slice(0, 120) : undefined,
     service: typeof s["service"] === "string" ? s["service"].slice(0, 120) : undefined,
   }),
