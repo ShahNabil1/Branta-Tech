@@ -44,6 +44,7 @@ import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
 import { Route as WorkIndexRouteImport } from './routes/work.index'
 import { Route as WorkSlugRouteImport } from './routes/work.$slug'
+import { Route as CareersSlugApplyRouteImport } from './routes/careers.$slug_.apply'
 import { Route as CareersAccountIndexRouteImport } from './routes/careers.account.index'
 import { Route as CareersAccountInterviewsRouteImport } from './routes/careers.account.interviews'
 import { Route as CareersAccountProfileRouteImport } from './routes/careers.account.profile'
@@ -251,6 +252,11 @@ const WorkIndexRoute = WorkIndexRouteImport.update({
 const WorkSlugRoute = WorkSlugRouteImport.update({
   id: '/work/$slug',
   path: '/work/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersSlugApplyRoute = CareersSlugApplyRouteImport.update({
+  id: '/careers/$slug_/apply',
+  path: '/careers/$slug/apply',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CareersAccountIndexRoute = CareersAccountIndexRouteImport.update({
@@ -476,6 +482,7 @@ export interface FileRoutesByFullPath {
   '/insights/': typeof InsightsIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/work/': typeof WorkIndexRoute
+  '/careers/$slug/apply': typeof CareersSlugApplyRoute
   '/careers/account/interviews': typeof CareersAccountInterviewsRoute
   '/careers/account/profile': typeof CareersAccountProfileRoute
   '/careers/account/resume': typeof CareersAccountResumeRoute
@@ -541,6 +548,7 @@ export interface FileRoutesByTo {
   '/insights': typeof InsightsIndexRoute
   '/services': typeof ServicesIndexRoute
   '/work': typeof WorkIndexRoute
+  '/careers/$slug/apply': typeof CareersSlugApplyRoute
   '/careers/account/interviews': typeof CareersAccountInterviewsRoute
   '/careers/account/profile': typeof CareersAccountProfileRoute
   '/careers/account/resume': typeof CareersAccountResumeRoute
@@ -611,6 +619,7 @@ export interface FileRoutesById {
   '/insights/': typeof InsightsIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/work/': typeof WorkIndexRoute
+  '/careers/$slug_/apply': typeof CareersSlugApplyRoute
   '/careers/account/interviews': typeof CareersAccountInterviewsRoute
   '/careers/account/profile': typeof CareersAccountProfileRoute
   '/careers/account/resume': typeof CareersAccountResumeRoute
@@ -681,6 +690,7 @@ export interface FileRouteTypes {
     | '/insights/'
     | '/services/'
     | '/work/'
+    | '/careers/$slug/apply'
     | '/careers/account/interviews'
     | '/careers/account/profile'
     | '/careers/account/resume'
@@ -746,6 +756,7 @@ export interface FileRouteTypes {
     | '/insights'
     | '/services'
     | '/work'
+    | '/careers/$slug/apply'
     | '/careers/account/interviews'
     | '/careers/account/profile'
     | '/careers/account/resume'
@@ -815,6 +826,7 @@ export interface FileRouteTypes {
     | '/insights/'
     | '/services/'
     | '/work/'
+    | '/careers/$slug_/apply'
     | '/careers/account/interviews'
     | '/careers/account/profile'
     | '/careers/account/resume'
@@ -876,6 +888,7 @@ export interface RootRouteChildren {
   InsightsIndexRoute: typeof InsightsIndexRoute
   ServicesIndexRoute: typeof ServicesIndexRoute
   WorkIndexRoute: typeof WorkIndexRoute
+  CareersSlugApplyRoute: typeof CareersSlugApplyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1123,6 +1136,13 @@ declare module '@tanstack/react-router' {
       path: '/work/$slug'
       fullPath: '/work/$slug'
       preLoaderRoute: typeof WorkSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/$slug_/apply': {
+      id: '/careers/$slug_/apply'
+      path: '/careers/$slug/apply'
+      fullPath: '/careers/$slug/apply'
+      preLoaderRoute: typeof CareersSlugApplyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/careers/account/': {
@@ -1508,6 +1528,7 @@ const rootRouteChildren: RootRouteChildren = {
   InsightsIndexRoute: InsightsIndexRoute,
   ServicesIndexRoute: ServicesIndexRoute,
   WorkIndexRoute: WorkIndexRoute,
+  CareersSlugApplyRoute: CareersSlugApplyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
