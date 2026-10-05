@@ -280,6 +280,7 @@ export type Database = {
       }
       bookings: {
         Row: {
+          booking_end_at: string
           booking_reference: string
           client_user_id: string | null
           company: string | null
@@ -302,6 +303,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          booking_end_at: string
           booking_reference: string
           client_user_id?: string | null
           company?: string | null
@@ -324,6 +326,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          booking_end_at?: string
           booking_reference?: string
           client_user_id?: string | null
           company?: string | null

@@ -23,7 +23,7 @@ function BookingsList() {
   const rows = (q.data ?? []).filter((b) => !s.status || b.status === s.status);
   return (
     <div className="max-w-6xl">
-      <PageHeader eyebrow="Sales" title="Bookings" description="Call requests. Times shown in your timezone, with the requester's timezone." actions={<Link to="/control-centre/leads"><AdminButton>Leads</AdminButton></Link>} />
+      <PageHeader eyebrow="Sales" title="Bookings" description="Call requests. Times shown in your timezone, with the requester's timezone." actions={<><Link to="/control-centre/bookings/availability"><AdminButton>Availability</AdminButton></Link><Link to="/control-centre/leads"><AdminButton>Leads</AdminButton></Link></>} />
       <div className="mb-4 md:max-w-xs">
         <SelectInput label="Status" value={s.status ?? ""} onChange={(e) => navigate({ search: { status: e.target.value || undefined } })} options={[{ value: "", label: "All statuses" }, ...BOOKING_STATUSES.map((v) => ({ value: v, label: statusLabel(v) }))]} />
       </div>

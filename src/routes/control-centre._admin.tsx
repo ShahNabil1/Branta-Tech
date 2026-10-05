@@ -50,6 +50,7 @@ const groups = [
     items: [
       { label: "Leads", icon: Target, to: "/control-centre/leads" as const },
       { label: "Bookings", icon: CalendarClock, to: "/control-centre/bookings" as const },
+      { label: "Availability", icon: CalendarClock, to: "/control-centre/bookings/availability" as const },
     ],
   },
   {

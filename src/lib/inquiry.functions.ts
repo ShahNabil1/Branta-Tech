@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { ATTACH_MAX, BUDGET_OPTIONS, SERVICE_OPTIONS, TIMELINE_OPTIONS } from "./inquiry";
 
-export type FormResult = { ok: true } | { ok: false; error: string; fields?: Record<string, string> };
+export type FormResult = { ok: true; bookingReference?: string; status?: string } | { ok: false; error: string; fields?: Record<string, string> };
 
 const phone = z.string().trim().max(40).refine((v) => !v || /^[+\d\s().-]{6,}$/.test(v), "Use digits, spaces, + ( ) -");
 const optUrl = z.string().trim().max(500).refine((v) => !v || /^https?:\/\/[^\s"<>]+$/.test(v), "Enter a full link starting with https://");
@@ -127,6 +127,7 @@ const BookingFields = z.object({
   requested_start_at: z.string().datetime({ offset: true, message: "Choose a date and time" }),
   timezone: z.string().trim().min(1).max(64).refine((tz) => { try { new Intl.DateTimeFormat("en", { timeZone: tz }); return true; } catch { return false; } }, "Choose a valid timezone"),
   notes: z.string().trim().max(2000),
+  services: z.array(z.string().trim().min(1).max(120)).min(1, "Choose at least one service").max(10),
 });
 
 export const submitBooking = createServerFn({ method: "POST" })
@@ -143,7 +144,12 @@ export const submitBooking = createServerFn({ method: "POST" })
     const when = new Date(f.requested_start_at).getTime();
     if (when < Date.now() + 30 * 60_000 || when > Date.now() + 365 * 86400_000) return { ok: false, error: "Please check the highlighted fields.", fields: { date: "Choose a time at least 30 minutes from now and within a year" } };
 
-    const { supabaseAdmin, ipHash, userId } = await context("bookings");
+    const { getBookingExperience } = await import("./booking.functions");
+    const experience = await getBookingExperience();
+    const offered = experience.days.some((day) => day.slots.some((slot) => slot.iso === new Date(when).toISOString()));
+    if (!offered) return { ok: false, error: "That time is no longer available. Please choose another.", fields: { time: "Choose a current available time" } };
+
+    const { supabaseAdmin, ipHash, userId, randomUUID } = await context("bookings");
     const hourAgo = new Date(Date.now() - 3600_000).toISOString();
     const [byIp, byEmail] = await Promise.all([
       supabaseAdmin.from("bookings").select("id", { count: "exact", head: true }).eq("ip_hash", ipHash).gte("created_at", hourAgo),
@@ -152,13 +158,27 @@ export const submitBooking = createServerFn({ method: "POST" })
     if ((byIp.count ?? 0) >= 5 || (byEmail.count ?? 0) >= 3) return { ok: false, error: "We've received several requests from you already. Please try again later." };
 
     const n = (v: string) => (v ? v : null);
+    const [{ data: setting }, { data: published }] = await Promise.all([
+      supabaseAdmin.from("site_settings").select("settings").eq("setting_group", "booking").maybeSingle(),
+      supabaseAdmin.from("services").select("name").eq("status", "published"),
+    ]);
+    const cfg = (setting?.settings && typeof setting.settings === "object" && !Array.isArray(setting.settings) ? setting.settings : {}) as Record<string, unknown>;
+    const enabled = Array.isArray(cfg["services"]) ? cfg["services"].filter((v): v is string => typeof v === "string") : [];
+    const allowed = new Set([...(published ?? []).map((s) => s.name), ...(enabled.includes("Something Else") ? ["Something Else"] : [])]);
+    if (f.services.some((s) => !allowed.has(s))) return { ok: false, error: "Please check the highlighted fields.", fields: { services: "Choose a currently available service" } };
+    const duration = Number.isInteger(Number(cfg["duration_minutes"])) ? Math.min(180, Math.max(15, Number(cfg["duration_minutes"]))) : 30;
+    const ref = `BR-${randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase()}`;
     const ins = await supabaseAdmin.from("bookings").insert({
       client_user_id: userId, name: f.name, email: f.email, phone: n(f.phone), company: n(f.company), topic: f.topic,
       requested_start_at: new Date(when).toISOString(), timezone: f.timezone, notes: n(f.notes), ip_hash: ipHash,
-    });
+      service_interest: f.services, duration_minutes: duration, booking_reference: ref,
+      booking_end_at: new Date(when + duration * 60_000).toISOString(),
+      status: cfg["instant_confirmation"] === true ? "confirmed" : "requested",
+    }).select("booking_reference,status").single();
     if (ins.error) {
+      if (ins.error.code === "23505" || ins.error.code === "23P01") return { ok: false, error: "That time was just taken. Please choose another available time.", fields: { time: "This time is no longer available" } };
       console.error("booking insert failed", ins.error.message);
       return { ok: false, error: "We couldn't send your request. Please try again." };
     }
-    return { ok: true };
+    return { ok: true, bookingReference: ins.data.booking_reference, status: ins.data.status };
   });
