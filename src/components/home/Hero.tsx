@@ -1,4 +1,4 @@
-import { SoundToggle, useVideoSound } from "@/components/media/SoundToggle";
+import { BrantaVideo } from "@/components/media/BrantaVideo";
 import { SmartLink } from "@/components/layout/SiteHeader";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/brand-button";
 import { MaskReveal, Reveal } from "@/components/motion/Reveal";
 import { SiteContainer } from "@/components/layout/primitives";
-import { vimeoId, type HeroContent, type HeroMediaItem, type HeroMediaRole } from "@/lib/hero";
+import { type HeroContent, type HeroMediaItem, type HeroMediaRole } from "@/lib/hero";
 
 /* ---------- helpers ---------- */
 
@@ -92,131 +92,19 @@ function SafeImg({ src, alt, priority, className, onFail }: { src: string; alt: 
 
 /**
  * One tile for any media type. Slot (ratio) comes from the role; type only changes what renders inside.
- * Videos are poster-first: player mounts only when allowed, fades in once actually playing, pauses off-screen.
+ * Videos use BrantaVideo: the main film is critical (prepares on load, mobile included), other tiles load early.
  */
 function MediaTile({ item, ratio, priority, className }: { item: HeroMediaItem; ratio: string; priority?: boolean | undefined; className?: string | undefined }) {
-  const wrap = useRef<HTMLDivElement>(null);
-  const frame = useRef<HTMLIFrameElement>(null);
-  const vid = useRef<HTMLVideoElement>(null);
-  const reduced = useReducedMotion();
-  const [mount, setMount] = useState(false);
-  const [playing, setPlaying] = useState(false);
-  const [failed, setFailed] = useState(false);
   const isVideo = item.type === "video" || item.type === "vimeo";
-  const id = item.type === "vimeo" ? vimeoId(item.url) : null;
-  const auto = isVideo && item.autoplay && !reduced;
-  const muted = item.autoplay ? true : item.muted; // browsers only autoplay muted
-
-  // Autoplay mount: main tile soon after hydration; secondary tiles lazily when near view. Mobile: main tile only.
-  useEffect(() => {
-    setMount(false); setPlaying(false); setFailed(false);
-    if (!auto || !wrap.current) return;
-    const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
-    if (conn?.saveData) return;
-    if (wrap.current.offsetParent === null) return; // hidden layout copy
-    const mobile = window.innerWidth < 768;
-    if (mobile && !priority) return;
-    let t = 0;
-    const io = new IntersectionObserver(([en]) => {
-      if (!en?.isIntersecting) return;
-      t = window.setTimeout(() => setMount(true), priority ? (mobile ? 2500 : 400) : 600);
-      io.disconnect();
-    }, { rootMargin: "100px" });
-    io.observe(wrap.current);
-    return () => { io.disconnect(); window.clearTimeout(t); };
-  }, [auto, priority, item.url]);
-
-  // Vimeo: wait for real playback, pause off-screen.
-  useEffect(() => {
-    if (!mount || !id) return;
-    const post = (method: string, value?: string) =>
-      frame.current?.contentWindow?.postMessage(JSON.stringify(value ? { method, value } : { method }), "https://player.vimeo.com");
-    const onMsg = (e: MessageEvent) => {
-      if (e.origin !== "https://player.vimeo.com" || e.source !== frame.current?.contentWindow) return;
-      let d: { event?: string } = {};
-      try { d = typeof e.data === "string" ? JSON.parse(e.data) : e.data; } catch { return; }
-      if (d.event === "ready") { post("addEventListener", "play"); post("addEventListener", "timeupdate"); post("addEventListener", "error"); if (item.autoplay) post("play"); }
-      if (d.event === "play" || d.event === "timeupdate" || d.event === "playProgress") setPlaying(true);
-      if (d.event === "error") { setPlaying(false); setMount(false); }
-    };
-    window.addEventListener("message", onMsg);
-    const io = new IntersectionObserver(([en]) => post(en?.isIntersecting ? "play" : "pause"), { threshold: 0.15 });
-    if (wrap.current) io.observe(wrap.current);
-    return () => { window.removeEventListener("message", onMsg); io.disconnect(); };
-  }, [mount, id, item.autoplay]);
-
-  // Direct video: play when visible, pause off-screen; failures keep the poster.
-  useEffect(() => {
-    const v = vid.current;
-    if (!mount || item.type !== "video" || !v) return;
-    const io = new IntersectionObserver(([en]) => {
-      if (en?.isIntersecting) v.play().catch(() => setPlaying(false)); else v.pause();
-    }, { threshold: 0.15 });
-    io.observe(v);
-    return () => io.disconnect();
-  }, [mount, item.type]);
-
-  const startManual = () => setMount(true);
-  const vSound = useVideoSound({ kind: "vimeo", ref: frame }, mount && playing && !!id);
-  const hSound = useVideoSound({ kind: "video", ref: vid }, mount && playing && item.type === "video");
-  const snd = id ? vSound : hSound;
-  const showSound = priority && item.autoplay && mount && playing;
-  const decorative = isVideo && muted;
-
   return (
-    <figure
-      ref={wrap}
-      className={cn("media-zoom relative overflow-hidden rounded-md bg-muted", className)}
-      style={{ aspectRatio: ratio }}
-    >
+    <figure className={cn("media-zoom relative overflow-hidden rounded-md bg-muted", className)} style={{ aspectRatio: ratio }}>
       <Placeholder />
       {item.type === "image" && <SafeImg src={item.url} alt={item.alt} priority={priority} />}
-      {isVideo && item.poster_url && (
-        <SafeImg src={item.poster_url} alt={item.alt} priority={priority} className={playing ? "!opacity-0" : undefined} />
+      {isVideo && (
+        <BrantaVideo kind={item.type as "video" | "vimeo"} url={item.url} poster={item.poster_url} alt={item.alt || item.label}
+          priority={priority ? "critical" : "high"} autoplay={item.autoplay} loop={item.loop} controls={!item.autoplay}
+          playButton={!item.autoplay || !!priority} sound={!!priority && item.autoplay} />
       )}
-      {mount && id && (
-        <iframe
-          ref={frame}
-          title={item.alt || item.label || "Hero film"}
-          aria-hidden={decorative || !playing}
-          tabIndex={-1}
-          src={`https://player.vimeo.com/video/${id}?${item.autoplay ? "background=1&" : "controls=1&"}autoplay=1&muted=${muted ? 1 : 0}&loop=${item.loop ? 1 : 0}&autopause=0&dnt=1&playsinline=1`}
-          allow="autoplay; fullscreen; picture-in-picture"
-          className={cn(
-            "absolute inset-0 size-full border-0 transition-opacity duration-[var(--dur-cinematic)] ease-[var(--ease-out-expo)]",
-            item.autoplay && "pointer-events-none",
-            playing ? "opacity-100" : "opacity-0",
-          )}
-        />
-      )}
-      {mount && item.type === "video" && !failed && (
-        <video
-          ref={vid}
-          src={item.url}
-          poster={item.poster_url || undefined}
-          muted={muted}
-          loop={item.loop}
-          playsInline
-          autoPlay
-          preload="metadata"
-          controls={!item.autoplay && playing}
-          aria-hidden={decorative || undefined}
-          onPlaying={() => setPlaying(true)}
-          onError={() => { setFailed(true); setPlaying(false); }}
-          className={cn("absolute inset-0 size-full object-cover transition-opacity duration-[var(--dur-cinematic)] ease-[var(--ease-out-expo)]", playing ? "opacity-100" : "opacity-0")}
-        />
-      )}
-      {isVideo && !item.autoplay && !mount && (
-        <button
-          type="button"
-          onClick={startManual}
-          aria-label={`Play ${item.label || "video"}`}
-          className="absolute inset-0 z-10 grid place-items-center"
-        >
-          <span className="grid size-12 place-items-center rounded-full bg-ink/70 text-ink-foreground backdrop-blur-sm">▶</span>
-        </button>
-      )}
-      {showSound && <SoundToggle on={snd.on} onToggle={snd.toggle} />}
       {item.label && <Label>{item.label}</Label>}
     </figure>
   );

@@ -68,7 +68,7 @@ export function BrantaVideo({
   const id = kind === "vimeo" ? vimeoId(url) : null;
   const valid = kind === "vimeo" ? !!id : /^https:\/\/|^\//.test(url);
 
-  const [near, setNear] = useState(priority === "critical");
+  const [near, setNear] = useState(false);
   const [visible, setVisible] = useState(true);
   const [manual, setManual] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -81,6 +81,8 @@ export function BrantaVideo({
   useEffect(() => {
     const el = box.current;
     if (!el || typeof IntersectionObserver === "undefined") { setNear(true); return; }
+    // Critical media prepares at once — unless this copy is hidden (responsive duplicate), then it waits like the rest.
+    if (priority === "critical" && el.getClientRects().length) { setNear(true); }
     const prep = new IntersectionObserver(([e]) => { if (e?.isIntersecting) { setNear(true); prep.disconnect(); } }, { rootMargin: MARGIN[priority] });
     const vis = new IntersectionObserver(([e]) => setVisible(!!e?.isIntersecting), { rootMargin: "80px" });
     prep.observe(el); vis.observe(el);
