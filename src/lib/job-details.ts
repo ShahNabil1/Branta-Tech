@@ -15,18 +15,35 @@ export type Question = { id: string; label: string; help: string; type: Question
 export type FormField = { key: FormKey; enabled: boolean; required: boolean };
 
 export const FORM_FIELDS = [
-  ["phone", "Phone"], ["location", "Current address"], ["linkedin_url", "LinkedIn URL"], ["portfolio_url", "Portfolio URL"], ["website_url", "Website URL"],
-  ["current_company", "Current company"], ["current_position", "Current position"], ["education", "Education"], ["experience", "Experience"],
-  ["expected_salary", "Expected salary"], ["current_salary", "Current salary"], ["joining_date", "Available joining date"], ["cover_note", "Cover letter"],
-  ["resume", "CV / Resume upload"], ["portfolio_file", "Portfolio upload"], ["photo", "Profile photo"],
+  ["phone", "Phone"], ["location", "Current address"], ["city", "City / District"], ["country", "Country"], ["dob", "Date of birth"], ["gender", "Gender"],
+  ["current_status", "Current status"], ["linkedin_url", "LinkedIn URL"], ["portfolio_url", "Portfolio URL"], ["website_url", "Website URL"], ["github_url", "GitHub URL"], ["behance_url", "Behance URL"],
+  ["education", "Education records"], ["experience", "Work experience records"],
+  ["current_company", "Current company"], ["current_position", "Current position"], ["current_salary", "Current salary"], ["expected_salary", "Expected salary"], ["notice_period", "Notice period"], ["joining_date", "Available joining date"],
+  ["skills", "Skills"], ["languages", "Languages"],
+  ["resume", "CV / Resume upload"], ["cover_note", "Cover letter (text)"], ["cover_letter_file", "Cover letter file"], ["portfolio_file", "Portfolio upload"], ["certificates", "Certificates"],
+  ["transcript", "Academic transcript"], ["national_id", "National ID / identification"], ["other_document", "Other supporting document"], ["photo", "Profile photo"],
 ] as const;
 export type FormKey = (typeof FORM_FIELDS)[number][0];
 export const FORM_LABEL = Object.fromEntries(FORM_FIELDS) as Record<FormKey, string>;
 /** Keys stored in job_applications columns; the rest go to job_applications.extra. */
 export const COLUMN_KEYS: FormKey[] = ["phone", "location", "linkedin_url", "portfolio_url", "cover_note", "resume"];
-export const FILE_KEYS: FormKey[] = ["resume", "portfolio_file", "photo"];
+export const FILE_KEYS: FormKey[] = ["resume", "cover_letter_file", "portfolio_file", "certificates", "transcript", "national_id", "other_document", "photo"];
+/** Repeatable record sections (sent as JSON, stored in extra). */
+export const RECORD_KEYS: FormKey[] = ["education", "experience", "skills", "languages"];
+export const CURRENT_STATUSES = ["Student", "Fresh Graduate", "Employed", "Unemployed", "Freelancer", "Other"];
+export const GENDERS = ["Female", "Male", "Prefer not to say", "Other"];
+export const SKILL_LEVELS = ["Beginner", "Intermediate", "Advanced", "Expert"];
+/** Wizard steps and the form keys each one owns (Review is added by the wizard). */
+export const WIZARD_STEPS: { id: string; title: string; keys: FormKey[] }[] = [
+  { id: "personal", title: "Personal Information", keys: ["phone", "location", "city", "country", "dob", "gender", "photo", "current_status", "linkedin_url", "portfolio_url", "website_url", "github_url", "behance_url"] },
+  { id: "education", title: "Education", keys: ["education"] },
+  { id: "experience", title: "Work Experience", keys: ["experience", "current_company", "current_position", "current_salary", "expected_salary", "notice_period", "joining_date"] },
+  { id: "skills", title: "Skills", keys: ["skills", "languages"] },
+  { id: "documents", title: "Documents", keys: ["resume", "cover_note", "cover_letter_file", "portfolio_file", "certificates", "transcript", "national_id", "other_document"] },
+];
 const DEFAULT_ON: Partial<Record<FormKey, [boolean, boolean]>> = {
-  phone: [true, true], location: [true, false], linkedin_url: [true, false], portfolio_url: [true, false], cover_note: [true, true], resume: [true, true],
+  phone: [true, true], location: [true, false], city: [true, false], country: [true, false], current_status: [true, false], linkedin_url: [true, false], portfolio_url: [true, false],
+  education: [true, false], experience: [true, false], skills: [true, false], languages: [true, false], cover_note: [true, true], resume: [true, true],
 };
 
 export const SALARY_TYPES = [

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { applicationWindow, parseDetails, type FormKey, type JobDetails } from "./job-details";
+import { applicationWindow, parseDetails, COLUMN_KEYS, FILE_KEYS, RECORD_KEYS, type FormKey, type JobDetails } from "./job-details";
+import { RecordsSchema, emptyRecords, recordErrors, DOC_KEYS, type Records } from "./application-records";
 
 export const RESUME_MAX = 5 * 1024 * 1024;
 export const RESUME_ACCEPT = ".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
@@ -24,11 +25,11 @@ function sniffAtt(b: Uint8Array): "pdf" | "png" | "jpg" | "webp" | null {
   return null;
 }
 const urlOk = (v: string) => /^https?:\/\/[^\s"<>]+$/.test(v);
-const TEXT_MAX: Partial<Record<FormKey, number>> = { phone: 40, location: 200, education: 1000, experience: 2000, cover_note: 4000, expected_salary: 80, current_salary: 80, current_company: 160, current_position: 160, joining_date: 20 };
+const TEXT_MAX: Partial<Record<FormKey, number>> = { phone: 40, location: 200, city: 120, country: 80, dob: 10, gender: 40, current_status: 40, cover_note: 4000, expected_salary: 80, current_salary: 80, current_company: 160, current_position: 160, notice_period: 80, joining_date: 20 };
 type Att = { key: string; ext: string; bytes: Uint8Array };
 
 /** Validates the job's configured form fields + custom questions (server-side source of truth). */
-async function checkConfiguredFields(fd: FormData, det: JobDetails): Promise<{ fields: Record<string, string> } | { values: Partial<Record<FormKey, string>>; answers: Record<string, string | string[]>; files: Att[] }> {
+async function checkConfiguredFields(fd: FormData, det: JobDetails): Promise<{ fields: Record<string, string> } | { values: Partial<Record<FormKey, string>>; answers: Record<string, string | string[]>; files: Att[]; records: Records }> {
   const fields: Record<string, string> = {};
   const values: Partial<Record<FormKey, string>> = {};
   const files: Att[] = [];
@@ -41,13 +42,33 @@ async function checkConfiguredFields(fd: FormData, det: JobDetails): Promise<{ f
     if (!ext || (imagesOnly && ext === "pdf")) { fields[key] = imagesOnly ? "Use a PNG, JPG or WEBP image" : "Use a PDF, PNG, JPG or WEBP file"; return; }
     files.push({ key, ext, bytes });
   };
+  let records: Records = emptyRecords();
+  try {
+    const p = RecordsSchema.safeParse(JSON.parse(String(fd.get("records") ?? "{}")));
+    if (p.success) records = p.data; else fields["records"] = "Some entries couldn't be read";
+  } catch { fields["records"] = "Some entries couldn't be read"; }
+  const on = (k: FormKey) => det.form.find((x) => x.key === k && x.enabled);
+  if (!on("education")) records.education = [];
+  if (!on("experience")) { records.experience = []; records.has_experience = ""; }
+  if (records.has_experience === "no") records.experience = [];
+  if (!on("skills")) records.skills = [];
+  if (!on("languages")) records.languages = [];
+  Object.assign(fields, recordErrors(records));
   for (const c of det.form.filter((x) => x.enabled && x.key !== "resume")) {
-    if (c.key === "portfolio_file" || c.key === "photo") { await readFile(`file_${c.key}`, c.key, c.key === "photo", c.required); continue; }
+    if (RECORD_KEYS.includes(c.key)) {
+      if (!c.required) continue;
+      if (c.key === "education" && !records.education.length) fields["education"] = "Add at least one education record";
+      if (c.key === "experience" && (!records.has_experience || (records.has_experience === "yes" && !records.experience.length))) fields["experience"] = "Tell us about your work experience";
+      if (c.key === "skills" && !records.skills.length) fields["skills"] = "Add at least one skill";
+      if (c.key === "languages" && !records.languages.length) fields["languages"] = "Add at least one language";
+      continue;
+    }
+    if (FILE_KEYS.includes(c.key)) { await readFile(`file_${c.key}`, c.key, c.key === "photo", c.required); continue; }
     const raw = String(fd.get(c.key) ?? "").trim().slice(0, TEXT_MAX[c.key] ?? 500);
     if (!raw) { if (c.required) fields[c.key] = "This field is required"; continue; }
     if (c.key.endsWith("_url") && !urlOk(raw)) { fields[c.key] = "Enter a full link starting with https://"; continue; }
     if (c.key === "phone" && (raw.length < 6 || !/^[+\d\s().-]+$/.test(raw))) { fields[c.key] = "Use digits, spaces, + ( ) -"; continue; }
-    if (c.key === "joining_date" && !/^\d{4}-\d{2}-\d{2}$/.test(raw)) { fields[c.key] = "Choose a date"; continue; }
+    if ((c.key === "joining_date" || c.key === "dob") && !/^\d{4}-\d{2}-\d{2}$/.test(raw)) { fields[c.key] = "Choose a date"; continue; }
     values[c.key] = raw;
   }
   const answers: Record<string, string | string[]> = {};
@@ -68,7 +89,7 @@ async function checkConfiguredFields(fd: FormData, det: JobDetails): Promise<{ f
     if (q.type === "date" && !/^\d{4}-\d{2}-\d{2}$/.test(raw)) { fields[key] = "Choose a date"; continue; }
     answers[q.id] = raw;
   }
-  return Object.keys(fields).length ? { fields } : { values, answers, files };
+  return Object.keys(fields).length ? { fields } : { values, answers, files, records };
 }
 
 export type ApplyResult = { ok: true; id: string } | { ok: false; error: string; fields?: Record<string, string>; duplicateId?: string; signIn?: boolean };
@@ -184,10 +205,15 @@ export const submitApplication = createServerFn({ method: "POST" })
       }
     }
     if (eligible === null && det.questions.some((q) => q.enabled && q.eligibility && q.eligible_answer.trim())) eligible = false;
-    const extra: Record<string, string> = {};
-    for (const k of ["website_url", "current_company", "current_position", "education", "experience", "expected_salary", "current_salary", "joining_date"] as const) if (v[k]) extra[k] = v[k]!;
-    if (filesOut["portfolio_file"]) extra["portfolio_file"] = filesOut["portfolio_file"];
-    if (filesOut["photo"]) extra["photo"] = filesOut["photo"];
+    const extra: Record<string, unknown> = {};
+    for (const [k, val] of Object.entries(v)) if (val && !COLUMN_KEYS.includes(k as FormKey)) extra[k] = val;
+    for (const k of DOC_KEYS) if (filesOut[k]) extra[k] = filesOut[k];
+    const rec = checked.records;
+    if (rec.education.length) extra["education_records"] = rec.education;
+    if (rec.has_experience) extra["has_experience"] = rec.has_experience;
+    if (rec.experience.length) extra["experience_records"] = rec.experience;
+    if (rec.skills.length) extra["skills"] = rec.skills;
+    if (rec.languages.length) extra["languages"] = rec.languages;
     const n = (s?: string) => (s ? s : null);
     const ins = await supabaseAdmin.from("job_applications").insert({
       job_id: job.id, full_name: f.full_name, email: f.email.toLowerCase(), phone: v.phone ?? "", location: n(v.location),
@@ -204,6 +230,7 @@ export const submitApplication = createServerFn({ method: "POST" })
       console.error("application insert failed", ins.error.message);
       return { ok: false, error: "We couldn't send your application. Please try again." };
     }
+    await supabaseAdmin.from("application_drafts" as never).delete().eq("user_id", who.id).eq("job_id", job.id);
     return { ok: true, id: (ins.data as { id: string }).id };
   });
 
