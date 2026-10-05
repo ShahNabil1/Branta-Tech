@@ -3,7 +3,7 @@ import { useState } from "react";
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  LayoutDashboard, FileText, Newspaper, UserRound, Briefcase, Inbox, Target, CalendarClock, Menu, Layers, Image, FolderOpen, Settings, Users, LogOut, PanelLeft, Quote,
+  LayoutDashboard, FileText, Newspaper, UserRound, Briefcase, Inbox, Target, CalendarClock, Menu, Layers, Image, FolderOpen, Settings, Users, LogOut, PanelLeft, Quote, Award,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getAdminSession, CMS_ROLES } from "@/lib/supabase/admin-access";
@@ -35,6 +35,7 @@ const groups = [
       { label: "Services", icon: Layers, to: "/control-centre/services" as const },
       { label: "Portfolio", icon: Image, to: "/control-centre/portfolio" as const },
       { label: "Testimonials", icon: Quote, to: "/control-centre/website/testimonials" as const },
+      { label: "Recognition", icon: Award, to: "/control-centre/website/recognition" as const },
       { label: "Media", icon: FolderOpen, to: "/control-centre/media" as const },
     ],
   },
