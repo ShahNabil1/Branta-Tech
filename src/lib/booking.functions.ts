@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { queryOptions } from "@tanstack/react-query";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
-import { parseBookingSettings, type BookingDay } from "@/lib/booking";
+import { parseBookingSettings, type BookingDay, type BookingGroup } from "@/lib/booking";
 
 function publicClient() {
   const url = process.env["SUPABASE_URL"];
@@ -88,14 +88,20 @@ function slotsForDate(date: string, timezone: string, duration: number, buffer: 
 
 export const getBookingExperience = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
-  if (!sb) return { settings: parseBookingSettings(null), services: [] as string[], days: [] as BookingDay[] };
+  if (!sb) return { settings: parseBookingSettings(null), services: [] as string[], groups: [] as BookingGroup[], days: [] as BookingDay[] };
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const [{ data: setting }, { data: services }, { data: rules }, { data: exceptions }] = await Promise.all([
+  const [{ data: setting }, { data: services }, { data: rules }, { data: exceptions }, { data: groupRows }] = await Promise.all([
     sb.from("site_settings").select("settings").eq("setting_group", "booking").maybeSingle(),
-    sb.from("services").select("name").eq("status", "published").order("sort_order"),
+    sb.from("services").select("id,name,slug,group_id,short_description").eq("status", "published").order("sort_order"),
     supabaseAdmin.from("booking_availability_rules").select("day_of_week,start_time,end_time").eq("enabled", true).order("sort_order"),
     supabaseAdmin.from("booking_availability_exceptions").select("exception_date,kind,start_time,end_time"),
+    sb.from("service_groups").select("id,name,slug,short_description").eq("status", "published").order("sort_order"),
   ]);
+  // Category → service options come straight from the Services CMS; empty groups are hidden.
+  const groups: BookingGroup[] = (groupRows ?? []).map((g) => ({
+    id: g.id, name: g.name, slug: g.slug, description: g.short_description,
+    services: (services ?? []).filter((s) => s.group_id === g.id).map((s) => ({ id: s.id, name: s.name, slug: s.slug, description: s.short_description })),
+  })).filter((g) => g.services.length > 0);
   const settings = parseBookingSettings(setting?.settings);
   const published = (services ?? []).map((s) => s.name);
   const selected = settings.enabledServices.length ? published.filter((name) => settings.enabledServices.includes(name)) : published;
@@ -119,7 +125,7 @@ export const getBookingExperience = createServerFn({ method: "GET" }).handler(as
       settings.introMedia[0] = { ...settings.introMedia[0], poster_url: (await vimeoThumb(id)) ?? "" };
     }
   }
-  return { settings, services: displayServices.length ? displayServices : ["Something Else"], days };
+  return { settings, services: displayServices.length ? displayServices : ["Something Else"], groups, days };
 });
 
 export const bookingExperienceQuery = queryOptions({

@@ -16,6 +16,8 @@ export type BookingSettings = {
 
 export type BookingSlot = { iso: string; label: string; booked?: boolean };
 export type BookingDay = { date: string; slots: BookingSlot[] };
+export type BookingServiceOption = { id: string; name: string; slug: string; description: string | null };
+export type BookingGroup = { id: string; name: string; slug: string; description: string | null; services: BookingServiceOption[] };
 
 const obj = (v: unknown) => (v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : {});
 const int = (v: unknown, fallback: number, min: number, max: number) => {

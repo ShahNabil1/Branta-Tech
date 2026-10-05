@@ -128,6 +128,8 @@ const BookingFields = z.object({
   timezone: z.string().trim().min(1).max(64).refine((tz) => { try { new Intl.DateTimeFormat("en", { timeZone: tz }); return true; } catch { return false; } }, "Choose a valid timezone"),
   notes: z.string().trim().max(2000),
   services: z.array(z.string().trim().min(1).max(120)).min(1, "Choose at least one service").max(10),
+  service_group_id: z.string().uuid().optional(),
+  service_id: z.string().uuid().optional(),
 });
 
 export const submitBooking = createServerFn({ method: "POST" })
@@ -165,13 +167,21 @@ export const submitBooking = createServerFn({ method: "POST" })
     const cfg = (setting?.settings && typeof setting.settings === "object" && !Array.isArray(setting.settings) ? setting.settings : {}) as Record<string, unknown>;
     const enabled = Array.isArray(cfg["services"]) ? cfg["services"].filter((v): v is string => typeof v === "string") : [];
     const allowed = new Set([...(published ?? []).map((s) => s.name), ...(enabled.includes("Something Else") ? ["Something Else"] : [])]);
+    // Category → service selection: both ids must be published and the service must belong to the group.
+    let groupId: string | null = null, serviceId: string | null = null;
+    if (f.service_id || f.service_group_id) {
+      const { data: svc } = f.service_id ? await supabaseAdmin.from("services").select("id,name,group_id,service_groups!inner(status)").eq("id", f.service_id).eq("status", "published").maybeSingle() : { data: null };
+      const okGroup = svc && (svc.service_groups as { status: string } | null)?.status === "published" && (!f.service_group_id || svc.group_id === f.service_group_id);
+      if (!svc || !okGroup) return { ok: false, error: "Please check the highlighted fields.", fields: { services: "Choose a currently available service" } };
+      groupId = svc.group_id; serviceId = svc.id; allowed.add(svc.name);
+    }
     if (f.services.some((s) => !allowed.has(s))) return { ok: false, error: "Please check the highlighted fields.", fields: { services: "Choose a currently available service" } };
     const duration = Number.isInteger(Number(cfg["duration_minutes"])) ? Math.min(180, Math.max(15, Number(cfg["duration_minutes"]))) : 30;
     const ref = `BR-${randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase()}`;
     const ins = await supabaseAdmin.from("bookings").insert({
       client_user_id: userId, name: f.name, email: f.email, phone: n(f.phone), company: n(f.company), topic: f.topic,
       requested_start_at: new Date(when).toISOString(), timezone: f.timezone, notes: n(f.notes), ip_hash: ipHash,
-      service_interest: f.services, duration_minutes: duration, booking_reference: ref,
+      service_interest: f.services, duration_minutes: duration, booking_reference: ref, service_group_id: groupId, service_id: serviceId,
       booking_end_at: new Date(when + duration * 60_000).toISOString(),
       status: cfg["instant_confirmation"] === true ? "confirmed" : "requested",
     }).select("booking_reference,status").single();
