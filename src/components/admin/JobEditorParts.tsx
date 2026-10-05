@@ -68,7 +68,7 @@ export function sectionFields<S extends Record<string, unknown>>(value: S, onCha
       <SelectInput label={label} className={className} value={String(value[k] ?? "")} onChange={(e) => put(k, e.target.value)}
         options={[{ value: "", label: "—" }, ...options.map((o) => (typeof o === "string" ? { value: o, label: o } : { value: o[0], label: o[1] }))]} />
     ),
-    check: (k: keyof S, label: string, hint?: string) => <CheckboxInput label={label} hint={hint} checked={value[k] === true} onChange={(v) => put(k, v)} />,
+    check: (k: keyof S, label: string, hint?: string) => <CheckboxInput label={label} {...(hint ? { hint } : {})} checked={value[k] === true} onChange={(v) => put(k, v)} />,
     area: (k: keyof S, label: string, hint?: string, className?: string) => (
       <label className={cn("block", className)}>
         <span className="text-small mb-1.5 block font-medium">{label}</span>

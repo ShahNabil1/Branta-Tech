@@ -106,7 +106,7 @@ function ApplicationExtras({ extra, answers, eligible, openFile }: { extra: unkn
   const rows = Object.entries(EXTRA_LABEL).filter(([k]) => ex[k]);
   if (!rows.length && !ans.length && !ex["portfolio_file"] && !ex["photo"] && eligible === null) return null;
   return (
-    <Panel title="Application answers" description={eligible === null ? undefined : eligible ? "Eligibility: meets the screening answers." : "Eligibility: does not meet one or more screening answers (not rejected unless auto-reject is on)."}>
+    <Panel title="Application answers" {...(eligible === null ? {} : { description: eligible ? "Eligibility: meets the screening answers." : "Eligibility: does not meet one or more screening answers (not rejected unless auto-reject is on)." })}>
       <dl className="grid gap-4 sm:grid-cols-2">
         {rows.map(([k, l]) => <div key={k}><dt className="text-caption text-muted-foreground">{l}</dt><dd className="text-small whitespace-pre-line">{ex[k]}</dd></div>)}
         {ans.map((x, i) => {

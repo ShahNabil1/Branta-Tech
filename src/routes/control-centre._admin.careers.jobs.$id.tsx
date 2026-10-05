@@ -174,7 +174,7 @@ function JobEditor() {
             {tab === "Skills & experience" && (<>
               <Panel title="Experience"><div className="grid gap-4 sm:grid-cols-2">{(() => { const e = F("experience"); return <>{e.select("kind", "Experience requirement", EXPERIENCE_KINDS)}{e.select("unit", "Unit", [["years", "Years"], ["months", "Months"]])}{e.text("min", "Minimum", { type: "number" })}{e.text("max", "Maximum", { type: "number", hint: "Optional" })}{e.area("text", "Experience description", undefined, "sm:col-span-2")}</>; })()}</div></Panel>
               <Panel title="Required skills">
-                <RepeatList rows={d.skills} onChange={(r) => setD("skills", r)} addLabel="Add skill" make={() => ({ id: uid(), name: "", level: "required", enabled: true })}
+                <RepeatList rows={d.skills} onChange={(r) => setD("skills", r)} addLabel="Add skill" make={() => ({ id: uid(), name: "", level: "required" as const, enabled: true })}
                   render={(r, set) => (
                     <div className="flex flex-wrap items-center gap-3">
                       <input aria-label="Skill name" value={r.name} placeholder="e.g. Lead generation" onChange={(e) => set({ name: e.target.value })} className="text-small h-9 min-w-0 flex-1 rounded-sm border border-input bg-surface px-3" />
@@ -287,7 +287,7 @@ function JobEditor() {
                   </ul>
                 </Panel>
                 <Panel title="Custom questions" description="Mark Yes/No or choice questions as eligibility questions to flag applicants in the Control Centre.">
-                  <RepeatList rows={d.questions} onChange={(r) => setD("questions", r)} addLabel="Add question" make={() => ({ id: uid(), label: "", help: "", type: "short", options: [], required: false, enabled: true, eligibility: false, eligible_answer: "" })}
+                  <RepeatList rows={d.questions} onChange={(r) => setD("questions", r)} addLabel="Add question" make={() => ({ id: uid(), label: "", help: "", type: "short" as QuestionType, options: [], required: false, enabled: true, eligibility: false, eligible_answer: "" })}
                     render={(r, set) => (
                       <div className="grid gap-3">
                         <div className="grid gap-2 sm:grid-cols-[1fr_180px]">
