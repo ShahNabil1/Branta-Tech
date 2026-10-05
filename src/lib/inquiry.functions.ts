@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { ATTACH_MAX, BUDGET_OPTIONS, SERVICE_OPTIONS, TIMELINE_OPTIONS } from "./inquiry";
 
-export type FormResult = { ok: true } | { ok: false; error: string; fields?: Record<string, string> };
+export type FormResult = { ok: true; bookingReference?: string; status?: string } | { ok: false; error: string; fields?: Record<string, string> };
 
 const phone = z.string().trim().max(40).refine((v) => !v || /^[+\d\s().-]{6,}$/.test(v), "Use digits, spaces, + ( ) -");
 const optUrl = z.string().trim().max(500).refine((v) => !v || /^https?:\/\/[^\s"<>]+$/.test(v), "Enter a full link starting with https://");
@@ -174,5 +174,5 @@ export const submitBooking = createServerFn({ method: "POST" })
       console.error("booking insert failed", ins.error.message);
       return { ok: false, error: "We couldn't send your request. Please try again." };
     }
-    return { ok: true, bookingReference: ins.data.booking_reference, status: ins.data.status } as FormResult;
+    return { ok: true, bookingReference: ins.data.booking_reference, status: ins.data.status };
   });

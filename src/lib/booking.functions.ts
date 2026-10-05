@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
+import { queryOptions } from "@tanstack/react-query";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 import { parseBookingSettings, type BookingDay } from "@/lib/booking";
@@ -110,5 +111,19 @@ export const getBookingExperience = createServerFn({ method: "GET" }).handler(as
     const isos = slotsForDate(date, settings.timezone, settings.durationMinutes, settings.bufferMinutes, settings.minimumNoticeHours, rules ?? [], exceptions ?? [], busy);
     if (isos.length) days.push({ date, slots: isos.map((iso) => ({ iso, label: new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: settings.timezone }).format(new Date(iso)) })) });
   }
+  if (settings.introMedia[0]?.type === "vimeo" && !settings.introMedia[0].poster_url) {
+    const { vimeoId } = await import("@/lib/hero");
+    const id = vimeoId(settings.introMedia[0].url);
+    if (id) {
+      const { vimeoThumb } = await import("@/lib/vimeo.server");
+      settings.introMedia[0] = { ...settings.introMedia[0], poster_url: (await vimeoThumb(id)) ?? "" };
+    }
+  }
   return { settings, services: displayServices.length ? displayServices : ["Something Else"], days };
+});
+
+export const bookingExperienceQuery = queryOptions({
+  queryKey: ["public", "booking-experience"],
+  queryFn: () => getBookingExperience(),
+  staleTime: 30_000,
 });
