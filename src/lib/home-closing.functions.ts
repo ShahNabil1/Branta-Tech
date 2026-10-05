@@ -44,7 +44,7 @@ export const getHomeClosing = createServerFn({ method: "GET" }).handler(async ()
       clients: c && logos.length ? { ...intro(c), logos } : null,
       insights: i ? { ...intro(i), maxItems: maxItems(i.config), posts: await listPublishedPosts(maxItems(i.config)).catch(() => []) } : null,
       careers: k ? { ...intro(k), media: parseMediaItems(k.config, true, "4:3")[0] ?? (httpsUrl(k.media_url)
-        ? { id: "legacy", type: "image", url: httpsUrl(k.media_url), poster_url: "", alt: k.title ?? "Branta team", label: "", caption: "", enabled: true, sort_order: 0, autoplay: false, muted: true, loop: false, aspect: "4:3", position: "center" }
+        ? { id: "legacy", type: "image", url: httpsUrl(k.media_url), poster_url: "", alt: k.title ?? "Branta team", label: "", caption: "", enabled: true, sort_order: 0, autoplay: false, muted: true, loop: false, aspect: "4:3", position: "center", priority: "auto", sound_control: true }
         : null) } : null,
       finalCta: f ? { ...intro(f), secondary: secondaryCta(f.config), background: parseMediaItems(f.config, true, "full")[0] ?? null } : null,
       trust: (() => {
