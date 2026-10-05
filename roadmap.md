@@ -3,4 +3,4 @@
 - [x] Build five-step `/book-a-call` experience
 - [x] Add Control Centre availability and media editor
 - [x] Extend booking management and client booking display
-- [ ] Verify security, builds, desktop, and mobile
+- [x] Verify security, builds, desktop, and mobile
