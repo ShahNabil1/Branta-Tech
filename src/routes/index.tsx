@@ -11,6 +11,7 @@ import { heroFromSection } from "@/lib/hero";
 import { capExplorerFrom } from "@/lib/capabilities";
 import { homeClosingQuery } from "@/lib/home-closing.functions";
 import { TrustProof } from "@/components/home/TrustProof";
+import { BookCallCta, PricingSection, ServicesSnapshot } from "@/components/home/HomeEngage";
 
 export const Route = createFileRoute("/")({
   head: () => ({ links: canonical("/"),
@@ -52,6 +53,9 @@ function Index() {
       <HomeHero hero={heroFromSection(data)} />
       {closing.trust && <TrustProof content={closing.trust} />}
       {explorer && <CapabilityExplorer content={explorer} />}
+      {closing.services && <ServicesSnapshot content={closing.services} />}
+      {closing.pricing && <PricingSection content={closing.pricing} />}
+      {closing.bookCall && <BookCallCta content={closing.bookCall} />}
     </SiteShell>
   );
 }
