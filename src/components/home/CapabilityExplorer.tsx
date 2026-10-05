@@ -1,3 +1,4 @@
+import { SoundToggle, useVideoSound } from "@/components/media/SoundToggle";
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type RefObject } from "react";
 import { cn } from "@/lib/utils";
 import { SiteContainer } from "@/components/layout/primitives";
@@ -70,6 +71,7 @@ function VimeoLayer({ item, active }: { item: Item; active: boolean }) {
   const allow = useMotionAllowed();
   const [playing, setPlaying] = useState(false);
   const run = active && inView && allow && m.autoplay && !!id;
+  const sound = useVideoSound({ kind: "vimeo", ref: frame }, run && playing);
   useEffect(() => {
     if (!run) { setPlaying(false); return; }
     const onMsg = (e: MessageEvent) => {
@@ -93,11 +95,12 @@ function VimeoLayer({ item, active }: { item: Item; active: boolean }) {
           ref={frame}
           title={m.alt || `${item.label} video`}
           tabIndex={-1}
-          src={`https://player.vimeo.com/video/${id}?background=1&autoplay=1&muted=${m.muted ? 1 : 0}&loop=${m.loop ? 1 : 0}&autopause=0&dnt=1`}
+          src={`https://player.vimeo.com/video/${id}?background=1&autoplay=1&muted=1&loop=${m.loop ? 1 : 0}&autopause=0&dnt=1`}
           allow="autoplay; fullscreen; picture-in-picture"
           className={cn("pointer-events-none absolute inset-0 size-full border-0 transition-opacity duration-500", playing ? "opacity-100" : "opacity-0")}
         />
       )}
+      {run && playing && <SoundToggle on={sound.on} onToggle={sound.toggle} />}
     </div>
   );
 }
@@ -111,6 +114,7 @@ function VideoLayer({ item, active }: { item: Item; active: boolean }) {
   const [playing, setPlaying] = useState(false);
   const [failed, setFailed] = useState(false);
   const run = active && inView && allow && m.autoplay && !failed;
+  const sound = useVideoSound({ kind: "video", ref }, run && playing);
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
@@ -125,13 +129,14 @@ function VideoLayer({ item, active }: { item: Item; active: boolean }) {
         <video
           ref={ref}
           src={m.url}
-          muted={m.muted} loop={m.loop} playsInline autoPlay preload="auto"
+          muted loop={m.loop} playsInline autoPlay preload="auto"
           aria-label={m.alt || undefined}
           onPlaying={() => setPlaying(true)}
           onError={() => { setFailed(true); setPlaying(false); }}
           className={cn("absolute inset-0 size-full object-cover transition-opacity duration-500", playing ? "opacity-100" : "opacity-0")}
         />
       )}
+      {run && playing && <SoundToggle on={sound.on} onToggle={sound.toggle} />}
     </div>
   );
 }

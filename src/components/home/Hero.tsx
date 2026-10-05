@@ -1,3 +1,4 @@
+import { SoundToggle, useVideoSound } from "@/components/media/SoundToggle";
 import { SmartLink } from "@/components/layout/SiteHeader";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
@@ -156,6 +157,10 @@ function MediaTile({ item, ratio, priority, className }: { item: HeroMediaItem; 
   }, [mount, item.type]);
 
   const startManual = () => setMount(true);
+  const vSound = useVideoSound({ kind: "vimeo", ref: frame }, mount && playing && !!id);
+  const hSound = useVideoSound({ kind: "video", ref: vid }, mount && playing && item.type === "video");
+  const snd = id ? vSound : hSound;
+  const showSound = priority && item.autoplay && mount && playing;
   const decorative = isVideo && muted;
 
   return (
@@ -211,6 +216,7 @@ function MediaTile({ item, ratio, priority, className }: { item: HeroMediaItem; 
           <span className="grid size-12 place-items-center rounded-full bg-ink/70 text-ink-foreground backdrop-blur-sm">▶</span>
         </button>
       )}
+      {showSound && <SoundToggle on={snd.on} onToggle={snd.toggle} />}
       {item.label && <Label>{item.label}</Label>}
     </figure>
   );

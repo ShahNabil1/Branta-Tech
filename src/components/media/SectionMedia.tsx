@@ -1,3 +1,4 @@
+import { SoundToggle, useVideoSound } from "@/components/media/SoundToggle";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { vimeoId } from "@/lib/hero";
@@ -51,6 +52,9 @@ export function SectionMedia({ item, className, fill, decorative, eager }: {
   const fit = cn("absolute inset-0 size-full object-cover", POS_CLS[item.position]);
   const run = inView && motionOk && item.autoplay && item.type !== "image";
   const vId = item.type === "vimeo" ? vimeoId(item.url) : null;
+  const vs = useVideoSound({ kind: "vimeo", ref: frame }, run && playing && !!vId);
+  const hs = useVideoSound({ kind: "video", ref: vid }, run && playing && item.type === "video");
+  const snd = vId ? vs : hs;
 
   useEffect(() => { if (!run) setPlaying(false); }, [run]);
   useEffect(() => {
@@ -87,7 +91,7 @@ export function SectionMedia({ item, className, fill, decorative, eager }: {
       )}
       {item.type === "video" && (
         <video
-          ref={vid} src={inView ? item.url : undefined} poster={poster || undefined} muted={item.muted || item.autoplay}
+          ref={vid} src={inView ? item.url : undefined} poster={poster || undefined} muted
           loop={item.loop} playsInline preload="none" aria-label={alt || undefined} onPlaying={() => setPlaying(true)}
           onError={() => setPlaying(false)}
           className={cn(fit, "transition-opacity duration-500", playing ? "opacity-100" : "opacity-0")}
@@ -101,6 +105,7 @@ export function SectionMedia({ item, className, fill, decorative, eager }: {
           className={cn("pointer-events-none absolute inset-0 size-full scale-[1.02] border-0 transition-opacity duration-500", playing ? "opacity-100" : "opacity-0")}
         />
       )}
+      {!decorative && !fill && run && playing && <SoundToggle on={snd.on} onToggle={snd.toggle} />}
     </div>
   );
 }

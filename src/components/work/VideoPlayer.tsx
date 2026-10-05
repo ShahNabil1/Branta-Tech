@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { SoundToggle, useVideoSound } from "@/components/media/SoundToggle";
 import { Play } from "lucide-react";
 import { vimeoId } from "@/lib/hero";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,9 @@ export function VideoPlayer({ type, url, poster, title, mode, className }: Props
   const [mount, setMount] = useState(false);
   const [ready, setReady] = useState(false);
   const id = type === "vimeo" ? vimeoId(url) : null;
+  const vid = useRef<HTMLVideoElement>(null);
+  const vs = useVideoSound({ kind: "vimeo", ref: frame }, mount && ready && !!id);
+  const hs = useVideoSound({ kind: "video", ref: vid }, mount && ready && type === "video");
 
   useEffect(() => {
     if (mode !== "background" || !box.current) return;
@@ -41,7 +45,7 @@ export function VideoPlayer({ type, url, poster, title, mode, className }: Props
   const src = id
     ? mode === "background"
       ? `https://player.vimeo.com/video/${id}?background=1&autoplay=1&muted=1&loop=1&dnt=1`
-      : `https://player.vimeo.com/video/${id}?autoplay=1&dnt=1&title=0&byline=0&portrait=0`
+      : `https://player.vimeo.com/video/${id}?autoplay=1&muted=1&dnt=1&title=0&byline=0&portrait=0`
     : null;
 
   return (
@@ -61,14 +65,16 @@ export function VideoPlayer({ type, url, poster, title, mode, className }: Props
       )}
       {mount && type === "video" && (
         <video
+          ref={vid}
           src={url}
           poster={poster ?? undefined}
-          {...(mode === "background" ? { muted: true, loop: true, autoPlay: true, "aria-hidden": true } : { controls: true, autoPlay: true })}
+          {...(mode === "background" ? { muted: true, loop: true, autoPlay: true, "aria-hidden": true } : { controls: true, autoPlay: true, muted: true })}
           playsInline
           onPlaying={() => setReady(true)}
           className={cn("absolute inset-0 h-full w-full object-cover transition-opacity duration-700", ready ? "opacity-100" : "opacity-0")}
         />
       )}
+      {mode === "background" && mount && ready && <SoundToggle on={(id ? vs : hs).on} onToggle={(id ? vs : hs).toggle} />}
       {mode === "controls" && !mount && (
         <button
           type="button"
