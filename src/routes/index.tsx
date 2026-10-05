@@ -12,6 +12,8 @@ import { capExplorerFrom } from "@/lib/capabilities";
 import { homeClosingQuery } from "@/lib/home-closing.functions";
 import { workShowcaseQuery } from "@/lib/work-showcase.functions";
 import { WorkShowcase } from "@/components/home/WorkShowcase";
+import { ClientStories } from "@/components/home/ClientStories";
+import { clientStoriesQuery } from "@/lib/client-stories.functions";
 import { TrustProof } from "@/components/home/TrustProof";
 import { BookCallCta, PricingSection, ServicesSnapshot } from "@/components/home/HomeEngage";
 
@@ -40,6 +42,7 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(capabilityExplorerQuery),
       context.queryClient.ensureQueryData(homeClosingQuery),
       context.queryClient.ensureQueryData(workShowcaseQuery),
+      context.queryClient.ensureQueryData(clientStoriesQuery),
     ]),
   errorComponent: () => <p className="p-8">Something went wrong loading this page.</p>,
   notFoundComponent: () => <p className="p-8">Not found.</p>,
@@ -51,6 +54,7 @@ function Index() {
   const { data: cap } = useSuspenseQuery(capabilityExplorerQuery);
   const { data: closing } = useSuspenseQuery(homeClosingQuery);
   const { data: work } = useSuspenseQuery(workShowcaseQuery);
+  const { data: stories } = useSuspenseQuery(clientStoriesQuery);
   const explorer = capExplorerFrom(cap.section, cap.services);
   return (
     <SiteShell>
@@ -58,6 +62,7 @@ function Index() {
       {closing.trust && <TrustProof content={closing.trust} />}
       {explorer && <CapabilityExplorer content={explorer} />}
       {work && <WorkShowcase data={work} />}
+      {stories && <ClientStories data={stories} />}
       {closing.services && <ServicesSnapshot content={closing.services} />}
       {closing.pricing && <PricingSection content={closing.pricing} />}
       {closing.bookCall && <BookCallCta content={closing.bookCall} />}
