@@ -8,7 +8,7 @@ export type SiteChrome = {
   contact: { email?: string; phone?: string; address?: string } | null;
   company: { company_name?: string; short_description?: string } | null;
   social: Partial<Record<"facebook" | "instagram" | "linkedin" | "youtube" | "x", string>> | null;
-  footer: Record<string, unknown> | null;
+  footer: Record<string, string | boolean | null> | null;
   featured: { title: string; slug: string; image: string; category: string | null } | null;
   /** Published service + service group slugs — /services/<slug> links activate only for these. */
   serviceSlugs: string[];
