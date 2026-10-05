@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/control-centre/_admin/chat/unanswered")({
 
 function Unanswered() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [showResolved, setShowResolved] = useState(false);
   const q = useQuery({ queryKey: ["chat", "unanswered", showResolved], queryFn: () => must(supabase.from("chat_unanswered_questions").select("*").eq("resolved", showResolved).order("count", { ascending: false }).order("last_asked_at", { ascending: false }).limit(300)) });
   const intents = useQuery({ queryKey: ["chat", "intents-min"], queryFn: () => must(supabase.from("chat_intents").select("id,name").order("name")) });
@@ -45,10 +46,11 @@ function Unanswered() {
               <Td>{!showResolved && (
                 <div className="flex flex-wrap gap-1">
                   <select className="h-8 rounded-sm border border-input bg-background px-2 text-caption" value={pick[u.id] ?? ""} onChange={(e) => setPick({ ...pick, [u.id]: e.target.value })}>
-                    <option value="">Choose topic…</option>
+                    <option value="">Add to entry…</option>
                     {intents.data?.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
                   </select>
-                  <AdminButton size="sm" onClick={() => teach(u.id, u.question)}>Add</AdminButton>
+                  <AdminButton size="sm" onClick={() => teach(u.id, u.question)}>Add phrase</AdminButton>
+                  <AdminButton size="sm" variant="primary" onClick={() => navigate({ to: "/control-centre/chat/knowledge", search: { edit: "new", q: u.question, asked: u.count, uq: u.id } })}>Create Knowledge Entry</AdminButton>
                   <AdminButton size="sm" variant="ghost" onClick={async () => { await supabase.from("chat_unanswered_questions").update({ resolved: true }).eq("id", u.id); refresh(); }}>Dismiss</AdminButton>
                 </div>
               )}</Td>
