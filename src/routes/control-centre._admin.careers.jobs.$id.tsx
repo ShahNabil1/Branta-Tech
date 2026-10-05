@@ -16,7 +16,7 @@ import { parseBlocks } from "@/lib/rich-text";
 import {
   APPLY_METHODS, DEPARTMENTS, EDUCATION_LEVELS, EMPLOYMENT_TYPES, EXPERIENCE_KINDS, FORM_FIELDS, FORM_LABEL, PERIODS, PROFICIENCY, QUESTION_TYPES,
   SALARY_TYPES, SHIFTS, SUGGESTED_BENEFITS, WHO_OPTIONS, WORK_MODES, emptyDetails, emptySeo, formatSalary, parseDetails, parseSeo, toPublicJob, uid,
-  type JobDetails, type JobSeo, type QuestionType,
+  type JobDetails, type Step, type JobSeo, type QuestionType,
 } from "@/lib/job-details";
 import { cn } from "@/lib/utils";
 
