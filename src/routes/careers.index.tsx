@@ -48,7 +48,7 @@ function JobRow({ j }: { j: JobCard }) {
 
 const KEYS = [["department", "Department"], ["location", "Location"], ["type", "Employment type"], ["workMode", "Work mode"]] as const;
 type FK = (typeof KEYS)[number][0];
-function Filters({ jobs, value, onChange }: { jobs: JobCard[]; value: Partial<Record<FK | "open", string>>; onChange: (v: Partial<Record<FK | "open", string>>) => void }) {
+function Filters({ jobs, value, onChange }: { jobs: JobCard[]; value: Partial<Record<FK | "open", string | undefined>>; onChange: (v: Partial<Record<FK | "open", string | undefined>>) => void }) {
   const opts = (k: FK) => [...new Set(jobs.map((j) => j[k]).filter((x): x is string => !!x))].sort();
   const keys = KEYS.filter(([k]) => opts(k).length > 1);
   const hasClosed = jobs.some((j) => j.window !== "open");
@@ -77,7 +77,7 @@ function Filters({ jobs, value, onChange }: { jobs: JobCard[]; value: Partial<Re
 function CareersPage() {
   const { data: page } = useSuspenseQuery(companyPageQuery("careers"));
   const { data: jobs } = useSuspenseQuery(jobsQuery);
-  const [flt, setFlt] = useState<Partial<Record<FK | "open", string>>>({});
+  const [flt, setFlt] = useState<Partial<Record<FK | "open", string | undefined>>>({});
   const shown = jobs.filter((j) => KEYS.every(([k]) => !flt[k] || j[k] === flt[k]) && (!flt.open || (flt.open === "open" ? j.window === "open" : j.window !== "open")));
   const roles = shown.filter((j) => !isInternship(j));
   const interns = shown.filter(isInternship);
