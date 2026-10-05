@@ -13,11 +13,20 @@ export const Route = createFileRoute("/control-centre/_admin/careers/jobs/")({
 
 function JobsList() {
   const qc = useQueryClient();
-  const q = useQuery({ queryKey: ["cms", "jobs"], queryFn: () => must(supabase.from("jobs").select("id,title,slug,status,featured,department,employment_type,sort_order,updated_at,job_applications(count)").order("sort_order").order("updated_at", { ascending: false })) });
-  async function patch(id: string, p: { status?: string; featured?: boolean; published_at?: string }, msg: string) {
+  const q = useQuery({ queryKey: ["cms", "jobs"], queryFn: () => must(supabase.from("jobs").select("id,title,slug,status,featured,urgent,deadline_at,department,employment_type,sort_order,updated_at,job_applications(count)").order("sort_order").order("updated_at", { ascending: false })) });
+  async function patch(id: string, p: { status?: string; featured?: boolean; urgent?: boolean; published_at?: string }, msg: string) {
     const { error } = await supabase.from("jobs").update(p).eq("id", id);
     if (error) return void toast.error(friendlyError(error));
     toast.success(msg); qc.invalidateQueries({ queryKey: ["cms", "jobs"] });
+  }
+  async function duplicate(id: string) {
+    const { data: src, error } = await supabase.from("jobs").select("*").eq("id", id).single();
+    if (error || !src) return void toast.error(friendlyError(error));
+    const { id: _i, created_at: _c, updated_at: _u, published_at: _p, ...rest } = src;
+    const copy = { ...rest, title: `${src.title} (copy)`, slug: `${src.slug}-copy-${Math.random().toString(36).slice(2, 6)}`, status: "draft", featured: false };
+    const res = await supabase.from("jobs").insert(copy).select("id").single();
+    if (res.error) return void toast.error(friendlyError(res.error));
+    toast.success("Draft copy created"); qc.invalidateQueries({ queryKey: ["cms", "jobs"] });
   }
   async function remove(id: string) {
     const { error } = await supabase.from("jobs").delete().eq("id", id);
@@ -34,22 +43,25 @@ function JobsList() {
       {q.error && <ErrorNote>{friendlyError(q.error)}</ErrorNote>}
       {q.data?.length === 0 && <EmptyState>No roles yet. The Careers page shows "No open roles right now" until one is published.</EmptyState>}
       {!!q.data?.length && (
-        <DataTable head={["Role", "Department", "Type", "Status", "Featured", "Applications", "Updated", ""]}>
+        <DataTable head={["Role", "Department", "Type", "Status", "Flags", "Applications", "Updated", ""]}>
           {q.data.map((j) => (
             <tr key={j.id} className="hover:bg-muted/30">
               <Td className="font-medium"><Link to="/control-centre/careers/jobs/$id" params={{ id: j.id }} className="hover:text-accent">{j.title}</Link></Td>
               <Td>{j.department ?? "—"}</Td>
               <Td>{j.employment_type ?? "—"}</Td>
               <Td><StatusBadge status={j.status} /></Td>
-              <Td>{j.featured ? <FeaturedBadge /> : "—"}</Td>
+              <Td><div className="flex flex-wrap gap-1">{j.featured && <FeaturedBadge />}{j.urgent && <span className="text-caption rounded-sm border border-destructive/40 px-2 py-0.5 text-destructive">Urgent</span>}{!j.featured && !j.urgent && "—"}{j.deadline_at && <span className="text-caption text-muted-foreground">Deadline {formatDate(j.deadline_at)}</span>}</div></Td>
               <Td className="tabular-nums">{(j.job_applications as unknown as { count: number }[])?.[0]?.count ?? 0}</Td>
               <Td className="whitespace-nowrap text-muted-foreground">{formatDate(j.updated_at)}</Td>
               <Td>
                 <div className="flex justify-end gap-1.5">
                   <Link to="/control-centre/careers/jobs/$id" params={{ id: j.id }}><AdminButton size="sm">Edit</AdminButton></Link>
-                  {j.status === "published"
-                    ? <AdminButton size="sm" variant="ghost" onClick={() => patch(j.id, { status: "closed" }, "Role closed")}>Close</AdminButton>
-                    : <AdminButton size="sm" variant="ghost" onClick={() => patch(j.id, { status: "published", published_at: new Date().toISOString() }, "Role published")}>Publish</AdminButton>}
+                  {j.status === "published" ? <>
+                    <AdminButton size="sm" variant="ghost" onClick={() => patch(j.id, { status: "draft" }, "Role unpublished")}>Unpublish</AdminButton>
+                    <AdminButton size="sm" variant="ghost" onClick={() => patch(j.id, { status: "closed" }, "Applications closed")}>Close</AdminButton>
+                  </> : <AdminButton size="sm" variant="ghost" onClick={() => patch(j.id, { status: "published", published_at: new Date().toISOString() }, j.status === "closed" ? "Role reopened" : "Role published")}>{j.status === "closed" ? "Reopen" : "Publish"}</AdminButton>}
+                  <AdminButton size="sm" variant="ghost" onClick={() => patch(j.id, { urgent: !j.urgent }, j.urgent ? "Urgent removed" : "Marked urgent")}>{j.urgent ? "Not urgent" : "Urgent"}</AdminButton>
+                  <AdminButton size="sm" variant="ghost" onClick={() => duplicate(j.id)}>Duplicate</AdminButton>
                   <AdminButton size="sm" variant="ghost" onClick={() => patch(j.id, { featured: !j.featured }, j.featured ? "Unfeatured" : "Featured")}>{j.featured ? "Unfeature" : "Feature"}</AdminButton>
                   {j.status !== "archived" && <AdminButton size="sm" variant="ghost" onClick={() => patch(j.id, { status: "archived" }, "Archived")}>Archive</AdminButton>}
                   <ConfirmButton title="Delete this role?" description="Roles with applications can't be deleted — archive them instead." onConfirm={() => remove(j.id)}>Delete</ConfirmButton>

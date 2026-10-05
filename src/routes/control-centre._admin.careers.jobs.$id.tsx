@@ -163,7 +163,7 @@ function JobEditor() {
             {tab === "Job description" && (<>
               <Panel title="Summary"><TextArea label="Short summary" hint="Shown on the careers list and at the top of the job page." value={v.summary} onChange={(e) => f.set("summary", e.target.value)} /></Panel>
               <Panel title="About the role"><BlocksEditor value={v.blocks} onChange={(b) => f.set("blocks", b)} /></Panel>
-              <Panel title="Additional information">{F("additional" as never) && <TextArea label="Shown at the end of the page" value={d.additional} onChange={(e) => setD("additional", e.target.value)} />}</Panel>
+              <Panel title="Additional information"><TextArea label="Shown at the end of the page" value={d.additional} onChange={(e) => setD("additional", e.target.value)} /></Panel>
             </>)}
             {tab === "Responsibilities" && <Panel title="Responsibilities"><ItemList rows={d.responsibilities} onChange={(r) => setD("responsibilities", r)} addLabel="Add responsibility" placeholder="e.g. Generate new leads" /></Panel>}
             {tab === "Requirements" && (<>
