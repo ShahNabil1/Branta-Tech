@@ -58,6 +58,11 @@ import { Route as CareersAccountApplicationsIdRouteImport } from './routes/caree
 import { Route as ControlCentreAdminBookingsIndexRouteImport } from './routes/control-centre._admin.bookings.index'
 import { Route as ControlCentreAdminBookingsIdRouteImport } from './routes/control-centre._admin.bookings.$id'
 import { Route as ControlCentreAdminBookingsAvailabilityRouteImport } from './routes/control-centre._admin.bookings.availability'
+import { Route as ControlCentreAdminChatIndexRouteImport } from './routes/control-centre._admin.chat.index'
+import { Route as ControlCentreAdminChatKnowledgeRouteImport } from './routes/control-centre._admin.chat.knowledge'
+import { Route as ControlCentreAdminChatQuickActionsRouteImport } from './routes/control-centre._admin.chat.quick-actions'
+import { Route as ControlCentreAdminChatSettingsRouteImport } from './routes/control-centre._admin.chat.settings'
+import { Route as ControlCentreAdminChatUnansweredRouteImport } from './routes/control-centre._admin.chat.unanswered'
 import { Route as ControlCentreAdminInsightsIndexRouteImport } from './routes/control-centre._admin.insights.index'
 import { Route as ControlCentreAdminInsightsIdRouteImport } from './routes/control-centre._admin.insights.$id'
 import { Route as ControlCentreAdminInsightsAuthorsRouteImport } from './routes/control-centre._admin.insights.authors'
@@ -335,6 +340,36 @@ const ControlCentreAdminBookingsAvailabilityRoute =
     path: '/bookings/availability',
     getParentRoute: () => ControlCentreAdminRoute,
   } as any)
+const ControlCentreAdminChatIndexRoute =
+  ControlCentreAdminChatIndexRouteImport.update({
+    id: '/chat/',
+    path: '/chat/',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminChatKnowledgeRoute =
+  ControlCentreAdminChatKnowledgeRouteImport.update({
+    id: '/chat/knowledge',
+    path: '/chat/knowledge',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminChatQuickActionsRoute =
+  ControlCentreAdminChatQuickActionsRouteImport.update({
+    id: '/chat/quick-actions',
+    path: '/chat/quick-actions',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminChatSettingsRoute =
+  ControlCentreAdminChatSettingsRouteImport.update({
+    id: '/chat/settings',
+    path: '/chat/settings',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminChatUnansweredRoute =
+  ControlCentreAdminChatUnansweredRouteImport.update({
+    id: '/chat/unanswered',
+    path: '/chat/unanswered',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
 const ControlCentreAdminInsightsIndexRoute =
   ControlCentreAdminInsightsIndexRouteImport.update({
     id: '/insights/',
@@ -515,6 +550,10 @@ export interface FileRoutesByFullPath {
   '/careers/account/applications/$id': typeof CareersAccountApplicationsIdRoute
   '/control-centre/bookings/$id': typeof ControlCentreAdminBookingsIdRoute
   '/control-centre/bookings/availability': typeof ControlCentreAdminBookingsAvailabilityRoute
+  '/control-centre/chat/knowledge': typeof ControlCentreAdminChatKnowledgeRoute
+  '/control-centre/chat/quick-actions': typeof ControlCentreAdminChatQuickActionsRoute
+  '/control-centre/chat/settings': typeof ControlCentreAdminChatSettingsRoute
+  '/control-centre/chat/unanswered': typeof ControlCentreAdminChatUnansweredRoute
   '/control-centre/insights/$id': typeof ControlCentreAdminInsightsIdRoute
   '/control-centre/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
   '/control-centre/leads/$id': typeof ControlCentreAdminLeadsIdRoute
@@ -527,6 +566,7 @@ export interface FileRoutesByFullPath {
   '/control-centre/website/testimonials': typeof ControlCentreAdminWebsiteTestimonialsRoute
   '/careers/account/applications/': typeof CareersAccountApplicationsIndexRoute
   '/control-centre/bookings/': typeof ControlCentreAdminBookingsIndexRoute
+  '/control-centre/chat/': typeof ControlCentreAdminChatIndexRoute
   '/control-centre/insights/': typeof ControlCentreAdminInsightsIndexRoute
   '/control-centre/leads/': typeof ControlCentreAdminLeadsIndexRoute
   '/control-centre/portfolio/': typeof ControlCentreAdminPortfolioIndexRoute
@@ -584,6 +624,10 @@ export interface FileRoutesByTo {
   '/careers/account/applications/$id': typeof CareersAccountApplicationsIdRoute
   '/control-centre/bookings/$id': typeof ControlCentreAdminBookingsIdRoute
   '/control-centre/bookings/availability': typeof ControlCentreAdminBookingsAvailabilityRoute
+  '/control-centre/chat/knowledge': typeof ControlCentreAdminChatKnowledgeRoute
+  '/control-centre/chat/quick-actions': typeof ControlCentreAdminChatQuickActionsRoute
+  '/control-centre/chat/settings': typeof ControlCentreAdminChatSettingsRoute
+  '/control-centre/chat/unanswered': typeof ControlCentreAdminChatUnansweredRoute
   '/control-centre/insights/$id': typeof ControlCentreAdminInsightsIdRoute
   '/control-centre/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
   '/control-centre/leads/$id': typeof ControlCentreAdminLeadsIdRoute
@@ -596,6 +640,7 @@ export interface FileRoutesByTo {
   '/control-centre/website/testimonials': typeof ControlCentreAdminWebsiteTestimonialsRoute
   '/careers/account/applications': typeof CareersAccountApplicationsIndexRoute
   '/control-centre/bookings': typeof ControlCentreAdminBookingsIndexRoute
+  '/control-centre/chat': typeof ControlCentreAdminChatIndexRoute
   '/control-centre/insights': typeof ControlCentreAdminInsightsIndexRoute
   '/control-centre/leads': typeof ControlCentreAdminLeadsIndexRoute
   '/control-centre/portfolio': typeof ControlCentreAdminPortfolioIndexRoute
@@ -658,6 +703,10 @@ export interface FileRoutesById {
   '/careers/account/applications/$id': typeof CareersAccountApplicationsIdRoute
   '/control-centre/_admin/bookings/$id': typeof ControlCentreAdminBookingsIdRoute
   '/control-centre/_admin/bookings/availability': typeof ControlCentreAdminBookingsAvailabilityRoute
+  '/control-centre/_admin/chat/knowledge': typeof ControlCentreAdminChatKnowledgeRoute
+  '/control-centre/_admin/chat/quick-actions': typeof ControlCentreAdminChatQuickActionsRoute
+  '/control-centre/_admin/chat/settings': typeof ControlCentreAdminChatSettingsRoute
+  '/control-centre/_admin/chat/unanswered': typeof ControlCentreAdminChatUnansweredRoute
   '/control-centre/_admin/insights/$id': typeof ControlCentreAdminInsightsIdRoute
   '/control-centre/_admin/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
   '/control-centre/_admin/leads/$id': typeof ControlCentreAdminLeadsIdRoute
@@ -670,6 +719,7 @@ export interface FileRoutesById {
   '/control-centre/_admin/website/testimonials': typeof ControlCentreAdminWebsiteTestimonialsRoute
   '/careers/account/applications/': typeof CareersAccountApplicationsIndexRoute
   '/control-centre/_admin/bookings/': typeof ControlCentreAdminBookingsIndexRoute
+  '/control-centre/_admin/chat/': typeof ControlCentreAdminChatIndexRoute
   '/control-centre/_admin/insights/': typeof ControlCentreAdminInsightsIndexRoute
   '/control-centre/_admin/leads/': typeof ControlCentreAdminLeadsIndexRoute
   '/control-centre/_admin/portfolio/': typeof ControlCentreAdminPortfolioIndexRoute
@@ -732,6 +782,10 @@ export interface FileRouteTypes {
     | '/careers/account/applications/$id'
     | '/control-centre/bookings/$id'
     | '/control-centre/bookings/availability'
+    | '/control-centre/chat/knowledge'
+    | '/control-centre/chat/quick-actions'
+    | '/control-centre/chat/settings'
+    | '/control-centre/chat/unanswered'
     | '/control-centre/insights/$id'
     | '/control-centre/insights/authors'
     | '/control-centre/leads/$id'
@@ -744,6 +798,7 @@ export interface FileRouteTypes {
     | '/control-centre/website/testimonials'
     | '/careers/account/applications/'
     | '/control-centre/bookings/'
+    | '/control-centre/chat/'
     | '/control-centre/insights/'
     | '/control-centre/leads/'
     | '/control-centre/portfolio/'
@@ -801,6 +856,10 @@ export interface FileRouteTypes {
     | '/careers/account/applications/$id'
     | '/control-centre/bookings/$id'
     | '/control-centre/bookings/availability'
+    | '/control-centre/chat/knowledge'
+    | '/control-centre/chat/quick-actions'
+    | '/control-centre/chat/settings'
+    | '/control-centre/chat/unanswered'
     | '/control-centre/insights/$id'
     | '/control-centre/insights/authors'
     | '/control-centre/leads/$id'
@@ -813,6 +872,7 @@ export interface FileRouteTypes {
     | '/control-centre/website/testimonials'
     | '/careers/account/applications'
     | '/control-centre/bookings'
+    | '/control-centre/chat'
     | '/control-centre/insights'
     | '/control-centre/leads'
     | '/control-centre/portfolio'
@@ -874,6 +934,10 @@ export interface FileRouteTypes {
     | '/careers/account/applications/$id'
     | '/control-centre/_admin/bookings/$id'
     | '/control-centre/_admin/bookings/availability'
+    | '/control-centre/_admin/chat/knowledge'
+    | '/control-centre/_admin/chat/quick-actions'
+    | '/control-centre/_admin/chat/settings'
+    | '/control-centre/_admin/chat/unanswered'
     | '/control-centre/_admin/insights/$id'
     | '/control-centre/_admin/insights/authors'
     | '/control-centre/_admin/leads/$id'
@@ -886,6 +950,7 @@ export interface FileRouteTypes {
     | '/control-centre/_admin/website/testimonials'
     | '/careers/account/applications/'
     | '/control-centre/_admin/bookings/'
+    | '/control-centre/_admin/chat/'
     | '/control-centre/_admin/insights/'
     | '/control-centre/_admin/leads/'
     | '/control-centre/_admin/portfolio/'
@@ -1275,6 +1340,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlCentreAdminBookingsAvailabilityRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
+    '/control-centre/_admin/chat/': {
+      id: '/control-centre/_admin/chat/'
+      path: '/chat'
+      fullPath: '/control-centre/chat/'
+      preLoaderRoute: typeof ControlCentreAdminChatIndexRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/chat/knowledge': {
+      id: '/control-centre/_admin/chat/knowledge'
+      path: '/chat/knowledge'
+      fullPath: '/control-centre/chat/knowledge'
+      preLoaderRoute: typeof ControlCentreAdminChatKnowledgeRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/chat/quick-actions': {
+      id: '/control-centre/_admin/chat/quick-actions'
+      path: '/chat/quick-actions'
+      fullPath: '/control-centre/chat/quick-actions'
+      preLoaderRoute: typeof ControlCentreAdminChatQuickActionsRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/chat/settings': {
+      id: '/control-centre/_admin/chat/settings'
+      path: '/chat/settings'
+      fullPath: '/control-centre/chat/settings'
+      preLoaderRoute: typeof ControlCentreAdminChatSettingsRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/chat/unanswered': {
+      id: '/control-centre/_admin/chat/unanswered'
+      path: '/chat/unanswered'
+      fullPath: '/control-centre/chat/unanswered'
+      preLoaderRoute: typeof ControlCentreAdminChatUnansweredRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
     '/control-centre/_admin/insights/': {
       id: '/control-centre/_admin/insights/'
       path: '/insights'
@@ -1458,6 +1558,10 @@ interface ControlCentreAdminRouteChildren {
   ControlCentreAdminTeamRoute: typeof ControlCentreAdminTeamRoute
   ControlCentreAdminBookingsIdRoute: typeof ControlCentreAdminBookingsIdRoute
   ControlCentreAdminBookingsAvailabilityRoute: typeof ControlCentreAdminBookingsAvailabilityRoute
+  ControlCentreAdminChatKnowledgeRoute: typeof ControlCentreAdminChatKnowledgeRoute
+  ControlCentreAdminChatQuickActionsRoute: typeof ControlCentreAdminChatQuickActionsRoute
+  ControlCentreAdminChatSettingsRoute: typeof ControlCentreAdminChatSettingsRoute
+  ControlCentreAdminChatUnansweredRoute: typeof ControlCentreAdminChatUnansweredRoute
   ControlCentreAdminInsightsIdRoute: typeof ControlCentreAdminInsightsIdRoute
   ControlCentreAdminInsightsAuthorsRoute: typeof ControlCentreAdminInsightsAuthorsRoute
   ControlCentreAdminLeadsIdRoute: typeof ControlCentreAdminLeadsIdRoute
@@ -1469,6 +1573,7 @@ interface ControlCentreAdminRouteChildren {
   ControlCentreAdminWebsiteRecognitionRoute: typeof ControlCentreAdminWebsiteRecognitionRoute
   ControlCentreAdminWebsiteTestimonialsRoute: typeof ControlCentreAdminWebsiteTestimonialsRoute
   ControlCentreAdminBookingsIndexRoute: typeof ControlCentreAdminBookingsIndexRoute
+  ControlCentreAdminChatIndexRoute: typeof ControlCentreAdminChatIndexRoute
   ControlCentreAdminInsightsIndexRoute: typeof ControlCentreAdminInsightsIndexRoute
   ControlCentreAdminLeadsIndexRoute: typeof ControlCentreAdminLeadsIndexRoute
   ControlCentreAdminPortfolioIndexRoute: typeof ControlCentreAdminPortfolioIndexRoute
@@ -1491,6 +1596,11 @@ const ControlCentreAdminRouteChildren: ControlCentreAdminRouteChildren = {
   ControlCentreAdminBookingsIdRoute: ControlCentreAdminBookingsIdRoute,
   ControlCentreAdminBookingsAvailabilityRoute:
     ControlCentreAdminBookingsAvailabilityRoute,
+  ControlCentreAdminChatKnowledgeRoute: ControlCentreAdminChatKnowledgeRoute,
+  ControlCentreAdminChatQuickActionsRoute:
+    ControlCentreAdminChatQuickActionsRoute,
+  ControlCentreAdminChatSettingsRoute: ControlCentreAdminChatSettingsRoute,
+  ControlCentreAdminChatUnansweredRoute: ControlCentreAdminChatUnansweredRoute,
   ControlCentreAdminInsightsIdRoute: ControlCentreAdminInsightsIdRoute,
   ControlCentreAdminInsightsAuthorsRoute:
     ControlCentreAdminInsightsAuthorsRoute,
@@ -1507,6 +1617,7 @@ const ControlCentreAdminRouteChildren: ControlCentreAdminRouteChildren = {
   ControlCentreAdminWebsiteTestimonialsRoute:
     ControlCentreAdminWebsiteTestimonialsRoute,
   ControlCentreAdminBookingsIndexRoute: ControlCentreAdminBookingsIndexRoute,
+  ControlCentreAdminChatIndexRoute: ControlCentreAdminChatIndexRoute,
   ControlCentreAdminInsightsIndexRoute: ControlCentreAdminInsightsIndexRoute,
   ControlCentreAdminLeadsIndexRoute: ControlCentreAdminLeadsIndexRoute,
   ControlCentreAdminPortfolioIndexRoute: ControlCentreAdminPortfolioIndexRoute,
