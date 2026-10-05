@@ -1,10 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { applicationWindow, parseDetails, type FormKey, type JobDetails } from "./job-details";
 
 export const RESUME_MAX = 5 * 1024 * 1024;
 export const RESUME_ACCEPT = ".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
-const optUrl = z.string().trim().max(500).refine((v) => !v || /^https?:\/\/[^\s"<>]+$/.test(v), "Enter a full link starting with https://");
 const Fields = z.object({
   job_slug: z.string().trim().min(1).max(120),
   full_name: z.string().trim().min(2, "Enter your full name").max(120),
@@ -12,6 +12,64 @@ const Fields = z.object({
   website: z.string().max(0).optional(), // honeypot
   started_at: z.coerce.number(),
 });
+
+
+const ATT_MAX = 5 * 1024 * 1024;
+const ATT_CT: Record<string, string> = { pdf: "application/pdf", png: "image/png", jpg: "image/jpeg", webp: "image/webp" };
+function sniffAtt(b: Uint8Array): "pdf" | "png" | "jpg" | "webp" | null {
+  if (b[0] === 0x25 && b[1] === 0x50 && b[2] === 0x44 && b[3] === 0x46) return "pdf";
+  if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47) return "png";
+  if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return "jpg";
+  if (b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 && b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50) return "webp";
+  return null;
+}
+const urlOk = (v: string) => /^https?:\/\/[^\s"<>]+$/.test(v);
+const TEXT_MAX: Partial<Record<FormKey, number>> = { phone: 40, location: 200, education: 1000, experience: 2000, cover_note: 4000, expected_salary: 80, current_salary: 80, current_company: 160, current_position: 160, joining_date: 20 };
+type Att = { key: string; ext: string; bytes: Uint8Array };
+
+/** Validates the job's configured form fields + custom questions (server-side source of truth). */
+async function checkConfiguredFields(fd: FormData, det: JobDetails): Promise<{ fields: Record<string, string> } | { values: Partial<Record<FormKey, string>>; answers: Record<string, string | string[]>; files: Att[] }> {
+  const fields: Record<string, string> = {};
+  const values: Partial<Record<FormKey, string>> = {};
+  const files: Att[] = [];
+  const readFile = async (name: string, key: string, imagesOnly: boolean, required: boolean) => {
+    const f = fd.get(name);
+    if (!(f instanceof File) || f.size === 0) { if (required) fields[key] = "Please attach a file"; return; }
+    if (f.size > ATT_MAX) { fields[key] = "Maximum size is 5 MB"; return; }
+    const bytes = new Uint8Array(await f.arrayBuffer());
+    const ext = sniffAtt(bytes);
+    if (!ext || (imagesOnly && ext === "pdf")) { fields[key] = imagesOnly ? "Use a PNG, JPG or WEBP image" : "Use a PDF, PNG, JPG or WEBP file"; return; }
+    files.push({ key, ext, bytes });
+  };
+  for (const c of det.form.filter((x) => x.enabled && x.key !== "resume")) {
+    if (c.key === "portfolio_file" || c.key === "photo") { await readFile(`file_${c.key}`, c.key, c.key === "photo", c.required); continue; }
+    const raw = String(fd.get(c.key) ?? "").trim().slice(0, TEXT_MAX[c.key] ?? 500);
+    if (!raw) { if (c.required) fields[c.key] = "This field is required"; continue; }
+    if (c.key.endsWith("_url") && !urlOk(raw)) { fields[c.key] = "Enter a full link starting with https://"; continue; }
+    if (c.key === "phone" && (raw.length < 6 || !/^[+\d\s().-]+$/.test(raw))) { fields[c.key] = "Use digits, spaces, + ( ) -"; continue; }
+    if (c.key === "joining_date" && !/^\d{4}-\d{2}-\d{2}$/.test(raw)) { fields[c.key] = "Choose a date"; continue; }
+    values[c.key] = raw;
+  }
+  const answers: Record<string, string | string[]> = {};
+  for (const q of det.questions.filter((x) => x.enabled)) {
+    const key = `q_${q.id}`;
+    if (q.type === "file") { await readFile(`qf_${q.id}`, key, false, q.required); continue; }
+    if (q.type === "multi") {
+      const vals = fd.getAll(key).map(String).filter((x) => q.options.includes(x));
+      if (!vals.length && q.required) fields[key] = "Choose at least one"; else if (vals.length) answers[q.id] = vals;
+      continue;
+    }
+    const raw = String(fd.get(key) ?? "").trim().slice(0, q.type === "long" ? 4000 : 500);
+    if (!raw) { if (q.required) fields[key] = "This question is required"; continue; }
+    const opts = q.type === "yesno" ? ["Yes", "No"] : q.options;
+    if (["yesno", "single", "dropdown"].includes(q.type) && !opts.includes(raw)) { fields[key] = "Choose an option"; continue; }
+    if (q.type === "number" && !Number.isFinite(Number(raw))) { fields[key] = "Enter a number"; continue; }
+    if (q.type === "url" && !urlOk(raw)) { fields[key] = "Enter a full link starting with https://"; continue; }
+    if (q.type === "date" && !/^\d{4}-\d{2}-\d{2}$/.test(raw)) { fields[key] = "Choose a date"; continue; }
+    answers[q.id] = raw;
+  }
+  return Object.keys(fields).length ? { fields } : { values, answers, files };
+}
 
 export type ApplyResult = { ok: true; id: string } | { ok: false; error: string; fields?: Record<string, string>; duplicateId?: string; signIn?: boolean };
 
