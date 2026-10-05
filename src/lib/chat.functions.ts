@@ -20,3 +20,20 @@ export const chatSend = createServerFn({ method: "POST" })
     if (!parsed.success) return { ok: false as const, error: "Please check your message and try again." };
     return m.doSend(parsed.data);
   });
+
+export const chatIdentify = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ token: z.string().max(100).nullable() }).passthrough().parse(d) as Record<string, unknown>)
+  .handler(async ({ data }) => {
+    const m = await import("./chat.server");
+    const parsed = m.IdentifyInput.safeParse(data);
+    if (!parsed.success) return { ok: false as const, field: null, error: "Please check your details and try again." };
+    return m.doIdentify(parsed.data);
+  });
+
+export const chatTrack = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ token: z.string().max(100).nullable(), event: z.string().max(40) }).parse(d))
+  .handler(async ({ data }) => {
+    const m = await import("./chat.server");
+    const parsed = m.TrackInput.safeParse(data);
+    return parsed.success ? m.doTrack(parsed.data) : { ok: true as const };
+  });
