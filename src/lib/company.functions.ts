@@ -120,7 +120,7 @@ export const isInternship = (j: { type: string | null }) => /intern/i.test(j.typ
 export const getJobs = createServerFn({ method: "GET" }).handler(async (): Promise<JobCard[]> => {
   const sb = pub();
   if (!sb) return [];
-  const { data } = await sb.from("jobs").select(JOB_COLS).eq("status", "published").order("featured", { ascending: false }).order("published_at", { ascending: false, nullsFirst: false }).order("sort_order");
+  const { data } = await sb.from("jobs").select(JOB_COLS).eq("status", "published").order("featured", { ascending: false }).order("sort_order").order("published_at", { ascending: false, nullsFirst: false });
   return (data ?? []).map((r) => {
     const j = toPublicJob(r as JobRowLike);
     // "Auto close" jobs drop off the listing once the deadline passes.
@@ -149,8 +149,8 @@ export const insightsQuery = queryOptions({ queryKey: ["public", "insights"], qu
 export const postQuery = (slug: string) => queryOptions({ queryKey: ["public", "post", slug], queryFn: () => getPost({ data: { slug } }), staleTime: FIVE });
 export const teamQuery = queryOptions({ queryKey: ["public", "team"], queryFn: () => getTeam(), staleTime: FIVE });
 export const companyPageQuery = (slug: "about" | "team" | "careers") => queryOptions({ queryKey: ["public", "company-page", slug], queryFn: () => getCompanyPage({ data: { slug } }), staleTime: FIVE });
-export const jobsQuery = queryOptions({ queryKey: ["public", "jobs"], queryFn: () => getJobs(), staleTime: FIVE });
-export const jobQuery = (slug: string) => queryOptions({ queryKey: ["public", "job", slug], queryFn: () => getJob({ data: { slug } }), staleTime: FIVE });
+export const jobsQuery = queryOptions({ queryKey: ["public", "jobs"], queryFn: () => getJobs(), staleTime: 30_000 });
+export const jobQuery = (slug: string) => queryOptions({ queryKey: ["public", "job", slug], queryFn: () => getJob({ data: { slug } }), staleTime: 30_000 });
 
 export function formatPostDate(iso: string | null) {
   return iso ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) : "";

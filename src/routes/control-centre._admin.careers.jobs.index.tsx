@@ -59,7 +59,7 @@ function JobsList() {
                   {j.status === "published" ? <>
                     <AdminButton size="sm" variant="ghost" onClick={() => patch(j.id, { status: "draft" }, "Role unpublished")}>Unpublish</AdminButton>
                     <AdminButton size="sm" variant="ghost" onClick={() => patch(j.id, { status: "closed" }, "Applications closed")}>Close</AdminButton>
-                  </> : <AdminButton size="sm" variant="ghost" onClick={() => patch(j.id, { status: "published", published_at: new Date().toISOString() }, j.status === "closed" ? "Role reopened" : "Role published")}>{j.status === "closed" ? "Reopen" : "Publish"}</AdminButton>}
+                  </> : <AdminButton size="sm" variant="ghost" onClick={() => patch(j.id, { status: "published", published_at: new Date().toISOString() }, j.status === "closed" ? "Role reopened" : "Job published and visible on Careers.")}>{j.status === "closed" ? "Reopen" : "Publish"}</AdminButton>}
                   <AdminButton size="sm" variant="ghost" onClick={() => patch(j.id, { urgent: !j.urgent }, j.urgent ? "Urgent removed" : "Marked urgent")}>{j.urgent ? "Not urgent" : "Urgent"}</AdminButton>
                   <AdminButton size="sm" variant="ghost" onClick={() => duplicate(j.id)}>Duplicate</AdminButton>
                   <AdminButton size="sm" variant="ghost" onClick={() => patch(j.id, { featured: !j.featured }, j.featured ? "Unfeatured" : "Featured")}>{j.featured ? "Unfeature" : "Feature"}</AdminButton>
