@@ -371,3 +371,16 @@
 .footer-cta:hover { color: var(--accent); }
 .footer-wordmark { font-size: clamp(5rem, 26vw, 26rem); margin-bottom: -0.12em; }
 .footer-light { background: #F7F7F5; }
+/* Footer entrance (once, via useReveal) */
+.fx { opacity: 0; transform: translateY(14px); transition: opacity 450ms cubic-bezier(.22,1,.36,1) var(--fd,0ms), transform 450ms cubic-bezier(.22,1,.36,1) var(--fd,0ms); }
+.fx-eyebrow { transform: none; transition-duration: 350ms; }
+.fx-head { transform: translateY(26px); transition-duration: 600ms; }
+.fx-mark { transform: translateY(8%) scale(.98); transition-duration: 850ms; }
+.fx-group[data-revealed="true"] .fx { opacity: 1; transform: none; }
+.footer-link { background: linear-gradient(currentColor,currentColor) left bottom / 0 1px no-repeat; transition: color 200ms, background-size 200ms; }
+.footer-link:hover { background-size: 100% 1px; }
+.footer-cta { background-size: 0 1.5px, 100% 1.5px; background-image: linear-gradient(var(--accent),var(--accent)), linear-gradient(currentColor,currentColor); background-position: left bottom; background-repeat: no-repeat; transition: color 200ms, background-size 220ms; }
+.footer-cta:hover { background-size: 100% 1.5px, 100% 1.5px; }
+.footer-cta:hover > span { transform: translateX(5px); }
+@media (max-width: 640px) { .fx { transform: translateY(8px); transition-duration: 350ms; transition-delay: calc(var(--fd,0ms) * .5); } .fx-mark { transform: translateY(4%); } }
+@media (prefers-reduced-motion: reduce) { .fx { opacity: 1 !important; transform: none !important; transition: none !important; } }
