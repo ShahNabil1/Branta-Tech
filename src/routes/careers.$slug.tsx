@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2 } from "lucide-react";
 import { SiteShell } from "@/components/layout/SiteShell";
 import { Section, SiteContainer } from "@/components/layout/primitives";
-import { RichText } from "@/components/content/RichText";
+import { JobBadges, JobBody, JobFacts } from "@/components/careers/JobDetail";
+import { formatDeadline, type FormKey } from "@/lib/job-details";
 import { buttonVariants } from "@/components/ui/brand-button";
 import { siteChromeQuery } from "@/lib/navigation";
 import { jobQuery, type Job } from "@/lib/company.functions";
@@ -19,12 +20,19 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/careers/$slug")({
   loader: async ({ context, params }) => {
     const [, job] = await Promise.all([context.queryClient.ensureQueryData(siteChromeQuery), context.queryClient.ensureQueryData(jobQuery(params.slug))]);
+    if (job && "redirect" in job) throw redirect({ to: "/careers/$slug", params: { slug: job.redirect }, statusCode: 301 });
     if (!job) throw notFound();
-    return { title: job.title, summary: job.summary };
+    return { title: job.title, summary: job.summary, seo: job.seo };
   },
-  head: ({ loaderData, params }) => loaderData
-    ? { links: canonical(`/careers/${params.slug}`), meta: pageMeta({ title: `${loaderData.title} | Careers | Branta Tech`, description: loaderData.summary || `Apply for the ${loaderData.title} role at Branta.` }) }
-    : { meta: [{ title: "Role not available | Branta Tech" }, { name: "robots", content: "noindex" }] },
+  head: ({ loaderData, params }) => {
+    if (!loaderData) return { meta: [{ title: "Role not available | Branta Tech" }, { name: "robots", content: "noindex" }] };
+    const s = loaderData.seo;
+    const title = s.title || `${loaderData.title} | Careers | Branta Tech`;
+    const description = s.description || loaderData.summary || `Apply for the ${loaderData.title} role at Branta.`;
+    const meta = pageMeta({ title, description, image: s.og_image || null }).map((m) =>
+      m["property"] === "og:title" && s.og_title ? { ...m, content: s.og_title } : m["property"] === "og:description" && s.og_description ? { ...m, content: s.og_description } : m);
+    return { links: canonical(`/careers/${params.slug}`, s.canonical), meta };
+  },
   errorComponent: () => <p className="p-8">Something went wrong loading this role.</p>,
   notFoundComponent: () => (
     <SiteShell>
@@ -40,33 +48,55 @@ export const Route = createFileRoute("/careers/$slug")({
 function JobPage() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(jobQuery(slug));
-  const j = data!;
-  const meta = [j.department, j.type, j.location, j.workMode].filter(Boolean);
+  return <SiteShell><JobView j={data as Job} /></SiteShell>;
+}
+
+/** Full public job layout; also used by the Control Centre preview (with preview = true). */
+export function JobView({ j, preview }: { j: Job; preview?: boolean }) {
+  const meta = [j.department, j.details.category, j.jobCode && `Ref. ${j.jobCode}`].filter(Boolean) as string[];
+  const cta = j.details.application.cta_label || "Apply Now";
   return (
-    <SiteShell>
+    <>
       <Section tone="dark" aria-labelledby="job-title">
         <Link to="/careers" className="text-small text-muted-foreground hover:text-foreground">← Careers</Link>
-        <h1 id="job-title" className="text-display mt-10 max-w-[20ch] break-words text-foreground">{j.title}</h1>
-        {meta.length > 0 && <ul className="mt-8 flex flex-wrap gap-2">{meta.map((m) => <li key={m} className="text-caption rounded-sm border border-border px-2.5 py-1 text-muted-foreground">{m}</li>)}</ul>}
-        {j.summary && <p className="text-body-lg mt-8 max-w-2xl text-muted-foreground">{j.summary}</p>}
-        <a href="#apply" className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "mt-10")}>Apply Now</a>
+        <div className="mt-10 flex flex-wrap gap-2"><JobBadges j={j} /></div>
+        <h1 id="job-title" className="text-display mt-4 max-w-[20ch] break-words text-foreground">{j.title}</h1>
+        {meta.length > 0 && <p className="text-small mt-6 text-muted-foreground">{meta.join(" · ")}</p>}
+        {j.summary && <p className="text-body-lg mt-6 max-w-2xl text-muted-foreground">{j.summary}</p>}
+        {j.window === "open" && <a href="#apply" className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "mt-10")}>{cta}</a>}
       </Section>
       <SiteContainer>
-        <div className="grid gap-16 py-16 md:py-24 lg:grid-cols-12">
-          <div className="min-w-0 lg:col-span-7">
-            {j.blocks.length > 0 && <RichText blocks={j.blocks} />}
-            {j.requirements.length > 0 && (
-              <div className="mt-12">
-                <h2 className="text-h2 text-foreground">What we're looking for</h2>
-                <ul className="text-body-lg mt-6 flex list-disc flex-col gap-2 pl-6 text-foreground/85">{j.requirements.map((r, i) => <li key={i}>{r}</li>)}</ul>
-              </div>
-            )}
+        <div className="py-12 md:py-16"><JobFacts j={j} /></div>
+        <div className="grid gap-16 pb-16 md:pb-24 lg:grid-cols-12">
+          <div className="min-w-0 lg:col-span-7"><JobBody j={j} /></div>
+          <div id="apply" className="min-w-0 scroll-mt-24 lg:col-span-5">
+            {preview ? <div className="rounded-md border border-border bg-surface p-6 md:p-8"><h2 className="text-h2 text-foreground">Apply</h2><p className="text-body mt-4 text-muted-foreground">Preview — the application form appears here for signed-in applicants{j.window !== "open" ? " (currently closed)" : ""}.</p></div>
+              : <ApplyEntry job={j} />}
           </div>
-          <div id="apply" className="min-w-0 scroll-mt-24 lg:col-span-5"><ApplyForm job={j} /></div>
         </div>
       </SiteContainer>
-    </SiteShell>
+    </>
   );
+}
+
+function ApplyEntry({ job }: { job: Job }) {
+  const a = job.details.application;
+  const box = "rounded-md border border-border bg-surface p-6 md:p-8";
+  if (job.window === "not_yet") return <div className={box}><h2 className="text-h2 text-foreground">Applications open soon</h2><p className="text-body mt-4 text-muted-foreground">Applications open on {formatDeadline(job.openAt)}.</p></div>;
+  if (job.window === "closed") return <div className={box}><h2 className="text-h2 text-foreground">Applications closed</h2><p className="text-body mt-4 text-muted-foreground">This role is no longer accepting applications.</p><Link to="/careers" className="text-body mt-6 inline-block underline underline-offset-4">See open roles</Link></div>;
+  if (a.method !== "form") {
+    const href = a.method === "email" && a.email ? `mailto:${a.email}?subject=${encodeURIComponent(`Application: ${job.title}`)}`
+      : a.method === "link" && /^https:\/\//.test(a.url) ? a.url
+      : a.method === "whatsapp" && a.whatsapp ? `https://wa.me/${a.whatsapp.replace(/[^\d]/g, "")}` : null;
+    return (
+      <div className={box}>
+        <h2 className="text-h2 text-foreground">How to apply</h2>
+        {a.custom_text && <p className="text-body mt-4 whitespace-pre-line text-muted-foreground">{a.custom_text}</p>}
+        {href && <a href={href} target={a.method === "email" ? undefined : "_blank"} rel="noopener noreferrer" className={cn(buttonVariants({ variant: "primary", size: "lg" }), "mt-6 w-full")}>{a.cta_label || "Apply Now"}</a>}
+      </div>
+    );
+  }
+  return <ApplyForm job={job} />;
 }
 
 const fieldCls = "w-full rounded-sm border border-input bg-surface px-3 text-body outline-none focus-visible:border-foreground focus-visible:ring-2 focus-visible:ring-ring";
