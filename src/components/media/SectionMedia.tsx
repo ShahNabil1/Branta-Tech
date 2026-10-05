@@ -1,5 +1,6 @@
 import { SoundToggle, useVideoSound } from "@/components/media/SoundToggle";
 import { useEffect, useRef, useState } from "react";
+import { Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { vimeoId } from "@/lib/hero";
 import type { Aspect, Position, SectionMediaItem } from "@/lib/section-media";
@@ -50,18 +51,30 @@ export function SectionMedia({ item, className, fill, decorative, eager }: {
   const frame = useRef<HTMLIFrameElement>(null);
   const alt = decorative ? "" : item.alt;
   const fit = cn("absolute inset-0 size-full object-cover", POS_CLS[item.position]);
-  const run = inView && motionOk && item.autoplay && item.type !== "image";
+  const [manual, setManual] = useState(false);
+  const [stalled, setStalled] = useState(false);
+  const run = inView && (manual || (motionOk && item.autoplay)) && item.type !== "image";
   const vId = item.type === "vimeo" ? vimeoId(item.url) : null;
   const vs = useVideoSound({ kind: "vimeo", ref: frame }, run && playing && !!vId);
   const hs = useVideoSound({ kind: "video", ref: vid }, run && playing && item.type === "video");
   const snd = vId ? vs : hs;
 
   useEffect(() => { if (!run) setPlaying(false); }, [run]);
+  // Autoplay blocked or slow network: after a grace period the poster stays and a play control appears.
+  useEffect(() => {
+    if (!run || playing) return;
+    const t = window.setTimeout(() => setStalled(true), 7000);
+    return () => window.clearTimeout(t);
+  }, [run, playing]);
   useEffect(() => {
     const v = vid.current;
     if (!v) return;
-    if (run) v.play().catch(() => setPlaying(false)); else v.pause();
+    if (run) v.play().catch(() => { setPlaying(false); setStalled(true); }); else v.pause();
   }, [run]);
+  const start = () => {
+    setManual(true); setStalled(false);
+    vid.current?.play().catch(() => setStalled(true));
+  };
   useEffect(() => {
     if (!run || !vId) return;
     const onMsg = (e: MessageEvent) => {
@@ -92,8 +105,8 @@ export function SectionMedia({ item, className, fill, decorative, eager }: {
       {item.type === "video" && (
         <video
           ref={vid} src={inView ? item.url : undefined} poster={poster || undefined} muted
-          loop={item.loop} playsInline preload="none" aria-label={alt || undefined} onPlaying={() => setPlaying(true)}
-          onError={() => setPlaying(false)}
+          loop={item.loop} playsInline preload={run ? "auto" : "none"} aria-label={alt || undefined} onPlaying={() => setPlaying(true)}
+          onError={() => { setPlaying(false); setStalled(true); }}
           className={cn(fit, "transition-opacity duration-500", playing ? "opacity-100" : "opacity-0")}
         />
       )}
@@ -104,6 +117,12 @@ export function SectionMedia({ item, className, fill, decorative, eager }: {
           allow="autoplay; fullscreen; picture-in-picture"
           className={cn("pointer-events-none absolute inset-0 size-full scale-[1.02] border-0 transition-opacity duration-500", playing ? "opacity-100" : "opacity-0")}
         />
+      )}
+      {!decorative && !fill && item.type !== "image" && !playing && (!run || stalled) && (
+        <button type="button" onClick={start} aria-label="Play video"
+          className="absolute left-1/2 top-1/2 z-20 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-ink/45 text-ink-foreground backdrop-blur-sm transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+          <Play className="ml-0.5 size-6" aria-hidden />
+        </button>
       )}
       {!decorative && !fill && run && playing && <SoundToggle on={snd.on} onToggle={snd.toggle} />}
     </div>
