@@ -167,7 +167,7 @@ export const submitApplication = createServerFn({ method: "POST" })
     const filesOut: Record<string, string> = {};
     for (const att of checked.files) {
       const p = `${job.id}/${randomUUID()}-att.${att.ext}`;
-      const up = await supabaseAdmin.storage.from("career-private").upload(p, att.bytes, { contentType: ATT_CT[att.ext], upsert: false });
+      const up = await supabaseAdmin.storage.from("career-private").upload(p, att.bytes, { contentType: ATT_CT[att.ext] ?? "application/octet-stream", upsert: false });
       if (up.error) { await supabaseAdmin.storage.from("career-private").remove(uploaded); return { ok: false, error: "We couldn't upload your files. Please try again." }; }
       uploaded.push(p); filesOut[att.key] = p;
     }
