@@ -11,18 +11,23 @@ import { Button, buttonVariants } from "@/components/ui/brand-button";
 import { Calendar } from "@/components/ui/calendar";
 import { siteChromeQuery } from "@/lib/navigation";
 import { bookingExperienceQuery } from "@/lib/booking.functions";
+import type { BookingGroup } from "@/lib/booking";
 import { submitBooking } from "@/lib/inquiry.functions";
 import { useClientSession } from "@/lib/client-session";
 import { pageMeta, canonical } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/book-a-call")({
+  validateSearch: (s: Record<string, unknown>): { group?: string; service?: string } => ({
+    group: typeof s["group"] === "string" ? s["group"].slice(0, 120) : undefined,
+    service: typeof s["service"] === "string" ? s["service"].slice(0, 120) : undefined,
+  }),
   loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(siteChromeQuery), context.queryClient.ensureQueryData(bookingExperienceQuery)]),
   head: () => ({ links: canonical("/book-a-call"), meta: pageMeta({ title: "Book a 30-Minute Discovery Call | Branta Tech", description: "Choose an available time for a focused discovery call with Branta Tech about your project, challenge or opportunity." }) }),
   component: BookCall,
 });
 
-const STEPS = ["Details", "Need", "Date", "Time", "Confirm"];
+const STEPS = ["Category", "Service", "Date", "Time", "Details", "Confirm"];
 const CALL_STEPS = [
   { icon: Search, n: "01", title: "Understand", body: "We unpack the idea, challenge and context." },
   { icon: MessageSquareText, n: "02", title: "Explore", body: "We discuss possibilities, priorities and constraints." },
@@ -42,7 +47,13 @@ function BookCall() {
   const startRef = useRef(Date.now());
   const bookingRef = useRef<HTMLDivElement>(null);
   const [step, setStep] = useState(0);
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const search = Route.useSearch();
+  const preGroup = data.groups.find((g) => g.slug === search.group || g.services.some((x) => x.slug === search.service));
+  const [groupId, setGroupId] = useState(preGroup?.id ?? "");
+  const [serviceId, setServiceId] = useState(preGroup?.services.find((x) => x.slug === search.service)?.id ?? "");
+  const group = data.groups.find((g) => g.id === groupId);
+  const service = group?.services.find((x) => x.id === serviceId);
+  const selectedServices = service ? [service.name] : [];
   const [date, setDate] = useState<Date>();
   const [slot, setSlot] = useState("");
   const [tz, setTz] = useState("UTC");
@@ -64,13 +75,13 @@ function BookCall() {
 
   function validate(next: number) {
     const e: Record<string, string> = {};
-    if (step === 0) {
+    if (step === 0 && !group) e["group"] = "Choose a category";
+    if (step === 1 && !service) e["services"] = "Choose a service";
+    if (step === 4) {
       if (values.name.trim().length < 2) e["name"] = "Enter your name";
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) e["email"] = "Enter a valid email";
       if (!/^[+\d\s().-]{6,}$/.test(values.phone)) e["phone"] = "Enter your WhatsApp number";
     }
-    if (step === 1 && !selectedServices.length) e["services"] = "Choose at least one service";
-    if (step === 1 && values.topic.trim().length < 3) e["topic"] = "Tell us briefly what you want to discuss";
     if (step === 2 && !date) e["date"] = "Choose an available date";
     if (step === 3 && !slot) e["time"] = "Choose an available time";
     setErrs(e); setError(Object.keys(e).length ? "Please check the highlighted fields." : null);
@@ -82,7 +93,7 @@ function BookCall() {
     if (busy || !slot) return;
     setBusy(true); setError(null); setErrs({});
     try {
-      const result = await submit({ data: { ...values, services: selectedServices, requested_start_at: slot, timezone: tz, started_at: String(startRef.current), hp_field: "" } });
+      const result = await submit({ data: { ...values, topic: values.topic.trim().length >= 3 ? values.topic.trim() : `${group?.name ?? ""} — ${service?.name ?? ""}`, services: selectedServices, service_group_id: groupId, service_id: serviceId, requested_start_at: slot, timezone: tz, started_at: String(startRef.current), hp_field: "" } });
       if (result.ok) {
         setConfirmation({ reference: result.bookingReference ?? "Received", status: result.status ?? "requested" });
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -129,19 +140,20 @@ function BookCall() {
                         <span className={cn("text-caption hidden sm:block", i === step ? "text-foreground" : "text-muted-foreground")}>{label}</span>
                       </li>)}
                     </ol>
-                    <p className="text-caption mt-3 text-muted-foreground sm:hidden">Step {step + 1} of 5 · {STEPS[step]}</p>
+                    <p className="text-caption mt-3 text-muted-foreground sm:hidden">Step {step + 1} of {STEPS.length} · {STEPS[step]}</p>
                     {error && <div className="mt-6"><FormAlert>{error}</FormAlert></div>}
                     <div key={step} className="step-in mt-7 min-h-[420px]">
-                      {step === 0 && <StepDetails values={values} setValue={setValue} errs={errs} />}
-                      {step === 1 && <StepNeeds services={data.services} selected={selectedServices} setSelected={setSelectedServices} values={values} setValue={setValue} errs={errs} />}
+                      {step === 0 && <StepCategory groups={data.groups} value={groupId} onChange={(id) => { setGroupId(id); if (!data.groups.find((g) => g.id === id)?.services.some((x) => x.id === serviceId)) setServiceId(""); }} error={errs["group"]} />}
+                      {step === 1 && group && <StepService group={group} value={serviceId} onChange={setServiceId} values={values} setValue={setValue} errs={errs} />}
+                      {step === 4 && <StepDetails values={values} setValue={setValue} errs={errs} />}
                       {step === 2 && <StepDate value={date} onChange={(d) => { setDate(d); setSlot(""); if (d) { setErrs({}); setError(null); } }} available={available} full={fullyBooked} min={data.days[0]?.date} max={data.days.at(-1)?.date} error={errs["date"]} />}
                       {step === 3 && <StepTime date={dateString} slots={officeSlots} value={slot} onChange={setSlot} userTime={userTime} officeZone={data.settings.timezone} error={errs["time"]} />}
-                      {step === 4 && currentSlot && <StepReview values={values} services={selectedServices} iso={currentSlot.iso} longDate={longDate} userTime={userTime} timezone={tz} duration={data.settings.durationMinutes} />}
+                      {step === 5 && currentSlot && <StepReview values={values} services={[group?.name, service?.name].filter(Boolean) as string[]} iso={currentSlot.iso} longDate={longDate} userTime={userTime} timezone={tz} duration={data.settings.durationMinutes} />}
                     </div>
                     <Honeypot />
                     <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
                       {step > 0 ? <Button type="button" variant="ghost" onClick={() => { setStep((s) => s - 1); setError(null); }}><ArrowLeft className="size-4" /> Back</Button> : <span />}
-                      {step < 4 ? <Button type="button" onClick={() => validate(step + 1)}>Continue <ArrowRight className="size-4" /></Button> : <Button type="submit" size="lg" disabled={busy}>{busy && <Loader2 className="size-4 animate-spin" />}{busy ? "Checking time…" : "Confirm Booking"}</Button>}
+                      {step < 5 ? <Button type="button" onClick={() => validate(step + 1)}>Continue <ArrowRight className="size-4" /></Button> : <Button type="submit" size="lg" disabled={busy}>{busy && <Loader2 className="size-4 animate-spin" />}{busy ? "Checking time…" : "Confirm Booking"}</Button>}
                     </div>
                   </form>
                 )}
@@ -179,10 +191,31 @@ function StepDetails({ values, setValue, errs }: { values: Values; setValue: (k:
   </div></div>;
 }
 
-function StepNeeds({ services, selected, setSelected, values, setValue, errs }: { services: string[]; selected: string[]; setSelected: (s: string[]) => void; values: Values; setValue: (k: keyof Values, v: string) => void; errs: Record<string, string> }) {
-  return <div><h3 className="text-h3">What would you like to discuss?</h3><p className="text-small mt-2 text-muted-foreground">Choose everything that feels relevant.</p>
-    <fieldset className="mt-6"><legend className="sr-only">Services</legend><div className="flex flex-wrap gap-2">{services.map((s) => { const on = selected.includes(s); return <label key={s} className={cn("text-small inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-full border px-4 transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent", on ? "border-accent bg-accent/10 text-foreground" : "border-border hover:border-foreground")}><input type="checkbox" className="sr-only" checked={on} onChange={() => setSelected(on ? selected.filter((x) => x !== s) : [...selected, s])} />{on && <Check className="size-3.5 text-accent" aria-hidden />}{s}</label>; })}</div>{errs["services"] && <p className="text-caption mt-2 text-destructive">{errs["services"]}</p>}</fieldset>
-    <div className="mt-6"><Field id="topic" label="A short note about your project" required error={errs["topic"]}><textarea id="topic" rows={4} maxLength={300} value={values.topic} onChange={(e) => setValue("topic", e.target.value)} className={cn(fieldCls, "py-3")} /></Field></div>
+function StepCategory({ groups, value, onChange, error }: { groups: BookingGroup[]; value: string; onChange: (id: string) => void; error: string | undefined }) {
+  return <div><h3 className="text-h3">What would you like to discuss?</h3><p className="text-small mt-2 text-muted-foreground">Choose the area that fits best.</p>
+    {groups.length ? <>
+      <label className="mt-6 block sm:hidden"><span className="sr-only">Category</span>
+        <select value={value} onChange={(e) => onChange(e.target.value)} className={inputCls}><option value="">Choose a category</option>{groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}</select></label>
+      <div role="radiogroup" aria-label="Category" className="mt-6 hidden gap-2.5 sm:grid sm:grid-cols-2">{groups.map((g) => { const on = g.id === value; return (
+        <button key={g.id} type="button" role="radio" aria-checked={on} onClick={() => onChange(g.id)}
+          className={cn("rounded-xl border p-4 text-left transition-colors focus-visible:outline-2 focus-visible:outline-accent", on ? "border-accent bg-accent/10" : "border-border hover:border-foreground")}>
+          <span className="text-body flex items-center justify-between gap-2 font-medium">{g.name}{on && <Check className="size-4 text-accent" aria-hidden />}</span>
+          {g.description && <span className="text-caption mt-1 line-clamp-2 block text-muted-foreground">{g.description}</span>}
+        </button>); })}</div>
+    </> : <div className="mt-6"><FormAlert tone="info">No services are open for booking right now.</FormAlert></div>}
+    {error && <p className="text-caption mt-2 text-destructive">{error}</p>}</div>;
+}
+
+function StepService({ group, value, onChange, values, setValue, errs }: { group: BookingGroup; value: string; onChange: (id: string) => void; values: Values; setValue: (k: keyof Values, v: string) => void; errs: Record<string, string> }) {
+  return <div><h3 className="text-h3">Which {group.name} service?</h3><p className="text-small mt-2 text-muted-foreground">Pick the closest match. You can explain more below.</p>
+    <div role="radiogroup" aria-label="Service" className="mt-6 grid gap-2.5 sm:grid-cols-2">{group.services.map((x) => { const on = x.id === value; return (
+      <button key={x.id} type="button" role="radio" aria-checked={on} onClick={() => onChange(x.id)}
+        className={cn("rounded-xl border px-4 py-3 text-left transition-colors focus-visible:outline-2 focus-visible:outline-accent", on ? "border-accent bg-accent/10" : "border-border hover:border-foreground")}>
+        <span className="text-small flex items-center justify-between gap-2 font-medium">{x.name}{on && <Check className="size-4 text-accent" aria-hidden />}</span>
+        {x.description && <span className="text-caption mt-0.5 line-clamp-2 block text-muted-foreground">{x.description}</span>}
+      </button>); })}</div>
+    {errs["services"] && <p className="text-caption mt-2 text-destructive">{errs["services"]}</p>}
+    <div className="mt-6"><Field id="topic" label="A short note about your project (optional)" error={errs["topic"]}><textarea id="topic" rows={3} maxLength={300} value={values.topic} onChange={(e) => setValue("topic", e.target.value)} className={cn(fieldCls, "py-3")} /></Field></div>
   </div>;
 }
 
@@ -212,7 +245,7 @@ function StepTime({ date, slots, value, onChange, userTime, officeZone, error }:
 }
 
 function StepReview({ values, services, iso, longDate, userTime, timezone, duration }: { values: Values; services: string[]; iso: string; longDate: (v: string) => string; userTime: (v: string) => string; timezone: string; duration: number }) {
-  const rows = [["Name", values.name], ["Email", values.email], ["WhatsApp", values.phone], ["Topic", [services.join(", "), values.topic].filter(Boolean).join(" — ")], ["Date", longDate(iso)], ["Time", userTime(iso)], ["Timezone", timezone.replace(/_/g, " ")], ["Duration", `${duration} minutes`]];
+  const rows = [["Name", values.name], ["Email", values.email], ["WhatsApp", values.phone], ["Topic", [services.join(" → "), values.topic].filter(Boolean).join(" — ")], ["Date", longDate(iso)], ["Time", userTime(iso)], ["Timezone", timezone.replace(/_/g, " ")], ["Duration", `${duration} minutes`]];
   return <div><h3 className="text-h3">Confirm your call.</h3><p className="text-small mt-2 text-muted-foreground">We’ll check this time once more when you confirm.</p><dl className="mt-6 divide-y divide-border rounded-xl border border-border">{rows.map(([k, v]) => <div key={k} className="grid gap-1 px-4 py-3 sm:grid-cols-[110px_1fr]"><dt className="text-small text-muted-foreground">{k}</dt><dd className="text-small break-words font-medium">{v}</dd></div>)}</dl></div>;
 }
 
