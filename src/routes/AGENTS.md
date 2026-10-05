@@ -5,3 +5,4 @@
 - Service related work comes only from portfolio_project_services; page_config.project_ids stores display order only, never project data.
 - AI Studio (/ai-studio) is the site_pages "ai-studio" page: one studio_hero section plus studio_entry sections (eyebrow = kind, config: poster_url, alt, ratio) — no studio table.
 - Insights (/insights, /insights/$slug), About, Team and Careers read via src/lib/company.functions.ts with the publishable key; About/Team/Careers copy comes from site_pages "about"/"team"/"careers" sections ("hero" overrides default hero, "text" sections render in order).
+- Job details (pay, benefits, schedule, lists, form fields, custom questions) live in jobs.details/jobs.seo JSON parsed only by src/lib/job-details.ts (toPublicJob strips screening answers); submitApplication validates against that config server-side; answers go to job_applications.answers/extra.
