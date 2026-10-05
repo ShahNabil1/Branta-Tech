@@ -7,6 +7,7 @@ import { parseBlocks, type Block } from "./rich-text";
 export const uid = () => Math.random().toString(36).slice(2, 10);
 
 export type Item = { id: string; text: string; enabled: boolean };
+export type Step = { id: string; label: string; title: string; text: string; enabled: boolean };
 export type Benefit = { id: string; title: string; description: string; icon: string; enabled: boolean };
 export type Skill = { id: string; name: string; level: "required" | "preferred"; enabled: boolean };
 export type Language = { id: string; language: string; proficiency: string; note: string };
@@ -82,6 +83,9 @@ export type JobDetails = {
   joining: { date: string; immediate: boolean; text: string; notice: string };
   application: { no_deadline: boolean; after_deadline: "show_closed" | "auto_close"; method: string; cta_label: string; email: string; url: string; whatsapp: string; custom_text: string; auto_reject: boolean };
   form: FormField[]; questions: Question[];
+  /** Job page extras — each renders only when filled in. */
+  highlights: { work_on: string; learn: string; own: string };
+  day: Step[]; process: Step[]; faqs: Step[]; show_team: boolean;
 };
 export type JobSeo = { title: string; description: string; og_title: string; og_description: string; og_image: string; canonical: string };
 
@@ -105,6 +109,7 @@ export const emptyDetails = (): JobDetails => ({
   joining: { date: "", immediate: false, text: "", notice: "" },
   application: { no_deadline: true, after_deadline: "show_closed", method: "form", cta_label: "Apply Now", email: "", url: "", whatsapp: "", custom_text: "", auto_reject: false },
   form: defaultForm(), questions: [],
+  highlights: { work_on: "", learn: "", own: "" }, day: [], process: [], faqs: [], show_team: false,
 });
 export const emptySeo = (): JobSeo => ({ title: "", description: "", og_title: "", og_description: "", og_image: "", canonical: "" });
 
@@ -124,6 +129,7 @@ function shape<T extends R>(def: T, raw: unknown): T {
   }
   return out as T;
 }
+const steps = (v: unknown): Step[] => arr(v).map((x) => ({ id: str(x["id"], 20) || uid(), label: str(x["label"], 60), title: str(x["title"], 200), text: str(x["text"], 1500), enabled: x["enabled"] !== false }));
 const items = (v: unknown): Item[] => arr(v).map((x) => ({ id: str(x["id"], 20) || uid(), text: str(x["text"], 600), enabled: x["enabled"] !== false }));
 
 export function parseDetails(raw: unknown): JobDetails {
@@ -142,6 +148,7 @@ export function parseDetails(raw: unknown): JobDetails {
     offer: { ...shape({ heading: d.offer.heading, intro: "" }, r["offer"]), items: items(obj(r["offer"])["items"]) },
     growth: { text: str(obj(r["growth"])["text"], 2000), steps: items(obj(r["growth"])["steps"]) },
     probation: shape(d.probation, r["probation"]), training: shape(d.training, r["training"]), joining: shape(d.joining, r["joining"]),
+    highlights: shape(d.highlights, r["highlights"]), day: steps(r["day"]), process: steps(r["process"]), faqs: steps(r["faqs"]), show_team: bool(r["show_team"]),
     application: (() => { const a = shape(d.application as unknown as R, r["application"]) as unknown as JobDetails["application"]; a.after_deadline = a.after_deadline === "auto_close" ? "auto_close" : "show_closed"; a.cta_label ||= "Apply Now"; a.method ||= "form"; return a; })(),
     form: FORM_FIELDS.map(([key]) => {
       const s = savedForm.find((x) => x["key"] === key);
@@ -242,6 +249,7 @@ export function toPublicJob(row: JobRowLike): PublicJob {
       benefits: on(d.benefits).filter((b) => b.title.trim()), responsibilities: on(d.responsibilities).filter((x) => x.text.trim()),
       requirements: on(d.requirements).filter((x) => x.text.trim()), preferred: on(d.preferred).filter((x) => x.text.trim()),
       skills: on(d.skills).filter((x) => x.name.trim()), languages: d.languages.filter((x) => x.language.trim()),
+      day: on(d.day).filter((x) => x.title.trim()), process: on(d.process).filter((x) => x.title.trim()), faqs: on(d.faqs).filter((x) => x.title.trim() && x.text.trim()),
       offer: { ...d.offer, items: on(d.offer.items).filter((x) => x.text.trim()) }, growth: { ...d.growth, steps: on(d.growth.steps).filter((x) => x.text.trim()) },
     },
     questions: on(questions).map(({ eligible_answer: _e, eligibility: _g, enabled: _n, ...q }) => q),

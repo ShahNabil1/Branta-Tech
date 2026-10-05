@@ -26,7 +26,7 @@ export const Route = createFileRoute("/control-centre/_admin/careers/jobs/$id")(
 });
 
 const JOB_STATUS = [{ value: "draft", label: "Draft" }, { value: "published", label: "Published (open)" }, { value: "closed", label: "Closed" }, { value: "archived", label: "Archived" }];
-const TABS = ["Basic info", "Job description", "Responsibilities", "Requirements", "Skills & experience", "Compensation", "Benefits", "Work schedule", "Eligibility", "Application form", "SEO", "Publishing"] as const;
+const TABS = ["Basic info", "Job description", "Responsibilities", "Requirements", "Skills & experience", "Compensation", "Benefits", "Work schedule", "Eligibility", "Page extras", "Application form", "SEO", "Publishing"] as const;
 type Tab = (typeof TABS)[number];
 
 type Form = {
@@ -257,6 +257,23 @@ function JobEditor() {
                 <div className="mt-4"><TextArea label="Growth description" value={d.growth.text} onChange={(e) => setD("growth", { ...d.growth, text: e.target.value })} /></div>
               </Panel>
             </>)}
+            {tab === "Page extras" && (<>
+              <Panel title="Role highlights" description="Short optional blocks under About the role.">
+                <div className="grid gap-4 sm:grid-cols-3">{(() => { const h = F("highlights"); return <>{h.area("work_on", "You'll work on")}{h.area("learn", "You'll learn")}{h.area("own", "You'll own")}</>; })()}</div>
+              </Panel>
+              <Panel title="A day in the role" description="Optional timeline. Hidden when empty.">
+                <StepList rows={d.day} onChange={(r) => setD("day", r)} addLabel="Add moment" labelPh="10:00 AM" titlePh="Planning" />
+              </Panel>
+              <Panel title="Hiring process" description="Steps for this role. Hidden when empty.">
+                <StepList rows={d.process} onChange={(r) => setD("process", r)} addLabel="Add step" titlePh="Review" noLabel />
+              </Panel>
+              <Panel title="FAQ" description="Questions and answers for this role.">
+                <StepList rows={d.faqs} onChange={(r) => setD("faqs", r)} addLabel="Add question" titlePh="Can students apply?" textPh="Answer" noLabel />
+              </Panel>
+              <Panel title="Meet the team">
+                <CheckboxInput label="Show team members from this role's department" hint="Uses published team members whose department matches this job's department." checked={d.show_team} onChange={(x) => setD("show_team", x)} />
+              </Panel>
+            </>)}
             {tab === "Application form" && (<>
               <Panel title="Application deadline">
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -347,5 +364,22 @@ function Suggest({ label, value, options, onChange, hint }: { label: string; val
       <TextInput label={label} hint={hint} value={value} list={listId} onChange={(e) => onChange(e.target.value)} />
       <datalist id={listId}>{options.map((o) => <option key={o} value={o} />)}</datalist>
     </>
+  );
+}
+
+function StepList({ rows, onChange, addLabel, labelPh, titlePh, textPh, noLabel }: { rows: Step[]; onChange: (r: Step[]) => void; addLabel: string; labelPh?: string; titlePh?: string; textPh?: string; noLabel?: boolean }) {
+  const inp = "text-small h-9 min-w-0 rounded-sm border border-input bg-surface px-3";
+  return (
+    <RepeatList rows={rows} onChange={onChange} addLabel={addLabel} make={() => ({ id: uid(), label: "", title: "", text: "", enabled: true })}
+      render={(r, set) => (
+        <div className="grid gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {!noLabel && <input aria-label="Time" value={r.label} placeholder={labelPh} onChange={(e) => set({ label: e.target.value })} className={cn(inp, "w-28")} />}
+            <input aria-label="Title" value={r.title} placeholder={titlePh} onChange={(e) => set({ title: e.target.value })} className={cn(inp, "flex-1")} />
+            <EnabledToggle on={r.enabled} set={(x) => set({ enabled: x })} />
+          </div>
+          <textarea aria-label="Description" value={r.text} placeholder={textPh || "Description (optional)"} rows={2} onChange={(e) => set({ text: e.target.value })} className="text-small rounded-sm border border-input bg-surface px-3 py-2" />
+        </div>
+      )} />
   );
 }
