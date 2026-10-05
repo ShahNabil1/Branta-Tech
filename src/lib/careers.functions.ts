@@ -9,11 +9,6 @@ const Fields = z.object({
   job_slug: z.string().trim().min(1).max(120),
   full_name: z.string().trim().min(2, "Enter your full name").max(120),
   email: z.string().trim().email("Enter a valid email").max(200),
-  phone: z.string().trim().min(6, "Enter a phone number").max(40).regex(/^[+\d\s().-]+$/, "Use digits, spaces, + ( ) -"),
-  location: z.string().trim().max(120),
-  portfolio_url: optUrl,
-  linkedin_url: optUrl,
-  cover_note: z.string().trim().min(20, "Tell us a little more (at least 20 characters)").max(4000),
   website: z.string().max(0).optional(), // honeypot
   started_at: z.coerce.number(),
 });
@@ -61,7 +56,8 @@ export const submitApplication = createServerFn({ method: "POST" })
     const file = data.get("resume");
     let bytes: Uint8Array | null = null;
     let kind: "pdf" | "doc" | "docx" | null = null;
-    if (!useSaved) {
+    const hasFile = file instanceof File && file.size > 0;
+    if (!useSaved && hasFile) {
       if (!(file instanceof File) || file.size === 0) return { ok: false, error: "Please attach your CV.", fields: { resume: "Attach a PDF, DOC or DOCX file" } };
       if (file.size > RESUME_MAX) return { ok: false, error: "Your CV is too large.", fields: { resume: "Maximum size is 5 MB" } };
       bytes = new Uint8Array(await file.arrayBuffer());
@@ -74,8 +70,13 @@ export const submitApplication = createServerFn({ method: "POST" })
     const ip = getRequestHeader("cf-connecting-ip") || getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
     const ipHash = createHash("sha256").update(`branta-careers:${ip}`).digest("hex");
 
-    const { data: job } = await supabaseAdmin.from("jobs").select("id").eq("slug", f.job_slug).eq("status", "published").maybeSingle();
+    const { data: job } = await supabaseAdmin.from("jobs").select("id,status,open_at,deadline_at,details").eq("slug", f.job_slug).eq("status", "published").maybeSingle();
     if (!job) return { ok: false, error: "This role is no longer open." };
+    const det = parseDetails(job.details);
+    if (det.application.method !== "form" || applicationWindow(job, det) !== "open") return { ok: false, error: "Applications for this role are closed." };
+    const checked = await checkConfiguredFields(data, det);
+    if ("fields" in checked) return { ok: false, error: "Please check the highlighted fields.", fields: checked.fields };
+    const resumeOn = det.form.find((x) => x.key === "resume");
 
     const hourAgo = new Date(Date.now() - 3600_000).toISOString();
     const dayAgo = new Date(Date.now() - 86400_000).toISOString();
