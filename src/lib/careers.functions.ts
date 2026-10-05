@@ -88,12 +88,15 @@ export const submitApplication = createServerFn({ method: "POST" })
     if (existing.data) return { ok: false, error: "Application already submitted", duplicateId: existing.data.id };
     if ((byIp.count ?? 0) >= 5 || (byUser.count ?? 0) >= 10) return { ok: false, error: "Too many applications right now. Please try again later." };
 
-    let path: string;
-    if (useSaved) {
+    const wantResume = !!resumeOn?.enabled;
+    if (wantResume && resumeOn!.required && !useSaved && !hasFile) return { ok: false, error: "Please attach your CV.", fields: { resume: "Attach a PDF, DOC or DOCX file" } };
+    let path: string | null = null;
+    const uploaded: string[] = [];
+    if (wantResume && useSaved && !hasFile) {
       const copied = await copySavedResume(supabaseAdmin, who.id, job.id);
       if (!copied) return { ok: false, error: "Your saved CV couldn't be attached. Please upload one.", fields: { resume: "Attach a PDF, DOC or DOCX file" } };
       path = copied;
-    } else {
+    } else if (wantResume && hasFile) {
       path = `${job.id}/${randomUUID()}.${kind}`;
       const up = await supabaseAdmin.storage.from("career-private").upload(path, bytes!, { contentType: CT[kind!], upsert: false });
       if (up.error) {
@@ -101,13 +104,41 @@ export const submitApplication = createServerFn({ method: "POST" })
         return { ok: false, error: "We couldn't upload your CV. Please try again." };
       }
     }
-    const n = (v: string) => (v ? v : null);
+    if (path) uploaded.push(path);
+    // Extra attachments (portfolio, photo, file questions) — already sniffed by checkConfiguredFields.
+    const filesOut: Record<string, string> = {};
+    for (const att of checked.files) {
+      const p = `${job.id}/${randomUUID()}-att.${att.ext}`;
+      const up = await supabaseAdmin.storage.from("career-private").upload(p, att.bytes, { contentType: ATT_CT[att.ext], upsert: false });
+      if (up.error) { await supabaseAdmin.storage.from("career-private").remove(uploaded); return { ok: false, error: "We couldn't upload your files. Please try again." }; }
+      uploaded.push(p); filesOut[att.key] = p;
+    }
+    const v = checked.values;
+    const answers: Record<string, { label: string; value: string | string[] }> = {};
+    let eligible: boolean | null = null;
+    for (const q of det.questions.filter((x) => x.enabled)) {
+      const val = q.type === "file" ? filesOut[`q_${q.id}`] ?? "" : checked.answers[q.id] ?? "";
+      if (val === "" || (Array.isArray(val) && !val.length)) continue;
+      answers[q.id] = { label: q.label, value: q.type === "file" ? `file:${val}` : val };
+      if (q.eligibility && q.eligible_answer.trim()) {
+        const ok = Array.isArray(val) ? val.includes(q.eligible_answer.trim()) : String(val).trim().toLowerCase() === q.eligible_answer.trim().toLowerCase();
+        eligible = (eligible ?? true) && ok;
+      }
+    }
+    if (eligible === null && det.questions.some((q) => q.enabled && q.eligibility && q.eligible_answer.trim())) eligible = false;
+    const extra: Record<string, string> = {};
+    for (const k of ["website_url", "current_company", "current_position", "education", "experience", "expected_salary", "current_salary", "joining_date"] as const) if (v[k]) extra[k] = v[k]!;
+    if (filesOut["portfolio_file"]) extra["portfolio_file"] = filesOut["portfolio_file"];
+    if (filesOut["photo"]) extra["photo"] = filesOut["photo"];
+    const n = (s?: string) => (s ? s : null);
     const ins = await supabaseAdmin.from("job_applications").insert({
-      job_id: job.id, full_name: f.full_name, email: f.email.toLowerCase(), phone: f.phone, location: n(f.location),
-      portfolio_url: n(f.portfolio_url), linkedin_url: n(f.linkedin_url), cover_note: f.cover_note, resume_url: path, ip_hash: ipHash, applicant_user_id: who.id,
+      job_id: job.id, full_name: f.full_name, email: f.email.toLowerCase(), phone: v.phone ?? "", location: n(v.location),
+      portfolio_url: n(v.portfolio_url), linkedin_url: n(v.linkedin_url), cover_note: v.cover_note ?? "", resume_url: path, ip_hash: ipHash, applicant_user_id: who.id,
+      answers, extra, eligibility_passed: eligible,
+      ...(eligible === false && det.application.auto_reject ? { status: "rejected" } : {}),
     } as never).select("id").single();
     if (ins.error) {
-      await supabaseAdmin.storage.from("career-private").remove([path]);
+      if (uploaded.length) await supabaseAdmin.storage.from("career-private").remove(uploaded);
       if (ins.error.code === "23505") {
         const again = await supabaseAdmin.from("job_applications").select("id").eq("job_id", job.id).eq("applicant_user_id", who.id).neq("status", "withdrawn").maybeSingle();
         return { ok: false, error: "Application already submitted", ...(again.data ? { duplicateId: again.data.id } : {}) };
