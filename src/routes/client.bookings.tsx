@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { buttonVariants } from "@/components/ui/brand-button";
 import { ClientHeader, Empty, Failed, Loading, Pill } from "@/components/client/ClientKit";
 import { myBookingsQuery, formatDay, formatWhen } from "@/lib/client-data";
-import { statusLabel } from "@/lib/inquiry";
 import { bookingStatusLabel } from "@/lib/booking";
 
 export const Route = createFileRoute("/client/bookings")({ component: Bookings });

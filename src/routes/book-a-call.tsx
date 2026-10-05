@@ -121,6 +121,7 @@ function BookCall() {
                 <h3 className="text-h3 mt-10">{title}</h3><p className="text-small mt-3 text-muted-foreground">{body}</p>
               </article>)}
             </div>
+            {data.settings.processMedia[0] && <div className="mt-12 md:mt-16"><SectionMedia item={data.settings.processMedia[0]} className="rounded-md" /></div>}
           </SiteContainer>
         </section>
 
@@ -182,7 +183,7 @@ function StepNeeds({ services, selected, setSelected, values, setValue, errs }: 
 
 function StepDate({ value, onChange, available, min, max, error }: { value: Date | undefined; onChange: (d: Date | undefined) => void; available: Set<string>; min: string | undefined; max: string | undefined; error: string | undefined }) {
   const first = min ? new Date(`${min}T12:00:00`) : new Date(); const last = max ? new Date(`${max}T12:00:00`) : new Date();
-  return <div><h3 className="text-h2">Choose a date.</h3><p className="text-body mt-3 text-muted-foreground">Only days with real Branta availability can be selected.</p><div className="mt-8 overflow-x-auto rounded-md border border-border p-3 sm:p-6"><Calendar mode="single" selected={value} onSelect={onChange} defaultMonth={first} fromMonth={first} toMonth={last} disabled={(d) => !available.has(dayKey(d))} className="pointer-events-auto mx-auto [--cell-size:2.75rem]" /></div>{error && <p className="text-caption mt-2 text-destructive">{error}</p>}</div>;
+  return <div><h3 className="text-h2">Choose a date.</h3><p className="text-body mt-3 text-muted-foreground">Only days with real Branta availability can be selected.</p>{available.size ? <div className="mt-8 overflow-x-auto rounded-md border border-border p-3 sm:p-6"><Calendar mode="single" selected={value} onSelect={onChange} defaultMonth={first} fromMonth={first} toMonth={last} disabled={(d) => !available.has(dayKey(d))} className="pointer-events-auto mx-auto [--cell-size:2.75rem]" /></div> : <div className="mt-8"><FormAlert tone="info">There are no bookable dates right now. Please check back soon.</FormAlert></div>}{error && <p className="text-caption mt-2 text-destructive">{error}</p>}</div>;
 }
 
 function StepTime({ date, slots, value, onChange, userTime, officeZone, userZone, error }: { date: string; slots: { iso: string; label: string }[]; value: string; onChange: (v: string) => void; userTime: (v: string) => string; officeZone: string; userZone: string; error: string | undefined }) {

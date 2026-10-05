@@ -144,6 +144,11 @@ export const submitBooking = createServerFn({ method: "POST" })
     const when = new Date(f.requested_start_at).getTime();
     if (when < Date.now() + 30 * 60_000 || when > Date.now() + 365 * 86400_000) return { ok: false, error: "Please check the highlighted fields.", fields: { date: "Choose a time at least 30 minutes from now and within a year" } };
 
+    const { getBookingExperience } = await import("./booking.functions");
+    const experience = await getBookingExperience();
+    const offered = experience.days.some((day) => day.slots.some((slot) => slot.iso === new Date(when).toISOString()));
+    if (!offered) return { ok: false, error: "That time is no longer available. Please choose another.", fields: { time: "Choose a current available time" } };
+
     const { supabaseAdmin, ipHash, userId, randomUUID } = await context("bookings");
     const hourAgo = new Date(Date.now() - 3600_000).toISOString();
     const [byIp, byEmail] = await Promise.all([
@@ -167,6 +172,7 @@ export const submitBooking = createServerFn({ method: "POST" })
       client_user_id: userId, name: f.name, email: f.email, phone: n(f.phone), company: n(f.company), topic: f.topic,
       requested_start_at: new Date(when).toISOString(), timezone: f.timezone, notes: n(f.notes), ip_hash: ipHash,
       service_interest: f.services, duration_minutes: duration, booking_reference: ref,
+      booking_end_at: new Date(when + duration * 60_000).toISOString(),
       status: cfg["instant_confirmation"] === true ? "confirmed" : "requested",
     }).select("booking_reference,status").single();
     if (ins.error) {
