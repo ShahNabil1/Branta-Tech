@@ -57,7 +57,7 @@ export function BookingFlow({ onDone, onCancel, onStarted, preselect }: { onDone
     try {
       const r = await submit({ data: {
         name: v.name.trim(), email: v.email.trim(), phone: v.phone.trim(), company: "", topic: `${group?.name} — ${service?.name} (via chat)`, notes: "Booked through Branta Assistant.",
-        services: [service?.name ?? ""] as never, service_group_id: v.groupId, service_id: v.serviceId, requested_start_at: v.slot, timezone: userTz, started_at: String(started.current), hp_field: "",
+        services: [service?.name ?? ""] as never, service_group_id: (/^[0-9a-f-]{36}$/.test(v.groupId) ? v.groupId : undefined), service_id: (/^[0-9a-f-]{36}$/.test(v.serviceId) ? v.serviceId : undefined), requested_start_at: v.slot, timezone: userTz, started_at: String(started.current), hp_field: "",
       } });
       if (!r.ok) {
         setErr(r.error);

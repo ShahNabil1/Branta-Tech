@@ -125,7 +125,10 @@ export const getBookingExperience = createServerFn({ method: "GET" }).handler(as
       settings.introMedia[0] = { ...settings.introMedia[0], poster_url: (await vimeoThumb(id)) ?? "" };
     }
   }
-  return { settings, services: displayServices.length ? displayServices : ["Something Else"], groups, days };
+  const flat = displayServices.length ? displayServices : ["Something Else"];
+  // Until some services are published, keep booking usable with the general options (no ids are saved for these).
+  const offered = groups.length ? groups : [{ id: "general", name: "General enquiry", slug: "general", description: null, services: flat.map((name) => ({ id: `general:${name}`, name, slug: "", description: null })) }];
+  return { settings, services: flat, groups: offered, days };
 });
 
 export const bookingExperienceQuery = queryOptions({

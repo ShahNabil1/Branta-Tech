@@ -93,7 +93,7 @@ function BookCall() {
     if (busy || !slot) return;
     setBusy(true); setError(null); setErrs({});
     try {
-      const result = await submit({ data: { ...values, topic: values.topic.trim().length >= 3 ? values.topic.trim() : `${group?.name ?? ""} — ${service?.name ?? ""}`, services: selectedServices, service_group_id: groupId, service_id: serviceId, requested_start_at: slot, timezone: tz, started_at: String(startRef.current), hp_field: "" } });
+      const result = await submit({ data: { ...values, topic: values.topic.trim().length >= 3 ? values.topic.trim() : `${group?.name ?? ""} — ${service?.name ?? ""}`, services: selectedServices, service_group_id: (/^[0-9a-f-]{36}$/.test(groupId) ? groupId : undefined), service_id: (/^[0-9a-f-]{36}$/.test(serviceId) ? serviceId : undefined), requested_start_at: slot, timezone: tz, started_at: String(startRef.current), hp_field: "" } });
       if (result.ok) {
         setConfirmation({ reference: result.bookingReference ?? "Received", status: result.status ?? "requested" });
         window.scrollTo({ top: 0, behavior: "smooth" });
