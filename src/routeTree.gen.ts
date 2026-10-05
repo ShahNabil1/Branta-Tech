@@ -57,6 +57,7 @@ import { Route as CareersAccountApplicationsIndexRouteImport } from './routes/ca
 import { Route as CareersAccountApplicationsIdRouteImport } from './routes/careers.account.applications.$id'
 import { Route as ControlCentreAdminBookingsIndexRouteImport } from './routes/control-centre._admin.bookings.index'
 import { Route as ControlCentreAdminBookingsIdRouteImport } from './routes/control-centre._admin.bookings.$id'
+import { Route as ControlCentreAdminBookingsAvailabilityRouteImport } from './routes/control-centre._admin.bookings.availability'
 import { Route as ControlCentreAdminInsightsIndexRouteImport } from './routes/control-centre._admin.insights.index'
 import { Route as ControlCentreAdminInsightsIdRouteImport } from './routes/control-centre._admin.insights.$id'
 import { Route as ControlCentreAdminInsightsAuthorsRouteImport } from './routes/control-centre._admin.insights.authors'
@@ -326,6 +327,12 @@ const ControlCentreAdminBookingsIdRoute =
     path: '/bookings/$id',
     getParentRoute: () => ControlCentreAdminRoute,
   } as any)
+const ControlCentreAdminBookingsAvailabilityRoute =
+  ControlCentreAdminBookingsAvailabilityRouteImport.update({
+    id: '/bookings/availability',
+    path: '/bookings/availability',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
 const ControlCentreAdminInsightsIndexRoute =
   ControlCentreAdminInsightsIndexRouteImport.update({
     id: '/insights/',
@@ -493,6 +500,7 @@ export interface FileRoutesByFullPath {
   '/careers/account/': typeof CareersAccountIndexRoute
   '/careers/account/applications/$id': typeof CareersAccountApplicationsIdRoute
   '/control-centre/bookings/$id': typeof ControlCentreAdminBookingsIdRoute
+  '/control-centre/bookings/availability': typeof ControlCentreAdminBookingsAvailabilityRoute
   '/control-centre/insights/$id': typeof ControlCentreAdminInsightsIdRoute
   '/control-centre/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
   '/control-centre/leads/$id': typeof ControlCentreAdminLeadsIdRoute
@@ -559,6 +567,7 @@ export interface FileRoutesByTo {
   '/careers/account': typeof CareersAccountIndexRoute
   '/careers/account/applications/$id': typeof CareersAccountApplicationsIdRoute
   '/control-centre/bookings/$id': typeof ControlCentreAdminBookingsIdRoute
+  '/control-centre/bookings/availability': typeof ControlCentreAdminBookingsAvailabilityRoute
   '/control-centre/insights/$id': typeof ControlCentreAdminInsightsIdRoute
   '/control-centre/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
   '/control-centre/leads/$id': typeof ControlCentreAdminLeadsIdRoute
@@ -630,6 +639,7 @@ export interface FileRoutesById {
   '/careers/account/': typeof CareersAccountIndexRoute
   '/careers/account/applications/$id': typeof CareersAccountApplicationsIdRoute
   '/control-centre/_admin/bookings/$id': typeof ControlCentreAdminBookingsIdRoute
+  '/control-centre/_admin/bookings/availability': typeof ControlCentreAdminBookingsAvailabilityRoute
   '/control-centre/_admin/insights/$id': typeof ControlCentreAdminInsightsIdRoute
   '/control-centre/_admin/insights/authors': typeof ControlCentreAdminInsightsAuthorsRoute
   '/control-centre/_admin/leads/$id': typeof ControlCentreAdminLeadsIdRoute
@@ -701,6 +711,7 @@ export interface FileRouteTypes {
     | '/careers/account/'
     | '/careers/account/applications/$id'
     | '/control-centre/bookings/$id'
+    | '/control-centre/bookings/availability'
     | '/control-centre/insights/$id'
     | '/control-centre/insights/authors'
     | '/control-centre/leads/$id'
@@ -767,6 +778,7 @@ export interface FileRouteTypes {
     | '/careers/account'
     | '/careers/account/applications/$id'
     | '/control-centre/bookings/$id'
+    | '/control-centre/bookings/availability'
     | '/control-centre/insights/$id'
     | '/control-centre/insights/authors'
     | '/control-centre/leads/$id'
@@ -837,6 +849,7 @@ export interface FileRouteTypes {
     | '/careers/account/'
     | '/careers/account/applications/$id'
     | '/control-centre/_admin/bookings/$id'
+    | '/control-centre/_admin/bookings/availability'
     | '/control-centre/_admin/insights/$id'
     | '/control-centre/_admin/insights/authors'
     | '/control-centre/_admin/leads/$id'
@@ -1229,6 +1242,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlCentreAdminBookingsIdRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
+    '/control-centre/_admin/bookings/availability': {
+      id: '/control-centre/_admin/bookings/availability'
+      path: '/bookings/availability'
+      fullPath: '/control-centre/bookings/availability'
+      preLoaderRoute: typeof ControlCentreAdminBookingsAvailabilityRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
     '/control-centre/_admin/insights/': {
       id: '/control-centre/_admin/insights/'
       path: '/insights'
@@ -1397,6 +1417,7 @@ interface ControlCentreAdminRouteChildren {
   ControlCentreAdminMediaRoute: typeof ControlCentreAdminMediaRoute
   ControlCentreAdminTeamRoute: typeof ControlCentreAdminTeamRoute
   ControlCentreAdminBookingsIdRoute: typeof ControlCentreAdminBookingsIdRoute
+  ControlCentreAdminBookingsAvailabilityRoute: typeof ControlCentreAdminBookingsAvailabilityRoute
   ControlCentreAdminInsightsIdRoute: typeof ControlCentreAdminInsightsIdRoute
   ControlCentreAdminInsightsAuthorsRoute: typeof ControlCentreAdminInsightsAuthorsRoute
   ControlCentreAdminLeadsIdRoute: typeof ControlCentreAdminLeadsIdRoute
@@ -1426,6 +1447,8 @@ const ControlCentreAdminRouteChildren: ControlCentreAdminRouteChildren = {
   ControlCentreAdminMediaRoute: ControlCentreAdminMediaRoute,
   ControlCentreAdminTeamRoute: ControlCentreAdminTeamRoute,
   ControlCentreAdminBookingsIdRoute: ControlCentreAdminBookingsIdRoute,
+  ControlCentreAdminBookingsAvailabilityRoute:
+    ControlCentreAdminBookingsAvailabilityRoute,
   ControlCentreAdminInsightsIdRoute: ControlCentreAdminInsightsIdRoute,
   ControlCentreAdminInsightsAuthorsRoute:
     ControlCentreAdminInsightsAuthorsRoute,
