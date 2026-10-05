@@ -17,11 +17,11 @@ export function WorkMediaModal({ card, onClose }: { card: WorkCard | null; onClo
   return (
     <DialogPrimitive.Root open={!!card} onOpenChange={(o) => { if (!o) onClose(); }}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-background/80 backdrop-blur-[2px] duration-200 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 motion-reduce:animate-none" />
+        <DialogPrimitive.Overlay className="dark fixed inset-0 z-50 bg-background/85 backdrop-blur-[2px] duration-200 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 motion-reduce:animate-none" />
         {card && (
           <DialogPrimitive.Content
             aria-describedby={undefined}
-            className="dark fixed left-1/2 top-1/2 z-50 w-[calc(100vw-1.5rem)] max-w-[1120px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[14px] border border-border bg-background text-foreground shadow-[0_40px_120px_-30px_rgb(0_0_0/0.7)] duration-250 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-[0.97] data-[state=closed]:animate-out data-[state=closed]:fade-out-0 motion-reduce:animate-none">
+            className="dark fixed outline-none left-1/2 top-1/2 z-50 w-[calc(100vw-1.5rem)] max-w-[1120px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[14px] border border-border bg-background text-foreground shadow-[0_40px_120px_-30px_rgb(0_0_0/0.7)] duration-250 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-[0.97] data-[state=closed]:animate-out data-[state=closed]:fade-out-0 motion-reduce:animate-none">
             <div className="relative aspect-video w-full bg-muted/10">
               {isVideo ? (
                 <BrantaVideo key={card.slug} kind={m.type as "vimeo" | "video"} url={m.url} poster={poster} alt={m.alt || card.title}
