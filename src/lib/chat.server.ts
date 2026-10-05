@@ -242,10 +242,14 @@ export async function doSend(data: z.infer<typeof SendInput>) {
 
 async function answer(c: Ctx, settings: ChatSettings, convId: string, forcedKey: string | null, text: string, replies: Reply[], human: () => Promise<void>) {
   const { matchIntents, MATCH_THRESHOLD, normalize, detectLang, PORTFOLIO_WORDS } = await import("./chat/match");
-  const [{ data: intents }, { data: services }] = await Promise.all([
-    c.sb.from("chat_intents").select("id,key,name,answer,answer_bn,follow_up,service_id,category_id,quick_replies,ctas,action,priority,chat_intent_phrases(phrase,lang)").eq("is_published", true),
-    c.sb.from("services").select("id,name,slug,short_description").eq("status", "published").order("sort_order"),
+  const [{ data: intents }, { data: services }, { data: groupRows }] = await Promise.all([
+    c.sb.from("chat_intents").select("id,key,name,answer,answer_bn,follow_up,service_id,service_group_id,category_id,quick_replies,ctas,suggested_actions,action,priority,lang,chat_intent_phrases(phrase,lang)").eq("is_published", true),
+    c.sb.from("services").select("id,name,slug,short_description,group_id").eq("status", "published").order("sort_order"),
+    c.sb.from("service_groups").select("id,name,slug").eq("status", "published").order("sort_order"),
   ]);
+  const groups = groupRows ?? [];
+  const pubGroup = new Set(groups.map((g) => g.id));
+  const svcList = (services ?? []).filter((x) => pubGroup.has(x.group_id));
   const list = intents ?? [];
   const portfolioOnly = text === "__portfolio";
   const msg = portfolioOnly ? "" : normalize(text);
@@ -253,19 +257,24 @@ async function answer(c: Ctx, settings: ChatSettings, convId: string, forcedKey:
 
   let ranked = forcedKey ? list.filter((i) => i.key === forcedKey).map((i) => ({ key: i.key, id: i.id, score: 100 }))
     : portfolioOnly ? list.filter((i) => i.key === "portfolio_request").map((i) => ({ key: i.key, id: i.id, score: 100 }))
-    : matchIntents(text, list.map((i) => ({ id: i.id, key: i.key, priority: i.priority, phrases: i.chat_intent_phrases ?? [] })));
+    : matchIntents(text, list.map((i) => ({ id: i.id, key: i.key, priority: i.priority, phrases: i.chat_intent_phrases ?? [] })))
+      // Small bonus when the entry's language matches the visitor's.
+      .map((r) => { const it = list.find((i) => i.id === r.id); return { ...r, score: r.score + (it && it.lang !== "any" && (it.lang === lang || (it.lang === "banglish" && lang === "en")) ? 3 : 0) }; })
+      .sort((a, b) => b.score - a.score);
   // Direct service-name mentions count as a match too.
-  const named = msg ? (services ?? []).filter((s) => { const n = normalize(s.name); return n.length > 2 && ` ${msg} `.includes(` ${n} `); }) : [];
+  const has = (name: string) => { const n = normalize(name); return n.length > 2 && ` ${msg} `.includes(` ${n} `); };
+  const named = msg ? svcList.filter((x) => has(x.name)) : [];
+  const namedGroups = msg ? groups.filter((g) => has(g.name)) : [];
   ranked = ranked.filter((r) => r.score >= MATCH_THRESHOLD);
 
-  if (!ranked.length && !named.length) {
+  if (!ranked.length && !named.length && !namedGroups.length) {
     if (msg) {
       const norm = msg.slice(0, 300);
       const { data: ex } = await c.sb.from("chat_unanswered_questions").select("id,count").eq("normalized_question", norm).maybeSingle();
       if (ex) await c.sb.from("chat_unanswered_questions").update({ count: ex.count + 1, last_asked_at: new Date().toISOString(), conversation_id: convId }).eq("id", ex.id);
       else await c.sb.from("chat_unanswered_questions").insert({ question: text.slice(0, MAX_TEXT), normalized_question: norm, conversation_id: convId });
     }
-    replies.push({ text: lang === "bn" ? "এই বিষয়ে সঠিক তথ্য আমার কাছে এখনো নেই। আপনি কি আমাদের টিমের সাথে কথা বলতে চান?" : "I’m not confident I have the right information for that yet. Would you like to talk to our team?",
+    replies.push({ text: lang === "bn" ? "এই বিষয়ে সঠিক তথ্য আমার কাছে এখনো নেই। আপনি কি আমাদের টিমের সাথে কথা বলতে চান?" : "I don’t have a confirmed answer for that yet. Would you like to talk to our team?",
       type: "quick_replies", payload: { replies: ["Talk to a Human", "Book a Call", "Ask Something Else"] }, intent: "unknown" });
     return;
   }
@@ -279,32 +288,48 @@ async function answer(c: Ctx, settings: ChatSettings, convId: string, forcedKey:
     return;
   }
 
-  const serviceIntents = ranked.map((r) => list.find((i) => i.id === r.id)!).filter((i) => i && GROUP_FOR[i.key]);
+  const serviceIntents = ranked.map((r) => list.find((i) => i.id === r.id)!).filter((i) => i && (GROUP_FOR[i.key] || i.service_group_id || i.service_id));
   const mainService = serviceIntents[0] ?? null;
 
   if (top && !(wantsWork && top.key === "portfolio_request" && mainService)) {
     const body = (lang === "bn" && top.answer_bn ? top.answer_bn : top.answer).trim();
     const qr = Array.isArray(top.quick_replies) ? (top.quick_replies as unknown[]).filter((x): x is string => typeof x === "string").slice(0, 6) : [];
     const ctas = Array.isArray(top.ctas) ? (top.ctas as { label?: unknown; url?: unknown }[]).filter((x) => typeof x.label === "string" && typeof x.url === "string" && /^\/|^https:\/\//.test(x.url as string)).map((x) => ({ label: x.label as string, url: x.url as string })) : [];
+    // Suggested actions → chat buttons.
+    const acts = Array.isArray(top.suggested_actions) ? (top.suggested_actions as unknown[]).filter((x): x is string => typeof x === "string") : [];
+    const relSvc = svcList.find((x) => x.id === top.service_id);
+    const relGroup = groups.find((g) => g.id === (top.service_group_id ?? relSvc?.group_id));
+    for (const a of acts) {
+      if (a === "book_call" && !qr.includes("Book a Call")) qr.push("Book a Call");
+      if (a === "talk_human" && !qr.includes("Talk to a Human")) qr.push("Talk to a Human");
+      if (a === "view_work") ctas.push({ label: "View Work", url: "/work" });
+      if (a === "explore_service" && (relSvc || relGroup)) ctas.push({ label: "Explore Service", url: `/services/${relSvc?.slug ?? relGroup!.slug}` });
+      if (a === "open_careers") ctas.push({ label: "Open Careers", url: "/careers" });
+      if (a === "open_contact") ctas.push({ label: "Contact Us", url: "/start-a-project" });
+    }
     if (!(top.key === "portfolio_request" && wantsWork)) {
       if (body) replies.push({ text: top.follow_up ? `${body}\n\n${top.follow_up}` : body, type: qr.length ? "quick_replies" : "text", payload: qr.length || ctas.length ? { replies: qr, ctas } : null, intent: top.key });
     }
   }
 
-  // Related real services: explicit links on matched intents + names typed by the visitor (max 3).
+  // Related real services from the Services CMS: linked service/group on matched entries, or names typed by the visitor (max 3).
   if (!wantsWork) {
-    const ids = new Set([...serviceIntents.map((i) => i.service_id).filter(Boolean), ...named.map((s) => s.id)]);
-    let cards = (services ?? []).filter((s) => ids.has(s.id));
-    if (!cards.length && serviceIntents.length) {
-      const { data: groups } = await c.sb.from("service_groups").select("id,name").eq("status", "published");
+    const ids = new Set<string>([...serviceIntents.map((i) => i.service_id).filter((x): x is string => !!x), ...named.map((x) => x.id)]);
+    let cards = svcList.filter((x) => ids.has(x.id));
+    if (!cards.length) {
       const wanted = serviceIntents.map((i) => normalize(i.name));
-      const gid = (groups ?? []).filter((g) => wanted.some((w) => normalize(g.name).includes(w) || w.includes(normalize(g.name)))).map((g) => g.id);
-      if (gid.length) {
-        const { data } = await c.sb.from("services").select("id,name,slug,short_description").eq("status", "published").in("group_id", gid).order("sort_order").limit(3);
-        cards = data ?? [];
-      }
+      const gid = new Set<string>([
+        ...serviceIntents.map((i) => i.service_group_id).filter((x): x is string => !!x),
+        ...namedGroups.map((g) => g.id),
+        ...groups.filter((g) => wanted.some((w) => normalize(g.name).includes(w) || w.includes(normalize(g.name)))).map((g) => g.id),
+      ]);
+      cards = svcList.filter((x) => gid.has(x.group_id)).slice(0, 3);
     }
-    if (cards.length) replies.push({ text: "Related services", type: "service_card", payload: { services: cards.slice(0, 3).map((s) => ({ name: s.name, slug: s.slug, summary: s.short_description })) } });
+    if (cards.length) {
+      const gs = [...new Set(cards.map((x) => x.group_id))].map((id) => groups.find((g) => g.id === id)).filter(Boolean);
+      replies.push({ text: gs.length === 1 ? `This fits under ${gs[0]!.name}.` : "Related services", type: "service_card",
+        payload: { services: cards.slice(0, 3).map((x) => ({ id: x.id, name: x.name, slug: x.slug, summary: x.short_description, groupId: x.group_id, group: groups.find((g) => g.id === x.group_id)?.name ?? null })) } });
+    }
     return;
   }
 

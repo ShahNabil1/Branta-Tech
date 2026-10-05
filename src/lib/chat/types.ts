@@ -35,7 +35,7 @@ export function parseChatSettings(raw: unknown): ChatSettings {
 
 export type QuickAction = { label: string; type: "intent" | "message" | "link" | "booking" | "human" | "portfolio"; target: string | null };
 
-export type ServiceCard = { name: string; slug: string; summary: string | null };
+export type ServiceCard = { id?: string; name: string; slug: string; summary: string | null; groupId?: string; group?: string | null };
 export type ProjectCard = { slug: string; title: string; category: string | null; poster: string | null };
 
 export type ChatMsg = {
