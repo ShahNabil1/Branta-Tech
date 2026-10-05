@@ -350,6 +350,364 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_agents: {
+        Row: {
+          display_name: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          display_name?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          display_name?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      chat_conversations: {
+        Row: {
+          assigned_agent_id: string | null
+          booking_id: string | null
+          channel_key: string
+          created_at: string
+          handoff_topic: string | null
+          id: string
+          interested_service: string | null
+          last_message_at: string
+          mode: string
+          source_page: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+          visitor_id: string
+        }
+        Insert: {
+          assigned_agent_id?: string | null
+          booking_id?: string | null
+          channel_key?: string
+          created_at?: string
+          handoff_topic?: string | null
+          id?: string
+          interested_service?: string | null
+          last_message_at?: string
+          mode?: string
+          source_page?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          visitor_id: string
+        }
+        Update: {
+          assigned_agent_id?: string | null
+          booking_id?: string | null
+          channel_key?: string
+          created_at?: string
+          handoff_topic?: string | null
+          id?: string
+          interested_service?: string | null
+          last_message_at?: string
+          mode?: string
+          source_page?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          visitor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_conversations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_conversations_visitor_id_fkey"
+            columns: ["visitor_id"]
+            isOneToOne: false
+            referencedRelation: "chat_visitors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_intent_phrases: {
+        Row: {
+          created_at: string
+          id: string
+          intent_id: string
+          lang: string
+          phrase: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          intent_id: string
+          lang?: string
+          phrase: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          intent_id?: string
+          lang?: string
+          phrase?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_intent_phrases_intent_id_fkey"
+            columns: ["intent_id"]
+            isOneToOne: false
+            referencedRelation: "chat_intents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_intents: {
+        Row: {
+          action: string | null
+          answer: string
+          answer_bn: string | null
+          category_id: string | null
+          created_at: string
+          ctas: Json
+          follow_up: string | null
+          id: string
+          is_published: boolean
+          key: string
+          name: string
+          priority: number
+          quick_replies: Json
+          service_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          action?: string | null
+          answer?: string
+          answer_bn?: string | null
+          category_id?: string | null
+          created_at?: string
+          ctas?: Json
+          follow_up?: string | null
+          id?: string
+          is_published?: boolean
+          key: string
+          name: string
+          priority?: number
+          quick_replies?: Json
+          service_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          action?: string | null
+          answer?: string
+          answer_bn?: string | null
+          category_id?: string | null
+          created_at?: string
+          ctas?: Json
+          follow_up?: string | null
+          id?: string
+          is_published?: boolean
+          key?: string
+          name?: string
+          priority?: number
+          quick_replies?: Json
+          service_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_intents_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_intents_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          intent_key: string | null
+          message: string
+          message_type: string
+          payload: Json | null
+          sender_id: string | null
+          sender_type: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          intent_key?: string | null
+          message?: string
+          message_type?: string
+          payload?: Json | null
+          sender_id?: string | null
+          sender_type: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          intent_key?: string | null
+          message?: string
+          message_type?: string
+          payload?: Json | null
+          sender_id?: string | null
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_quick_actions: {
+        Row: {
+          action_type: string
+          created_at: string
+          id: string
+          is_published: boolean
+          label: string
+          sort_order: number
+          target: string | null
+          updated_at: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          label: string
+          sort_order?: number
+          target?: string | null
+          updated_at?: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          label?: string
+          sort_order?: number
+          target?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      chat_unanswered_questions: {
+        Row: {
+          conversation_id: string | null
+          count: number
+          created_at: string
+          id: string
+          last_asked_at: string
+          normalized_question: string
+          question: string
+          resolved: boolean
+          resolved_intent_id: string | null
+        }
+        Insert: {
+          conversation_id?: string | null
+          count?: number
+          created_at?: string
+          id?: string
+          last_asked_at?: string
+          normalized_question: string
+          question: string
+          resolved?: boolean
+          resolved_intent_id?: string | null
+        }
+        Update: {
+          conversation_id?: string | null
+          count?: number
+          created_at?: string
+          id?: string
+          last_asked_at?: string
+          normalized_question?: string
+          question?: string
+          resolved?: boolean
+          resolved_intent_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_unanswered_questions_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_unanswered_questions_resolved_intent_id_fkey"
+            columns: ["resolved_intent_id"]
+            isOneToOne: false
+            referencedRelation: "chat_intents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_visitors: {
+        Row: {
+          created_at: string
+          email: string | null
+          first_seen_at: string
+          id: string
+          ip_hash: string | null
+          last_seen_at: string
+          name: string | null
+          session_hash: string
+          user_id: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          first_seen_at?: string
+          id?: string
+          ip_hash?: string | null
+          last_seen_at?: string
+          name?: string | null
+          session_hash: string
+          user_id?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          first_seen_at?: string
+          id?: string
+          ip_hash?: string | null
+          last_seen_at?: string
+          name?: string | null
+          session_hash?: string
+          user_id?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       client_files: {
         Row: {
           client_user_id: string
