@@ -75,10 +75,13 @@ import { Route as ControlCentreAdminPortfolioCategoriesRouteImport } from './rou
 import { Route as ControlCentreAdminPricingIndexRouteImport } from './routes/control-centre._admin.pricing.index'
 import { Route as ControlCentreAdminPricingAddonsRouteImport } from './routes/control-centre._admin.pricing.addons'
 import { Route as ControlCentreAdminPricingAiModelsRouteImport } from './routes/control-centre._admin.pricing.ai-models'
+import { Route as ControlCentreAdminPricingAnalyticsRouteImport } from './routes/control-centre._admin.pricing.analytics'
 import { Route as ControlCentreAdminPricingProductionTiersRouteImport } from './routes/control-centre._admin.pricing.production-tiers'
 import { Route as ControlCentreAdminPricingRatesRouteImport } from './routes/control-centre._admin.pricing.rates'
+import { Route as ControlCentreAdminPricingReviewRouteImport } from './routes/control-centre._admin.pricing.review'
 import { Route as ControlCentreAdminPricingSettingsRouteImport } from './routes/control-centre._admin.pricing.settings'
 import { Route as ControlCentreAdminPricingSimulatorRouteImport } from './routes/control-centre._admin.pricing.simulator'
+import { Route as ControlCentreAdminPricingTemplatesRouteImport } from './routes/control-centre._admin.pricing.templates'
 import { Route as ControlCentreAdminPricingVideoTypesRouteImport } from './routes/control-centre._admin.pricing.video-types'
 import { Route as ControlCentreAdminServicesIndexRouteImport } from './routes/control-centre._admin.services.index'
 import { Route as ControlCentreAdminServicesIdRouteImport } from './routes/control-centre._admin.services.$id'
@@ -452,6 +455,12 @@ const ControlCentreAdminPricingAiModelsRoute =
     path: '/pricing/ai-models',
     getParentRoute: () => ControlCentreAdminRoute,
   } as any)
+const ControlCentreAdminPricingAnalyticsRoute =
+  ControlCentreAdminPricingAnalyticsRouteImport.update({
+    id: '/pricing/analytics',
+    path: '/pricing/analytics',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
 const ControlCentreAdminPricingProductionTiersRoute =
   ControlCentreAdminPricingProductionTiersRouteImport.update({
     id: '/pricing/production-tiers',
@@ -464,6 +473,12 @@ const ControlCentreAdminPricingRatesRoute =
     path: '/pricing/rates',
     getParentRoute: () => ControlCentreAdminRoute,
   } as any)
+const ControlCentreAdminPricingReviewRoute =
+  ControlCentreAdminPricingReviewRouteImport.update({
+    id: '/pricing/review',
+    path: '/pricing/review',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
 const ControlCentreAdminPricingSettingsRoute =
   ControlCentreAdminPricingSettingsRouteImport.update({
     id: '/pricing/settings',
@@ -474,6 +489,12 @@ const ControlCentreAdminPricingSimulatorRoute =
   ControlCentreAdminPricingSimulatorRouteImport.update({
     id: '/pricing/simulator',
     path: '/pricing/simulator',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminPricingTemplatesRoute =
+  ControlCentreAdminPricingTemplatesRouteImport.update({
+    id: '/pricing/templates',
+    path: '/pricing/templates',
     getParentRoute: () => ControlCentreAdminRoute,
   } as any)
 const ControlCentreAdminPricingVideoTypesRoute =
@@ -644,10 +665,13 @@ export interface FileRoutesByFullPath {
   '/control-centre/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
   '/control-centre/pricing/addons': typeof ControlCentreAdminPricingAddonsRoute
   '/control-centre/pricing/ai-models': typeof ControlCentreAdminPricingAiModelsRoute
+  '/control-centre/pricing/analytics': typeof ControlCentreAdminPricingAnalyticsRoute
   '/control-centre/pricing/production-tiers': typeof ControlCentreAdminPricingProductionTiersRoute
   '/control-centre/pricing/rates': typeof ControlCentreAdminPricingRatesRoute
+  '/control-centre/pricing/review': typeof ControlCentreAdminPricingReviewRoute
   '/control-centre/pricing/settings': typeof ControlCentreAdminPricingSettingsRoute
   '/control-centre/pricing/simulator': typeof ControlCentreAdminPricingSimulatorRoute
+  '/control-centre/pricing/templates': typeof ControlCentreAdminPricingTemplatesRoute
   '/control-centre/pricing/video-types': typeof ControlCentreAdminPricingVideoTypesRoute
   '/control-centre/services/$id': typeof ControlCentreAdminServicesIdRoute
   '/control-centre/services/groups': typeof ControlCentreAdminServicesGroupsRoute
@@ -730,10 +754,13 @@ export interface FileRoutesByTo {
   '/control-centre/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
   '/control-centre/pricing/addons': typeof ControlCentreAdminPricingAddonsRoute
   '/control-centre/pricing/ai-models': typeof ControlCentreAdminPricingAiModelsRoute
+  '/control-centre/pricing/analytics': typeof ControlCentreAdminPricingAnalyticsRoute
   '/control-centre/pricing/production-tiers': typeof ControlCentreAdminPricingProductionTiersRoute
   '/control-centre/pricing/rates': typeof ControlCentreAdminPricingRatesRoute
+  '/control-centre/pricing/review': typeof ControlCentreAdminPricingReviewRoute
   '/control-centre/pricing/settings': typeof ControlCentreAdminPricingSettingsRoute
   '/control-centre/pricing/simulator': typeof ControlCentreAdminPricingSimulatorRoute
+  '/control-centre/pricing/templates': typeof ControlCentreAdminPricingTemplatesRoute
   '/control-centre/pricing/video-types': typeof ControlCentreAdminPricingVideoTypesRoute
   '/control-centre/services/$id': typeof ControlCentreAdminServicesIdRoute
   '/control-centre/services/groups': typeof ControlCentreAdminServicesGroupsRoute
@@ -821,10 +848,13 @@ export interface FileRoutesById {
   '/control-centre/_admin/portfolio/categories': typeof ControlCentreAdminPortfolioCategoriesRoute
   '/control-centre/_admin/pricing/addons': typeof ControlCentreAdminPricingAddonsRoute
   '/control-centre/_admin/pricing/ai-models': typeof ControlCentreAdminPricingAiModelsRoute
+  '/control-centre/_admin/pricing/analytics': typeof ControlCentreAdminPricingAnalyticsRoute
   '/control-centre/_admin/pricing/production-tiers': typeof ControlCentreAdminPricingProductionTiersRoute
   '/control-centre/_admin/pricing/rates': typeof ControlCentreAdminPricingRatesRoute
+  '/control-centre/_admin/pricing/review': typeof ControlCentreAdminPricingReviewRoute
   '/control-centre/_admin/pricing/settings': typeof ControlCentreAdminPricingSettingsRoute
   '/control-centre/_admin/pricing/simulator': typeof ControlCentreAdminPricingSimulatorRoute
+  '/control-centre/_admin/pricing/templates': typeof ControlCentreAdminPricingTemplatesRoute
   '/control-centre/_admin/pricing/video-types': typeof ControlCentreAdminPricingVideoTypesRoute
   '/control-centre/_admin/services/$id': typeof ControlCentreAdminServicesIdRoute
   '/control-centre/_admin/services/groups': typeof ControlCentreAdminServicesGroupsRoute
@@ -912,10 +942,13 @@ export interface FileRouteTypes {
     | '/control-centre/portfolio/categories'
     | '/control-centre/pricing/addons'
     | '/control-centre/pricing/ai-models'
+    | '/control-centre/pricing/analytics'
     | '/control-centre/pricing/production-tiers'
     | '/control-centre/pricing/rates'
+    | '/control-centre/pricing/review'
     | '/control-centre/pricing/settings'
     | '/control-centre/pricing/simulator'
+    | '/control-centre/pricing/templates'
     | '/control-centre/pricing/video-types'
     | '/control-centre/services/$id'
     | '/control-centre/services/groups'
@@ -998,10 +1031,13 @@ export interface FileRouteTypes {
     | '/control-centre/portfolio/categories'
     | '/control-centre/pricing/addons'
     | '/control-centre/pricing/ai-models'
+    | '/control-centre/pricing/analytics'
     | '/control-centre/pricing/production-tiers'
     | '/control-centre/pricing/rates'
+    | '/control-centre/pricing/review'
     | '/control-centre/pricing/settings'
     | '/control-centre/pricing/simulator'
+    | '/control-centre/pricing/templates'
     | '/control-centre/pricing/video-types'
     | '/control-centre/services/$id'
     | '/control-centre/services/groups'
@@ -1088,10 +1124,13 @@ export interface FileRouteTypes {
     | '/control-centre/_admin/portfolio/categories'
     | '/control-centre/_admin/pricing/addons'
     | '/control-centre/_admin/pricing/ai-models'
+    | '/control-centre/_admin/pricing/analytics'
     | '/control-centre/_admin/pricing/production-tiers'
     | '/control-centre/_admin/pricing/rates'
+    | '/control-centre/_admin/pricing/review'
     | '/control-centre/_admin/pricing/settings'
     | '/control-centre/_admin/pricing/simulator'
+    | '/control-centre/_admin/pricing/templates'
     | '/control-centre/_admin/pricing/video-types'
     | '/control-centre/_admin/services/$id'
     | '/control-centre/_admin/services/groups'
@@ -1615,6 +1654,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlCentreAdminPricingAiModelsRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
+    '/control-centre/_admin/pricing/analytics': {
+      id: '/control-centre/_admin/pricing/analytics'
+      path: '/pricing/analytics'
+      fullPath: '/control-centre/pricing/analytics'
+      preLoaderRoute: typeof ControlCentreAdminPricingAnalyticsRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
     '/control-centre/_admin/pricing/production-tiers': {
       id: '/control-centre/_admin/pricing/production-tiers'
       path: '/pricing/production-tiers'
@@ -1629,6 +1675,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlCentreAdminPricingRatesRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
+    '/control-centre/_admin/pricing/review': {
+      id: '/control-centre/_admin/pricing/review'
+      path: '/pricing/review'
+      fullPath: '/control-centre/pricing/review'
+      preLoaderRoute: typeof ControlCentreAdminPricingReviewRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
     '/control-centre/_admin/pricing/settings': {
       id: '/control-centre/_admin/pricing/settings'
       path: '/pricing/settings'
@@ -1641,6 +1694,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing/simulator'
       fullPath: '/control-centre/pricing/simulator'
       preLoaderRoute: typeof ControlCentreAdminPricingSimulatorRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/pricing/templates': {
+      id: '/control-centre/_admin/pricing/templates'
+      path: '/pricing/templates'
+      fullPath: '/control-centre/pricing/templates'
+      preLoaderRoute: typeof ControlCentreAdminPricingTemplatesRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
     '/control-centre/_admin/pricing/video-types': {
@@ -1808,10 +1868,13 @@ interface ControlCentreAdminRouteChildren {
   ControlCentreAdminPortfolioCategoriesRoute: typeof ControlCentreAdminPortfolioCategoriesRoute
   ControlCentreAdminPricingAddonsRoute: typeof ControlCentreAdminPricingAddonsRoute
   ControlCentreAdminPricingAiModelsRoute: typeof ControlCentreAdminPricingAiModelsRoute
+  ControlCentreAdminPricingAnalyticsRoute: typeof ControlCentreAdminPricingAnalyticsRoute
   ControlCentreAdminPricingProductionTiersRoute: typeof ControlCentreAdminPricingProductionTiersRoute
   ControlCentreAdminPricingRatesRoute: typeof ControlCentreAdminPricingRatesRoute
+  ControlCentreAdminPricingReviewRoute: typeof ControlCentreAdminPricingReviewRoute
   ControlCentreAdminPricingSettingsRoute: typeof ControlCentreAdminPricingSettingsRoute
   ControlCentreAdminPricingSimulatorRoute: typeof ControlCentreAdminPricingSimulatorRoute
+  ControlCentreAdminPricingTemplatesRoute: typeof ControlCentreAdminPricingTemplatesRoute
   ControlCentreAdminPricingVideoTypesRoute: typeof ControlCentreAdminPricingVideoTypesRoute
   ControlCentreAdminServicesIdRoute: typeof ControlCentreAdminServicesIdRoute
   ControlCentreAdminServicesGroupsRoute: typeof ControlCentreAdminServicesGroupsRoute
@@ -1860,13 +1923,18 @@ const ControlCentreAdminRouteChildren: ControlCentreAdminRouteChildren = {
   ControlCentreAdminPricingAddonsRoute: ControlCentreAdminPricingAddonsRoute,
   ControlCentreAdminPricingAiModelsRoute:
     ControlCentreAdminPricingAiModelsRoute,
+  ControlCentreAdminPricingAnalyticsRoute:
+    ControlCentreAdminPricingAnalyticsRoute,
   ControlCentreAdminPricingProductionTiersRoute:
     ControlCentreAdminPricingProductionTiersRoute,
   ControlCentreAdminPricingRatesRoute: ControlCentreAdminPricingRatesRoute,
+  ControlCentreAdminPricingReviewRoute: ControlCentreAdminPricingReviewRoute,
   ControlCentreAdminPricingSettingsRoute:
     ControlCentreAdminPricingSettingsRoute,
   ControlCentreAdminPricingSimulatorRoute:
     ControlCentreAdminPricingSimulatorRoute,
+  ControlCentreAdminPricingTemplatesRoute:
+    ControlCentreAdminPricingTemplatesRoute,
   ControlCentreAdminPricingVideoTypesRoute:
     ControlCentreAdminPricingVideoTypesRoute,
   ControlCentreAdminServicesIdRoute: ControlCentreAdminServicesIdRoute,
