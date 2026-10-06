@@ -51,7 +51,7 @@ function DeferredMediaTile({ item, ratio, className }: { item: HeroMediaItem; ra
     if (!el || typeof IntersectionObserver === "undefined") { setNear(true); return; }
     const io = new IntersectionObserver(([entry]) => {
       if (entry?.isIntersecting) { setNear(true); io.disconnect(); }
-    }, { rootMargin: "160px 0px" });
+    }, { rootMargin: "0px" });
     io.observe(el);
     return () => io.disconnect();
   }, []);
