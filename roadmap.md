@@ -18,4 +18,4 @@
 - [x] Standardize public metadata and safe canonical handling
 - [x] Add structured data for the brand, services, articles, jobs, projects and visible FAQs
 - [x] Add AI-crawler discovery guidance and strengthen private-route indexing controls
-- [ ] Verify sitemap, robots, metadata, schema, tests and build
+- [x] Verify sitemap, robots, metadata, schema, tests and build
