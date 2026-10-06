@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { SITE_URL } from "@/lib/seo";
 
-const STATIC = ["/", "/work", "/services", "/ai-studio", "/insights", "/about", "/team", "/careers", "/start-a-project", "/book-a-call"];
+const STATIC = ["/", "/work", "/services", "/ai-studio", "/insights", "/about", "/team", "/careers", "/start-a-project", "/book-a-call", "/pricing"];
 
 /** Sitemap of published, indexable pages only (anon RLS = published rows only). */
 export const Route = createFileRoute("/sitemap.xml")({

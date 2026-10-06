@@ -16,6 +16,7 @@ import { Route as BookACallRouteImport } from './routes/book-a-call'
 import { Route as ClientRouteImport } from './routes/client'
 import { Route as ControlCentreRouteImport } from './routes/control-centre'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
@@ -127,6 +128,11 @@ const ControlCentreRoute = ControlCentreRouteImport.update({
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -567,6 +573,7 @@ export interface FileRoutesByFullPath {
   '/client': typeof ClientRouteWithChildren
   '/control-centre': typeof ControlCentreRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
@@ -650,6 +657,7 @@ export interface FileRoutesByTo {
   '/ai-studio': typeof AiStudioRoute
   '/book-a-call': typeof BookACallRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
@@ -735,6 +743,7 @@ export interface FileRoutesById {
   '/client': typeof ClientRouteWithChildren
   '/control-centre': typeof ControlCentreRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
@@ -823,6 +832,7 @@ export interface FileRouteTypes {
     | '/client'
     | '/control-centre'
     | '/forgot-password'
+    | '/pricing'
     | '/reset-password'
     | '/sign-in'
     | '/sign-up'
@@ -906,6 +916,7 @@ export interface FileRouteTypes {
     | '/ai-studio'
     | '/book-a-call'
     | '/forgot-password'
+    | '/pricing'
     | '/reset-password'
     | '/sign-in'
     | '/sign-up'
@@ -990,6 +1001,7 @@ export interface FileRouteTypes {
     | '/client'
     | '/control-centre'
     | '/forgot-password'
+    | '/pricing'
     | '/reset-password'
     | '/sign-in'
     | '/sign-up'
@@ -1077,6 +1089,7 @@ export interface RootRouteChildren {
   ClientRoute: typeof ClientRouteWithChildren
   ControlCentreRoute: typeof ControlCentreRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  PricingRoute: typeof PricingRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
@@ -1148,6 +1161,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -1870,6 +1890,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClientRoute: ClientRouteWithChildren,
   ControlCentreRoute: ControlCentreRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  PricingRoute: PricingRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,

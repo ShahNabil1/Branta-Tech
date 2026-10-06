@@ -64,3 +64,39 @@ export const calculatePublicQuote = createServerFn({ method: "POST" })
       throw e;
     }
   });
+
+export type PublicPricing =
+  | { active: false; disclaimer: string }
+  | { active: true; disclaimer: string; config: PricingConfig; defaults: { videoType: string | null; model: string | null; tier: string | null }; descriptions: Record<string, string> };
+
+/**
+ * Public catalogue for /pricing. Returns NO pricing records unless the admin has enabled
+ * public pricing (both switches) — and even then only anon-RLS-visible published rows.
+ */
+export const getPublicPricing = createServerFn({ method: "GET" }).handler(async (): Promise<PublicPricing> => {
+  try {
+    const config = await loadPublicConfig();
+    const { createClient } = await import("@supabase/supabase-js");
+    const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
+    const sb = createClient(process.env["SUPABASE_URL"]!, key, { auth: { persistSession: false, autoRefreshToken: false } });
+    const { data: set } = await sb.from("site_settings").select("settings").eq("setting_group", "pricing").maybeSingle();
+    const s = (set?.settings ?? {}) as Record<string, unknown>;
+    const disclaimer = typeof s["disclaimer"] === "string" ? s["disclaimer"] : "";
+    if (!config.settings.enabled) return { active: false, disclaimer };
+    const ok = config.videoTypes.length && config.models.length && config.tiers.length && config.rates.some((r) => r.enabled);
+    if (!ok) return { active: false, disclaimer };
+    const [vt, md, tr, ad] = await Promise.all([
+      sb.from("pricing_video_types").select("id,description").eq("published", true),
+      sb.from("pricing_ai_models").select("id,description").eq("published", true),
+      sb.from("pricing_production_tiers").select("id,description").eq("published", true),
+      sb.from("pricing_addons").select("id,description").eq("published", true),
+    ]);
+    const descriptions: Record<string, string> = {};
+    for (const r of [...(vt.data ?? []), ...(md.data ?? []), ...(tr.data ?? []), ...(ad.data ?? [])]) if (r.description) descriptions[r.id] = r.description;
+    const slug = (k: string) => (typeof s[k] === "string" ? (s[k] as string) : null);
+    return { active: true, disclaimer, config, descriptions, defaults: { videoType: slug("default_video_type"), model: slug("default_ai_model"), tier: slug("default_tier") } };
+  } catch (e) {
+    console.error("[pricing] public load failed", e);
+    return { active: false, disclaimer: "" };
+  }
+});
