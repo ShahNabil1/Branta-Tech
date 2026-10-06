@@ -8,7 +8,7 @@ import { WorkMediaModal } from "@/components/work/WorkMediaModal";
 import { cn } from "@/lib/utils";
 import type { WorkCard } from "@/lib/work.functions";
 import type { WorkShowcase } from "@/lib/work-showcase.functions";
-import logoMark from "/favicon.png";
+const logoMark = "/favicon.png";
 
 const isVideo = (c: WorkCard) => c.media?.type === "video" || c.media?.type === "vimeo";
 
@@ -60,7 +60,7 @@ function Tile({ card, className, onVideo, sizes }: { card: WorkCard; className?:
   return <Link to="/work/$slug" params={{ slug: card.slug }} className={cls}>{inner}</Link>;
 }
 
-export function EditorialHero({ work, bookingUrl }: { work: WorkShowcase; bookingUrl: string }) {
+export function EditorialHero({ work, bookingUrl = "/book-a-call" }: { work: WorkShowcase; bookingUrl?: string }) {
   const cards = pickCards(work);
   const bento = cards.slice(0, 6);
   const floats = (cards.length > 6 ? cards.slice(6) : cards).slice(0, 4);
@@ -130,7 +130,7 @@ export function EditorialHero({ work, bookingUrl }: { work: WorkShowcase; bookin
               </div>
               <div className={cn("mt-8 grid auto-rows-[160px] grid-cols-2 gap-3 md:auto-rows-[200px] md:gap-4", n >= 4 ? "lg:grid-cols-4" : n === 3 ? "lg:grid-cols-3" : "lg:grid-cols-2")}>
                 {bento.map((c, i) => (
-                  <Reveal key={c.id} delay={260 + i * 70} className={cn(n === 6 ? BENTO[i] : "", n === 6 && i === 1 && "col-span-2", "contents-none")}>
+                  <Reveal key={c.id} delay={260 + i * 70} className={cn(n === 6 ? BENTO[i] : "", n === 6 && i === 1 && "col-span-2")}>
                     <Tile card={c} onVideo={setActive} className="size-full" />
                   </Reveal>
                 ))}

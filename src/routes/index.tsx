@@ -2,12 +2,11 @@ import { absoluteUrl, canonical, jsonLd, pageMeta } from "@/lib/seo";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { SiteShell } from "@/components/layout/SiteShell";
-import { HomeHero } from "@/components/home/Hero";
+import { EditorialHero } from "@/components/home/EditorialHero";
 import { CapabilityExplorer } from "@/components/home/CapabilityExplorer";
 import { siteChromeQuery } from "@/lib/navigation";
 import { homeHeroQuery } from "@/lib/home-hero.functions";
 import { capabilityExplorerQuery } from "@/lib/capability-explorer.functions";
-import { heroFromSection } from "@/lib/hero";
 import { capExplorerFrom } from "@/lib/capabilities";
 import { homeClosingQuery } from "@/lib/home-closing.functions";
 import { workShowcaseQuery } from "@/lib/work-showcase.functions";
@@ -56,7 +55,6 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { data } = useSuspenseQuery(homeHeroQuery);
   const { data: cap } = useSuspenseQuery(capabilityExplorerQuery);
   const { data: closing } = useSuspenseQuery(homeClosingQuery);
   const { data: work } = useSuspenseQuery(workShowcaseQuery);
@@ -65,7 +63,7 @@ function Index() {
   const explorer = capExplorerFrom(cap.section, cap.services);
   return (
     <SiteShell>
-      <HomeHero hero={heroFromSection(data)} />
+      <EditorialHero work={work} />
       {closing.trust && <TrustProof content={closing.trust} />}
       {explorer && <CapabilityExplorer content={explorer} />}
       {work && <WorkShowcase data={work} />}
