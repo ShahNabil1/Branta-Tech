@@ -3,8 +3,7 @@ import { useState } from "react";
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  LayoutDashboard, FileText, Newspaper, UserRound, Briefcase, Inbox, Target, CalendarClock, Menu, Layers, Image, FolderOpen, Settings, Users, LogOut, PanelLeft, Quote, Award, MessagesSquare, BookOpen, Zap, HelpCircle, SlidersHorizontal, BadgeDollarSign, Grid3x3, Calculator,
-} from "lucide-react";
+  LayoutDashboard, FileText, Newspaper, UserRound, Briefcase, Inbox, Target, CalendarClock, Menu, Layers, Image, FolderOpen, Settings, Users, LogOut, PanelLeft, Quote, Award, MessagesSquare, BookOpen, Zap, HelpCircle, SlidersHorizontal, BadgeDollarSign, Grid3x3, Calculator, ClipboardCheck, LayoutTemplate, BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getAdminSession, CMS_ROLES } from "@/lib/supabase/admin-access";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -52,6 +51,7 @@ const groups = [
       { label: "Pricing Overview", icon: BadgeDollarSign, to: "/control-centre/pricing" as const },
       { label: "Rate Matrix", icon: Grid3x3, to: "/control-centre/pricing/rates" as const },
       { label: "Simulator", icon: Calculator, to: "/control-centre/pricing/simulator" as const },
+      { label: "Publication Review", icon: ClipboardCheck, to: "/control-centre/pricing/review" as const },
     ],
   },
   {
@@ -62,6 +62,8 @@ const groups = [
       { label: "Bookings", icon: CalendarClock, to: "/control-centre/bookings" as const },
       { label: "Availability", icon: CalendarClock, to: "/control-centre/bookings/availability" as const },
       { label: "Quotations", icon: FileText, to: "/control-centre/pricing/quotations" as const },
+      { label: "Quote Templates", icon: LayoutTemplate, to: "/control-centre/pricing/templates" as const },
+      { label: "Pricing Analytics", icon: BarChart3, to: "/control-centre/pricing/analytics" as const },
     ],
   },
   {
