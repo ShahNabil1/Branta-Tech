@@ -19,3 +19,10 @@
 - [x] Add structured data for the brand, services, articles, jobs, projects and visible FAQs
 - [x] Add AI-crawler discovery guidance and strengthen private-route indexing controls
 - [x] Verify sitemap, robots, metadata, schema, tests and build
+
+# Mobile performance and Best Practices
+- [x] Audit the supplied PageSpeed report and reproduce mobile bottlenecks independently
+- [x] Defer initial Vimeo and secondary hero media without layout shift
+- [x] Remove global third-party connection work and self-host critical fonts
+- [x] Reduce shared JavaScript, mobile rendering work and oversized image delivery
+- [x] Verify tests, build, phone/desktop UX and repeated mobile Lighthouse results

@@ -102,7 +102,7 @@ function QuoteCard({ s, dup }: { s: Story; dup: boolean }) {
     <article className="group/card flex h-[520px] w-[85vw] max-w-[360px] flex-col overflow-hidden rounded-[14px] border border-border bg-background transition-transform duration-500 ease-out hover:scale-[1.03] motion-reduce:hover:scale-100 md:w-[360px]">
       <div className="relative h-[46%] shrink-0 overflow-hidden bg-muted">
         {s.photo ? (
-          <img src={s.photo} alt={s.name} loading="lazy" className="h-full w-full object-cover object-top transition-transform duration-700 group-hover/card:scale-[1.04]" />
+          <img src={s.photo} alt={s.name} loading="lazy" decoding="async" sizes="(max-width: 429px) 85vw, 360px" className="h-full w-full object-cover object-top transition-transform duration-700 group-hover/card:scale-[1.04]" />
         ) : (
           <div className="flex h-full items-center justify-center text-display text-muted-foreground">{s.name.charAt(0)}</div>
         )}

@@ -82,16 +82,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      // Vimeo: player, poster CDN and adaptive video delivery — warmed once for the whole site.
-      { rel: "preconnect", href: "https://player.vimeo.com" },
-      { rel: "preconnect", href: "https://i.vimeocdn.com" },
-      { rel: "preconnect", href: "https://f.vimeocdn.com" },
-      { rel: "dns-prefetch", href: "https://vod-adaptive-ak.vimeocdn.com" },
       {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap",
+        rel: "preload",
+        href: "/fonts/geist-latin-variable.woff2",
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
       },
       {
         rel: "stylesheet",
@@ -133,15 +129,30 @@ function RootComponent() {
   // Single auth listener: re-run route guards on identity changes.
   useEffect(() => {
     let unsub: (() => void) | undefined;
-    void import("@/integrations/supabase/client").then(({ supabase }) => {
-      const { data } = supabase.auth.onAuthStateChange((event) => {
-        if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-        void router.invalidate();
-        if (event !== "SIGNED_OUT") void queryClient.invalidateQueries();
+    let started = false;
+    const start = () => {
+      if (started) return;
+      started = true;
+      void import("@/integrations/supabase/client").then(({ supabase }) => {
+        const { data } = supabase.auth.onAuthStateChange((event) => {
+          if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+          void router.invalidate();
+          if (event !== "SIGNED_OUT") void queryClient.invalidateQueries();
+        });
+        unsub = () => data.subscription.unsubscribe();
       });
-      unsub = () => data.subscription.unsubscribe();
-    });
-    return () => unsub?.();
+    };
+    const storedSession = Object.keys(window.localStorage).some((key) => key.startsWith("sb-") && key.endsWith("-auth-token"));
+    if (storedSession) start();
+    else {
+      window.addEventListener("pointerdown", start, { once: true, passive: true });
+      window.addEventListener("keydown", start, { once: true });
+    }
+    return () => {
+      window.removeEventListener("pointerdown", start);
+      window.removeEventListener("keydown", start);
+      unsub?.();
+    };
   }, [router, queryClient]);
 
   return (
