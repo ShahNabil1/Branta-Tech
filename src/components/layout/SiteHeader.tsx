@@ -1,7 +1,6 @@
 import logoLight from "@/assets/brand/branta-logo-light.png.asset.json";
-import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { lazy, Suspense, useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Link, useHydrated, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +8,8 @@ import { displayName, useClientSession } from "@/lib/client-session";
 import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
 import { FALLBACK_NAV, navFromCms, safeImage, siteChromeQuery, type NavEntry, type NavLink } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
+
+const MobileMenu = lazy(() => import("./MobileMenu"));
 
 /* ---------------- link resolution ---------------- */
 
@@ -117,6 +118,7 @@ export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [mobile, setMobile] = useState(false);
+  const [mobileLoaded, setMobileLoaded] = useState(false);
   const closeTimer = useRef<number | undefined>(undefined);
   const headerRef = useRef<HTMLElement>(null);
   const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -248,7 +250,7 @@ export function SiteHeader() {
           className="text-small ml-auto flex h-10 items-center gap-2 rounded-sm px-2 font-medium lg:hidden"
           aria-expanded={mobile}
           aria-controls={`${baseId}-mobile`}
-          onClick={() => setMobile(true)}
+          onClick={() => { setMobileLoaded(true); setMobile(true); }}
         >
           <Menu className="size-5" aria-hidden /> Menu
         </button>
@@ -273,12 +275,22 @@ export function SiteHeader() {
         </div>
       ))}
 
-      {typeof document !== "undefined" && createPortal(
-        <AnimatePresence>
-          {mobile && (
-            <MobileMenu key="mobile-menu" id={`${baseId}-mobile`} nav={nav} logo={logo} booking={booking} isActive={isActive} onClose={() => setMobile(false)} />
-          )}
-        </AnimatePresence>,
+      {mobileLoaded && typeof document !== "undefined" && createPortal(
+        <Suspense fallback={null}>
+          <MobileMenu
+            id={`${baseId}-mobile`}
+            open={mobile}
+            nav={nav}
+            logo={<BrandLogo src={logo} onNavigate={() => setMobile(false)} />}
+            account={<AccountArea mobile onNavigate={() => setMobile(false)} />}
+            booking={<BookButton url={booking} large />}
+            active={isActive}
+            renderLink={(url, label, className, pendingClassName) => (
+              <SmartLink url={url} onNavigate={() => setMobile(false)} className={className} pendingClassName={pendingClassName}>{label}</SmartLink>
+            )}
+            onClose={() => setMobile(false)}
+          />
+        </Suspense>,
         document.body,
       )}
     </header>
@@ -424,122 +436,3 @@ function BookButton({ url, className, large }: { url: string; className?: string
   );
 }
 
-/* ---------------- mobile ---------------- */
-
-function MobileMenu({ id, nav, logo, booking, isActive, onClose }: {
-  id: string;
-  nav: NavEntry[];
-  logo: string | null;
-  booking: string;
-  isActive: (e: NavEntry) => boolean;
-  onClose: () => void;
-}) {
-  const closeRef = useRef<HTMLButtonElement>(null);
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const reduceMotion = useReducedMotion();
-
-  useEffect(() => {
-    const prev = {
-      overflow: document.body.style.overflow,
-      paddingRight: document.body.style.paddingRight,
-      overscrollBehavior: document.body.style.overscrollBehavior,
-    };
-    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
-    const currentPadding = Number.parseFloat(window.getComputedStyle(document.body).paddingRight) || 0;
-    document.body.style.overflow = "hidden";
-    document.body.style.overscrollBehavior = "none";
-    if (scrollbar > 0) document.body.style.paddingRight = `${currentPadding + scrollbar}px`;
-    requestAnimationFrame(() => closeRef.current?.focus({ preventScroll: true }));
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prev.overflow;
-      document.body.style.paddingRight = prev.paddingRight;
-      document.body.style.overscrollBehavior = prev.overscrollBehavior;
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [onClose]);
-
-  const links = nav.filter((n) => n.kind === "link");
-  const groups = nav.filter((n) => n.kind !== "link");
-  const row = "text-h4 flex min-h-14 w-full cursor-pointer items-center justify-between border-b border-border py-3 text-left font-medium";
-
-  const duration = reduceMotion ? 0 : 0.46;
-  const ease = [0.22, 1, 0.36, 1] as const;
-  const stagger = reduceMotion ? 0 : 0.035;
-  const panel = {
-    hidden: { opacity: 0, y: reduceMotion ? 0 : -18, scale: reduceMotion ? 1 : 0.992 },
-    visible: { opacity: 1, y: 0, scale: 1, transition: { duration, ease, when: "beforeChildren" as const, staggerChildren: stagger, delayChildren: reduceMotion ? 0 : 0.08 } },
-    exit: { opacity: 0, y: reduceMotion ? 0 : -12, scale: reduceMotion ? 1 : 0.994, transition: { duration: reduceMotion ? 0 : 0.3, ease } },
-  };
-  const item = {
-    hidden: { opacity: 0, y: reduceMotion ? 0 : 14 },
-    visible: { opacity: 1, y: 0, transition: { duration: reduceMotion ? 0 : 0.38, ease } },
-  };
-
-  return (
-    <motion.div
-      id={id}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Site menu"
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      variants={panel}
-      className="dark fixed inset-0 z-[100] flex h-[100dvh] min-h-0 w-full origin-top flex-col overflow-hidden bg-background text-foreground will-change-transform"
-    >
-      <motion.div variants={item} className="flex h-16 shrink-0 items-center justify-between border-b border-border px-5">
-        <BrandLogo src={logo} onNavigate={onClose} />
-        <button ref={closeRef} type="button" onClick={onClose} className="text-small flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-sm px-2 font-medium transition-colors hover:text-accent">
-          <motion.span animate={{ rotate: 90 }} transition={{ duration: reduceMotion ? 0 : 0.42, ease }} className="flex"><X className="size-5" aria-hidden /></motion.span> Close
-        </button>
-      </motion.div>
-      <nav aria-label="Mobile" className="min-h-0 flex-1 overscroll-contain overflow-y-auto px-5 pb-6">
-        <ul>
-          {links.map((e) => (
-            <motion.li key={e.id} variants={item}>
-              <SmartLink url={e.url} onNavigate={onClose} className={cn(row, isActive(e) && "text-accent")} pendingClassName="cursor-default text-muted-foreground/50">
-                {e.label}
-              </SmartLink>
-            </motion.li>
-          ))}
-          {groups.map((e) => {
-            const open = expanded === e.id;
-            const subId = `${id}-${e.id}`;
-            const sub = e.kind === "mega" ? e.columns.map((c) => ({ label: c.title, url: c.url ?? "#" })) : e.columns.flatMap((c) => c.links);
-            return (
-              <motion.li key={e.id} variants={item}>
-                <button type="button" className={row} aria-expanded={open} aria-controls={subId} onClick={() => setExpanded(open ? null : e.id)}>
-                  {e.label}
-                  <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: reduceMotion ? 0 : 0.3, ease }} className="flex text-muted-foreground"><ChevronDown aria-hidden className="size-5" /></motion.span>
-                </button>
-                <AnimatePresence initial={false}>
-                  {open && (
-                    <motion.ul id={subId} initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ height: { duration: reduceMotion ? 0 : 0.38, ease }, opacity: { duration: reduceMotion ? 0 : 0.22 } }} className="overflow-hidden border-b border-border">
-                      <div className="py-2">
-                        {sub.map((l) => (
-                          <li key={l.label}>
-                            <SmartLink url={l.url} onNavigate={onClose} className="text-body flex min-h-11 items-center text-muted-foreground hover:text-foreground" pendingClassName="cursor-default opacity-60">{l.label}</SmartLink>
-                          </li>
-                        ))}
-                        {e.kind === "mega" && <li><SmartLink url={e.url} onNavigate={onClose} className="text-body flex min-h-11 items-center font-medium text-foreground" pendingClassName="cursor-default opacity-50">View all</SmartLink></li>}
-                      </div>
-                    </motion.ul>
-                  )}
-                </AnimatePresence>
-              </motion.li>
-            );
-          })}
-        </ul>
-      </nav>
-      <motion.div variants={item} className="shrink-0 border-t border-border bg-background px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
-        <p className="text-eyebrow mb-3 text-muted-foreground">Account</p>
-        <div className="mb-4 grid grid-cols-2 gap-2">
-          <AccountArea mobile onNavigate={onClose} />
-        </div>
-        <BookButton url={booking} large />
-      </motion.div>
-    </motion.div>
-  );
-}
