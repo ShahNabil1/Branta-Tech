@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { adminHead } from "@/lib/supabase/cms";
-import { AdminButton, CheckboxInput, ErrorNote, Panel, SaveBar, SelectInput, TextArea, TextInput, friendlyError, useFormState, useUnsavedWarning } from "@/components/admin/cms";
+import { CheckboxInput, ErrorNote, Panel, SaveBar, SelectInput, TextArea, TextInput, friendlyError, useFormState, useUnsavedWarning } from "@/components/admin/cms";
 import { NumField, PricingPage, useRefreshPricing } from "@/components/admin/pricing/PricingKit";
 import { publishReadiness, savePricingSettings, validateSettings, type AdminPricing, type PricingSettingsFull } from "@/lib/pricing/admin";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -109,7 +109,6 @@ function Settings({ d }: { d: AdminPricing }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <AdminButton className="hidden" />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Link, getRouteApi } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowDown, ArrowUp } from "lucide-react";
@@ -121,7 +122,7 @@ export function PricingCrud<T extends { id: string; name: string; published: boo
 }) {
   const refresh = useRefreshPricing();
   const [editing, setEditing] = useState<T | "new" | null>(null);
-  const { supabase } = useSb();
+
 
   async function move(i: number, dir: -1 | 1) {
     const next = [...rows];
@@ -184,8 +185,7 @@ export function PricingCrud<T extends { id: string; name: string; published: boo
   );
 }
 
-import { supabase as sbClient } from "@/integrations/supabase/client";
-const useSb = () => ({ supabase: sbClient });
+
 
 /** Next free sort order for a new record. */
 export const nextOrder = (rows: { sort_order: number }[]) => rows.reduce((m, r) => Math.max(m, r.sort_order), 0) + 1;
