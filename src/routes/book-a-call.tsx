@@ -19,7 +19,8 @@ import { pageMeta, canonical } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/book-a-call")({
-  validateSearch: (s: Record<string, unknown>): { group?: string | undefined; service?: string | undefined; quote?: string | undefined; type?: string | undefined } => ({
+  validateSearch: (s: Record<string, unknown>): { group?: string | undefined; service?: string | undefined; quote?: string | undefined; type?: string | undefined; note?: string | undefined } => ({
+    note: typeof s["note"] === "string" ? s["note"].slice(0, 300) : undefined,
     quote: typeof s["quote"] === "string" && /^Q-[0-9A-F]{10}$/.test(s["quote"]) ? s["quote"] : undefined,
     type: typeof s["type"] === "string" ? s["type"].slice(0, 80) : undefined,
     group: typeof s["group"] === "string" ? s["group"].slice(0, 120) : undefined,
@@ -65,7 +66,7 @@ function BookCall() {
   const [error, setError] = useState<string | null>(null);
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [confirmation, setConfirmation] = useState<{ reference: string; status: string } | null>(null);
-  const [values, setValues] = useState({ name: (user?.user_metadata?.["full_name"] as string) ?? "", email: user?.email ?? "", phone: "", company: "", topic: "", notes: "" });
+  const [values, setValues] = useState({ name: (user?.user_metadata?.["full_name"] as string) ?? "", email: user?.email ?? "", phone: "", company: "", topic: search.note ?? "", notes: "" });
   useEffect(() => { setTz(Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"); }, []);
 
   const available = useMemo(() => new Set(data.days.filter((d) => d.slots.some((x) => !x.booked)).map((d) => d.date)), [data.days]);

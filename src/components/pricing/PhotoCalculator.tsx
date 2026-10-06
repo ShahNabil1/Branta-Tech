@@ -8,28 +8,13 @@ import type { PublicPhotoPricing } from "@/lib/pricing-photo.functions";
 import { QuoteRequestDialog, type PhotoSelection } from "./QuoteRequestDialog";
 import { Choice, money, Step, useTween } from "./PricingCalculator";
 import { cn } from "@/lib/utils";
+import { BookCallLink, DEFAULT_DISCLAIMER, EstimatePreview, QUOTE_CTA } from "./EstimatePreview";
 
 const field = "text-small h-11 rounded-[6px] border border-border bg-[var(--white)] px-3 text-foreground outline-none focus:border-foreground";
 
 export function PhotoCalculator({ data, disclaimer }: { data: PublicPhotoPricing; disclaimer: string }) {
-  if (!data.active) return <PhotoUnpriced />;
+  if (!data.active) return <EstimatePreview category="photography" disclaimer={disclaimer} />;
   return <Calc data={data} disclaimer={disclaimer} />;
-}
-
-function PhotoUnpriced() {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="mx-auto max-w-2xl rounded-[8px] border border-border bg-[var(--white)] p-8 text-center md:p-12">
-      <p className="text-eyebrow text-accent">CUSTOM PRICING</p>
-      <h3 className="text-h3 mt-4 text-foreground">Custom photography pricing is available.</h3>
-      <p className="text-body-lg mt-4 text-muted-foreground">Tell us about your products and our team will prepare a quote.</p>
-      <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-        <Link to="/book-a-call" className={buttonVariants({ variant: "primary", size: "lg" })}>Book a Call</Link>
-        <button type="button" onClick={() => setOpen(true)} className={buttonVariants({ variant: "secondary", size: "lg" })}>Request a Quote</button>
-      </div>
-      <QuoteRequestDialog open={open} onOpenChange={setOpen} selection={null} summary={null} category="photography" summaryText="Tell us about your products and we'll prepare a photography quote." />
-    </div>
-  );
 }
 
 function Calc({ data, disclaimer }: { data: Extract<PublicPhotoPricing, { active: true }>; disclaimer: string }) {
@@ -79,13 +64,13 @@ function Calc({ data, disclaimer }: { data: Extract<PublicPhotoPricing, { active
     </div>
   );
   const canRequest = !!q || ("custom" in result && !!result.custom);
+  const summaryText = q ? `${q.item.name} · ${q.products} product${q.products > 1 ? "s" : ""} · ${q.totalImages} images · ${q.workflow.name}` : `Custom photography · ${products} products`;
   const actions = (
-    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-      <button type="button" disabled={!canRequest} onClick={() => setOpen(true)} className={cn(buttonVariants({ variant: "primary", size: "lg" }), "w-full justify-center disabled:pointer-events-none disabled:opacity-50")}>{q ? "Request This Quote" : "Request a Custom Quote"}</button>
-      <Link to="/book-a-call" className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "w-full justify-center")}>Book a Call</Link>
+    <div className="grid gap-2">
+      <BookCallLink note={`AI Product Photography · ${summaryText}${q ? ` · est. ${money(q.total, cur)}` : ""}`} />
+      <button type="button" disabled={!canRequest} onClick={() => setOpen(true)} className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "w-full justify-center disabled:pointer-events-none disabled:opacity-50")}>{QUOTE_CTA}</button>
     </div>
   );
-  const summaryText = q ? `${q.item.name} · ${q.products} product${q.products > 1 ? "s" : ""} · ${q.totalImages} images · ${q.workflow.name}` : `Custom photography · ${products} products`;
   let n = 0;
 
   return (
@@ -200,12 +185,12 @@ function Calc({ data, disclaimer }: { data: Extract<PublicPhotoPricing, { active
         <div className="dark sticky top-24 rounded-[8px] border border-border bg-background p-6 text-foreground">
           <p className="text-eyebrow text-muted-foreground">YOUR PHOTOSHOOT</p>
           {q && <p className="text-small mt-3 text-foreground">{summaryText}</p>}
-          <p className="text-caption mt-6 text-muted-foreground">Estimated price</p>
-          {q ? <p className="text-display mt-1 tabular-nums text-foreground" aria-live="polite">{money(shown, cur)}</p>
-            : <p className="text-small mt-2 text-muted-foreground" role="status">{"error" in result ? result.error : ""}</p>}
+          <p className="text-caption mt-6 text-muted-foreground">Your Estimated Project Cost</p>
+          {q ? <><p className="text-display mt-1 tabular-nums text-foreground" aria-live="polite">{money(shown, cur)}</p><p className="text-caption mt-2 text-muted-foreground">Based on your selections. Final pricing may vary depending on project requirements.</p></>
+            : <><p className="text-h4 mt-1 text-foreground" role="status">Custom Estimate Required</p><p className="text-small mt-2 text-muted-foreground">{"error" in result ? result.error : ""}</p></>}
           <div className="mt-5">{breakdown}</div>
           <div className="mt-5">{actions}</div>
-          {disclaimer && <p className="text-caption mt-4 text-muted-foreground">{disclaimer}</p>}
+          <p className="text-caption mt-4 text-muted-foreground">{disclaimer || DEFAULT_DISCLAIMER}</p>
         </div>
       </aside>
 
@@ -214,11 +199,11 @@ function Calc({ data, disclaimer }: { data: Extract<PublicPhotoPricing, { active
           <div className="max-h-[60vh] overflow-y-auto border-b border-border px-[var(--gutter)] py-4">
             {breakdown ?? <p className="text-small text-muted-foreground">{"error" in result ? result.error : ""}</p>}
             <div className="mt-4">{actions}</div>
-            {disclaimer && <p className="text-caption mt-3 text-muted-foreground">{disclaimer}</p>}
+            <p className="text-caption mt-3 text-muted-foreground">{disclaimer || DEFAULT_DISCLAIMER}</p>
           </div>
         )}
         <button type="button" onClick={() => setSheet((v) => !v)} aria-expanded={sheet} className="flex w-full items-center justify-between gap-3 px-[var(--gutter)] py-3">
-          <span className="text-left"><span className="text-caption block text-muted-foreground">Estimated price</span><span className="text-h4 block tabular-nums">{q ? money(shown, cur) : "—"}</span></span>
+          <span className="text-left"><span className="text-caption block text-muted-foreground">Your Estimated Project Cost</span><span className="text-h4 block tabular-nums">{q ? money(shown, cur) : "Custom estimate"}</span></span>
           <span className="text-small flex items-center gap-1 text-muted-foreground">{sheet ? "Hide" : "Breakdown"}<ChevronUp className={cn("size-4 transition-transform", !sheet && "rotate-180")} /></span>
         </button>
       </div>

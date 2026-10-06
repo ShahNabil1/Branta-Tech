@@ -8,6 +8,7 @@ import { QuoteRequestDialog } from "./QuoteRequestDialog";
 import { useServerFn } from "@tanstack/react-start";
 import { trackPricingEvent } from "@/lib/quotes.functions";
 import { cn } from "@/lib/utils";
+import { BookCallLink, DEFAULT_DISCLAIMER, EstimatePreview, QUOTE_CTA } from "./EstimatePreview";
 
 export const money = (minor: number, cur: string) => `${cur === "BDT" ? "৳" : `${cur} `}${(minor / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 
@@ -32,24 +33,8 @@ export function useTween(target: number) {
 }
 
 export function PricingCalculator({ data }: { data: PublicPricing }) {
-  if (!data.active) return <Unpriced />;
+  if (!data.active) return <EstimatePreview category="video" disclaimer={data.disclaimer} />;
   return <Calculator config={data.config} defaults={data.defaults} desc={data.descriptions} disclaimer={data.disclaimer} />;
-}
-
-function Unpriced() {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="mx-auto max-w-2xl rounded-[8px] border border-border bg-[var(--white)] p-8 text-center md:p-12">
-      <p className="text-eyebrow text-accent">CUSTOM PRICING</p>
-      <h3 className="text-h3 mt-4 text-foreground">Custom pricing is available.</h3>
-      <p className="text-body-lg mt-4 text-muted-foreground">Tell us about your project and our team will prepare a quote.</p>
-      <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-        <Link to="/book-a-call" className={buttonVariants({ variant: "primary", size: "lg" })}>Book a Call</Link>
-        <button type="button" onClick={() => setOpen(true)} className={buttonVariants({ variant: "secondary", size: "lg" })}>Request a Quote</button>
-      </div>
-      <QuoteRequestDialog open={open} onOpenChange={setOpen} selection={null} summary={null} />
-    </div>
-  );
 }
 
 export function Step({ n, title, children }: { n: number; title: string; children: ReactNode }) {
@@ -138,9 +123,9 @@ function Calculator({ config, defaults, desc, disclaimer }: { config: PricingCon
     </div>
   );
   const actions = (
-    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-      <button type="button" disabled={!q} onClick={() => setQuoteOpen(true)} className={cn(buttonVariants({ variant: "primary", size: "lg" }), "w-full justify-center disabled:pointer-events-none disabled:opacity-50")}>Request This Quote</button>
-      <Link to="/book-a-call" className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "w-full justify-center")}>Book a Call</Link>
+    <div className="grid gap-2">
+      <BookCallLink note={q ? `AI Video Production · ${q.videoType.name} · ${q.model.name} · ${q.durationSeconds}s · ${q.tier.name}${q.addonLines.length ? ` · ${q.addonLines.map((l) => l.name).join(", ")}` : ""} · est. ${money(q.total, q.currency)}` : "AI Video Production · custom estimate"} />
+      <button type="button" disabled={!q} onClick={() => setQuoteOpen(true)} className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "w-full justify-center disabled:pointer-events-none disabled:opacity-50")}>{QUOTE_CTA}</button>
     </div>
   );
 
@@ -237,7 +222,7 @@ function Calculator({ config, defaults, desc, disclaimer }: { config: PricingCon
           <Summary q={q} err={"error" in result ? result.error : null} shown={shown} cur={cur} />
           <div className="mt-5">{breakdown}</div>
           <div className="mt-5">{actions}</div>
-          {disclaimer && <p className="text-caption mt-4 text-muted-foreground">{disclaimer}</p>}
+          <p className="text-caption mt-4 text-muted-foreground">{disclaimer || DEFAULT_DISCLAIMER}</p>
         </div>
       </aside>
 
@@ -247,13 +232,13 @@ function Calculator({ config, defaults, desc, disclaimer }: { config: PricingCon
           <div className="max-h-[60vh] overflow-y-auto border-b border-border px-[var(--gutter)] py-4">
             {breakdown}
             <div className="mt-4">{actions}</div>
-            {disclaimer && <p className="text-caption mt-3 text-muted-foreground">{disclaimer}</p>}
+            <p className="text-caption mt-3 text-muted-foreground">{disclaimer || DEFAULT_DISCLAIMER}</p>
           </div>
         )}
         <button type="button" onClick={() => setSheet((v) => !v)} aria-expanded={sheet} className="flex w-full items-center justify-between gap-3 px-[var(--gutter)] py-3">
           <span className="text-left">
-            <span className="text-caption block text-muted-foreground">Estimated price</span>
-            <span className="text-h4 block tabular-nums">{q ? money(shown, cur) : "—"}</span>
+            <span className="text-caption block text-muted-foreground">Your Estimated Project Cost</span>
+            <span className="text-h4 block tabular-nums">{q ? money(shown, cur) : "Custom estimate"}</span>
           </span>
           <span className="text-small flex items-center gap-1 text-muted-foreground">{sheet ? "Hide" : "Breakdown"}<ChevronUp className={cn("size-4 transition-transform", !sheet && "rotate-180")} /></span>
         </button>
@@ -267,9 +252,9 @@ function Summary({ q, err, shown, cur }: { q: Quote | null; err: string | null; 
     <div>
       <p className="text-eyebrow text-muted-foreground">YOUR PRODUCTION</p>
       {q && <p className="text-small mt-3 text-foreground">{q.videoType.name} · {q.model.name} · {q.durationSeconds}s · {q.tier.name}</p>}
-      <p className="text-caption mt-6 text-muted-foreground">Estimated price</p>
-      {q ? <p className="text-display mt-1 tabular-nums text-foreground" aria-live="polite">{money(shown, cur)}</p>
-        : <p className="text-small mt-2 text-muted-foreground" role="status">{err}</p>}
+      <p className="text-caption mt-6 text-muted-foreground">Your Estimated Project Cost</p>
+      {q ? <><p className="text-display mt-1 tabular-nums text-foreground" aria-live="polite">{money(shown, cur)}</p><p className="text-caption mt-2 text-muted-foreground">Based on your selections. Final pricing may vary depending on project requirements.</p></>
+        : <><p className="text-h4 mt-1 text-foreground" role="status">Custom Estimate Required</p><p className="text-small mt-2 text-muted-foreground">{err}</p></>}
     </div>
   );
 }
