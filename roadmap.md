@@ -4,3 +4,7 @@
 - [x] Add Control Centre availability and media editor
 - [x] Extend booking management and client booking display
 - [x] Verify security, builds, desktop, and mobile
+
+# Pricing Phase 5
+- [x] PDF export (staff + customer), CRM links, chat prefill, booking link, templates, follow-ups, expiry job, analytics, publication review, tests
+- [ ] Signed-in staff QA — blocked: no admin session can be created for this external Supabase project
