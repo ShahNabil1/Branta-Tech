@@ -6,7 +6,7 @@ import { StatusPill } from "@/components/applicant/StatusPill";
 import { buttonVariants } from "@/components/ui/brand-button";
 import { fetchMyApplications, fmtDate } from "@/lib/applicant-data";
 
-export const Route = createFileRoute("/careers/account/applications/")({ component: MyApplications });
+export const Route = createFileRoute("/careers/account/applications/")({ head: () => ({ meta: [{ title: "My applications | Branta Careers" }, { name: "robots", content: "noindex, nofollow" }] }), component: MyApplications });
 
 function MyApplications() {
   const q = useQuery({ queryKey: ["applicant", "applications"], queryFn: fetchMyApplications });

@@ -6,7 +6,7 @@ import { myBookingsQuery, myFilesQuery, myRequestsQuery, formatDay, formatWhen, 
 import { clientStatusLabel, statusLabel } from "@/lib/inquiry";
 import { displayName } from "@/lib/client-session";
 
-export const Route = createFileRoute("/client/")({ component: Overview });
+export const Route = createFileRoute("/client/")({ head: () => ({ meta: [{ title: "Client overview | Branta Tech" }, { name: "robots", content: "noindex, nofollow" }] }), component: Overview });
 
 function Overview() {
   const { user } = Route.useRouteContext();

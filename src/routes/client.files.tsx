@@ -5,7 +5,7 @@ import { Download } from "lucide-react";
 import { ClientHeader, Empty, Failed, Loading } from "@/components/client/ClientKit";
 import { myFilesQuery, formatDay, formatSize, openSignedFile } from "@/lib/client-data";
 
-export const Route = createFileRoute("/client/files")({ component: Files });
+export const Route = createFileRoute("/client/files")({ head: () => ({ meta: [{ title: "Shared files | Branta Tech" }, { name: "robots", content: "noindex, nofollow" }] }), component: Files });
 
 function Files() {
   const { user } = Route.useRouteContext();
