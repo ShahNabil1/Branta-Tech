@@ -137,7 +137,7 @@ export const getCustomerQuote = createServerFn({ method: "POST" })
     if (!q) return { ok: false, reason: "not_found" };
     const expired = !v.customer_response && !!v.valid_until && v.valid_until < today();
     if (shouldMarkRequestExpired(q.status, v, today())) {
-      await sb.from("pricing_quote_requests").update({ status: "expired", status_changed_at: new Date().toISOString() }).eq("id", q.id);
+      await sb.from("pricing_quote_requests").update({ status: "expired", status_changed_at: new Date().toISOString() }).eq("id", q.id).eq("status", "quoted");
       await sb.from("pricing_quote_activity").insert({ quote_id: q.id, actor_type: "system", kind: "quote_expired", detail: { version: v.version } });
     }
     const snap = (q.original_pricing_snapshot as { quote?: Quote } | null)?.quote ?? null;

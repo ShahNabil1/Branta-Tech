@@ -130,6 +130,7 @@ const BookingFields = z.object({
   services: z.array(z.string().trim().min(1).max(120)).min(1, "Choose at least one service").max(10),
   service_group_id: z.string().uuid().optional(),
   service_id: z.string().uuid().optional(),
+  quote_reference: z.string().regex(/^Q-[0-9A-F]{10}$/).optional(),
 });
 
 export const submitBooking = createServerFn({ method: "POST" })
@@ -178,7 +179,15 @@ export const submitBooking = createServerFn({ method: "POST" })
     if (f.services.some((s) => !allowed.has(s))) return { ok: false, error: "Please check the highlighted fields.", fields: { services: "Choose a currently available service" } };
     const duration = Number.isInteger(Number(cfg["duration_minutes"])) ? Math.min(180, Math.max(15, Number(cfg["duration_minutes"]))) : 30;
     const ref = `BR-${randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase()}`;
+    // Quotation link: only when the caller owns the quote (verified account or the quote's own contact email).
+    let quoteId: string | null = null;
+    if (f.quote_reference) {
+      const { data: qr } = await supabaseAdmin.from("pricing_quote_requests").select("id,requester_user_id,customer_email").eq("public_reference", f.quote_reference).maybeSingle();
+      const { mayLinkBookingToQuote } = await import("./pricing/phase5");
+      if (qr && mayLinkBookingToQuote(qr, { userId, email: f.email })) quoteId = qr.id;
+    }
     const ins = await supabaseAdmin.from("bookings").insert({
+      quote_request_id: quoteId,
       client_user_id: userId, name: f.name, email: f.email, phone: n(f.phone), company: n(f.company), topic: f.topic,
       requested_start_at: new Date(when).toISOString(), timezone: f.timezone, notes: n(f.notes), ip_hash: ipHash,
       service_interest: f.services, duration_minutes: duration, booking_reference: ref, service_group_id: groupId, service_id: serviceId,
@@ -190,5 +199,6 @@ export const submitBooking = createServerFn({ method: "POST" })
       console.error("booking insert failed", ins.error.message);
       return { ok: false, error: "We couldn't send your request. Please try again." };
     }
+    if (quoteId) await supabaseAdmin.from("pricing_quote_activity").insert({ quote_id: quoteId, actor_type: "customer", kind: "call_booked", detail: { booking_reference: ins.data.booking_reference } });
     return { ok: true, bookingReference: ins.data.booking_reference, status: ins.data.status };
   });
