@@ -32,6 +32,4 @@
 - Booking availability uses sales-only booking_availability_rules/exceptions plus site_settings "booking"; public slots are computed server-side against active bookings, and a database exclusion constraint is the final overlap guard.
 - Public content route rules (work, services, AI Studio, insights/company) live in src/routes/AGENTS.md.
 - Branta Assistant (chat) is deterministic (no LLM/external AI): guests reach chat tables only via src/lib/chat.functions.ts → chat.server.ts (service role, hashed session token, rate limits); staff use the browser client under private.is_chat_agent() RLS; visitors get content-free Realtime pings and refetch; lead capture (chatIdentify) must complete before doSend accepts messages; funnel counts in chat_funnel_events — never expose chat rows to anon.
-- AI video pricing is configured in pricing_* tables (relational, BDT minor-unit engine in src/lib/pricing/engine.ts); quotes are only recalculated server-side via src/lib/pricing.functions.ts — never trust browser totals.
-- Quotations: public requests only via submitQuoteRequest (src/lib/quotes.functions.ts, service role, server recalculation, rate limit); staff manage under private.is_sales_admin() RLS; issued versions are immutable (DB trigger) and customers reach them only via a hashed random token at /quote/$token.
-- Quotation integration rules (PDF, CRM/booking linking, expiry job) live in src/lib/pricing/AGENTS.md.
+- Pricing engine, quotation and integration rules live in src/lib/pricing/AGENTS.md.
