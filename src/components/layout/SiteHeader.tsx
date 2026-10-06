@@ -1,5 +1,6 @@
 import logoLight from "@/assets/brand/branta-logo-light.png.asset.json";
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Link, useHydrated, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -447,15 +448,15 @@ function MobileMenu({ id, nav, logo, booking, isActive, onClose }: {
   const groups = nav.filter((n) => n.kind !== "link");
   const row = "text-h4 flex min-h-14 w-full items-center justify-between border-b border-border py-3 text-left font-medium";
 
-  return (
-    <div id={id} role="dialog" aria-modal="true" aria-label="Site menu" className="dark fixed inset-0 z-[60] flex flex-col bg-background text-foreground">
+  return createPortal(
+    <div id={id} role="dialog" aria-modal="true" aria-label="Site menu" className="dark fixed inset-0 z-[100] flex h-[100dvh] min-h-0 w-full flex-col overflow-hidden bg-background text-foreground">
       <div className="flex h-16 shrink-0 items-center justify-between border-b border-border px-5">
         <BrandLogo src={logo} onNavigate={onClose} />
-        <button ref={closeRef} type="button" onClick={onClose} className="text-small flex h-10 items-center gap-2 rounded-sm px-2 font-medium">
+        <button ref={closeRef} type="button" onClick={onClose} className="text-small flex h-10 shrink-0 items-center gap-2 rounded-sm px-2 font-medium">
           <X className="size-5" aria-hidden /> Close
         </button>
       </div>
-      <nav aria-label="Mobile" className="flex-1 overflow-y-auto px-5 pb-6">
+      <nav aria-label="Mobile" className="min-h-0 flex-1 overscroll-contain overflow-y-auto px-5 pb-6">
         <ul>
           {links.map((e) => (
             <li key={e.id}>
@@ -495,13 +496,14 @@ function MobileMenu({ id, nav, logo, booking, isActive, onClose }: {
           })}
         </ul>
       </nav>
-      <div className="shrink-0 border-t border-border px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
+      <div className="shrink-0 border-t border-border bg-background px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
         <p className="text-eyebrow mb-3 text-muted-foreground">Account</p>
         <div className="mb-4 grid grid-cols-2 gap-2">
           <AccountArea mobile onNavigate={onClose} />
         </div>
         <BookButton url={booking} large />
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
