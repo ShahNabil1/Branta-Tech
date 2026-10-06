@@ -14,8 +14,8 @@
 - [x] Make footer Privacy Policy and Terms & Conditions links active and consistently styled
 
 # SEO, AEO & GEO foundation
-- [ ] Rebuild the sitemap with dynamic indexability parity, valid lastmod values and deduplication
-- [ ] Standardize public metadata and safe canonical handling
-- [ ] Add structured data for the brand, services, articles, jobs and visible FAQs
-- [ ] Add AI-crawler discovery guidance and strengthen private-route indexing controls
+- [x] Rebuild the sitemap with dynamic indexability parity, pagination, valid lastmod values and deduplication
+- [x] Standardize public metadata and safe canonical handling
+- [x] Add structured data for the brand, services, articles, jobs, projects and visible FAQs
+- [x] Add AI-crawler discovery guidance and strengthen private-route indexing controls
 - [ ] Verify sitemap, robots, metadata, schema, tests and build
