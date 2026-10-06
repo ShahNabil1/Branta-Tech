@@ -25,4 +25,4 @@
 - [x] Defer initial Vimeo and secondary hero media without layout shift
 - [x] Remove global third-party connection work and self-host critical fonts
 - [x] Reduce shared JavaScript, mobile rendering work and oversized image delivery
-- [ ] Verify tests, build, phone/desktop UX and repeated mobile Lighthouse results
+- [x] Verify tests, build, phone/desktop UX and repeated mobile Lighthouse results
