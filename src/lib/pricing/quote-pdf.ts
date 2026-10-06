@@ -1,6 +1,6 @@
 import type { PdfQuote } from "./phase5";
 import { pdfMoney } from "./phase5";
-import logo from "@/assets/brand/branta-logo.png.asset.json";
+import logo from "@/assets/brand/branta-logo-light.png.asset.json";
 
 /** Browser-only: renders a saved quotation version to a multi-page A4 PDF and downloads it. */
 export async function downloadQuotePdf(d: PdfQuote) {
