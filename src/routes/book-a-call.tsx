@@ -29,7 +29,7 @@ export const Route = createFileRoute("/book-a-call")({
     service: typeof s["service"] === "string" ? s["service"].slice(0, 120) : undefined,
   }),
   loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(siteChromeQuery), context.queryClient.ensureQueryData(bookingExperienceQuery)]),
-  head: () => ({ links: canonical("/book-a-call"), meta: pageMeta({ title: "Book a 30-Minute Discovery Call | Branta Tech", description: "Choose an available time for a focused discovery call with Branta Tech about your project, challenge or opportunity." }) }),
+  head: () => ({ links: canonical("/book-a-call"), meta: pageMeta({ title: "Book a 30-Minute Discovery Call | Branta Tech", description: "Choose an available time for a focused discovery call with Branta Tech about your project, challenge or opportunity.", path: "/book-a-call" }) }),
   component: BookCall,
 });
 

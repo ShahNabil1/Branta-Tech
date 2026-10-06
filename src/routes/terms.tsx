@@ -10,7 +10,7 @@ export const Route = createFileRoute("/terms")({
   loader: ({ context }) => context.queryClient.ensureQueryData(siteChromeQuery),
   head: () => ({
     links: canonical("/terms"),
-    meta: pageMeta({ title: "Terms & Conditions | Branta Tech", description }),
+    meta: pageMeta({ title: "Terms & Conditions | Branta Tech", description, path: "/terms" }),
   }),
   component: TermsPage,
 });

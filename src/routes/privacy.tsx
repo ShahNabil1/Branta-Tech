@@ -10,7 +10,7 @@ export const Route = createFileRoute("/privacy")({
   loader: ({ context }) => context.queryClient.ensureQueryData(siteChromeQuery),
   head: () => ({
     links: canonical("/privacy"),
-    meta: pageMeta({ title: "Privacy Policy | Branta Tech", description }),
+    meta: pageMeta({ title: "Privacy Policy | Branta Tech", description, path: "/privacy" }),
   }),
   component: PrivacyPage,
 });

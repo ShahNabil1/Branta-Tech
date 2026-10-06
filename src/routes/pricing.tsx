@@ -10,7 +10,7 @@ import { publicPhotoPricingQuery } from "@/lib/pricing-photo.functions";
 import { PortfolioCard } from "@/components/work/PortfolioCard";
 import { siteChromeQuery } from "@/lib/navigation";
 import { pricingContentQuery, publicPricingQuery } from "@/lib/pricing-page.functions";
-import { canonical, pageMeta } from "@/lib/seo";
+import { absoluteUrl, canonical, jsonLd, pageMeta } from "@/lib/seo";
 import { useReveal } from "@/hooks/use-reveal";
 import { cn } from "@/lib/utils";
 import { Camera, Check, Clapperboard } from "lucide-react";
@@ -20,13 +20,23 @@ const TITLE = "AI Video & Product Photography Pricing | Branta Tech";
 const DESC = "Configure an AI video or an AI product photoshoot and get an instant estimate from Branta Tech, or ask us for a custom quote.";
 
 export const Route = createFileRoute("/pricing")({
-  head: () => ({ links: canonical("/pricing"), meta: pageMeta({ title: TITLE, description: DESC }) }),
-  loader: ({ context }) => Promise.all([
-    context.queryClient.ensureQueryData(siteChromeQuery),
-    context.queryClient.ensureQueryData(publicPricingQuery),
-    context.queryClient.ensureQueryData(publicPhotoPricingQuery),
-    context.queryClient.ensureQueryData(pricingContentQuery),
-  ]),
+  head: ({ loaderData }) => {
+    const faq = loaderData?.content.faq?.items ?? [];
+    return {
+      links: canonical("/pricing"),
+      meta: pageMeta({ title: TITLE, description: DESC, path: "/pricing" }),
+      scripts: faq.length ? [jsonLd({ "@context": "https://schema.org", "@type": "FAQPage", url: absoluteUrl("/pricing"), mainEntity: faq.map((item) => ({ "@type": "Question", name: item.title, acceptedAnswer: { "@type": "Answer", text: item.body } })) })] : [],
+    };
+  },
+  loader: async ({ context }) => {
+    const [chrome, video, photo, content] = await Promise.all([
+      context.queryClient.ensureQueryData(siteChromeQuery),
+      context.queryClient.ensureQueryData(publicPricingQuery),
+      context.queryClient.ensureQueryData(publicPhotoPricingQuery),
+      context.queryClient.ensureQueryData(pricingContentQuery),
+    ]);
+    return { chrome, video, photo, content };
+  },
   errorComponent: () => <p className="p-8">Something went wrong loading pricing.</p>,
   notFoundComponent: () => <p className="p-8">Not found.</p>,
   component: PricingPage,

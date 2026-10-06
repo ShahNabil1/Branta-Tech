@@ -16,7 +16,7 @@ export const Route = createFileRoute("/team")({
     return { seo: page.seo };
   },
   head: ({ loaderData }) => ({ links: canonical("/team"),
-    meta: pageMeta({ title: loaderData?.seo.title || "Team | Branta Tech", description: loaderData?.seo.description || DESC, image: loaderData?.seo.ogImage, noindex: loaderData?.seo.noindex }),
+    meta: pageMeta({ title: loaderData?.seo.title || "Team | Branta Tech", description: loaderData?.seo.description || DESC, image: loaderData?.seo.ogImage, noindex: loaderData?.seo.noindex, path: "/team" }),
   }),
   errorComponent: () => <p className="p-8">Something went wrong loading the team.</p>,
   notFoundComponent: () => <p className="p-8">Not found.</p>,

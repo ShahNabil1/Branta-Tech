@@ -20,7 +20,7 @@ export const Route = createFileRoute("/about")({
     return { seo: page.seo };
   },
   head: ({ loaderData }) => ({ links: canonical("/about"),
-    meta: pageMeta({ title: loaderData?.seo.title || "About | Branta Tech", description: loaderData?.seo.description || DESC, image: loaderData?.seo.ogImage, noindex: loaderData?.seo.noindex }),
+    meta: pageMeta({ title: loaderData?.seo.title || "About | Branta Tech", description: loaderData?.seo.description || DESC, image: loaderData?.seo.ogImage, noindex: loaderData?.seo.noindex, path: "/about" }),
   }),
   errorComponent: () => <p className="p-8">Something went wrong loading this page.</p>,
   notFoundComponent: () => <p className="p-8">Not found.</p>,

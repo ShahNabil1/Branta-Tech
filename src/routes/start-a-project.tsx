@@ -18,7 +18,7 @@ export const Route = createFileRoute("/start-a-project")({
     brief: typeof s["brief"] === "string" ? s["brief"].slice(0, 1500) : undefined,
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(siteChromeQuery),
-  head: () => ({ links: canonical("/start-a-project"), meta: pageMeta({ title: "Start a Project | Branta Tech", description: "Tell Branta about your film, visuals, brand, product, website, software or automation project." }) }),
+  head: () => ({ links: canonical("/start-a-project"), meta: pageMeta({ title: "Start a Project | Branta Tech", description: "Tell Branta about your film, visuals, brand, product, website, software or automation project.", path: "/start-a-project" }) }),
   component: StartProject,
 });
 

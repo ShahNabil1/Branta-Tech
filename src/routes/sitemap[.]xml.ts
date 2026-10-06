@@ -4,7 +4,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { SITE_URL } from "@/lib/seo";
 import { applicationWindow, parseDetails } from "@/lib/job-details";
 
-const ALWAYS_PUBLIC = ["/", "/work", "/services", "/ai-studio", "/insights", "/start-a-project", "/book-a-call", "/pricing", "/privacy", "/terms"];
+const ALWAYS_PUBLIC = ["/", "/work", "/services", "/ai-studio", "/insights", "/about", "/team", "/careers", "/start-a-project", "/book-a-call", "/pricing", "/privacy", "/terms"];
 const CMS_PUBLIC = ["about", "team", "careers"] as const;
 const validDate = (value: string | null | undefined) => {
   const date = value?.slice(0, 10);
@@ -39,11 +39,13 @@ export const Route = createFileRoute("/sitemap.xml")({
               sb.from("jobs").select("slug,updated_at,status,open_at,deadline_at,details").eq("status", "published"),
             ]);
             const names = ["site pages", "work", "services", "service groups", "insights", "careers"];
-            results.forEach((result, index) => {
-              if (result.error) console.error(`Sitemap ${names[index]} query failed:`, result.error.message);
-            });
+            const failed = results.flatMap((result, index) => result.error ? [`${names[index]}: ${result.error.message}`] : []);
+            if (failed.length) throw new Error(failed.join("; "));
             const [pages, work, services, groups, posts, jobs] = results;
-            (pages.data ?? []).filter((row) => !row.noindex && CMS_PUBLIC.includes(row.slug as typeof CMS_PUBLIC[number])).forEach((row) => add(`/${row.slug}`, row.updated_at));
+            (pages.data ?? []).filter((row) => CMS_PUBLIC.includes(row.slug as typeof CMS_PUBLIC[number])).forEach((row) => {
+              if (row.noindex) entries.delete(`${SITE_URL}/${row.slug}`);
+              else add(`/${row.slug}`, row.updated_at);
+            });
             (work.data ?? []).filter((row) => !row.noindex).forEach((row) => add(`/work/${row.slug}`, row.updated_at));
             (groups.data ?? []).forEach((row) => add(`/services/${row.slug}`, row.updated_at));
             (services.data ?? []).filter((row) => !row.noindex).forEach((row) => add(`/services/${row.slug}`, row.updated_at));
