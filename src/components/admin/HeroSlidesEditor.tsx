@@ -12,7 +12,7 @@ export function HeroSlidesEditor({ obj, write }: { obj: Record<string, unknown>;
   const cfg = parseSlider(obj);
   const raw = Array.isArray(obj["slides"]) ? (obj["slides"] as Record<string, unknown>[]) : [];
   const save = (list: unknown[]) => write({ slides: list });
-  const set = (i: number, patch: Partial<HeroSlide> & Record<string, unknown>) => save(raw.map((s, j) => (j === i ? { ...s, ...patch } : s)));
+  const set = (i: number, patch: Record<string, unknown>) => save(raw.map((s, j) => (j === i ? { ...s, ...patch } : s)));
   const move = (i: number, j: number) => { const n = [...raw]; [n[i], n[j]] = [n[j]!, n[i]!]; save(n); };
 
   return (
@@ -24,7 +24,7 @@ export function HeroSlidesEditor({ obj, write }: { obj: Record<string, unknown>;
         <TextInput label="Seconds per slide (4–15)" type="number" min={4} max={15} value={String(cfg.interval)} onChange={(e) => write({ slider_interval: Number(e.target.value) })} />
       </div>
       {cfg.slides.map((s, i) => {
-        const m = (raw[i]?.["media"] ?? {}) as { type?: string; url?: string; poster?: string };
+        const m = (raw[i]?.["media"] ?? {}) as Record<string, string>;
         const urlErr = m.url && (m.type === "vimeo" ? !vimeoId(m.url) : !/^https:\/\/|^\/(?!\/)/.test(m.url)) ? "Use a valid https:// or Vimeo URL." : null;
         return (
           <div key={s.id + i} className="grid gap-3 rounded-sm border border-border p-3 md:grid-cols-2">
@@ -33,7 +33,7 @@ export function HeroSlidesEditor({ obj, write }: { obj: Record<string, unknown>;
               <div className="flex gap-1">
                 <AdminButton size="sm" variant="ghost" disabled={i === 0} onClick={() => move(i, i - 1)} aria-label="Move up"><ArrowUp className="size-4" /></AdminButton>
                 <AdminButton size="sm" variant="ghost" disabled={i === cfg.slides.length - 1} onClick={() => move(i, i + 1)} aria-label="Move down"><ArrowDown className="size-4" /></AdminButton>
-                <ConfirmButton onConfirm={() => save(raw.filter((_, j) => j !== i))}>Remove</ConfirmButton>
+                <ConfirmButton title="Remove slide?" description="This slide will be removed after you save." onConfirm={() => save(raw.filter((_, j) => j !== i))}>Remove</ConfirmButton>
               </div>
             </div>
             <SelectInput label="Status" value={s.status} options={[{ value: "published", label: "Published" }, { value: "draft", label: "Draft" }]} onChange={(e) => set(i, { status: e.target.value as HeroSlide["status"] })} />

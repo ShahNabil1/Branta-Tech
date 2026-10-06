@@ -37,7 +37,7 @@ function Title({ s, className }: { s: HeroSlide; className?: string }) {
 }
 
 /** Media frame: image, MP4 or Vimeo (muted background loop via BrantaVideo; click opens the shared modal). */
-function Media({ m, alt, live, onOpen, className }: { m: WorkCard["media"]; alt: string; live: boolean; onOpen?: () => void; className?: string }) {
+function Media({ m, alt, live, onOpen, className }: { m: WorkCard["media"]; alt: string; live: boolean; onOpen?: (() => void) | undefined; className?: string }) {
   if (!m) return null;
   const video = m.type !== "image";
   return (
