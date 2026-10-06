@@ -50,7 +50,7 @@ export function leadSuggestions<L extends LeadLike>(q: { requester_user_id: stri
 
 /* ---------- Booking from a quote ---------- */
 export const QUOTE_REF_RE = /^Q-[0-9A-F]{10}$/;
-type Group = { slug: string; services: { slug: string; id: string }[] };
+type Group = { slug: string; name?: string; services: { slug: string; id: string; name?: string }[] };
 /** Preselect only services that are currently published (present in the public booking groups). */
 export function bookingPreselect(groups: Group[], want: { group?: string | null | undefined; service?: string | null | undefined }) {
   const group = groups.find((g) => (want.service && g.services.some((s) => s.slug === want.service)) || g.slug === want.group);
