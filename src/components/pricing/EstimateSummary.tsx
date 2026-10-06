@@ -75,7 +75,7 @@ export function EstimateSummary(props: Props) {
             <Body {...props} />
           </div>
         )}
-        <button type="button" onClick={() => setSheet((v) => !v)} aria-expanded={sheet} className="flex w-full items-center justify-between gap-3 px-[var(--gutter)] py-3">
+        <button type="button" onClick={() => setSheet((v) => !v)} aria-expanded={sheet} className="flex w-full items-center justify-between gap-3 py-3 pl-[var(--gutter)] pr-40">
           <span className="text-left">
             <span className="text-caption block text-muted-foreground">Your Estimated Project Cost</span>
             <span className={cn("text-h4 block tabular-nums", props.total ? "text-accent" : "text-foreground")}>{props.total ?? "Custom estimate"}</span>
