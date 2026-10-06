@@ -4,6 +4,7 @@ import { ChevronUp } from "lucide-react";
 import { buttonVariants } from "@/components/ui/brand-button";
 import { calculateQuote, PricingError, type PricingConfig, type Quote } from "@/lib/pricing/engine";
 import type { PublicPricing } from "@/lib/pricing.functions";
+import { QuoteRequestDialog } from "./QuoteRequestDialog";
 import { cn } from "@/lib/utils";
 
 const money = (minor: number, cur: string) => `${cur === "BDT" ? "৳" : `${cur} `}${(minor / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
@@ -34,6 +35,7 @@ export function PricingCalculator({ data }: { data: PublicPricing }) {
 }
 
 function Unpriced() {
+  const [open, setOpen] = useState(false);
   return (
     <div className="mx-auto max-w-2xl rounded-[8px] border border-border bg-[var(--white)] p-8 text-center md:p-12">
       <p className="text-eyebrow text-accent">CUSTOM PRICING</p>
@@ -41,8 +43,9 @@ function Unpriced() {
       <p className="text-body-lg mt-4 text-muted-foreground">Tell us about your project and our team will prepare a quote.</p>
       <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
         <Link to="/book-a-call" className={buttonVariants({ variant: "primary", size: "lg" })}>Book a Call</Link>
-        <Link to="/start-a-project" className={buttonVariants({ variant: "secondary", size: "lg" })}>Request a Quote</Link>
+        <button type="button" onClick={() => setOpen(true)} className={buttonVariants({ variant: "secondary", size: "lg" })}>Request a Quote</button>
       </div>
+      <QuoteRequestDialog open={open} onOpenChange={setOpen} selection={null} summary={null} />
     </div>
   );
 }
@@ -96,6 +99,7 @@ function Calculator({ config, defaults, desc, disclaimer }: { config: PricingCon
   const [picked, setPicked] = useState<Record<string, string>>({}); // addonId → scene count text ("" for non-scene)
   const addons = config.addons.filter((a) => !a.video_type_ids.length || a.video_type_ids.includes(vt));
   const [sheet, setSheet] = useState(false);
+  const [quoteOpen, setQuoteOpen] = useState(false);
 
   const result = useMemo((): { quote: Quote } | { error: string } => {
     const chosen = addons.filter((a) => a.id in picked);
@@ -116,12 +120,6 @@ function Calculator({ config, defaults, desc, disclaimer }: { config: PricingCon
 
   const q = "quote" in result ? result.quote : null;
   const shown = useTween(q?.total ?? 0);
-  const brief = q ? [
-    "Estimate from the Branta pricing calculator:",
-    `Video type: ${q.videoType.name}`, `AI model: ${q.model.name}`, `Duration: ${q.durationSeconds} seconds`, `Production tier: ${q.tier.name}`,
-    `Add-ons: ${q.addonLines.length ? q.addonLines.map((l) => l.name + (l.chargeType === "per_scene" ? ` (${l.quantity} scenes)` : "")).join(", ") : "None"}`,
-    `Estimated total: ${money(q.total, cur)} (estimate, to be confirmed)`, "", "About my project: ",
-  ].join("\n") : undefined;
 
   const Line = ({ l, v }: { l: string; v: string }) => <div className="text-small flex justify-between gap-4 py-1"><span className="text-muted-foreground">{l}</span><span className="text-right tabular-nums text-foreground">{v}</span></div>;
   const breakdown = q && (
@@ -139,7 +137,7 @@ function Calculator({ config, defaults, desc, disclaimer }: { config: PricingCon
   );
   const actions = (
     <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-      <Link to="/start-a-project" search={{ brief }} className={cn(buttonVariants({ variant: "primary", size: "lg" }), "w-full justify-center", !q && "pointer-events-none opacity-50")} aria-disabled={!q}>Request This Quote</Link>
+      <button type="button" disabled={!q} onClick={() => setQuoteOpen(true)} className={cn(buttonVariants({ variant: "primary", size: "lg" }), "w-full justify-center disabled:pointer-events-none disabled:opacity-50")}>Request This Quote</button>
       <Link to="/book-a-call" className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "w-full justify-center")}>Book a Call</Link>
     </div>
   );
@@ -216,6 +214,12 @@ function Calculator({ config, defaults, desc, disclaimer }: { config: PricingCon
           </Step>
         )}
       </div>
+
+      {q && (
+        <QuoteRequestDialog open={quoteOpen} onOpenChange={setQuoteOpen}
+          selection={{ videoTypeId: vt, modelId: model, tierId: tier, durationSeconds: dur, addons: q.addonLines.map((l) => (l.chargeType === "per_scene" ? { id: l.addonId, scenes: l.quantity } : { id: l.addonId })) }}
+          summary={{ videoType: q.videoType.name, model: q.model.name, duration: q.durationSeconds, tier: q.tier.name, addons: q.addonLines.map((l) => l.name) }} />
+      )}
 
       {/* Desktop sticky summary */}
       <aside aria-label="Your estimate" className="hidden lg:block">

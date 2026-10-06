@@ -28,6 +28,7 @@ const TABS = [
   { to: "/control-centre/pricing/addons", label: "Add-ons" },
   { to: "/control-centre/pricing/simulator", label: "Simulator" },
   { to: "/control-centre/pricing/settings", label: "Settings" },
+  { to: "/control-centre/pricing/quotations", label: "Quotations" },
 ] as const;
 
 /** Page shell: CMS-role gate (UX only — RLS enforces), sub-nav, data loading. */
