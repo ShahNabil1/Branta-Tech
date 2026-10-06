@@ -273,11 +273,14 @@ export function SiteHeader() {
         </div>
       ))}
 
-      <AnimatePresence>
-        {mobile && (
-          <MobileMenu key="mobile-menu" id={`${baseId}-mobile`} nav={nav} logo={logo} booking={booking} isActive={isActive} onClose={() => setMobile(false)} />
-        )}
-      </AnimatePresence>
+      {typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {mobile && (
+            <MobileMenu key="mobile-menu" id={`${baseId}-mobile`} nav={nav} logo={logo} booking={booking} isActive={isActive} onClose={() => setMobile(false)} />
+          )}
+        </AnimatePresence>,
+        document.body,
+      )}
     </header>
   );
 }
@@ -474,7 +477,7 @@ function MobileMenu({ id, nav, logo, booking, isActive, onClose }: {
     visible: { opacity: 1, y: 0, transition: { duration: reduceMotion ? 0 : 0.38, ease } },
   };
 
-  return createPortal(
+  return (
     <motion.div
       id={id}
       role="dialog"
@@ -537,7 +540,6 @@ function MobileMenu({ id, nav, logo, booking, isActive, onClose }: {
         </div>
         <BookButton url={booking} large />
       </motion.div>
-    </motion.div>,
-    document.body,
+    </motion.div>
   );
 }
