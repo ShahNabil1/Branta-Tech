@@ -24,7 +24,7 @@ export function HeroSlidesEditor({ obj, write }: { obj: Record<string, unknown>;
         <TextInput label="Seconds per slide (4–15)" type="number" min={4} max={15} value={String(cfg.interval)} onChange={(e) => write({ slider_interval: Number(e.target.value) })} />
       </div>
       {cfg.slides.map((s, i) => {
-        const m = (raw[i]?.["media"] ?? {}) as Record<string, string>;
+        const m = (raw[i]?.["media"] ?? {}) as { type?: string; url?: string; poster?: string };
         const urlErr = m.url && (m.type === "vimeo" ? !vimeoId(m.url) : !/^https:\/\/|^\/(?!\/)/.test(m.url)) ? "Use a valid https:// or Vimeo URL." : null;
         return (
           <div key={s.id + i} className="grid gap-3 rounded-sm border border-border p-3 md:grid-cols-2">
