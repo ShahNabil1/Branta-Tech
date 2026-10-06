@@ -20,9 +20,6 @@ export function WorkShowcaseFields({ config, onChange }: { config: string; onCha
         <TextInput label="Maximum featured projects" type="number" min={1} max={16} value={String(c.maxFeatured)} onChange={(e) => write({ max_featured: Number(e.target.value) })} />
         <TextInput label="Row speed (seconds per loop, 20–90)" type="number" min={20} max={90} value={String(c.speed)} onChange={(e) => write({ speed: Number(e.target.value) })} />
         <CheckboxInput label="Show category jump navigation" checked={c.showJumpNav} onChange={(b) => write({ show_jump_nav: b })} />
-        <TextInput label="Made by Branta: background Vimeo URL (one card, muted loop)" placeholder="https://vimeo.com/…" value={typeof obj["bento_video_url"] === "string" ? obj["bento_video_url"] : ""} onChange={(e) => write({ bento_video_url: e.target.value.trim() })} />
-        <TextInput label="Video card title" placeholder="Branta Showreel" value={typeof obj["bento_video_title"] === "string" ? obj["bento_video_title"] : ""} onChange={(e) => write({ bento_video_title: e.target.value })} />
-        <TextInput label="Video card category" placeholder="Made by Branta" value={typeof obj["bento_video_category"] === "string" ? obj["bento_video_category"] : ""} onChange={(e) => write({ bento_video_category: e.target.value })} />
         <CheckboxInput label="Live muted video in rows (video projects play automatically)" checked={c.hoverPreview} onChange={(b) => write({ hover_preview: b })} />
       </div>
       <p className="text-small font-medium">Category row order</p>

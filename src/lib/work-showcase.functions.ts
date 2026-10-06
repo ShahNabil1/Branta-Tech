@@ -8,7 +8,6 @@ export type WorkShowcase = {
   eyebrow: string; title: string; body: string; ctaLabel: string; ctaUrl: string;
   speed: number; hoverPreview: boolean; showJumpNav: boolean;
   featured: WorkCard[];
-  bentoVideo: { url: string; title: string; category: string; poster: string | null } | null;
   groups: ShowcaseRow[];
 } | null;
 
@@ -49,15 +48,7 @@ export const getWorkShowcase = createServerFn({ method: "GET" }).handler(async (
         exploreUrl: slugs.length === 1 ? `/work?filter=${slugs[0]}` : "/work",
       });
     }
-    let bentoVideo = null;
-    if (cfg.bentoVideo.url) {
-      const { vimeoId } = await import("./hero");
-      const { vimeoThumb } = await import("./vimeo.server");
-      const id = vimeoId(cfg.bentoVideo.url);
-      if (id) bentoVideo = { ...cfg.bentoVideo, url: `https://vimeo.com/${id}`, poster: (await vimeoThumb(id)) ?? null };
-    }
     return {
-      bentoVideo,
       eyebrow: sec.eyebrow || "FEATURED WORK", title: sec.title || "Work We’re Proud Of.",
       body: sec.body || "", ctaLabel: sec.cta_label || "Explore All Work", ctaUrl: sec.cta_url || "/work",
       speed: cfg.speed, hoverPreview: cfg.hoverPreview, showJumpNav: cfg.showJumpNav, featured, groups,
