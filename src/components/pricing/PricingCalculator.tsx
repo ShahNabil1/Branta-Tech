@@ -5,6 +5,8 @@ import { buttonVariants } from "@/components/ui/brand-button";
 import { calculateQuote, PricingError, type PricingConfig, type Quote } from "@/lib/pricing/engine";
 import type { PublicPricing } from "@/lib/pricing.functions";
 import { QuoteRequestDialog } from "./QuoteRequestDialog";
+import { useServerFn } from "@tanstack/react-start";
+import { trackPricingEvent } from "@/lib/quotes.functions";
 import { cn } from "@/lib/utils";
 
 const money = (minor: number, cur: string) => `${cur === "BDT" ? "৳" : `${cur} `}${(minor / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
@@ -142,8 +144,16 @@ function Calculator({ config, defaults, desc, disclaimer }: { config: PricingCon
     </div>
   );
 
+  const trackFn = useServerFn(trackPricingEvent);
+  const started = useRef(false);
+  const markStart = () => {
+    if (started.current) return;
+    started.current = true;
+    try { if (sessionStorage.getItem("branta_calc_started")) return; sessionStorage.setItem("branta_calc_started", "1"); } catch { /* storage blocked */ }
+    void trackFn({ data: { event: "calculator_start" } }).catch(() => null);
+  };
   return (
-    <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-12">
+    <div onPointerDownCapture={markStart} onKeyDownCapture={markStart} className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-12">
       <div className="min-w-0 pb-24 lg:pb-0">
         <Step n={1} title="What are you creating?">
           <div role="radiogroup" aria-label="Video type" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">

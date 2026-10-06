@@ -7,6 +7,7 @@ import logo from "@/assets/brand/branta-logo-light.png.asset.json";
 import { buttonVariants } from "@/components/ui/brand-button";
 import { getCustomerQuote, respondToQuote, type CustomerQuote } from "@/lib/quotes.functions";
 import { cn } from "@/lib/utils";
+import { downloadQuotePdf } from "@/lib/pricing/quote-pdf";
 
 export const Route = createFileRoute("/quote/$token")({
   ssr: false,
@@ -132,7 +133,8 @@ function QuoteView({ d, token, onDone }: { d: Extract<CustomerQuote, { ok: true 
           </div>
         )}
         <div className="mt-6 flex flex-wrap gap-3">
-          <Link to="/book-a-call" className={buttonVariants({ variant: "secondary", size: "md" })}>Book a Call</Link>
+          <Link to="/book-a-call" search={{ quote: d.booking.quote, group: d.booking.group ?? undefined, service: d.booking.service ?? undefined, type: d.booking.type ?? undefined }} className={buttonVariants({ variant: "secondary", size: "md" })}>Book a Call</Link>
+          <button type="button" onClick={() => void downloadQuotePdf(d).catch(() => setErr("We couldn't create the PDF. Please try again."))} className={buttonVariants({ variant: "secondary", size: "md" })}>Download PDF</button>
         </div>
       </footer>
     </article>
