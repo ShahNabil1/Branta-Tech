@@ -27,7 +27,6 @@ export type ShowcaseConfig = {
   hoverPreview: boolean;
   groupOrder: HomeGroupKey[];
   descriptions: Partial<Record<HomeGroupKey, string>>;
-  bentoVideo: { url: string; title: string; category: string };
 };
 
 const KEYS = new Set<string>(HOME_GROUPS.map((g) => g.key));
@@ -46,10 +45,5 @@ export function parseShowcaseConfig(raw: unknown): ShowcaseConfig {
     hoverPreview: c["hover_preview"] !== false,
     groupOrder: [...new Set(order)],
     descriptions,
-    bentoVideo: {
-      url: typeof c["bento_video_url"] === "string" && /^https:\/\/(player\.)?vimeo\.com\//.test(c["bento_video_url"]) ? c["bento_video_url"] : "",
-      title: typeof c["bento_video_title"] === "string" && c["bento_video_title"].trim() ? c["bento_video_title"].trim().slice(0, 80) : "Branta Showreel",
-      category: typeof c["bento_video_category"] === "string" && c["bento_video_category"].trim() ? c["bento_video_category"].trim().slice(0, 60) : "Made by Branta",
-    },
   };
 }
