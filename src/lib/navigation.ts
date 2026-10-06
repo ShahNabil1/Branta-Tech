@@ -40,6 +40,7 @@ export const FALLBACK_NAV: NavEntry[] = [
   },
   { id: "work", label: "Work", url: "/work", kind: "link", columns: [] },
   { id: "ai-studio", label: "AI Studio", url: "/ai-studio", kind: "link", columns: [] },
+  { id: "pricing", label: "Pricing", url: "/pricing", kind: "link", columns: [] },
   { id: "insights", label: "Insights", url: "/insights", kind: "link", columns: [] },
   {
     id: "company", label: "Company", url: "/about", kind: "dropdown",

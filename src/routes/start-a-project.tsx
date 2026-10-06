@@ -14,6 +14,9 @@ import { pageMeta, canonical } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/start-a-project")({
+  validateSearch: (s: Record<string, unknown>): { brief?: string | undefined } => ({
+    brief: typeof s["brief"] === "string" ? s["brief"].slice(0, 1500) : undefined,
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(siteChromeQuery),
   head: () => ({ links: canonical("/start-a-project"), meta: pageMeta({ title: "Start a Project | Branta Tech", description: "Tell Branta about your film, visuals, brand, product, website, software or automation project." }) }),
   component: StartProject,
@@ -21,6 +24,7 @@ export const Route = createFileRoute("/start-a-project")({
 
 function StartProject() {
   const submit = useServerFn(submitLead);
+  const { brief } = Route.useSearch();
   const { user } = useClientSession();
   const started = useRef(Date.now());
   const [busy, setBusy] = useState(false);
@@ -98,7 +102,7 @@ function StartProject() {
                   {errs["services"] && <p id="services-err" className="text-caption mt-2 text-destructive">{errs["services"]}</p>}
                 </fieldset>
                 <Field id="project_summary" label="Project summary" required error={errs["project_summary"]} hint="What you're making, who it's for and what success looks like.">
-                  <textarea id="project_summary" name="project_summary" rows={6} className={cn(fieldCls, "py-2")} {...a("project_summary")} />
+                  <textarea id="project_summary" name="project_summary" rows={6} className={cn(fieldCls, "py-2")} defaultValue={brief} {...a("project_summary")} />
                 </Field>
                 <div className="grid gap-5 md:grid-cols-2">
                   <Field id="budget_range" label="Estimated budget" error={errs["budget_range"]}>
