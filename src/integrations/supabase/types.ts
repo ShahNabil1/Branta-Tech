@@ -295,6 +295,7 @@ export type Database = {
           notes: string | null
           phone: string | null
           public_notes: string | null
+          quote_request_id: string | null
           requested_start_at: string
           service_group_id: string | null
           service_id: string | null
@@ -320,6 +321,7 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           public_notes?: string | null
+          quote_request_id?: string | null
           requested_start_at: string
           service_group_id?: string | null
           service_id?: string | null
@@ -345,6 +347,7 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           public_notes?: string | null
+          quote_request_id?: string | null
           requested_start_at?: string
           service_group_id?: string | null
           service_id?: string | null
@@ -355,6 +358,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "bookings_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_quote_requests"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "bookings_service_group_id_fkey"
             columns: ["service_group_id"]
@@ -1733,6 +1743,27 @@ export type Database = {
         }
         Relationships: []
       }
+      pricing_events: {
+        Row: {
+          created_at: string
+          event: string
+          id: number
+          ip_hash: string | null
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          id?: never
+          ip_hash?: string | null
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          id?: never
+          ip_hash?: string | null
+        }
+        Relationships: []
+      }
       pricing_model_rates: {
         Row: {
           ai_model_id: string
@@ -1892,6 +1923,7 @@ export type Database = {
           ai_model_id: string | null
           archived_at: string | null
           assigned_to: string | null
+          chat_conversation_id: string | null
           company_name: string | null
           created_at: string
           customer_email: string
@@ -1900,6 +1932,10 @@ export type Database = {
           duration_seconds: number | null
           estimated_currency: string
           estimated_price_minor: number | null
+          follow_up_assigned_to: string | null
+          follow_up_at: string | null
+          follow_up_note: string | null
+          follow_up_status: string
           id: string
           ip_hash: string | null
           lead_id: string | null
@@ -1920,6 +1956,7 @@ export type Database = {
           ai_model_id?: string | null
           archived_at?: string | null
           assigned_to?: string | null
+          chat_conversation_id?: string | null
           company_name?: string | null
           created_at?: string
           customer_email: string
@@ -1928,6 +1965,10 @@ export type Database = {
           duration_seconds?: number | null
           estimated_currency?: string
           estimated_price_minor?: number | null
+          follow_up_assigned_to?: string | null
+          follow_up_at?: string | null
+          follow_up_note?: string | null
+          follow_up_status?: string
           id?: string
           ip_hash?: string | null
           lead_id?: string | null
@@ -1948,6 +1989,7 @@ export type Database = {
           ai_model_id?: string | null
           archived_at?: string | null
           assigned_to?: string | null
+          chat_conversation_id?: string | null
           company_name?: string | null
           created_at?: string
           customer_email?: string
@@ -1956,6 +1998,10 @@ export type Database = {
           duration_seconds?: number | null
           estimated_currency?: string
           estimated_price_minor?: number | null
+          follow_up_assigned_to?: string | null
+          follow_up_at?: string | null
+          follow_up_note?: string | null
+          follow_up_status?: string
           id?: string
           ip_hash?: string | null
           lead_id?: string | null
@@ -1981,6 +2027,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "pricing_quote_requests_chat_conversation_id_fkey"
+            columns: ["chat_conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "pricing_quote_requests_lead_id_fkey"
             columns: ["lead_id"]
             isOneToOne: false
@@ -2002,6 +2055,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pricing_quote_templates: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          charge_presets: Json
+          conditions: string | null
+          created_at: string
+          deliverables: string | null
+          delivery_timeline: string | null
+          id: string
+          name: string
+          payment_terms: string | null
+          revisions: number | null
+          scope: string | null
+          sort_order: number
+          status: string
+          updated_at: string
+          video_type_slug: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          charge_presets?: Json
+          conditions?: string | null
+          created_at?: string
+          deliverables?: string | null
+          delivery_timeline?: string | null
+          id?: string
+          name: string
+          payment_terms?: string | null
+          revisions?: number | null
+          scope?: string | null
+          sort_order?: number
+          status?: string
+          updated_at?: string
+          video_type_slug?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          charge_presets?: Json
+          conditions?: string | null
+          created_at?: string
+          deliverables?: string | null
+          delivery_timeline?: string | null
+          id?: string
+          name?: string
+          payment_terms?: string | null
+          revisions?: number | null
+          scope?: string | null
+          sort_order?: number
+          status?: string
+          updated_at?: string
+          video_type_slug?: string | null
+        }
+        Relationships: []
       }
       pricing_quote_versions: {
         Row: {
