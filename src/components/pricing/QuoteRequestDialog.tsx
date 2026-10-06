@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/compone
 import { buttonVariants } from "@/components/ui/brand-button";
 import { SmartLink } from "@/components/layout/SiteHeader";
 import { supabase } from "@/integrations/supabase/client";
-import { submitQuoteRequest, type QuoteSubmitResult } from "@/lib/quotes.functions";
+import { getQuotePrefill, submitQuoteRequest, trackPricingEvent, type QuoteSubmitResult } from "@/lib/quotes.functions";
 import { cn } from "@/lib/utils";
 
 export type QuoteSelection = { videoTypeId: string; modelId: string; tierId: string; durationSeconds: number; addons: { id: string; scenes?: number }[] };
@@ -17,6 +17,9 @@ const money = (minor: number, cur: string) => `${cur === "BDT" ? "৳" : `${cur}
 
 export function QuoteRequestDialog({ open, onOpenChange, selection, summary }: { open: boolean; onOpenChange: (v: boolean) => void; selection: QuoteSelection | null; summary: Summary }) {
   const submit = useServerFn(submitQuoteRequest);
+  const prefill = useServerFn(getQuotePrefill);
+  const track = useServerFn(trackPricingEvent);
+  const chatToken = useRef<string | null>(null);
   const started = useRef(Date.now());
   const [v, setV] = useState({ name: "", whatsapp: "", email: "", company: "", description: "", deadline: "" });
   const [errs, setErrs] = useState<Record<string, string>>({});
@@ -27,6 +30,14 @@ export function QuoteRequestDialog({ open, onOpenChange, selection, summary }: {
   useEffect(() => {
     if (!open) return;
     started.current = Date.now();
+    void track({ data: { event: "quote_modal_open" } }).catch(() => null);
+    // Branta Assistant visitors: the server returns details only for this browser's own verified chat session.
+    chatToken.current = localStorage.getItem("branta_chat_token");
+    if (chatToken.current && chatToken.current.length >= 20) {
+      void prefill({ data: { chatToken: chatToken.current } }).then((p) => {
+        if (p) setV((o) => ({ ...o, name: o.name || p.name, whatsapp: o.whatsapp || p.whatsapp, email: o.email || p.email }));
+      }).catch(() => null);
+    }
     // Signed-in visitors: prefill from their own verified account + profile (editable).
     void (async () => {
       const { data } = await supabase.auth.getUser();
@@ -43,7 +54,7 @@ export function QuoteRequestDialog({ open, onOpenChange, selection, summary }: {
     const hp = (new FormData(e.currentTarget).get("hp_field") as string) ?? "";
     setBusy(true); setError(null); setErrs({});
     try {
-      const r = await submit({ data: { ...v, hp_field: hp, started_at: started.current, selection } });
+      const r = await submit({ data: { ...v, hp_field: hp, started_at: started.current, selection, chatToken: chatToken.current } });
       if (r.ok) setDone(r); else { setError(r.error); setErrs(r.fields ?? {}); }
     } catch { setError("We couldn't send your request. Please try again."); }
     setBusy(false);
@@ -75,7 +86,7 @@ export function QuoteRequestDialog({ open, onOpenChange, selection, summary }: {
               <Row k="Status" val={done.status === "new" ? "Received — awaiting review" : "Custom quote requested"} />
             </dl>
             <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
-              <Link to="/book-a-call" className={buttonVariants({ variant: "primary", size: "lg" })}>Book a Call</Link>
+              <Link to="/book-a-call" search={{ quote: done.booking.quote, group: done.booking.group ?? undefined, service: done.booking.service ?? undefined, type: done.booking.type ?? undefined }} className={buttonVariants({ variant: "primary", size: "lg" })}>Book a Call</Link>
               <button type="button" onClick={() => close(false)} className={buttonVariants({ variant: "secondary", size: "lg" })}>Back to Pricing</button>
             </div>
           </div>

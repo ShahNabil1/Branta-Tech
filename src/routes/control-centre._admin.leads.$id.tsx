@@ -91,9 +91,34 @@ function LeadView() {
           <TextArea label="Notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={5} />
           <div className="mt-3"><AdminButton variant="primary" disabled={notes === (l.internal_notes ?? "")} onClick={() => update({ internal_notes: notes.trim() || null }, "Notes saved")}>Save notes</AdminButton></div>
         </Panel>
+        <RelatedQuotes leadId={l.id} clientUserId={l.client_user_id} />
         {l.client_user_id && <ClientFilesPanel clientId={l.client_user_id} />}
         <div><ConfirmButton title="Delete this lead?" description="The request and its attachment are removed permanently." onConfirm={remove}>Delete lead</ConfirmButton></div>
       </div>
     </div>
+  );
+}
+
+/** Quotations linked to this lead, or made by the same verified client account. Commercial data stays in the quote records. */
+function RelatedQuotes({ leadId, clientUserId }: { leadId: string; clientUserId: string | null }) {
+  const q = useQuery({
+    queryKey: ["cms", "lead-quotes", leadId, clientUserId],
+    queryFn: () => must(supabase.from("pricing_quote_requests").select("id,public_reference,status,estimated_price_minor,estimated_currency,created_at")
+      .or([`lead_id.eq.${leadId}`, clientUserId ? `requester_user_id.eq.${clientUserId}` : null].filter(Boolean).join(",")).order("created_at", { ascending: false }).limit(20)),
+  });
+  return (
+    <Panel title="Related quotations">
+      {q.isLoading ? <LoadingRow /> : q.error ? <p className="text-small text-muted-foreground">Quotations are visible to sales staff only.</p> : !q.data?.length ? <p className="text-small text-muted-foreground">No linked quotations.</p> : (
+        <ul className="divide-y divide-border">
+          {q.data.map((r) => (
+            <li key={r.id} className="text-small flex flex-wrap items-center gap-3 py-2">
+              <Link to="/control-centre/pricing/quotations/$id" params={{ id: r.id }} className="font-mono text-accent hover:underline">{r.public_reference}</Link>
+              <span className="capitalize text-muted-foreground">{r.status.replace(/_/g, " ")}</span>
+              <span className="ml-auto text-caption text-muted-foreground">{formatDate(r.created_at)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Panel>
   );
 }

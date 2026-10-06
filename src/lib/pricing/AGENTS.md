@@ -1,0 +1,6 @@
+# Pricing & quotation rules
+- Quotation integrations (follow-ups, expiry, CRM/booking linking, templates, analytics, PDF model) are pure helpers in src/lib/pricing/phase5.ts; PDFs render in the browser (src/lib/pricing/quote-pdf.ts) only from saved non-draft versions — never from current rates.
+- Quotes auto-link to leads only via a verified account id; email matches are staff-reviewed suggestions. Bookings link to a quote only for its owner (verified user or the quote's contact email).
+- Quote expiry is reconciled daily by pg_cron job branta-quote-expiry → private.reconcile_quote_expiry() and re-checked on every customer read/response; answered quotes never expire.
+- AI video pricing is configured in pricing_* tables (relational, BDT minor-unit engine in src/lib/pricing/engine.ts); quotes are only recalculated server-side via src/lib/pricing.functions.ts — never trust browser totals.
+- Quotations: public requests only via submitQuoteRequest (src/lib/quotes.functions.ts, service role, server recalculation, rate limit); staff manage under private.is_sales_admin() RLS; issued versions are immutable (DB trigger) and customers reach them only via a hashed random token at /quote/$token.

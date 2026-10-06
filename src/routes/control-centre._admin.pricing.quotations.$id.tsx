@@ -11,6 +11,9 @@ import { QUOTE_STATUSES, logQuoteActivity, money, quoteStatusLabel, type QuoteRo
 import { computeQuoteTotals, hashToken, linesFromEstimate, newAccessToken, QuoteBuildError, type DiscountType, type QuoteLineItem } from "@/lib/pricing/quote-builder";
 import type { Quote } from "@/lib/pricing/engine";
 import { cn } from "@/lib/utils";
+import type { Tables } from "@/integrations/supabase/types";
+import { applyTemplate, businessToday, followUpBucket, leadSuggestions, pdfFromVersion } from "@/lib/pricing/phase5";
+import { downloadQuotePdf } from "@/lib/pricing/quote-pdf";
 
 export const Route = createFileRoute("/control-centre/_admin/pricing/quotations/$id")({
   head: () => adminHead("Quotation"),
@@ -62,6 +65,8 @@ function Detail() {
           <KV k="Account" v={q.requester_user_id ? "Signed-in client" : "Guest"} />
         </dl>
       </Panel>
+      <FollowUp q={q} staff={staff.data ?? []} onChange={refresh} />
+      <CrmLinks q={q} onChange={refresh} />
       <Panel title="Status">
         <div className="grid gap-3">
           <SelectInput label="Status" value={q.status} onChange={(e) => void setStatus(e.target.value)} options={QUOTE_STATUSES.map(([value, label]) => ({ value, label }))} />
@@ -184,6 +189,13 @@ function Builder({ q, snap, versions, onChange }: { q: QuoteRow; snap: Snapshot;
     await logQuoteActivity(q.id, "draft_created", { version: (versions[0]?.version ?? 0) + 1 });
     onChange();
   }
+  async function exportPdf(v: QuoteVersionRow) {
+    try {
+      const { data: rows } = await supabase.from("site_settings").select("setting_group,settings").in("setting_group", ["company", "contact"]);
+      const get = (g: string) => (rows ?? []).find((r) => r.setting_group === g)?.settings as Record<string, string> | undefined;
+      await downloadQuotePdf(pdfFromVersion(v, q, snap?.quote ?? null, { name: get("company")?.["company_name"] || "Branta Tech", email: get("contact")?.["email"] || null, phone: get("contact")?.["phone"] || null }));
+    } catch (e) { toast.error((e as Error).message || "Couldn't create the PDF"); }
+  }
   async function rotate(v: QuoteVersionRow, revoke = false) {
     const token = newAccessToken();
     const { error } = await supabase.from("pricing_quote_versions").update(revoke ? { token_revoked_at: new Date().toISOString() } : { access_token_hash: await hashToken(token), token_revoked_at: null }).eq("id", v.id);
@@ -214,6 +226,7 @@ function Builder({ q, snap, versions, onChange }: { q: QuoteRow; snap: Snapshot;
                 <span className="text-small tabular-nums">{money(v.total_minor, v.currency)}</span>
                 <span className="text-caption text-muted-foreground">Issued {formatDate(v.issued_at)}{v.valid_until ? ` · valid until ${v.valid_until}` : ""}</span>
                 {v.customer_response && <span className="text-caption font-medium text-accent">Customer: {v.customer_response.replace("_", " ")}{v.response_note ? ` — ${v.response_note}` : ""}</span>}
+                <AdminButton size="sm" variant="ghost" onClick={() => void exportPdf(v)}>PDF</AdminButton>
                 {v.status === "issued" && !v.customer_response && (
                   <span className="ml-auto flex gap-1">
                     <AdminButton size="sm" onClick={() => void rotate(v)}>New link</AdminButton>
@@ -315,6 +328,7 @@ function DraftEditor({ q, snap, v, onIssued, onChange }: { q: QuoteRow; snap: Sn
           <TextInput label="Tax %" type="number" min="0" max="100" value={d.tax_percentage} onChange={(e) => set("tax_percentage", e.target.value)} />
           <div className="sm:col-span-4"><CheckboxInput label="Prices include tax" checked={d.tax_inclusive} onChange={(c) => set("tax_inclusive", c)} /></div>
         </div>
+        <TemplatePicker onApply={(tpl) => { try { setD((o) => ({ ...o, ...applyTemplate(o, tpl) })); toast.success("Template applied — review before saving"); } catch (e) { toast.error((e as Error).message); } }} />
         <div className="grid gap-3 border-t border-border pt-4 sm:grid-cols-2">
           <TextArea label="Scope" value={d.scope} onChange={(e) => set("scope", e.target.value)} />
           <TextArea label="Deliverables" value={d.deliverables} onChange={(e) => set("deliverables", e.target.value)} />
@@ -380,5 +394,85 @@ function Notes({ id }: { id: string }) {
       </Panel>
       {(n.data ?? []).map((x) => <div key={x.id} className="rounded-md border border-border bg-surface p-4"><p className="text-small whitespace-pre-line">{x.note}</p><p className="text-caption mt-2 text-muted-foreground">{formatDate(x.created_at)}</p></div>)}
     </div>
+  );
+}
+
+function TemplatePicker({ onApply }: { onApply: (t: Tables<"pricing_quote_templates">) => void }) {
+  const t = useQuery({ queryKey: ["cms", "quote-templates", "approved"], queryFn: () => must(supabase.from("pricing_quote_templates").select("*").eq("status", "approved").order("sort_order")) });
+  const [id, setId] = useState("");
+  if (!t.data?.length) return <p className="text-caption border-t border-border pt-4 text-muted-foreground">No approved quote templates yet — approve one in Pricing → Quote Templates to reuse terms here.</p>;
+  const pick = t.data.find((x) => x.id === id);
+  return (
+    <div className="flex flex-wrap items-end gap-2 border-t border-border pt-4">
+      <div className="min-w-56 flex-1"><SelectInput label="Apply template" value={id} onChange={(e) => setId(e.target.value)} options={[{ value: "", label: "Choose an approved template" }, ...t.data.map((x) => ({ value: x.id, label: x.name }))]} /></div>
+      <AdminButton size="sm" disabled={!pick} onClick={() => pick && onApply(pick)}>Apply</AdminButton>
+    </div>
+  );
+}
+
+function FollowUp({ q, staff, onChange }: { q: QuoteRow; staff: { id: string; full_name: string | null; email: string | null }[]; onChange: () => void }) {
+  const [at, setAt] = useState(q.follow_up_at ?? "");
+  const [who, setWho] = useState(q.follow_up_assigned_to ?? "");
+  const [note, setNote] = useState(q.follow_up_note ?? "");
+  const bucket = followUpBucket(q, businessToday());
+  async function save(status: "pending" | "done" | "none") {
+    if (status === "pending" && !at) return void toast.error("Choose a follow-up date.");
+    const { error } = await supabase.from("pricing_quote_requests").update({ follow_up_at: status === "none" ? null : at || null, follow_up_assigned_to: who || null, follow_up_note: note.trim() || null, follow_up_status: status }).eq("id", q.id);
+    if (error) return void toast.error(friendlyError(error));
+    await logQuoteActivity(q.id, "follow_up_updated", { status, at: at || null });
+    toast.success(status === "done" ? "Follow-up completed" : status === "none" ? "Follow-up cleared" : "Follow-up saved"); onChange();
+  }
+  const label = { due_today: "Due today", overdue: "Overdue", upcoming: "Upcoming", completed: "Completed", unscheduled: "Not scheduled" }[bucket];
+  return (
+    <Panel title="Follow-up" description="Reminders for staff only — no message is sent to the customer.">
+      <div className="grid gap-3">
+        <p className={cn("text-caption font-medium", bucket === "overdue" ? "text-destructive" : bucket === "due_today" ? "text-accent" : "text-muted-foreground")}>{label}</p>
+        <TextInput label="Follow-up date" type="date" value={at} onChange={(e) => setAt(e.target.value)} />
+        <SelectInput label="Follow-up owner" value={who} onChange={(e) => setWho(e.target.value)} options={[{ value: "", label: "Unassigned" }, ...staff.map((s) => ({ value: s.id, label: s.full_name || s.email || "Staff" }))]} />
+        <TextArea label="Follow-up notes" value={note} onChange={(e) => setNote(e.target.value)} />
+        <div className="flex flex-wrap gap-2">
+          <AdminButton size="sm" variant="primary" onClick={() => void save("pending")}>Save</AdminButton>
+          {q.follow_up_status === "pending" && <AdminButton size="sm" onClick={() => void save("done")}>Mark done</AdminButton>}
+          {q.follow_up_status !== "none" && <AdminButton size="sm" variant="ghost" onClick={() => void save("none")}>Clear</AdminButton>}
+        </div>
+      </div>
+    </Panel>
+  );
+}
+
+function CrmLinks({ q, onChange }: { q: QuoteRow; onChange: () => void }) {
+  const leads = useQuery({
+    queryKey: ["cms", "quote-lead-candidates", q.id],
+    queryFn: async () => {
+      const filters = [`email.ilike.${q.customer_email.replace(/[,()]/g, "")}`, q.requester_user_id ? `client_user_id.eq.${q.requester_user_id}` : null].filter(Boolean).join(",");
+      return must(supabase.from("leads").select("id,name,email,client_user_id,created_at,status").or(filters).order("created_at", { ascending: false }).limit(10));
+    },
+  });
+  const linked = useQuery({ queryKey: ["cms", "quote-lead", q.lead_id], enabled: !!q.lead_id, queryFn: () => must(supabase.from("leads").select("id,name,email").eq("id", q.lead_id!).maybeSingle()) });
+  const sugg = leadSuggestions(q, leads.data ?? []).filter((l) => l.id !== q.lead_id);
+  async function link(id: string | null) {
+    const { error } = await supabase.from("pricing_quote_requests").update({ lead_id: id }).eq("id", q.id);
+    if (error) return void toast.error(friendlyError(error));
+    await logQuoteActivity(q.id, id ? "lead_linked" : "lead_unlinked", { lead_id: id });
+    toast.success(id ? "Linked to lead" : "Lead unlinked"); onChange();
+  }
+  return (
+    <Panel title="CRM" description="Links are made by staff or through a verified account — never automatically by email.">
+      <div className="text-small grid gap-2">
+        {q.lead_id ? (
+          <div className="flex items-center justify-between gap-2">
+            <Link to="/control-centre/leads/$id" params={{ id: q.lead_id }} className="text-accent hover:underline">{linked.data?.name ?? "Linked lead"}</Link>
+            <AdminButton size="sm" variant="ghost" onClick={() => void link(null)}>Unlink</AdminButton>
+          </div>
+        ) : <p className="text-muted-foreground">Not linked to a lead.</p>}
+        {sugg.map((l) => (
+          <div key={l.id} className="flex items-center justify-between gap-2 border-t border-border pt-2">
+            <span className="min-w-0"><span className="block truncate">{l.name}</span><span className="text-caption text-muted-foreground">{l.match === "account" ? "Same verified account" : "Same email — unverified, check before linking"} · {formatDate(l.created_at)}</span></span>
+            <AdminButton size="sm" onClick={() => void link(l.id)}>Link</AdminButton>
+          </div>
+        ))}
+        {q.chat_conversation_id && <Link to="/control-centre/chat" className="text-caption text-accent hover:underline">From a Branta Assistant conversation →</Link>}
+      </div>
+    </Panel>
   );
 }

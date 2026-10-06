@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { Quote } from "./pricing/engine";
+import { businessToday, shouldMarkRequestExpired, autoLeadLink } from "./pricing/phase5";
 
 /* Public quotation endpoints. All DB access uses the service role inside handlers; callers never see other rows. */
 
@@ -22,7 +23,22 @@ async function ctx(scope: string) {
 
 export type QuoteSubmitResult =
   | { ok: false; error: string; fields?: Record<string, string> }
-  | { ok: true; reference: string; status: string; videoType: string | null; model: string | null; durationSeconds: number | null; estimate: { total: number; currency: string } | null };
+  | { ok: true; reference: string; status: string; videoType: string | null; model: string | null; durationSeconds: number | null; estimate: { total: number; currency: string } | null; booking: BookingHint };
+
+export type BookingHint = { quote: string; group: string | null; service: string | null; type: string | null };
+
+/** Category → service for Book a Call, only when both are currently published. */
+async function bookingHint(sb: Awaited<ReturnType<typeof ctx>>["supabaseAdmin"], reference: string, videoTypeId: string | null): Promise<BookingHint> {
+  const hint: BookingHint = { quote: reference, group: null, service: null, type: null };
+  if (!videoTypeId) return hint;
+  const { data: vt } = await sb.from("pricing_video_types").select("name,related_service_id").eq("id", videoTypeId).maybeSingle();
+  hint.type = vt?.name ?? null;
+  if (!vt?.related_service_id) return hint;
+  const { data: svc } = await sb.from("services").select("slug,status,service_groups(slug,status)").eq("id", vt.related_service_id).maybeSingle();
+  const g = svc?.service_groups as { slug: string; status: string } | null;
+  if (svc?.status === "published" && g?.status === "published") { hint.service = svc.slug; hint.group = g.slug; }
+  return hint;
+}
 
 export const submitQuoteRequest = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => d)
@@ -30,6 +46,7 @@ export const submitQuoteRequest = createServerFn({ method: "POST" })
     const { processQuoteRequest } = await import("./pricing/quote-request");
     const { loadPublicConfig } = await import("./pricing.functions");
     const config = await loadPublicConfig().catch(() => null);
+    const chatToken = typeof (data as Record<string, unknown> | null)?.["chatToken"] === "string" ? String((data as Record<string, unknown>)["chatToken"]).slice(0, 100) : null;
     const r = processQuoteRequest(data, config);
     if (!r.ok) return r;
     const { supabaseAdmin, ipHash, userId, randomBytes } = await ctx("quotes");
@@ -42,8 +59,13 @@ export const submitQuoteRequest = createServerFn({ method: "POST" })
     const reference = `Q-${randomBytes(5).toString("hex").toUpperCase()}`;
     const e = r.estimate, s = r.selection;
     const n = (v: string) => (v ? v : null);
+    // CRM: link to an existing lead only through the verified account — never by email alone.
+    const leads = userId ? (await supabaseAdmin.from("leads").select("id,client_user_id,email,created_at").eq("client_user_id", userId).limit(20)).data ?? [] : [];
+    const leadId = autoLeadLink(userId, leads);
+    // Branta Assistant: associate the caller's own conversation, proven by their session token.
+    const chat = chatToken ? await (await import("./chat.server")).visitorForQuote(chatToken).catch(() => null) : null;
     const ins = await supabaseAdmin.from("pricing_quote_requests").insert({
-      public_reference: reference, requester_user_id: userId,
+      public_reference: reference, requester_user_id: userId, lead_id: leadId, chat_conversation_id: chat?.conversationId ?? null,
       customer_name: r.data.name, customer_email: r.data.email, customer_whatsapp: r.data.whatsapp,
       company_name: n(r.data.company), project_description: n(r.data.description), requested_deadline: n(r.data.deadline),
       video_type_id: s?.videoTypeId ?? null, ai_model_id: s?.modelId ?? null, production_tier_id: s?.tierId ?? null,
@@ -57,7 +79,25 @@ export const submitQuoteRequest = createServerFn({ method: "POST" })
       return { ok: false, error: "We couldn't send your request. Please try again." };
     }
     await supabaseAdmin.from("pricing_quote_activity").insert({ quote_id: ins.data.id, actor_type: "system", kind: "request_submitted", detail: { status: r.status } });
-    return { ok: true, reference, status: r.status, videoType: e?.videoType.name ?? null, model: e?.model.name ?? null, durationSeconds: e?.durationSeconds ?? null, estimate: e ? { total: e.total, currency: e.currency } : null };
+    return { ok: true, reference, status: r.status, videoType: e?.videoType.name ?? null, model: e?.model.name ?? null, durationSeconds: e?.durationSeconds ?? null, estimate: e ? { total: e.total, currency: e.currency } : null, booking: await bookingHint(supabaseAdmin, reference, s?.videoTypeId ?? null) };
+  });
+
+/** Prefill for the quote form from the caller's OWN completed chat onboarding (token-proven). */
+export const getQuotePrefill = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ chatToken: z.string().min(20).max(100) }).parse(d))
+  .handler(async ({ data }) => {
+    const v = await (await import("./chat.server")).visitorForQuote(data.chatToken);
+    return v ? { name: v.name ?? "", whatsapp: v.whatsapp ?? "", email: v.email ?? "" } : null;
+  });
+
+/** Privacy-conscious funnel counter: fixed event names, hashed network, capped per hour. */
+export const trackPricingEvent = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ event: z.enum(["calculator_start", "quote_modal_open"]) }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin, ipHash } = await ctx("pricing-events");
+    const { count } = await supabaseAdmin.from("pricing_events").select("id", { count: "exact", head: true }).eq("ip_hash", ipHash).gte("created_at", new Date(Date.now() - 3600_000).toISOString());
+    if ((count ?? 0) < 20) await supabaseAdmin.from("pricing_events").insert({ event: data.event, ip_hash: ipHash });
+    return { ok: true };
   });
 
 export type CustomerQuote =
@@ -71,6 +111,7 @@ export type CustomerQuote =
       scope: string | null; deliverables: string | null; revisions: number | null; timeline: string | null; paymentTerms: string | null; notes: string | null;
       response: { kind: string; at: string; note: string | null } | null;
       company: { name: string; email: string | null; phone: string | null };
+      booking: BookingHint;
     };
 
 const TokenSchema = z.object({ token: z.string().min(30).max(80).regex(/^[A-Za-z0-9_-]+$/) });
@@ -80,7 +121,7 @@ async function findVersion(token: string) {
   const { data: v } = await c.supabaseAdmin.from("pricing_quote_versions").select("*").eq("access_token_hash", c.sha(token)).is("token_revoked_at", null).maybeSingle();
   return { c, v };
 }
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => businessToday();
 
 export const getCustomerQuote = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => TokenSchema.parse(d))
@@ -90,13 +131,13 @@ export const getCustomerQuote = createServerFn({ method: "POST" })
     if (v.status === "superseded") return { ok: false, reason: "superseded" };
     const sb = c.supabaseAdmin;
     const [{ data: q }, { data: chrome }] = await Promise.all([
-      sb.from("pricing_quote_requests").select("id,public_reference,customer_name,customer_email,company_name,status,duration_seconds,original_pricing_snapshot").eq("id", v.quote_id).single(),
+      sb.from("pricing_quote_requests").select("id,public_reference,customer_name,customer_email,company_name,status,duration_seconds,original_pricing_snapshot,video_type_id").eq("id", v.quote_id).single(),
       sb.from("site_settings").select("setting_group,settings").in("setting_group", ["company", "contact"]),
     ]);
     if (!q) return { ok: false, reason: "not_found" };
     const expired = !v.customer_response && !!v.valid_until && v.valid_until < today();
-    if (expired && q.status === "quoted") {
-      await sb.from("pricing_quote_requests").update({ status: "expired", status_changed_at: new Date().toISOString() }).eq("id", q.id);
+    if (shouldMarkRequestExpired(q.status, v, today())) {
+      await sb.from("pricing_quote_requests").update({ status: "expired", status_changed_at: new Date().toISOString() }).eq("id", q.id).eq("status", "quoted");
       await sb.from("pricing_quote_activity").insert({ quote_id: q.id, actor_type: "system", kind: "quote_expired", detail: { version: v.version } });
     }
     const snap = (q.original_pricing_snapshot as { quote?: Quote } | null)?.quote ?? null;
@@ -114,6 +155,7 @@ export const getCustomerQuote = createServerFn({ method: "POST" })
       scope: v.scope, deliverables: v.deliverables, revisions: v.revisions, timeline: v.delivery_timeline, paymentTerms: v.payment_terms, notes: v.customer_notes,
       response: v.customer_response ? { kind: v.customer_response, at: v.responded_at!, note: v.response_note } : null,
       company: { name: set("company")?.["company_name"] || "Branta Tech", email: set("contact")?.["email"] || null, phone: set("contact")?.["phone"] || null },
+      booking: await bookingHint(sb, q.public_reference, q.video_type_id),
     };
   });
 

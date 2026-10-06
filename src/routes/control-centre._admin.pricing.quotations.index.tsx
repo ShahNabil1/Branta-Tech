@@ -8,6 +8,7 @@ import { StatCard } from "@/components/admin/pricing/PricingKit";
 import { money } from "@/lib/pricing/quotes-admin";
 import { StatusChip } from "@/components/admin/pricing/QuoteBits";
 import { cn } from "@/lib/utils";
+import { FOLLOW_UP_FILTERS, businessToday, followUpBucket } from "@/lib/pricing/phase5";
 
 export const Route = createFileRoute("/control-centre/_admin/pricing/quotations/")({
   head: () => adminHead("Quotations"),
@@ -21,6 +22,7 @@ function Inbox() {
   const [q, setQ] = useState("");
   const [sort, setSort] = useState("newest");
   const [mine, setMine] = useState("all");
+  const [fu, setFu] = useState("all");
   const me = useQuery({ queryKey: ["me"], queryFn: async () => (await supabase.auth.getUser()).data.user?.id ?? null });
   const rows = useQuery({ queryKey: ["cms", "quotes"], queryFn: () => must(supabase.from("pricing_quote_requests").select("*").is("archived_at", null).order("created_at", { ascending: false }).limit(500)) });
   const types = useQuery({ queryKey: ["cms", "quote-types"], queryFn: () => must(supabase.from("pricing_video_types").select("id,name")) });
@@ -32,12 +34,13 @@ function Inbox() {
     let r = (rows.data ?? []).filter((x) => filter === "all" || x.status === filter || (filter === "new" && x.status === "custom_quote_requested"));
     if (mine === "unassigned") r = r.filter((x) => !x.assigned_to);
     if (mine === "me") r = r.filter((x) => x.assigned_to && x.assigned_to === me.data);
+    if (fu !== "all") { const today = businessToday(); r = r.filter((x) => followUpBucket(x, today) === fu); }
     if (s) r = r.filter((x) => [x.public_reference, x.customer_name, x.customer_email, x.customer_whatsapp, x.company_name].some((f) => f?.toLowerCase().includes(s)));
     if (sort === "oldest") r = [...r].reverse();
     if (sort === "value") r = [...r].sort((a, b) => Number(b.estimated_price_minor ?? -1) - Number(a.estimated_price_minor ?? -1));
     if (sort === "status") r = [...r].sort((a, b) => a.status.localeCompare(b.status));
     return r;
-  }, [rows.data, filter, q, sort, mine, me.data]);
+  }, [rows.data, filter, q, sort, mine, fu, me.data]);
 
   const all = rows.data ?? [];
   const count = (...s: string[]) => all.filter((x) => s.includes(x.status)).length;
@@ -62,6 +65,13 @@ function Inbox() {
         {FILTERS.map(([k, l]) => (
           <button key={k} type="button" onClick={() => setFilter(k)} className={cn("text-caption rounded-sm border px-3 py-1.5", filter === k ? "border-foreground bg-foreground text-background" : "border-border hover:border-foreground")}>{l}</button>
         ))}
+      </div>
+      <div className="mb-4 flex flex-wrap items-center gap-1">
+        <span className="text-caption mr-1 text-muted-foreground">Follow-ups:</span>
+        {[["all", "Any"] as const, ...FOLLOW_UP_FILTERS].map(([k, l]) => {
+          const n = k === "all" ? null : all.filter((x) => followUpBucket(x, businessToday()) === k).length;
+          return <button key={k} type="button" onClick={() => setFu(k)} className={cn("text-caption rounded-sm border px-3 py-1.5", fu === k ? "border-accent bg-accent text-accent-foreground" : "border-border hover:border-foreground")}>{l}{n != null ? ` (${n})` : ""}</button>;
+        })}
       </div>
       <div className="mb-4 grid gap-3 sm:grid-cols-[1fr_180px_180px]">
         <TextInput label="Search" placeholder="Reference, name, email, WhatsApp, company" value={q} onChange={(e) => setQ(e.target.value)} />

@@ -13,12 +13,15 @@ import { siteChromeQuery } from "@/lib/navigation";
 import { bookingExperienceQuery } from "@/lib/booking.functions";
 import type { BookingGroup } from "@/lib/booking";
 import { submitBooking } from "@/lib/inquiry.functions";
+import { bookingPreselect } from "@/lib/pricing/phase5";
 import { useClientSession } from "@/lib/client-session";
 import { pageMeta, canonical } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/book-a-call")({
-  validateSearch: (s: Record<string, unknown>): { group?: string | undefined; service?: string | undefined } => ({
+  validateSearch: (s: Record<string, unknown>): { group?: string | undefined; service?: string | undefined; quote?: string | undefined; type?: string | undefined } => ({
+    quote: typeof s["quote"] === "string" && /^Q-[0-9A-F]{10}$/.test(s["quote"]) ? s["quote"] : undefined,
+    type: typeof s["type"] === "string" ? s["type"].slice(0, 80) : undefined,
     group: typeof s["group"] === "string" ? s["group"].slice(0, 120) : undefined,
     service: typeof s["service"] === "string" ? s["service"].slice(0, 120) : undefined,
   }),
@@ -48,9 +51,10 @@ function BookCall() {
   const bookingRef = useRef<HTMLDivElement>(null);
   const [step, setStep] = useState(0);
   const search = Route.useSearch();
-  const preGroup = data.groups.find((g) => g.slug === search.group || g.services.some((x) => x.slug === search.service));
+  const pre = bookingPreselect(data.groups, search);
+  const preGroup = data.groups.find((g) => g.slug === pre.group);
   const [groupId, setGroupId] = useState(preGroup?.id ?? "");
-  const [serviceId, setServiceId] = useState(preGroup?.services.find((x) => x.slug === search.service)?.id ?? "");
+  const [serviceId, setServiceId] = useState(preGroup?.services.find((x) => x.slug === pre.service)?.id ?? "");
   const group = data.groups.find((g) => g.id === groupId);
   const service = group?.services.find((x) => x.id === serviceId);
   const selectedServices = service ? [service.name] : [];
@@ -93,7 +97,7 @@ function BookCall() {
     if (busy || !slot) return;
     setBusy(true); setError(null); setErrs({});
     try {
-      const result = await submit({ data: { ...values, topic: values.topic.trim().length >= 3 ? values.topic.trim() : `${group?.name ?? ""} — ${service?.name ?? ""}`, services: selectedServices, service_group_id: (/^[0-9a-f-]{36}$/.test(groupId) ? groupId : undefined), service_id: (/^[0-9a-f-]{36}$/.test(serviceId) ? serviceId : undefined), requested_start_at: slot, timezone: tz, started_at: String(startRef.current), hp_field: "" } });
+      const result = await submit({ data: { ...values, topic: values.topic.trim().length >= 3 ? values.topic.trim() : [search.quote && `Quotation ${search.quote}${search.type ? ` (${search.type})` : ""}`, `${group?.name ?? ""} — ${service?.name ?? ""}`].filter(Boolean).join(" · ").slice(0, 300), quote_reference: search.quote, services: selectedServices, service_group_id: (/^[0-9a-f-]{36}$/.test(groupId) ? groupId : undefined), service_id: (/^[0-9a-f-]{36}$/.test(serviceId) ? serviceId : undefined), requested_start_at: slot, timezone: tz, started_at: String(startRef.current), hp_field: "" } });
       if (result.ok) {
         setConfirmation({ reference: result.bookingReference ?? "Received", status: result.status ?? "requested" });
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -141,6 +145,7 @@ function BookCall() {
                       </li>)}
                     </ol>
                     <p className="text-caption mt-3 text-muted-foreground sm:hidden">Step {step + 1} of {STEPS.length} · {STEPS[step]}</p>
+                    {search.quote && <div className="mt-6"><FormAlert tone="info">This call will be linked to quotation {search.quote}.</FormAlert></div>}
                     {error && <div className="mt-6"><FormAlert>{error}</FormAlert></div>}
                     <div key={step} className="step-in mt-7 min-h-[420px]">
                       {step === 0 && <StepCategory groups={data.groups} value={groupId} onChange={(id) => { setGroupId(id); if (!data.groups.find((g) => g.id === id)?.services.some((x) => x.id === serviceId)) setServiceId(""); }} error={errs["group"]} />}
