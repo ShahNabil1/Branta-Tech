@@ -20,7 +20,7 @@ export const Route = createFileRoute("/careers/$slug_/apply")({
     if (!job || "redirect" in job) throw notFound();
     return { title: job.title };
   },
-  head: ({ loaderData }) => ({ meta: [{ title: `Apply${loaderData ? ` — ${loaderData.title}` : ""} | Branta Tech Careers` }, { name: "robots", content: "noindex" }] }),
+  head: ({ loaderData }) => ({ meta: [{ title: `Apply${loaderData ? ` — ${loaderData.title}` : ""} | Branta Tech Careers` }, { name: "robots", content: "noindex, nofollow" }] }),
   errorComponent: () => <p className="p-8">Something went wrong loading this application.</p>,
   notFoundComponent: () => (
     <SiteShell><Section tone="warm"><h1 className="text-h1">This role isn't open</h1><Link to="/careers" className="text-body mt-6 inline-block underline underline-offset-4">See open roles</Link></Section></SiteShell>

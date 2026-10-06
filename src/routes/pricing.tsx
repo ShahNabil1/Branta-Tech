@@ -20,14 +20,6 @@ const TITLE = "AI Video & Product Photography Pricing | Branta Tech";
 const DESC = "Configure an AI video or an AI product photoshoot and get an instant estimate from Branta Tech, or ask us for a custom quote.";
 
 export const Route = createFileRoute("/pricing")({
-  head: ({ loaderData }) => {
-    const faq = loaderData?.content.faq?.items ?? [];
-    return {
-      links: canonical("/pricing"),
-      meta: pageMeta({ title: TITLE, description: DESC, path: "/pricing" }),
-      scripts: faq.length ? [jsonLd({ "@context": "https://schema.org", "@type": "FAQPage", url: absoluteUrl("/pricing"), mainEntity: faq.map((item) => ({ "@type": "Question", name: item.title, acceptedAnswer: { "@type": "Answer", text: item.body } })) })] : [],
-    };
-  },
   loader: async ({ context }) => {
     const [chrome, video, photo, content] = await Promise.all([
       context.queryClient.ensureQueryData(siteChromeQuery),
@@ -36,6 +28,14 @@ export const Route = createFileRoute("/pricing")({
       context.queryClient.ensureQueryData(pricingContentQuery),
     ]);
     return { chrome, video, photo, content };
+  },
+  head: ({ loaderData }) => {
+    const faq = loaderData?.content.faq?.items ?? [];
+    return {
+      links: canonical("/pricing"),
+      meta: pageMeta({ title: TITLE, description: DESC, path: "/pricing" }),
+      scripts: faq.length ? [jsonLd({ "@context": "https://schema.org", "@type": "FAQPage", url: absoluteUrl("/pricing"), mainEntity: faq.map((item) => ({ "@type": "Question", name: item.title, acceptedAnswer: { "@type": "Answer", text: item.body } })) })] : [],
+    };
   },
   errorComponent: () => <p className="p-8">Something went wrong loading pricing.</p>,
   notFoundComponent: () => <p className="p-8">Not found.</p>,

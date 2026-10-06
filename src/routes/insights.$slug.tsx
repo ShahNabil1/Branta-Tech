@@ -7,7 +7,7 @@ import { PostTile } from "@/components/content/PostCards";
 import { siteChromeQuery } from "@/lib/navigation";
 import { formatPostDate, postQuery } from "@/lib/company.functions";
 import { readingMinutes } from "@/lib/rich-text";
-import { pageMeta, canonical } from "@/lib/seo";
+import { absoluteUrl, breadcrumbSchema, pageMeta, canonical, jsonLd } from "@/lib/seo";
 
 export const Route = createFileRoute("/insights/$slug")({
   loader: async ({ context, params }) => {
@@ -20,8 +20,12 @@ export const Route = createFileRoute("/insights/$slug")({
     if (!p) return { meta: [{ title: "Article not found | Branta Tech" }, { name: "robots", content: "noindex" }] };
     const title = p.seo.title || `${p.title} | Branta Tech`;
     return {
-      meta: pageMeta({ title, description: p.seo.description || p.excerpt || "An article from the Branta team.", image: p.seo.ogImage || p.cover, noindex: p.seo.noindex, type: "article" }),
+      meta: pageMeta({ title, description: p.seo.description || p.excerpt || "An article from the Branta team.", image: p.seo.ogImage || p.cover, noindex: p.seo.noindex, type: "article", path: `/insights/${params.slug}` }),
       links: canonical(`/insights/${params.slug}`, p.seo.canonical),
+      scripts: [jsonLd([
+        { "@context": "https://schema.org", "@type": "BlogPosting", headline: p.title, description: p.excerpt || p.seo.description || undefined, url: absoluteUrl(`/insights/${params.slug}`), ...(p.publishedAt ? { datePublished: p.publishedAt } : {}), ...(p.cover ? { image: p.cover } : {}), ...(p.author ? { author: { "@type": "Person", name: p.author.name, ...(p.author.profileUrl ? { url: p.author.profileUrl } : {}) } } : {}), publisher: { "@type": "Organization", "@id": `${absoluteUrl("/")}#organization`, name: "Branta Tech" } },
+        breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Insights", path: "/insights" }, { name: p.title, path: `/insights/${params.slug}` }]),
+      ])],
     };
   },
   errorComponent: () => <p className="p-8">Something went wrong loading this article.</p>,

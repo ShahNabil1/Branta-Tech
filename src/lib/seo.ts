@@ -11,7 +11,7 @@ export function pageMeta({ title, description, image, noindex, type = "website",
   ];
   if (path) meta.push({ property: "og:url", content: absoluteUrl(path) });
   if (image && /^https:\/\//.test(image)) meta.push({ property: "og:image", content: image }, { name: "twitter:image", content: image });
-  if (noindex) meta.push({ name: "robots", content: "noindex" });
+  if (noindex) meta.push({ name: "robots", content: "noindex, nofollow" });
   return meta;
 }
 

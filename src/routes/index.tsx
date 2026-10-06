@@ -20,15 +20,8 @@ import { TrustProof } from "@/components/home/TrustProof";
 import { BookCallCta, PricingSection, ServicesSnapshot } from "@/components/home/HomeEngage";
 
 export const Route = createFileRoute("/")({
-  head: () => ({ links: canonical("/"),
-    meta: pageMeta({ title: "Branta Tech — Creative. AI. Technology.", description: "AI films, product visuals, campaigns, digital products and automation, built by one integrated creative technology team.", path: "/" }),
-    scripts: [jsonLd([
-      { "@context": "https://schema.org", "@type": "Organization", "@id": `${absoluteUrl("/")}#organization`, name: "Branta Tech", url: absoluteUrl("/"), logo: absoluteUrl("/favicon.png"), description: "AI-first creative and technology studio." },
-      { "@context": "https://schema.org", "@type": "WebSite", "@id": `${absoluteUrl("/")}#website`, name: "Branta Tech", url: absoluteUrl("/"), publisher: { "@id": `${absoluteUrl("/")}#organization` } },
-    ])],
-  }),
-  loader: ({ context }) =>
-    Promise.all([
+  loader: async ({ context }) => {
+    const [chrome] = await Promise.all([
       context.queryClient.ensureQueryData(siteChromeQuery),
       context.queryClient.ensureQueryData(homeHeroQuery),
       context.queryClient.ensureQueryData(capabilityExplorerQuery),
@@ -36,7 +29,27 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(workShowcaseQuery),
       context.queryClient.ensureQueryData(clientStoriesQuery),
       context.queryClient.ensureQueryData(recognitionQuery),
-    ]),
+    ]);
+    return { chrome };
+  },
+  head: ({ loaderData }) => {
+    const chrome = loaderData?.chrome;
+    const sameAs = chrome?.social ? Object.values(chrome.social).filter((url): url is string => typeof url === "string" && /^https:\/\//.test(url)) : [];
+    const logo = chrome?.brand?.logo_url && /^https:\/\//.test(chrome.brand.logo_url) ? chrome.brand.logo_url : absoluteUrl("/favicon.png");
+    const organization: Record<string, unknown> = {
+      "@context": "https://schema.org", "@type": "Organization", "@id": `${absoluteUrl("/")}#organization`,
+      name: chrome?.company?.company_name || "Branta Tech", url: absoluteUrl("/"), logo,
+      description: chrome?.company?.short_description || "AI-first creative and technology studio.",
+      ...(chrome?.contact?.email ? { email: chrome.contact.email } : {}),
+      ...(chrome?.contact?.phone ? { telephone: chrome.contact.phone } : {}),
+      ...(sameAs.length ? { sameAs } : {}),
+    };
+    return {
+      links: canonical("/"),
+      meta: pageMeta({ title: "Branta Tech — Creative. AI. Technology.", description: "AI films, product visuals, campaigns, digital products and automation, built by one integrated creative technology team.", path: "/" }),
+      scripts: [jsonLd([organization, { "@context": "https://schema.org", "@type": "WebSite", "@id": `${absoluteUrl("/")}#website`, name: "Branta Tech", url: absoluteUrl("/"), publisher: { "@id": `${absoluteUrl("/")}#organization` } }])],
+    };
+  },
   errorComponent: () => <p className="p-8">Something went wrong loading this page.</p>,
   notFoundComponent: () => <p className="p-8">Not found.</p>,
   component: Index,

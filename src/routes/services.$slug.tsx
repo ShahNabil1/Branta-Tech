@@ -1,4 +1,4 @@
-import { canonical } from "@/lib/seo";
+import { absoluteUrl, breadcrumbSchema, canonical, jsonLd, pageMeta } from "@/lib/seo";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { SiteShell } from "@/components/layout/SiteShell";
@@ -18,22 +18,15 @@ export const Route = createFileRoute("/services/$slug")({
       context.queryClient.ensureQueryData(servicePageQuery(params.slug)),
     ]);
     if (!page) throw notFound();
-    return { seo: seoOf(page) };
+    return { seo: seoOf(page), schema: schemaOf(page, params.slug) };
   },
   head: ({ loaderData, params }) => {
     if (!loaderData) return { meta: [{ title: "Service not found | Branta Tech" }, { name: "robots", content: "noindex" }] };
     const s = loaderData.seo;
     return {
       links: canonical(`/services/${params.slug}`, s.canonical),
-      meta: [
-        { title: s.title },
-        ...(s.description ? [{ name: "description", content: s.description }, { property: "og:description", content: s.description }] : []),
-        { property: "og:title", content: s.title },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
-        ...(s.image ? [{ property: "og:image", content: s.image }, { name: "twitter:image", content: s.image }] : []),
-        ...(s.noindex ? [{ name: "robots", content: "noindex" }] : []),
-      ],
+      meta: pageMeta({ title: s.title, description: s.description || `Explore ${s.title} services from Branta Tech.`, image: s.image, noindex: s.noindex, path: `/services/${params.slug}` }),
+      scripts: [jsonLd(loaderData.schema)],
     };
   },
   errorComponent: () => <p className="p-8">Something went wrong loading this service.</p>,
@@ -56,6 +49,14 @@ function seoOf(p: NonNullable<ServicePage>) {
     image: https(p.seo.ogImage) ?? https(m?.type === "image" ? m.url : m?.poster),
     noindex: p.seo.noindex,
   };
+}
+
+function schemaOf(page: NonNullable<ServicePage>, slug: string) {
+  const item = page.kind === "group" ? page.group : page.service;
+  return [
+    { "@context": "https://schema.org", "@type": "Service", name: item.name, description: item.short || item.description || undefined, url: absoluteUrl(`/services/${slug}`), provider: { "@type": "Organization", "@id": `${absoluteUrl("/")}#organization`, name: "Branta Tech" } },
+    breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Services", path: "/services" }, { name: item.name, path: `/services/${slug}` }]),
+  ];
 }
 
 function NotFoundService() {

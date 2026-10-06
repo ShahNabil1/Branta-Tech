@@ -1,4 +1,4 @@
-import { canonical } from "@/lib/seo";
+import { absoluteUrl, breadcrumbSchema, canonical, jsonLd, pageMeta } from "@/lib/seo";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { SiteShell } from "@/components/layout/SiteShell";
@@ -19,22 +19,18 @@ export const Route = createFileRoute("/work/$slug")({
       context.queryClient.ensureQueryData(caseStudyQuery(params.slug)),
     ]);
     if (!cs) throw notFound();
-    return { seo: seoOf(cs) };
+    return { seo: seoOf(cs), title: cs.project.title, client: cs.project.client, year: cs.project.year };
   },
   head: ({ loaderData, params }) => {
     if (!loaderData) return { meta: [{ title: "Project not found — Branta Tech" }, { name: "robots", content: "noindex" }] };
     const s = loaderData.seo;
     return {
       links: canonical(`/work/${params.slug}`, s.canonical),
-      meta: [
-        { title: s.title },
-        ...(s.description ? [{ name: "description", content: s.description }, { property: "og:description", content: s.description }] : []),
-        { property: "og:title", content: s.title },
-        { property: "og:type", content: "article" },
-        { name: "twitter:card", content: "summary_large_image" },
-        ...(s.image ? [{ property: "og:image", content: s.image }, { name: "twitter:image", content: s.image }] : []),
-        ...(s.noindex ? [{ name: "robots", content: "noindex" }] : []),
-      ],
+      meta: pageMeta({ title: s.title, description: s.description || `A Branta Tech project: ${loaderData.title}.`, image: s.image, noindex: s.noindex, type: "article", path: `/work/${params.slug}` }),
+      scripts: [jsonLd([
+        { "@context": "https://schema.org", "@type": "CreativeWork", name: loaderData.title, description: s.description || undefined, url: absoluteUrl(`/work/${params.slug}`), ...(s.image ? { image: s.image } : {}), ...(loaderData.client ? { about: loaderData.client } : {}), ...(loaderData.year ? { dateCreated: String(loaderData.year) } : {}), creator: { "@type": "Organization", "@id": `${absoluteUrl("/")}#organization`, name: "Branta Tech" } },
+        breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Work", path: "/work" }, { name: loaderData.title, path: `/work/${params.slug}` }]),
+      ])],
     };
   },
   errorComponent: () => <p className="p-8">Something went wrong loading this project.</p>,
