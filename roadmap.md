@@ -8,3 +8,7 @@
 # Pricing Phase 5
 - [x] PDF export (staff + customer), CRM links, chat prefill, booking link, templates, follow-ups, expiry job, analytics, publication review, tests
 - [ ] Signed-in staff QA — blocked: no admin session can be created for this external Supabase project
+
+# Global interaction polish
+- [x] Use the hand cursor for active buttons and links, with a distinct unavailable cursor for disabled controls
+- [x] Make footer Privacy Policy and Terms & Conditions links active and consistently styled

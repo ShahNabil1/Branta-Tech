@@ -20,8 +20,8 @@ const link = (v: unknown, d: string) => {
   const t = text(v);
   return t && (t.startsWith("/") || /^https:\/\//.test(t)) ? t : d;
 };
-const flinkCls = "footer-link text-small text-foreground/70 transition-colors duration-200 hover:text-accent focus-visible:outline-2 focus-visible:outline-accent";
-const fpendingCls = "text-small cursor-default text-foreground/35";
+const flinkCls = "footer-link text-small cursor-pointer text-foreground/70 transition-colors duration-200 hover:text-accent focus-visible:outline-2 focus-visible:outline-accent";
+const fpendingCls = "text-small cursor-not-allowed text-foreground/35";
 
 function SiteFooter() {
   const { data } = useQuery(siteChromeQuery);
@@ -42,7 +42,7 @@ function SiteFooter() {
   ];
   const legal = [
     { label: text(ft["privacy_label"]) ?? "Privacy Policy", url: link(ft["privacy_url"], "/privacy") },
-    { label: text(ft["terms_label"]) ?? "Terms", url: link(ft["terms_url"], "/terms") },
+    { label: text(ft["terms_label"]) ?? "Terms & Conditions", url: link(ft["terms_url"], "/terms") },
   ];
   const copyright = text(ft["copyright_text"]) ?? `© ${new Date().getFullYear()} ${name}. All rights reserved.`;
   const showMark = text(ft["show_wordmark"]) !== "off";
@@ -62,7 +62,7 @@ function SiteFooter() {
           </div>
           <div className="flex flex-wrap gap-x-10 gap-y-4 lg:col-span-4 lg:justify-end">
             {ctas.map((c) => (
-              <span key={c.label} className="fx fx-soft" style={d(260)}><SmartLink url={c.url} className="footer-cta group text-h4 inline-flex items-center gap-2 pb-1 font-medium" pendingClassName="text-h4 cursor-default text-foreground/35">
+              <span key={c.label} className="fx fx-soft" style={d(260)}><SmartLink url={c.url} className="footer-cta group text-h4 inline-flex cursor-pointer items-center gap-2 pb-1 font-medium" pendingClassName="text-h4 cursor-not-allowed text-foreground/35">
                 {c.label}<span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
               </SmartLink></span>
             ))}
@@ -100,7 +100,7 @@ function SiteFooter() {
         <div className="flex flex-col gap-4 border-t border-border py-8 md:flex-row md:items-center md:justify-between">
           <p className="text-caption text-foreground/55">{copyright}</p>
           <div className="flex gap-6">
-            {legal.map((l) => <SmartLink key={l.label} url={l.url} className="text-caption text-foreground/70 hover:text-accent" pendingClassName="text-caption cursor-default text-foreground/35">{l.label}</SmartLink>)}
+            {legal.map((l) => <SmartLink key={l.label} url={l.url} className="footer-link text-caption cursor-pointer text-foreground/70 transition-colors hover:text-accent" pendingClassName="text-caption cursor-not-allowed text-foreground/35">{l.label}</SmartLink>)}
           </div>
         </div>
       </SiteContainer>

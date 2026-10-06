@@ -65,7 +65,7 @@ export function SmartLink({ url, className, pendingClassName, children, onNaviga
       </a>
     );
   return (
-    <span aria-disabled="true" title="Coming soon" className={cn(className, pendingClassName ?? "cursor-default opacity-45")}>
+    <span aria-disabled="true" title="Coming soon" className={cn(className, pendingClassName ?? "cursor-not-allowed opacity-45")}>
       {children}
     </span>
   );
@@ -446,13 +446,13 @@ function MobileMenu({ id, nav, logo, booking, isActive, onClose }: {
 
   const links = nav.filter((n) => n.kind === "link");
   const groups = nav.filter((n) => n.kind !== "link");
-  const row = "text-h4 flex min-h-14 w-full items-center justify-between border-b border-border py-3 text-left font-medium";
+  const row = "text-h4 flex min-h-14 w-full cursor-pointer items-center justify-between border-b border-border py-3 text-left font-medium";
 
   return createPortal(
     <div id={id} role="dialog" aria-modal="true" aria-label="Site menu" className="dark fixed inset-0 z-[100] flex h-[100dvh] min-h-0 w-full flex-col overflow-hidden bg-background text-foreground">
       <div className="flex h-16 shrink-0 items-center justify-between border-b border-border px-5">
         <BrandLogo src={logo} onNavigate={onClose} />
-        <button ref={closeRef} type="button" onClick={onClose} className="text-small flex h-10 shrink-0 items-center gap-2 rounded-sm px-2 font-medium">
+        <button ref={closeRef} type="button" onClick={onClose} className="text-small flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-sm px-2 font-medium transition-colors hover:text-accent">
           <X className="size-5" aria-hidden /> Close
         </button>
       </div>

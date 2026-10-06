@@ -17,12 +17,14 @@ import { Route as ClientRouteImport } from './routes/client'
 import { Route as ControlCentreRouteImport } from './routes/control-centre'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as StartAProjectRouteImport } from './routes/start-a-project'
 import { Route as TeamRouteImport } from './routes/team'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as CareersIndexRouteImport } from './routes/careers.index'
 import { Route as CareersSlugRouteImport } from './routes/careers.$slug'
 import { Route as CareersAccountRouteImport } from './routes/careers.account'
@@ -149,6 +151,11 @@ const PricingRoute = PricingRouteImport.update({
   path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -177,6 +184,11 @@ const StartAProjectRoute = StartAProjectRouteImport.update({
 const TeamRoute = TeamRouteImport.update({
   id: '/team',
   path: '/team',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CareersIndexRoute = CareersIndexRouteImport.update({
@@ -671,12 +683,14 @@ export interface FileRoutesByFullPath {
   '/control-centre': typeof ControlCentreRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/start-a-project': typeof StartAProjectRoute
   '/team': typeof TeamRoute
+  '/terms': typeof TermsRoute
   '/careers/$slug': typeof CareersSlugRoute
   '/careers/account': typeof CareersAccountRouteWithChildren
   '/careers/forgot-password': typeof CareersForgotPasswordRoute
@@ -769,12 +783,14 @@ export interface FileRoutesByTo {
   '/book-a-call': typeof BookACallRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/start-a-project': typeof StartAProjectRoute
   '/team': typeof TeamRoute
+  '/terms': typeof TermsRoute
   '/careers/$slug': typeof CareersSlugRoute
   '/careers/forgot-password': typeof CareersForgotPasswordRoute
   '/careers/reset-password': typeof CareersResetPasswordRoute
@@ -869,12 +885,14 @@ export interface FileRoutesById {
   '/control-centre': typeof ControlCentreRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/start-a-project': typeof StartAProjectRoute
   '/team': typeof TeamRoute
+  '/terms': typeof TermsRoute
   '/careers/$slug': typeof CareersSlugRoute
   '/careers/account': typeof CareersAccountRouteWithChildren
   '/careers/forgot-password': typeof CareersForgotPasswordRoute
@@ -972,12 +990,14 @@ export interface FileRouteTypes {
     | '/control-centre'
     | '/forgot-password'
     | '/pricing'
+    | '/privacy'
     | '/reset-password'
     | '/sign-in'
     | '/sign-up'
     | '/sitemap.xml'
     | '/start-a-project'
     | '/team'
+    | '/terms'
     | '/careers/$slug'
     | '/careers/account'
     | '/careers/forgot-password'
@@ -1070,12 +1090,14 @@ export interface FileRouteTypes {
     | '/book-a-call'
     | '/forgot-password'
     | '/pricing'
+    | '/privacy'
     | '/reset-password'
     | '/sign-in'
     | '/sign-up'
     | '/sitemap.xml'
     | '/start-a-project'
     | '/team'
+    | '/terms'
     | '/careers/$slug'
     | '/careers/forgot-password'
     | '/careers/reset-password'
@@ -1169,12 +1191,14 @@ export interface FileRouteTypes {
     | '/control-centre'
     | '/forgot-password'
     | '/pricing'
+    | '/privacy'
     | '/reset-password'
     | '/sign-in'
     | '/sign-up'
     | '/sitemap.xml'
     | '/start-a-project'
     | '/team'
+    | '/terms'
     | '/careers/$slug'
     | '/careers/account'
     | '/careers/forgot-password'
@@ -1271,12 +1295,14 @@ export interface RootRouteChildren {
   ControlCentreRoute: typeof ControlCentreRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StartAProjectRoute: typeof StartAProjectRoute
   TeamRoute: typeof TeamRoute
+  TermsRoute: typeof TermsRoute
   CareersSlugRoute: typeof CareersSlugRoute
   CareersAccountRoute: typeof CareersAccountRouteWithChildren
   CareersForgotPasswordRoute: typeof CareersForgotPasswordRoute
@@ -1352,6 +1378,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -1392,6 +1425,13 @@ declare module '@tanstack/react-router' {
       path: '/team'
       fullPath: '/team'
       preLoaderRoute: typeof TeamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/careers/': {
@@ -2208,12 +2248,14 @@ const rootRouteChildren: RootRouteChildren = {
   ControlCentreRoute: ControlCentreRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StartAProjectRoute: StartAProjectRoute,
   TeamRoute: TeamRoute,
+  TermsRoute: TermsRoute,
   CareersSlugRoute: CareersSlugRoute,
   CareersAccountRoute: CareersAccountRouteWithChildren,
   CareersForgotPasswordRoute: CareersForgotPasswordRoute,
