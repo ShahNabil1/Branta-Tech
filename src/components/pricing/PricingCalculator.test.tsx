@@ -26,7 +26,7 @@ const totalText = () => screen.getAllByText(/৳/).map((n) => n.textContent).joi
 describe("PricingCalculator", () => {
   it("shows unpriced state with no amounts when inactive", () => {
     render(<PricingCalculator data={{ active: false, disclaimer: "" }} />);
-    expect(screen.getByText("Custom pricing is available.")).toBeTruthy();
+    expect(screen.getByText("Estimate unavailable until pricing is approved")).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/৳/);
   });
   it("hides disabled model combinations and revalidates on type change", () => {
