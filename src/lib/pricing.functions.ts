@@ -8,7 +8,7 @@ const DEFAULT_SETTINGS: PricingSettings = {
 };
 
 /** Loads only what anon RLS allows (published / enabled rows). */
-async function loadPublicConfig(): Promise<PricingConfig> {
+export async function loadPublicConfig(): Promise<PricingConfig> {
   const { createClient } = await import("@supabase/supabase-js");
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
   const sb = createClient(process.env["SUPABASE_URL"]!, key, {

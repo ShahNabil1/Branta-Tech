@@ -32,7 +32,7 @@ export type PricingConfig = {
 };
 export type QuoteInput = {
   videoTypeId: string; modelId: string; tierId: string; durationSeconds: number;
-  addons?: { id: string; scenes?: number }[];
+  addons?: { id: string; scenes?: number | undefined }[];
 };
 /** "public" requires published records; "admin" allows drafts for internal previews. */
 export type QuoteMode = "public" | "admin";

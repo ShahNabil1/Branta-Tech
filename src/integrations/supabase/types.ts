@@ -1817,6 +1817,308 @@ export type Database = {
         }
         Relationships: []
       }
+      pricing_quote_activity: {
+        Row: {
+          actor_type: string
+          actor_user_id: string | null
+          created_at: string
+          detail: Json
+          id: string
+          kind: string
+          quote_id: string
+        }
+        Insert: {
+          actor_type?: string
+          actor_user_id?: string | null
+          created_at?: string
+          detail?: Json
+          id?: string
+          kind: string
+          quote_id: string
+        }
+        Update: {
+          actor_type?: string
+          actor_user_id?: string | null
+          created_at?: string
+          detail?: Json
+          id?: string
+          kind?: string
+          quote_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_quote_activity_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_quote_notes: {
+        Row: {
+          author_user_id: string | null
+          created_at: string
+          id: string
+          note: string
+          quote_id: string
+        }
+        Insert: {
+          author_user_id?: string | null
+          created_at?: string
+          id?: string
+          note: string
+          quote_id: string
+        }
+        Update: {
+          author_user_id?: string | null
+          created_at?: string
+          id?: string
+          note?: string
+          quote_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_quote_notes_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_quote_requests: {
+        Row: {
+          ai_model_id: string | null
+          archived_at: string | null
+          assigned_to: string | null
+          company_name: string | null
+          created_at: string
+          customer_email: string
+          customer_name: string
+          customer_whatsapp: string
+          duration_seconds: number | null
+          estimated_currency: string
+          estimated_price_minor: number | null
+          id: string
+          ip_hash: string | null
+          lead_id: string | null
+          original_pricing_snapshot: Json | null
+          pricing_version: string | null
+          production_tier_id: string | null
+          project_description: string | null
+          public_reference: string
+          requested_deadline: string | null
+          requester_user_id: string | null
+          selections: Json
+          status: string
+          status_changed_at: string
+          updated_at: string
+          video_type_id: string | null
+        }
+        Insert: {
+          ai_model_id?: string | null
+          archived_at?: string | null
+          assigned_to?: string | null
+          company_name?: string | null
+          created_at?: string
+          customer_email: string
+          customer_name: string
+          customer_whatsapp: string
+          duration_seconds?: number | null
+          estimated_currency?: string
+          estimated_price_minor?: number | null
+          id?: string
+          ip_hash?: string | null
+          lead_id?: string | null
+          original_pricing_snapshot?: Json | null
+          pricing_version?: string | null
+          production_tier_id?: string | null
+          project_description?: string | null
+          public_reference: string
+          requested_deadline?: string | null
+          requester_user_id?: string | null
+          selections?: Json
+          status?: string
+          status_changed_at?: string
+          updated_at?: string
+          video_type_id?: string | null
+        }
+        Update: {
+          ai_model_id?: string | null
+          archived_at?: string | null
+          assigned_to?: string | null
+          company_name?: string | null
+          created_at?: string
+          customer_email?: string
+          customer_name?: string
+          customer_whatsapp?: string
+          duration_seconds?: number | null
+          estimated_currency?: string
+          estimated_price_minor?: number | null
+          id?: string
+          ip_hash?: string | null
+          lead_id?: string | null
+          original_pricing_snapshot?: Json | null
+          pricing_version?: string | null
+          production_tier_id?: string | null
+          project_description?: string | null
+          public_reference?: string
+          requested_deadline?: string | null
+          requester_user_id?: string | null
+          selections?: Json
+          status?: string
+          status_changed_at?: string
+          updated_at?: string
+          video_type_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_quote_requests_ai_model_id_fkey"
+            columns: ["ai_model_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_ai_models"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_quote_requests_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_quote_requests_production_tier_id_fkey"
+            columns: ["production_tier_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_production_tiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_quote_requests_video_type_id_fkey"
+            columns: ["video_type_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_video_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_quote_versions: {
+        Row: {
+          access_token_hash: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          customer_notes: string | null
+          customer_response: string | null
+          deliverables: string | null
+          delivery_timeline: string | null
+          discount_minor: number
+          discount_type: string
+          discount_value: number
+          id: string
+          issued_at: string | null
+          issued_by: string | null
+          line_items: Json
+          payment_terms: string | null
+          quote_id: string
+          responded_at: string | null
+          response_note: string | null
+          response_terms_accepted: boolean | null
+          revisions: number | null
+          scope: string | null
+          status: string
+          subtotal_minor: number
+          tax_inclusive: boolean
+          tax_label: string
+          tax_minor: number
+          tax_percentage: number
+          token_revoked_at: string | null
+          total_minor: number
+          updated_at: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          access_token_hash?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          customer_notes?: string | null
+          customer_response?: string | null
+          deliverables?: string | null
+          delivery_timeline?: string | null
+          discount_minor?: number
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          issued_at?: string | null
+          issued_by?: string | null
+          line_items?: Json
+          payment_terms?: string | null
+          quote_id: string
+          responded_at?: string | null
+          response_note?: string | null
+          response_terms_accepted?: boolean | null
+          revisions?: number | null
+          scope?: string | null
+          status?: string
+          subtotal_minor?: number
+          tax_inclusive?: boolean
+          tax_label?: string
+          tax_minor?: number
+          tax_percentage?: number
+          token_revoked_at?: string | null
+          total_minor?: number
+          updated_at?: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          access_token_hash?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          customer_notes?: string | null
+          customer_response?: string | null
+          deliverables?: string | null
+          delivery_timeline?: string | null
+          discount_minor?: number
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          issued_at?: string | null
+          issued_by?: string | null
+          line_items?: Json
+          payment_terms?: string | null
+          quote_id?: string
+          responded_at?: string | null
+          response_note?: string | null
+          response_terms_accepted?: boolean | null
+          revisions?: number | null
+          scope?: string | null
+          status?: string
+          subtotal_minor?: number
+          tax_inclusive?: boolean
+          tax_label?: string
+          tax_minor?: number
+          tax_percentage?: number
+          token_revoked_at?: string | null
+          total_minor?: number
+          updated_at?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_quote_versions_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pricing_video_types: {
         Row: {
           base_creative_fee: number
