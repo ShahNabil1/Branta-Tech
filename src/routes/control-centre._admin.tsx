@@ -3,7 +3,7 @@ import { useState } from "react";
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  LayoutDashboard, FileText, Newspaper, UserRound, Briefcase, Inbox, Target, CalendarClock, Menu, Layers, Image, FolderOpen, Settings, Users, LogOut, PanelLeft, Quote, Award, MessagesSquare, BookOpen, Zap, HelpCircle, SlidersHorizontal,
+  LayoutDashboard, FileText, Newspaper, UserRound, Briefcase, Inbox, Target, CalendarClock, Menu, Layers, Image, FolderOpen, Settings, Users, LogOut, PanelLeft, Quote, Award, MessagesSquare, BookOpen, Zap, HelpCircle, SlidersHorizontal, BadgeDollarSign, Grid3x3, Calculator,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getAdminSession, CMS_ROLES } from "@/lib/supabase/admin-access";
@@ -44,6 +44,14 @@ const groups = [
     items: [
       { label: "Insights", icon: Newspaper, to: "/control-centre/insights" as const },
       { label: "Team", icon: UserRound, to: "/control-centre/team" as const },
+    ],
+  },
+  {
+    title: "Pricing",
+    items: [
+      { label: "Pricing Overview", icon: BadgeDollarSign, to: "/control-centre/pricing" as const },
+      { label: "Rate Matrix", icon: Grid3x3, to: "/control-centre/pricing/rates" as const },
+      { label: "Simulator", icon: Calculator, to: "/control-centre/pricing/simulator" as const },
     ],
   },
   {

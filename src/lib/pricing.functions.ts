@@ -35,7 +35,7 @@ async function loadPublicConfig(): Promise<PricingConfig> {
   const num = <T extends Record<string, unknown>>(rows: T[] | null, keys: (keyof T)[]) =>
     (rows ?? []).map((r) => { const o = { ...r }; for (const k of keys) if (o[k] != null) (o as Record<keyof T, unknown>)[k] = Number(o[k]); return o; });
   return {
-    settings: { ...DEFAULT_SETTINGS, ...s, tax: { ...DEFAULT_SETTINGS.tax, ...(s.tax ?? {}) } },
+    settings: { ...DEFAULT_SETTINGS, ...s, enabled: !!s.enabled && !!(s as { public_visible?: boolean }).public_visible, tax: { ...DEFAULT_SETTINGS.tax, ...(s.tax ?? {}) } },
     videoTypes: num(vt.data, ["base_creative_fee", "minimum_project_price"]) as PricingConfig["videoTypes"],
     models: (md.data ?? []) as PricingConfig["models"],
     tiers: num(tr.data, ["multiplier"]) as PricingConfig["tiers"],
