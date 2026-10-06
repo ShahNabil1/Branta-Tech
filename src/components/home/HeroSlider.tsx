@@ -194,7 +194,7 @@ export function HeroSlider({ slider, work }: { slider: SliderConfig; work: WorkS
           <div aria-hidden className="glossy-card absolute inset-y-8 -left-[3.2%] hidden w-[3%] rounded-r-[28px] opacity-70 xl:block" />
           <div aria-hidden className="glossy-card absolute inset-y-8 -right-[3.2%] hidden w-[3%] rounded-l-[28px] opacity-70 xl:block" />
         </>}
-        <div className={cn("glossy-card relative min-h-[600px] overflow-hidden rounded-[28px] md:min-h-[640px] md:rounded-[40px]", dark && "bg-[#0B0B0B]")}>
+        <div className={cn("glossy-card relative min-h-[520px] overflow-hidden rounded-[28px] md:min-h-[640px] md:rounded-[40px]", dark && "bg-[#0B0B0B]")}>
           <AnimatePresence initial={false} custom={dir} mode="popLayout">
             <motion.div key={s.id + i} role="group" aria-roledescription="slide" aria-label={`${i + 1} of ${n}`}
               custom={dir} className="relative h-full min-h-[inherit]"
