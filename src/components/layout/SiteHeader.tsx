@@ -177,8 +177,7 @@ export function SiteHeader() {
     <header
       ref={headerRef}
       className={cn(
-        "dark sticky top-0 z-50 border-b border-border text-foreground transition-[background-color] duration-200",
-        !openEntry ? "bg-background/85 backdrop-blur-md" : "bg-background",
+        "dark sticky top-0 z-50 border-b border-border bg-background text-foreground",
       )}
     >
       <div className="mx-auto flex h-16 w-full max-w-[1600px] items-center gap-6 px-5 md:px-8 xl:h-[68px]">
