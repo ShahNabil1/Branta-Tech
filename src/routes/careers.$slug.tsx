@@ -11,7 +11,7 @@ import { AppliedCard } from "@/components/careers/ApplyWizard";
 import { buttonVariants } from "@/components/ui/brand-button";
 import { siteChromeQuery } from "@/lib/navigation";
 import { jobQuery, type Job } from "@/lib/company.functions";
-import { pageMeta, canonical } from "@/lib/seo";
+import { absoluteUrl, breadcrumbSchema, pageMeta, canonical, jsonLd } from "@/lib/seo";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchMyApplications } from "@/lib/applicant-data";
 import { cn } from "@/lib/utils";
@@ -21,16 +21,26 @@ export const Route = createFileRoute("/careers/$slug")({
     const [, job] = await Promise.all([context.queryClient.ensureQueryData(siteChromeQuery), context.queryClient.ensureQueryData(jobQuery(params.slug))]);
     if (job && "redirect" in job) throw redirect({ to: "/careers/$slug", params: { slug: job.redirect }, statusCode: 301 });
     if (!job) throw notFound();
-    return { title: job.title, summary: job.summary, seo: job.seo };
+    return { job };
   },
   head: ({ loaderData, params }) => {
     if (!loaderData) return { meta: [{ title: "Role not available | Branta Tech" }, { name: "robots", content: "noindex" }] };
-    const s = loaderData.seo;
-    const title = s.title || `${loaderData.title} | Careers | Branta Tech`;
-    const description = s.description || loaderData.summary || `Apply for the ${loaderData.title} role at Branta.`;
-    const meta = pageMeta({ title, description, image: s.og_image || null }).map((m) =>
+    const job = loaderData.job;
+    const s = job.seo;
+    const title = s.title || `${job.title} | Careers | Branta Tech`;
+    const description = s.description || job.summary || `Apply for the ${job.title} role at Branta.`;
+    const meta = pageMeta({ title, description, image: s.og_image || null, noindex: job.window !== "open", path: `/careers/${params.slug}` }).map((m) =>
       m["property"] === "og:title" && s.og_title ? { ...m, content: s.og_title } : m["property"] === "og:description" && s.og_description ? { ...m, content: s.og_description } : m);
-    return { links: canonical(`/careers/${params.slug}`, s.canonical), meta };
+    const employmentType = job.type?.trim().toUpperCase().replace(/[\s-]+/g, "_");
+    const remote = job.workMode?.toLowerCase().includes("remote");
+    const posting: Record<string, unknown> = {
+      "@context": "https://schema.org", "@type": "JobPosting", title: job.title, description,
+      url: absoluteUrl(`/careers/${params.slug}`), hiringOrganization: { "@type": "Organization", "@id": `${absoluteUrl("/")}#organization`, name: "Branta Tech", sameAs: absoluteUrl("/") },
+      ...(job.publishedAt ? { datePosted: job.publishedAt } : {}), ...(job.deadlineAt ? { validThrough: job.deadlineAt } : {}),
+      ...(employmentType ? { employmentType } : {}), ...(job.jobCode ? { identifier: { "@type": "PropertyValue", name: "Branta Tech", value: job.jobCode } } : {}),
+      ...(remote ? { jobLocationType: "TELECOMMUTE" } : job.location ? { jobLocation: { "@type": "Place", address: { "@type": "PostalAddress", addressLocality: job.location } } } : {}),
+    };
+    return { links: canonical(`/careers/${params.slug}`, s.canonical), meta, scripts: job.window === "open" ? [jsonLd([posting, breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Careers", path: "/careers" }, { name: job.title, path: `/careers/${params.slug}` }])])] : [] };
   },
   errorComponent: () => <p className="p-8">Something went wrong loading this role.</p>,
   notFoundComponent: () => (
