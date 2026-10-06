@@ -7,14 +7,27 @@ export function useClientSession() {
   useEffect(() => {
     let alive = true;
     let unsubscribe: (() => void) | undefined;
-    void import("@/integrations/supabase/client").then(({ supabase }) => {
-      if (!alive) return;
-      void supabase.auth.getSession().then(({ data }) => alive && setState({ ready: true, user: data.session?.user ?? null }));
-      const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => alive && setState({ ready: true, user: session?.user ?? null }));
-      unsubscribe = () => sub.subscription.unsubscribe();
-    });
+    let started = false;
+    const start = () => {
+      if (started || !alive) return;
+      started = true;
+      void import("@/integrations/supabase/client").then(({ supabase }) => {
+        if (!alive) return;
+        void supabase.auth.getSession().then(({ data }) => alive && setState({ ready: true, user: data.session?.user ?? null }));
+        const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => alive && setState({ ready: true, user: session?.user ?? null }));
+        unsubscribe = () => sub.subscription.unsubscribe();
+      });
+    };
+    const storedSession = Object.keys(window.localStorage).some((key) => key.startsWith("sb-") && key.endsWith("-auth-token"));
+    if (storedSession) start();
+    else {
+      window.addEventListener("pointerdown", start, { once: true, passive: true });
+      window.addEventListener("keydown", start, { once: true });
+    }
     return () => {
       alive = false;
+      window.removeEventListener("pointerdown", start);
+      window.removeEventListener("keydown", start);
       unsubscribe?.();
     };
   }, []);

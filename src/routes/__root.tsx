@@ -129,15 +129,30 @@ function RootComponent() {
   // Single auth listener: re-run route guards on identity changes.
   useEffect(() => {
     let unsub: (() => void) | undefined;
-    void import("@/integrations/supabase/client").then(({ supabase }) => {
-      const { data } = supabase.auth.onAuthStateChange((event) => {
-        if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-        void router.invalidate();
-        if (event !== "SIGNED_OUT") void queryClient.invalidateQueries();
+    let started = false;
+    const start = () => {
+      if (started) return;
+      started = true;
+      void import("@/integrations/supabase/client").then(({ supabase }) => {
+        const { data } = supabase.auth.onAuthStateChange((event) => {
+          if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+          void router.invalidate();
+          if (event !== "SIGNED_OUT") void queryClient.invalidateQueries();
+        });
+        unsub = () => data.subscription.unsubscribe();
       });
-      unsub = () => data.subscription.unsubscribe();
-    });
-    return () => unsub?.();
+    };
+    const storedSession = Object.keys(window.localStorage).some((key) => key.startsWith("sb-") && key.endsWith("-auth-token"));
+    if (storedSession) start();
+    else {
+      window.addEventListener("pointerdown", start, { once: true, passive: true });
+      window.addEventListener("keydown", start, { once: true });
+    }
+    return () => {
+      window.removeEventListener("pointerdown", start);
+      window.removeEventListener("keydown", start);
+      unsub?.();
+    };
   }, [router, queryClient]);
 
   return (
