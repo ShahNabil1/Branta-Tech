@@ -70,10 +70,10 @@ export function calculatorPreselect(groups: Group[], intent: "video" | "photogra
   const real = groups.filter((g) => g.slug && g.slug !== "general");
   const all = real.flatMap((g) => g.services.filter((s) => s.slug).map((s) => ({ g, s })));
   const k = kind ? norm(kind) : "";
-  const hit = (k && (all.find(({ s }) => norm(s.name) === k) ?? all.find(({ s }) => { const n = norm(s.name); return n.includes(k) || (n.length > 3 && k.includes(n)); })))
-    || (() => { const inGroup = real.find((g) => hint.test(norm(g.name))); return inGroup ? null : all.find(({ s }) => hint.test(norm(s.name))); })();
+  const hit = (k && (all.find(({ s }) => norm(s.name ?? "") === k) ?? all.find(({ s }) => { const n = norm(s.name ?? ""); return n.includes(k) || (n.length > 3 && k.includes(n)); })))
+    || (() => { const inGroup = real.find((g) => hint.test(norm(g.name ?? ""))); return inGroup ? null : all.find(({ s }) => hint.test(norm(s.name ?? ""))); })();
   if (hit) return { group: hit.g.slug, service: hit.s.slug };
-  const g = real.find((x) => hint.test(norm(x.name)));
+  const g = real.find((x) => hint.test(norm(x.name ?? "")));
   return { group: g?.slug ?? null, service: g && g.services.length === 1 ? g.services[0]!.slug : null };
 }
 
