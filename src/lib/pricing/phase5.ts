@@ -50,7 +50,7 @@ export function leadSuggestions<L extends LeadLike>(q: { requester_user_id: stri
 
 /* ---------- Booking from a quote ---------- */
 export const QUOTE_REF_RE = /^Q-[0-9A-F]{10}$/;
-type Group = { slug: string; services: { slug: string; id: string }[] };
+type Group = { slug: string; name?: string; services: { slug: string; id: string; name?: string }[] };
 /** Preselect only services that are currently published (present in the public booking groups). */
 export function bookingPreselect(groups: Group[], want: { group?: string | null | undefined; service?: string | null | undefined }) {
   const group = groups.find((g) => (want.service && g.services.some((s) => s.slug === want.service)) || g.slug === want.group);
@@ -58,6 +58,25 @@ export function bookingPreselect(groups: Group[], want: { group?: string | null 
   const service = want.service ? group.services.find((s) => s.slug === want.service) ?? null : null;
   return { group: group.slug, service: service?.slug ?? null };
 }
+const norm = (v: string) => v.toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, " ").trim();
+const CAT_HINT = { video: /\b(video|film|motion|commercial|tvc|ovc|ugc|cinematic)\b/, photography: /\b(photo|photography|image|imagery|visual|shoot)\b/ } as const;
+/**
+ * Maps a calculator selection to a published booking category/service by name (never creates one).
+ * Service: exact name match on the selected kind, else a service whose name mentions the category; group: the service's group, else a group whose name matches the category.
+ */
+export function calculatorPreselect(groups: Group[], intent: "video" | "photography" | null | undefined, kind?: string | null) {
+  if (!intent) return { group: null, service: null };
+  const hint = CAT_HINT[intent];
+  const real = groups.filter((g) => g.slug && g.slug !== "general");
+  const all = real.flatMap((g) => g.services.filter((s) => s.slug).map((s) => ({ g, s })));
+  const k = kind ? norm(kind) : "";
+  const hit = (k && (all.find(({ s }) => norm(s.name ?? "") === k) ?? all.find(({ s }) => { const n = norm(s.name ?? ""); return n.includes(k) || (n.length > 3 && k.includes(n)); })))
+    || (() => { const inGroup = real.find((g) => hint.test(norm(g.name ?? ""))); return inGroup ? null : all.find(({ s }) => hint.test(norm(s.name ?? ""))); })();
+  if (hit) return { group: hit.g.slug, service: hit.s.slug };
+  const g = real.find((x) => hint.test(norm(x.name ?? "")));
+  return { group: g?.slug ?? null, service: g && g.services.length === 1 ? g.services[0]!.slug : null };
+}
+
 /** A booking may reference a quote when the caller is its verified owner or uses the same contact email. */
 export function mayLinkBookingToQuote(q: { requester_user_id: string | null; customer_email: string }, b: { userId: string | null; email: string }) {
   if (q.requester_user_id && b.userId === q.requester_user_id) return true;

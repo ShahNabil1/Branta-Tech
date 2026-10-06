@@ -124,7 +124,7 @@ function Calculator({ config, defaults, desc, disclaimer }: { config: PricingCon
   );
   const actions = (
     <div className="grid gap-2">
-      <BookCallLink note={q ? `AI Video Production · ${q.videoType.name} · ${q.model.name} · ${q.durationSeconds}s · ${q.tier.name}${q.addonLines.length ? ` · ${q.addonLines.map((l) => l.name).join(", ")}` : ""} · est. ${money(q.total, q.currency)}` : "AI Video Production · custom estimate"} />
+      <BookCallLink note={q ? `AI Video Production · ${q.videoType.name} · ${q.model.name} · ${q.durationSeconds}s · ${q.tier.name}${q.addonLines.length ? ` · ${q.addonLines.map((l) => l.name).join(", ")}` : ""} · est. ${money(q.total, q.currency)}` : "AI Video Production · custom estimate"} intent="video" kind={q?.videoType.name} />
       <button type="button" disabled={!q} onClick={() => setQuoteOpen(true)} className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "w-full justify-center disabled:pointer-events-none disabled:opacity-50")}>{QUOTE_CTA}</button>
     </div>
   );

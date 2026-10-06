@@ -67,7 +67,7 @@ function Calc({ data, disclaimer }: { data: Extract<PublicPhotoPricing, { active
   const summaryText = q ? `${q.item.name} · ${q.products} product${q.products > 1 ? "s" : ""} · ${q.totalImages} images · ${q.workflow.name}` : `Custom photography · ${products} products`;
   const actions = (
     <div className="grid gap-2">
-      <BookCallLink note={`AI Product Photography · ${summaryText}${q ? ` · est. ${money(q.total, cur)}` : ""}`} />
+      <BookCallLink note={`AI Product Photography · ${summaryText}${q ? ` · est. ${money(q.total, cur)}` : ""}`} intent="photography" kind={q?.item.name} />
       <button type="button" disabled={!canRequest} onClick={() => setOpen(true)} className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "w-full justify-center disabled:pointer-events-none disabled:opacity-50")}>{QUOTE_CTA}</button>
     </div>
   );

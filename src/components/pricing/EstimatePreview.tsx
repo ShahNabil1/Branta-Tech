@@ -10,8 +10,8 @@ export const BOOK_CTA = "Book a Call to Discuss Your Project";
 export const QUOTE_CTA = "Request a Detailed Quote";
 
 /** Book a Call link carrying the calculator configuration as a prefilled note. */
-export function BookCallLink({ note, className }: { note: string; className?: string }) {
-  return <Link to="/book-a-call" search={{ note: note.slice(0, 280) }} className={cn(buttonVariants({ variant: "primary", size: "lg" }), "w-full justify-center", className)}>{BOOK_CTA}</Link>;
+export function BookCallLink({ note, intent, kind, className }: { note: string; intent: "video" | "photography"; kind?: string | undefined; className?: string }) {
+  return <Link to="/book-a-call" search={{ note: note.slice(0, 280), intent, kind }} className={cn(buttonVariants({ variant: "primary", size: "lg" }), "w-full justify-center", className)}>{BOOK_CTA}</Link>;
 }
 
 type Field = { key: string; title: string; options: string[] } | { key: string; title: string; number: { min: number; max: number; step: number; unit: string; initial: number } };
@@ -50,7 +50,7 @@ export function EstimatePreview({ category, disclaimer }: { category: "video" | 
       <p className="text-h4 mt-6 text-foreground" role="status">Estimate unavailable until pricing is approved</p>
       <p className="text-caption mt-2 text-muted-foreground">Book a call or request a detailed quote and our team will price this configuration for you.</p>
       <div className="mt-5 grid gap-2">
-        <BookCallLink note={summary} />
+        <BookCallLink note={summary} intent={category} kind={String(vals["type"])} />
         <button type="button" onClick={() => setOpen(true)} className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "w-full justify-center")}>{QUOTE_CTA}</button>
       </div>
       <p className="text-caption mt-4 text-muted-foreground">{disclaimer || DEFAULT_DISCLAIMER}</p>

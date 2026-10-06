@@ -118,3 +118,18 @@ describe("staff authorization", () => {
     expect(canManageQuotes(["client"])).toBe(false);
   });
 });
+
+import { calculatorPreselect } from "./phase5";
+describe("calculatorPreselect", () => {
+  const groups = [
+    { id: "1", name: "AI Video Production", slug: "ai-video", services: [{ id: "a", name: "AI UGC", slug: "ai-ugc" }, { id: "b", name: "AI Commercial", slug: "ai-commercial" }] },
+    { id: "2", name: "AI Product Photography", slug: "ai-photo", services: [{ id: "c", name: "Fashion Photography", slug: "fashion-photo" }] },
+  ] as never;
+  it("matches service by kind", () => expect(calculatorPreselect(groups, "video", "AI UGC")).toEqual({ group: "ai-video", service: "ai-ugc" }));
+  it("falls back to category group only", () => expect(calculatorPreselect(groups, "video", "AI TVC")).toEqual({ group: "ai-video", service: null }));
+  it("single-service group preselects it", () => expect(calculatorPreselect(groups, "photography", "Unknown")).toEqual({ group: "ai-photo", service: "fashion-photo" }));
+  it("no match leaves selector empty", () => {
+    const g = [{ id: "9", name: "Web & Software", slug: "web", services: [{ id: "x", name: "Websites", slug: "websites" }] }] as never;
+    expect(calculatorPreselect(g, "photography", "Flat-lay")).toEqual({ group: null, service: null });
+  });
+});

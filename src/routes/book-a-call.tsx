@@ -13,13 +13,15 @@ import { siteChromeQuery } from "@/lib/navigation";
 import { bookingExperienceQuery } from "@/lib/booking.functions";
 import type { BookingGroup } from "@/lib/booking";
 import { submitBooking } from "@/lib/inquiry.functions";
-import { bookingPreselect } from "@/lib/pricing/phase5";
+import { bookingPreselect, calculatorPreselect } from "@/lib/pricing/phase5";
 import { useClientSession } from "@/lib/client-session";
 import { pageMeta, canonical } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/book-a-call")({
-  validateSearch: (s: Record<string, unknown>): { group?: string | undefined; service?: string | undefined; quote?: string | undefined; type?: string | undefined; note?: string | undefined } => ({
+  validateSearch: (s: Record<string, unknown>): { group?: string | undefined; service?: string | undefined; quote?: string | undefined; type?: string | undefined; note?: string | undefined; intent?: "video" | "photography" | undefined; kind?: string | undefined } => ({
+    intent: s["intent"] === "video" || s["intent"] === "photography" ? s["intent"] : undefined,
+    kind: typeof s["kind"] === "string" ? s["kind"].slice(0, 120) : undefined,
     note: typeof s["note"] === "string" ? s["note"].slice(0, 300) : undefined,
     quote: typeof s["quote"] === "string" && /^Q-[0-9A-F]{10}$/.test(s["quote"]) ? s["quote"] : undefined,
     type: typeof s["type"] === "string" ? s["type"].slice(0, 80) : undefined,
@@ -52,7 +54,8 @@ function BookCall() {
   const bookingRef = useRef<HTMLDivElement>(null);
   const [step, setStep] = useState(0);
   const search = Route.useSearch();
-  const pre = bookingPreselect(data.groups, search);
+  const explicit = bookingPreselect(data.groups, search);
+  const pre = explicit.group ? explicit : calculatorPreselect(data.groups, search.intent, search.kind);
   const preGroup = data.groups.find((g) => g.slug === pre.group);
   const [groupId, setGroupId] = useState(preGroup?.id ?? "");
   const [serviceId, setServiceId] = useState(preGroup?.services.find((x) => x.slug === pre.service)?.id ?? "");
