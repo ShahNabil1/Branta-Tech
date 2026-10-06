@@ -91,7 +91,7 @@ export function InlineTable({ table, rows, cols, onChange, newRow, empty, extra,
                       {c.type === "bool" ? <input type="checkbox" aria-label={c.label} checked={!!val(r, c.key)} onChange={(e) => set(r.id, c.key, e.target.checked)} className="size-4 accent-[var(--accent)]" />
                         : c.type === "select" ? <select aria-label={c.label} value={String(val(r, c.key) ?? "")} onChange={(e) => set(r.id, c.key, e.target.value)} className={inp}>{c.options!.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select>
                         : <input aria-label={c.label} type={c.type === "text" ? "text" : "number"} step={c.type === "money" ? "0.01" : c.type === "pct" ? "0.1" : "1"} min="0"
-                            placeholder={c.nullable ? "Not set" : ""} value={String(val(r, c.key) ?? "")} onChange={(e) => set(r.id, c.key, e.target.value)} className={inp} />}
+                            placeholder={c.nullable ? (c.type === "money" ? "Price Required" : "Not set") : ""} value={String(val(r, c.key) ?? "")} onChange={(e) => set(r.id, c.key, e.target.value)} className={inp} />}
                     </Td>
                   ))}
                   {publishable && <Td><Pill on={!!r.published} onLabel="Published" offLabel="Draft" onClick={() => toggle(r)} title="Click to toggle" /></Td>}
