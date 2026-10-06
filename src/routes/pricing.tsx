@@ -62,7 +62,7 @@ function PricingPage() {
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
           <div>
             <Eyebrow>PRICING THAT SCALES WITH YOUR VISION</Eyebrow>
-            <h1 id="pricing-hero" className="text-display-xl mt-6 max-w-[15ch] text-foreground">Simple, Flexible Pricing for AI Production.</h1>
+            <h1 id="pricing-hero" className="text-display mt-6 max-w-[16ch] text-foreground">Simple, Flexible Pricing for AI Production.</h1>
             <p className="text-body-lg mt-6 max-w-xl text-muted-foreground">High-quality AI video and product photography, built for modern brands. Choose your service, customize your requirements, and get an instant estimate.</p>
             <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-3">
               {BENEFITS.map((b) => <li key={b} className="text-small flex items-center gap-2 text-foreground"><Check aria-hidden className="size-4 text-accent" />{b}</li>)}
