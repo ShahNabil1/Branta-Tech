@@ -102,7 +102,7 @@ export function EditorialHero({ work, bookingUrl = "/book-a-call" }: { work: Wor
           </Reveal>
           <Reveal delay={240} className="w-full">
             <div className="mx-auto mt-10 flex w-full max-w-[540px] items-center justify-between gap-3 rounded-full border border-black/10 bg-white p-2 pl-6 shadow-[inset_0_1px_2px_rgba(8,8,8,0.06),0_10px_30px_-18px_rgba(8,8,8,0.25)]">
-              <span className="text-body truncate text-[#7a726d]">Have a project in mind?</span>
+              <span className="text-small md:text-body min-w-0 truncate whitespace-nowrap text-left text-[#7a726d]">Have a project in mind?</span>
               <SmartLink url={bookingUrl} className="text-small inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-full bg-[#080808] px-5 py-3 font-medium text-white ring-2 ring-accent/70 ring-offset-2 transition-all duration-200 hover:bg-accent hover:ring-accent active:scale-[0.98]">
                 Book a Call <span aria-hidden>→</span>
               </SmartLink>
@@ -111,7 +111,7 @@ export function EditorialHero({ work, bookingUrl = "/book-a-call" }: { work: Wor
           <Reveal delay={300}>
             <p className="text-small mt-6 text-[#55504c]">
               Already have a project in mind?{" "}
-              <Link to="/work" className="font-medium text-[#080808] underline decoration-black/25 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent">
+              <Link to="/work" className="whitespace-nowrap font-medium text-[#080808] underline decoration-black/25 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent">
                 Explore Our Work ↗
               </Link>
             </p>
