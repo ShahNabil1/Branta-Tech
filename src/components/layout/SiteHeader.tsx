@@ -3,9 +3,8 @@ import { lazy, Suspense, useCallback, useEffect, useId, useRef, useState, type R
 import { createPortal } from "react-dom";
 import { Link, useHydrated, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { displayName, useClientSession } from "@/lib/client-session";
-import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Menu } from "lucide-react";
 import { FALLBACK_NAV, navFromCms, safeImage, siteChromeQuery, type NavEntry, type NavLink } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
@@ -380,6 +379,7 @@ function AccountArea({ mobile, onNavigate }: { mobile?: boolean; onNavigate?: ()
     onNavigate?.();
     await qc.cancelQueries({ queryKey: ["client"] });
     qc.removeQueries({ queryKey: ["client"] });
+    const { supabase } = await import("@/integrations/supabase/client");
     await supabase.auth.signOut();
     navigate({ to: "/sign-in", replace: true });
   }
