@@ -6,8 +6,8 @@ import { Choice, Step } from "./PricingCalculator";
 import { cn } from "@/lib/utils";
 
 export const DEFAULT_DISCLAIMER = "This is an approximate estimate based on your selections. Final pricing will be confirmed after reviewing your requirements.";
-export const BOOK_CTA = "Book a Call to Discuss Your Project";
-export const QUOTE_CTA = "Request a Detailed Quote";
+export const BOOK_CTA = "Book a Call";
+export const QUOTE_CTA = "Request Detailed Quote";
 
 /** Book a Call link carrying the calculator configuration as a prefilled note. */
 export function BookCallLink({ note, intent, kind, className }: { note: string; intent: "video" | "photography"; kind?: string | undefined; className?: string }) {
@@ -57,8 +57,8 @@ export function EstimatePreview({ category, disclaimer }: { category: "video" | 
     </>
   );
   return (
-    <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
-      <div>
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1.85fr)_minmax(0,1fr)]">
+      <div className="rounded-[20px] border border-border bg-[var(--white)] p-5 sm:p-7 md:p-8">
         {fields.map((f, i) => (
           <Step key={f.key} n={i + 1} title={f.title}>
             {"options" in f ? (
@@ -75,7 +75,7 @@ export function EstimatePreview({ category, disclaimer }: { category: "video" | 
         ))}
       </div>
       <aside aria-label="Your estimate">
-        <div className="dark rounded-[8px] border border-border bg-background p-6 text-foreground lg:sticky lg:top-24">{panel}</div>
+        <div className="rounded-[20px] border border-border bg-[var(--white)] p-6 text-foreground lg:sticky lg:top-24">{panel}</div>
       </aside>
       <QuoteRequestDialog open={open} onOpenChange={setOpen} selection={null} summary={null} category={category} summaryText={summary} />
     </div>

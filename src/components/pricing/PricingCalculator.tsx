@@ -8,6 +8,7 @@ import { QuoteRequestDialog } from "./QuoteRequestDialog";
 import { useServerFn } from "@tanstack/react-start";
 import { trackPricingEvent } from "@/lib/quotes.functions";
 import { cn } from "@/lib/utils";
+import { BreakdownLine, EstimateSummary } from "./EstimateSummary";
 import { BookCallLink, DEFAULT_DISCLAIMER, EstimatePreview, QUOTE_CTA } from "./EstimatePreview";
 
 export const money = (minor: number, cur: string) => `${cur === "BDT" ? "৳" : `${cur} `}${(minor / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
@@ -39,11 +40,11 @@ export function PricingCalculator({ data }: { data: PublicPricing }) {
 
 export function Step({ n, title, children }: { n: number; title: string; children: ReactNode }) {
   return (
-    <fieldset className="border-t border-border py-8 first:border-t-0 first:pt-0">
+    <fieldset className="border-t border-border py-7 first:border-t-0 first:pt-0 md:py-8">
       <legend className="contents">
-        <span className="flex items-baseline gap-3">
-          <span className="text-caption font-mono text-accent">{String(n).padStart(2, "0")}</span>
-          <span className="text-h4 font-medium text-foreground">{title}</span>
+        <span className="flex items-center gap-3">
+          <span className="text-caption grid size-7 shrink-0 place-items-center rounded-full bg-muted font-mono text-foreground">{n}</span>
+          <span className="text-body font-medium text-foreground md:text-h4">{title}</span>
         </span>
       </legend>
       <div className="mt-5">{children}</div>
@@ -54,10 +55,10 @@ export function Step({ n, title, children }: { n: number; title: string; childre
 export function Choice({ selected, onClick, title, meta, desc }: { selected: boolean; onClick: () => void; title: string; meta?: string | undefined; desc?: string | undefined }) {
   return (
     <button type="button" role="radio" aria-checked={selected} onClick={onClick}
-      className={cn("relative flex min-h-16 w-full flex-col items-start rounded-[6px] border bg-[var(--white)] px-4 py-3 text-left transition-[border-color,box-shadow] duration-200",
-        selected ? "border-accent shadow-[0_0_0_1px_var(--accent)]" : "border-border hover:border-foreground/40")}>
-      <span className={cn("absolute right-3 top-3 size-2 rounded-full transition-colors", selected ? "bg-accent" : "bg-border")} aria-hidden />
-      <span className="text-small pr-5 font-medium text-foreground">{title}</span>
+      className={cn("relative flex min-h-16 w-full flex-col items-start rounded-[12px] border px-4 py-3 text-left transition-[border-color,box-shadow,background-color,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 active:scale-[0.99] motion-reduce:transform-none",
+        selected ? "border-accent bg-accent/[0.04] shadow-[0_0_0_1px_var(--accent)]" : "border-border bg-[var(--white)] hover:border-foreground/30 hover:shadow-[0_6px_18px_-12px_color-mix(in_oklab,var(--foreground)_35%,transparent)]")}>
+      <span className={cn("absolute right-3 top-3 grid size-4 place-items-center rounded-full border transition-colors", selected ? "border-accent bg-accent" : "border-border")} aria-hidden>{selected && <span className="size-1.5 rounded-full bg-[var(--white)]" />}</span>
+      <span className="text-small pr-6 font-medium text-foreground">{title}</span>
       {meta && <span className="text-caption mt-0.5 text-muted-foreground">{meta}</span>}
       {desc && <span className="text-caption mt-1.5 line-clamp-2 text-muted-foreground">{desc}</span>}
     </button>
@@ -85,7 +86,6 @@ function Calculator({ config, defaults, desc, disclaimer }: { config: PricingCon
   const presets = [5, 10, 15, 30, 45, 60].filter(valid);
   const [picked, setPicked] = useState<Record<string, string>>({}); // addonId → scene count text ("" for non-scene)
   const addons = config.addons.filter((a) => !a.video_type_ids.length || a.video_type_ids.includes(vt));
-  const [sheet, setSheet] = useState(false);
   const [quoteOpen, setQuoteOpen] = useState(false);
 
   const result = useMemo((): { quote: Quote } | { error: string } => {
@@ -108,13 +108,12 @@ function Calculator({ config, defaults, desc, disclaimer }: { config: PricingCon
   const q = "quote" in result ? result.quote : null;
   const shown = useTween(q?.total ?? 0);
 
-  const Line = ({ l, v }: { l: string; v: string }) => <div className="text-small flex justify-between gap-4 py-1"><span className="text-muted-foreground">{l}</span><span className="text-right tabular-nums text-foreground">{v}</span></div>;
+  const Line = BreakdownLine;
   const breakdown = q && (
     <div className="divide-y divide-border">
-      <div className="pb-3">
+      <div>
         <Line l="Base creative fee" v={money(q.baseFee, cur)} />
-        <Line l={`${q.model.name} · ${money(q.ratePerSecond, cur)}/sec × ${q.durationSeconds}s`} v="" />
-        <Line l={`Production (${q.tier.name} ${q.tier.multiplier.toFixed(2)}×)`} v={money(q.variableSubtotal, cur)} />
+        <Line l={`Production cost · ${money(q.ratePerSecond, cur)}/s × ${q.durationSeconds}s × ${q.tier.multiplier.toFixed(2)}`} v={money(q.variableSubtotal, cur)} />
         {q.addonLines.map((l) => <Line key={l.addonId} l={l.name + (l.chargeType === "per_scene" ? ` × ${l.quantity}` : l.chargeType === "percentage" ? ` (${l.quantity}%)` : "")} v={money(l.amount, cur)} />)}
         {q.minimumAdjustment > 0 && <Line l="Minimum project adjustment" v={`+ ${money(q.minimumAdjustment, cur)}`} />}
         {q.roundingAdjustment > 0 && <Line l="Rounding" v={`+ ${money(q.roundingAdjustment, cur)}`} />}
@@ -138,8 +137,9 @@ function Calculator({ config, defaults, desc, disclaimer }: { config: PricingCon
     void trackFn({ data: { event: "calculator_start" } }).catch(() => null);
   };
   return (
-    <div onPointerDownCapture={markStart} onKeyDownCapture={markStart} className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-12">
-      <div className="min-w-0 pb-24 lg:pb-0">
+    <div onPointerDownCapture={markStart} onKeyDownCapture={markStart} className="grid gap-8 lg:grid-cols-[minmax(0,1.85fr)_minmax(0,1fr)] lg:gap-8 xl:gap-10">
+      <div className="min-w-0 rounded-[20px] border border-border bg-[var(--white)] p-5 pb-24 sm:p-7 md:p-8 lg:pb-8">
+        <h3 className="text-h3 mb-8 text-foreground">Customize Your AI Video Production</h3>
         <Step n={1} title="What are you creating?">
           <div role="radiogroup" aria-label="Video type" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {types.map((v) => { const f = fromPrice(v.id); return <Choice key={v.id} selected={vt === v.id} onClick={() => setVt(v.id)} title={v.name} meta={f != null ? `From ${money(f, cur)}` : undefined} desc={desc[v.id]} />; })}
@@ -179,12 +179,12 @@ function Calculator({ config, defaults, desc, disclaimer }: { config: PricingCon
         </Step>
         {addons.length > 0 && (
           <Step n={5} title="Customize your production.">
-            <ul className="divide-y divide-border rounded-[6px] border border-border bg-[var(--white)]">
+            <ul className="grid gap-3 sm:grid-cols-2">
               {addons.map((a) => {
                 const on = a.id in picked;
                 const rule = a.charge_type === "percentage" ? `+${a.percentage}% of production total` : `${money(Math.round((a.amount ?? 0) * 100), cur)}${a.charge_type === "per_second" ? " / sec" : a.charge_type === "per_scene" ? " / scene" : ""}`;
                 return (
-                  <li key={a.id} className="px-4 py-3">
+                  <li key={a.id} className={cn("rounded-[12px] border px-4 py-3 transition-colors", on ? "border-accent bg-accent/[0.04]" : "border-border bg-[var(--white)] hover:border-foreground/30")}>
                     <label className="flex min-h-11 cursor-pointer items-center gap-3">
                       <input type="checkbox" checked={on} className="size-5 accent-[var(--accent)]"
                         onChange={(e) => setPicked((p) => { const n = { ...p }; if (e.target.checked) n[a.id] = ""; else delete n[a.id]; return n; })} />
@@ -216,45 +216,11 @@ function Calculator({ config, defaults, desc, disclaimer }: { config: PricingCon
           summary={{ videoType: q.videoType.name, model: q.model.name, duration: q.durationSeconds, tier: q.tier.name, addons: q.addonLines.map((l) => l.name) }} />
       )}
 
-      {/* Desktop sticky summary */}
-      <aside aria-label="Your estimate" className="hidden lg:block">
-        <div className="dark sticky top-24 rounded-[8px] border border-border bg-background p-6 text-foreground">
-          <Summary q={q} err={"error" in result ? result.error : null} shown={shown} cur={cur} />
-          <div className="mt-5">{breakdown}</div>
-          <div className="mt-5">{actions}</div>
-          <p className="text-caption mt-4 text-muted-foreground">{disclaimer || DEFAULT_DISCLAIMER}</p>
-        </div>
-      </aside>
-
-      {/* Mobile compact bar + expandable breakdown */}
-      <div className="dark fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background text-foreground lg:hidden">
-        {sheet && (
-          <div className="max-h-[60vh] overflow-y-auto border-b border-border px-[var(--gutter)] py-4">
-            {breakdown}
-            <div className="mt-4">{actions}</div>
-            <p className="text-caption mt-3 text-muted-foreground">{disclaimer || DEFAULT_DISCLAIMER}</p>
-          </div>
-        )}
-        <button type="button" onClick={() => setSheet((v) => !v)} aria-expanded={sheet} className="flex w-full items-center justify-between gap-3 px-[var(--gutter)] py-3">
-          <span className="text-left">
-            <span className="text-caption block text-muted-foreground">Your Estimated Project Cost</span>
-            <span className="text-h4 block tabular-nums">{q ? money(shown, cur) : "Custom estimate"}</span>
-          </span>
-          <span className="text-small flex items-center gap-1 text-muted-foreground">{sheet ? "Hide" : "Breakdown"}<ChevronUp className={cn("size-4 transition-transform", !sheet && "rotate-180")} /></span>
-        </button>
-      </div>
+      <EstimateSummary
+        rows={q ? [["Service", q.videoType.name], ["Model", q.model.name], ["Duration", `${q.durationSeconds} seconds`], ["Production", q.tier.name], ...(q.addonLines.length ? [["Add-ons", q.addonLines.map((l) => l.name).join(", ")] as const] : [])] : [["Service", "AI Video Production"]]}
+        total={q ? money(shown, cur) : null} error={"error" in result ? result.error : null}
+        breakdown={breakdown} actions={actions} disclaimer={disclaimer} />
     </div>
   );
 }
 
-function Summary({ q, err, shown, cur }: { q: Quote | null; err: string | null; shown: number; cur: string }) {
-  return (
-    <div>
-      <p className="text-eyebrow text-muted-foreground">YOUR PRODUCTION</p>
-      {q && <p className="text-small mt-3 text-foreground">{q.videoType.name} · {q.model.name} · {q.durationSeconds}s · {q.tier.name}</p>}
-      <p className="text-caption mt-6 text-muted-foreground">Your Estimated Project Cost</p>
-      {q ? <><p className="text-display mt-1 tabular-nums text-foreground" aria-live="polite">{money(shown, cur)}</p><p className="text-caption mt-2 text-muted-foreground">Based on your selections. Final pricing may vary depending on project requirements.</p></>
-        : <><p className="text-h4 mt-1 text-foreground" role="status">Custom Estimate Required</p><p className="text-small mt-2 text-muted-foreground">{err}</p></>}
-    </div>
-  );
-}
