@@ -24,12 +24,17 @@ import type { VideoPriority } from "@/lib/video-priority";
 const ORIGIN = "https://player.vimeo.com";
 const MARGIN: Record<VideoPriority, string> = { critical: "1200px", high: "900px", lazy: "250px" };
 
-type Env = { motion: boolean; slow: boolean; ready: boolean };
+type Env = { motion: boolean; slow: boolean; coarse: boolean; ready: boolean };
 function useEnv(): Env {
-  const [env, setEnv] = useState<Env>({ motion: false, slow: false, ready: false });
+  const [env, setEnv] = useState<Env>({ motion: false, slow: false, coarse: false, ready: false });
   useEffect(() => {
     const c = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
-    setEnv({ motion: !window.matchMedia("(prefers-reduced-motion: reduce)").matches, slow: !!c?.saveData || /(^|-)2g$/.test(c?.effectiveType ?? ""), ready: true });
+    setEnv({
+      motion: !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+      slow: !!c?.saveData || /(^|-)2g$/.test(c?.effectiveType ?? ""),
+      coarse: window.matchMedia("(pointer: coarse)").matches,
+      ready: true,
+    });
   }, []);
   return env;
 }
@@ -89,7 +94,10 @@ export function BrantaVideo({
     return () => { prep.disconnect(); vis.disconnect(); };
   }, [priority]);
 
-  const auto = autoplay && env.motion && !(env.slow && priority !== "critical");
+  // Third-party Vimeo players never compete with first paint on touch devices. Their poster remains
+  // immediate; the player starts after an explicit tap. Direct first-party videos retain autoplay.
+  const deferVimeo = kind === "vimeo" && env.coarse && !manual;
+  const auto = autoplay && env.motion && !deferVimeo && !(env.slow && priority !== "critical");
   const want = env.ready && valid && !failed && active && near && (manual || auto);
   useEffect(() => { if (want) setMounted(true); }, [want]);
   useEffect(() => { if (!active) { setMounted(false); setManual(false); } }, [active]);
@@ -157,7 +165,7 @@ export function BrantaVideo({
           onPlaying={() => setPlaying(true)} onError={() => { setFailed(true); setMounted(false); }}
           className={cn("absolute inset-0 size-full object-cover", objectPosition, fade, playing ? "opacity-100" : "opacity-0")} />
       )}
-      {playButton && valid && !playing && (!mounted || stalled || failed) && (
+      {(playButton || deferVimeo) && valid && !playing && (!mounted || stalled || failed) && (
         <button type="button" onClick={start} aria-label={alt ? `Play ${alt}` : "Play video"}
           className="absolute left-1/2 top-1/2 z-20 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-ink/45 text-ink-foreground backdrop-blur-sm transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
           <Play className="ml-0.5 size-6" aria-hidden />

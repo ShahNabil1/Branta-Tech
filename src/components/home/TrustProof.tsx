@@ -7,7 +7,7 @@ type Content = NonNullable<HomeClosing["trust"]>;
 
 function Logo({ l, decorative }: { l: ClientLogo; decorative?: boolean }) {
   const img = (
-    <img src={l.logo_url} alt={decorative ? "" : l.alt || l.client_name} loading="lazy" decoding="async"
+    <img src={l.logo_url} alt={decorative ? "" : l.alt || l.client_name} loading="lazy" decoding="async" sizes="180px"
       onError={(e) => { const li = e.currentTarget.closest("li"); if (li) li.style.display = "none"; }}
       className="h-7 w-auto max-w-[150px] object-contain opacity-70 grayscale transition-[opacity,filter] duration-300 hover:opacity-100 hover:grayscale-0 md:h-9 md:max-w-[180px]" />
   );
@@ -79,7 +79,7 @@ export function TrustProof({ content }: { content: Content }) {
               <div className={cn("pt-10", stats.length > 0 && "mt-10 border-t border-border md:col-span-4 md:mt-0 md:border-l md:border-t-0 md:pl-10")}>
                 <p className="text-eyebrow text-muted-foreground">{fundedBy.label}</p>
                 <div className="mt-4 flex items-center gap-4">
-                  {fundedBy.logo_url && <img src={fundedBy.logo_url} alt={`${fundedBy.name} logo`} loading="lazy" className="h-12 w-auto max-w-[120px] object-contain" />}
+                  {fundedBy.logo_url && <img src={fundedBy.logo_url} alt={`${fundedBy.name} logo`} loading="lazy" decoding="async" sizes="120px" className="h-12 w-auto max-w-[120px] object-contain" />}
                   {fundedBy.url
                     ? <a href={fundedBy.url} target="_blank" rel="noopener noreferrer" className="text-h3 font-medium underline-offset-4 hover:underline">{fundedBy.name}</a>
                     : <p className="text-h3 font-medium">{fundedBy.name}</p>}

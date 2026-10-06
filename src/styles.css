@@ -2,6 +2,22 @@
 @source "../src";
 @import "tw-animate-css";
 
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url("/fonts/geist-latin-variable.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url("/fonts/geist-mono-latin.woff2") format("woff2");
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /*
@@ -166,6 +182,17 @@
   ::selection {
     background: var(--color-accent);
     color: var(--color-accent-foreground);
+  }
+}
+
+/* Skip rendering work for sections far below the viewport while reserving stable space. */
+@media (max-width: 767px) {
+  main > section:nth-of-type(n + 3),
+  #work-showcase > section,
+  #client-stories,
+  #recognition {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 900px;
   }
 }
 

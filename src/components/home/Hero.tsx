@@ -28,7 +28,7 @@ function useParallax<T extends HTMLElement>(max = 24) {
   const reduced = useReducedMotion();
   useEffect(() => {
     const el = ref.current;
-    if (!el || reduced) return;
+    if (!el || reduced || window.matchMedia("(pointer: coarse)").matches) return;
     let raf = 0;
     const tick = () => {
       raf = 0;
@@ -41,6 +41,25 @@ function useParallax<T extends HTMLElement>(max = 24) {
     return () => { window.removeEventListener("scroll", on); cancelAnimationFrame(raf); el.style.transform = ""; };
   }, [max, reduced]);
   return ref;
+}
+
+function DeferredMediaTile({ item, ratio, className }: { item: HeroMediaItem; ratio: string; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") { setNear(true); return; }
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry?.isIntersecting) { setNear(true); io.disconnect(); }
+    }, { rootMargin: "160px 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <div ref={ref} className={cn("relative overflow-hidden rounded-md bg-muted", className)} style={{ aspectRatio: ratio }}>
+      {near && <MediaTile item={item} ratio={ratio} className="absolute inset-0" />}
+    </div>
+  );
 }
 
 export function HeroAction({ label, url, variant }: { label: string; url: string; variant: "primary" | "secondary" }) {
@@ -216,13 +235,13 @@ export function HomeHero({ hero }: { hero: HeroContent }) {
                 {filmTile}
                 {(fashion || product) && (
                   <div className="grid grid-cols-2 gap-3">
-                    {fashion && <MediaTile item={fashion} ratio="4/5" />}
-                    {product && <MediaTile item={product} ratio="4/5" />}
+                    {fashion && <DeferredMediaTile item={fashion} ratio="4/5" />}
+                    {product && <DeferredMediaTile item={product} ratio="4/5" />}
                   </div>
                 )}
-                {ugc && <MediaTile item={ugc} ratio="4/3" />}
-                {campaign && !web && <MediaTile item={campaign} ratio="4/3" />}
-                {web && <MediaTile item={web} ratio="16/10" />}
+                {ugc && <DeferredMediaTile item={ugc} ratio="4/3" />}
+                {campaign && !web && <DeferredMediaTile item={campaign} ratio="4/3" />}
+                {web && <DeferredMediaTile item={web} ratio="16/10" />}
               </div>
             </div>
           )}

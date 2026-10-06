@@ -19,7 +19,7 @@ function ImageLayer({ item, active }: { item: Item; active: boolean }) {
       alt={active ? item.media.alt : ""}
       aria-hidden={!active}
       decoding="async"
-      loading={active ? "eager" : "lazy"}
+      loading="lazy"
       onLoad={() => setLoaded(true)}
       ref={(el) => { if (el?.complete && el.naturalWidth) setLoaded(true); }}
       className={cn(

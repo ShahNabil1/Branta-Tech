@@ -24,6 +24,7 @@ export function WorkMediaView({ media: m, title, alt, playing }: { media: WorkMe
     <>
       {poster ? (
         <img src={poster} alt={alt ?? m.alt ?? title} loading="lazy" decoding="async" draggable={false}
+          sizes="(max-width: 429px) 78vw, 340px"
           className={cn("absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100", pos)} />
       ) : <div className="absolute inset-0 bg-muted/10" />}
       {(m.type === "vimeo" || m.type === "video") && playing && (

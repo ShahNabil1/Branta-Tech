@@ -52,7 +52,7 @@ function Card({ it }: { it: RecognitionItem }) {
       <h3 className="text-h4 mt-2 pr-10 text-foreground">{it.organization}</h3>
       <div className="mt-6 flex h-24 items-center">
         {it.logo ? (
-          <img src={it.logo} alt={`${it.organization} logo`} loading="lazy" className="max-h-full max-w-[85%] object-contain object-left transition-transform duration-500 group-hover/c:scale-[1.03]" />
+          <img src={it.logo} alt={`${it.organization} logo`} loading="lazy" decoding="async" sizes="(max-width: 767px) 75vw, 420px" className="max-h-full max-w-[85%] object-contain object-left transition-transform duration-500 group-hover/c:scale-[1.03]" />
         ) : (
           <span className="text-h3 text-muted-foreground">{it.organization}</span>
         )}
