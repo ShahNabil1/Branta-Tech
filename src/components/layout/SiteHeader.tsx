@@ -374,7 +374,7 @@ function AccountArea({ mobile, onNavigate }: { mobile?: boolean; onNavigate?: ()
   const navigate = useNavigate();
   const qc = useQueryClient();
   const base = "text-small items-center rounded-sm px-3 font-medium text-muted-foreground transition-colors hover:text-foreground";
-  const block = "flex h-12 justify-center border border-border text-foreground";
+  const block = "flex h-12 justify-center border border-border text-foreground transition-[color,background-color,border-color,transform] duration-200 ease-out hover:border-accent hover:bg-accent/10 hover:text-accent active:scale-[0.98] focus-visible:border-accent focus-visible:text-accent";
   async function signOut() {
     onNavigate?.();
     await qc.cancelQueries({ queryKey: ["client"] });
