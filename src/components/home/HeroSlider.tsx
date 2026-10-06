@@ -16,7 +16,9 @@ function groupCards(work: WorkShowcase, key: string): WorkCard[] {
   if (!work) return [];
   if (!key) return [];
   const g = (work.groups.find((x) => x.key === key)?.items ?? []).filter((c) => c.media);
-  return g.length ? g : work.featured.filter((c) => c.media);
+  if (g.length) return g;
+  const f = work.featured.filter((c) => c.media);
+  return f.length ? f : work.groups.flatMap((x) => x.items).filter((c) => c.media);
 }
 const toWorkMedia = (m: SlideMedia, alt: string) => ({ type: m.type, url: m.url, poster: m.poster || null, alt, orientation: "landscape" }) as WorkCard["media"];
 
@@ -129,7 +131,6 @@ function SlideBody({ s, work, live, open }: { s: HeroSlide; work: WorkShowcase; 
           <Title s={s} className="text-[clamp(2.1rem,4.4vw,3.6rem)] font-bold leading-[1.04] tracking-[-0.035em] text-[#141414]" />
           <Desc s={s} className="max-w-[40ch]" />
           {s.cta_label && <SmartLink url={s.cta_url} className="text-small inline-flex cursor-pointer items-center gap-2 rounded-full bg-accent px-5 py-3 font-medium text-white transition-all hover:-translate-y-0.5 hover:bg-[#E95200]">{s.cta_label}<span className="grid size-5 place-items-center rounded-full bg-white/25"><ArrowRight className="size-3" /></span></SmartLink>}
-          <p className="text-caption mt-4 text-[#7a726d]">Trusted by growing brands across Bangladesh</p>
         </div>
         <div className="relative pb-6 md:pr-6">
           <div className="relative aspect-[4/3.3] overflow-hidden rounded-[22px] bg-[#1F1A17]">
@@ -180,14 +181,13 @@ function SlideBody({ s, work, live, open }: { s: HeroSlide; work: WorkShowcase; 
           <span className="text-small min-w-0 flex-1 truncate text-left text-[#9a908a]">Tell us about your project</span>
           {s.cta_label && <SmartLink url={s.cta_url} className="text-small shrink-0 cursor-pointer rounded-full bg-[#8A3B1E] px-4 py-2 font-medium text-white transition-colors hover:bg-accent">{s.cta_label}</SmartLink>}
         </div>
-        <div className="mt-4 flex gap-8 text-left"><div><p className="text-h4 font-semibold text-[#3a2b24]">100+</p><p className="text-caption text-[#7a726d]">Projects delivered</p></div><div><p className="text-h4 font-semibold text-[#3a2b24]">AI-first</p><p className="text-caption text-[#7a726d]">Creative studio</p></div></div>
       </div>
       <div className="relative mx-auto h-[300px] w-[200px] md:h-[400px] md:w-[260px]">
         <div className="metal-card absolute inset-0 rotate-[8deg] rounded-[26px] p-6 transition-transform duration-700 hover:rotate-[4deg]">
           <div className="flex items-center justify-between"><img src={logo} alt="" className="size-8 rounded-full bg-[#141414] p-1" /><span className="text-[0.6rem] tracking-[0.3em] text-[#555]">BRANTA</span></div>
           <span className="absolute bottom-6 left-6 text-[0.7rem] font-medium tracking-[0.2em] text-[#444]">CREATE · AI · BUILD</span>
         </div>
-        <span className="text-caption absolute -left-10 top-10 hidden items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-[#3a2b24] shadow md:inline-flex"><span className="size-1.5 rounded-full bg-accent" />Creative · AI · Tech</span>
+        <span className="text-caption absolute -left-16 bottom-16 hidden items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-[#3a2b24] shadow md:inline-flex"><span className="size-1.5 rounded-full bg-accent" />Creative · AI · Tech</span>
       </div>
     </div>
   );
