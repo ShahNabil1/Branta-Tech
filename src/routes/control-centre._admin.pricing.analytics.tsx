@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { adminHead, must } from "@/lib/supabase/cms";
+import { adminHead } from "@/lib/supabase/cms";
 import { ErrorNote, LoadingRow, PageHeader, Panel, SelectInput } from "@/components/admin/cms";
 import { StatCard } from "@/components/admin/pricing/PricingKit";
 import { pricingAnalytics } from "@/lib/pricing/phase5";
@@ -26,10 +26,11 @@ function Analytics() {
       if (since) { ev = ev.gte("created_at", since); rq = rq.gte("created_at", since); }
       const [e, r, t, m] = await Promise.all([ev, rq, supabase.from("pricing_video_types").select("id,name"), supabase.from("pricing_ai_models").select("id,name")]);
       if (e.error) throw e.error;
-      const requests = must(r);
+      const ok = <D,>(x: { data: D | null; error: unknown }) => { if (x.error) throw x.error; return x.data ?? ([] as unknown as D); };
+      const requests = ok(r);
       const ids = requests.map((x) => x.id);
-      const versions = ids.length ? must(await supabase.from("pricing_quote_versions").select("quote_id,status,customer_response,total_minor").in("quote_id", ids.slice(0, 1000))) : [];
-      return { stats: pricingAnalytics({ requests, versions, calculatorStarts: e.count ?? 0 }), types: must(t), models: must(m) };
+      const versions = ids.length ? ok(await supabase.from("pricing_quote_versions").select("quote_id,status,customer_response,total_minor").in("quote_id", ids.slice(0, 1000))) : [];
+      return { stats: pricingAnalytics({ requests, versions, calculatorStarts: e.count ?? 0 }), types: ok(t), models: ok(m) };
     },
   });
   const name = (list: { id: string; name: string }[], id: string) => list.find((x) => x.id === id)?.name ?? "Unknown";

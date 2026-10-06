@@ -53,7 +53,7 @@ function Review({ d }: { d: AdminPricing }) {
       </Panel>
       <Panel title="Per-second rates">
         <DataTable head={["Video type", "Model", "Rate / sec", "Enabled"]}>
-          {d.rates.map((r) => <tr key={r.id}><Td>{d.videoTypes.find((v) => v.id === r.video_type_id)?.name ?? "—"}</Td><Td>{model(r.ai_model_id)?.name ?? "—"}</Td><Td className="tabular-nums">{bdt(r.per_second_rate)}</Td><Td><Pill on={r.enabled} yes="Enabled" no="Off" /></Td></tr>)}
+          {d.rates.map((r) => <tr key={r.id}><Td>{d.videoTypes.find((v) => v.id === r.video_type_id)?.name ?? "—"}</Td><Td>{model(r.ai_model_id)?.name ?? "—"}</Td><Td className="tabular-nums">{bdt(r.selling_rate_per_second)}</Td><Td><Pill on={r.enabled} yes="Enabled" no="Off" /></Td></tr>)}
         </DataTable>
       </Panel>
       <div className="grid gap-6 lg:grid-cols-2">

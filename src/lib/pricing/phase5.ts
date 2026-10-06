@@ -41,18 +41,18 @@ export function autoLeadLink(verifiedUserId: string | null, leads: LeadLike[]): 
   return own[0]?.id ?? null;
 }
 /** Leads staff may consider for a manual link: same account, or same email shown as an unverified suggestion. */
-export function leadSuggestions(q: { requester_user_id: string | null; customer_email: string }, leads: LeadLike[]) {
+export function leadSuggestions<L extends LeadLike>(q: { requester_user_id: string | null; customer_email: string }, leads: L[]) {
   const email = q.customer_email.trim().toLowerCase();
   return leads
     .map((l) => ({ ...l, match: q.requester_user_id && l.client_user_id === q.requester_user_id ? ("account" as const) : l.email.trim().toLowerCase() === email ? ("email_unverified" as const) : null }))
-    .filter((l): l is LeadLike & { match: "account" | "email_unverified" } => l.match !== null);
+    .filter((l): l is L & { match: "account" | "email_unverified" } => l.match !== null);
 }
 
 /* ---------- Booking from a quote ---------- */
 export const QUOTE_REF_RE = /^Q-[0-9A-F]{10}$/;
 type Group = { slug: string; services: { slug: string; id: string }[] };
 /** Preselect only services that are currently published (present in the public booking groups). */
-export function bookingPreselect(groups: Group[], want: { group?: string | null; service?: string | null }) {
+export function bookingPreselect(groups: Group[], want: { group?: string | null | undefined; service?: string | null | undefined }) {
   const group = groups.find((g) => (want.service && g.services.some((s) => s.slug === want.service)) || g.slug === want.group);
   if (!group) return { group: null, service: null };
   const service = want.service ? group.services.find((s) => s.slug === want.service) ?? null : null;
