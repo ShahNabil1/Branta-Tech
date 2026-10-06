@@ -4,6 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import { SmartLink } from "@/components/layout/SiteHeader";
 import { Reveal } from "@/components/motion/Reveal";
 import { WorkMediaView } from "@/components/work/PortfolioCard";
+import { BrantaVideo } from "@/components/media/BrantaVideo";
 import { WorkMediaModal } from "@/components/work/WorkMediaModal";
 import { cn } from "@/lib/utils";
 import type { WorkCard } from "@/lib/work.functions";
@@ -46,7 +47,11 @@ const BENTO = [
 function Tile({ card, className, onVideo, sizes }: { card: WorkCard; className?: string; onVideo: (c: WorkCard) => void; sizes?: string }) {
   const inner = (
     <>
-      <WorkMediaView media={card.media} title={card.title} playing={false} />
+      {card.id === "bento-reel" && card.media ? (
+        <BrantaVideo kind="vimeo" url={card.media.url} poster={card.media.poster} alt="" priority="high" autoplay loop cover />
+      ) : (
+        <WorkMediaView media={card.media} title={card.title} playing={false} />
+      )}
       <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-3 pt-10 text-left opacity-100 transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-100">
         <span className="text-small block font-medium text-white">{card.title}</span>
         {card.category && <span className="text-caption block text-white/75">{card.category.name}</span>}
@@ -62,7 +67,12 @@ function Tile({ card, className, onVideo, sizes }: { card: WorkCard; className?:
 
 export function EditorialHero({ work, bookingUrl = "/book-a-call" }: { work: WorkShowcase; bookingUrl?: string }) {
   const cards = pickCards(work);
-  const bento = cards.slice(0, 6);
+  const reel: WorkCard | null = work?.bentoVideo ? {
+    id: "bento-reel", slug: "", title: work.bentoVideo.title, client: null, year: null, services: [],
+    category: { id: "reel", name: work.bentoVideo.category, slug: "" } as WorkCard["category"],
+    media: { type: "vimeo", url: work.bentoVideo.url, poster: work.bentoVideo.poster, alt: work.bentoVideo.title, orientation: "landscape" } as WorkCard["media"],
+  } : null;
+  const bento = reel ? [reel, ...cards.slice(0, 5)] : cards.slice(0, 6);
   const floats = (cards.length > 6 ? cards.slice(6) : cards).slice(0, 4);
   const [active, setActive] = useState<WorkCard | null>(null);
   const n = bento.length;
@@ -130,7 +140,7 @@ export function EditorialHero({ work, bookingUrl = "/book-a-call" }: { work: Wor
               </div>
               <div className={cn("mt-8 grid auto-rows-[160px] grid-cols-2 gap-3 md:auto-rows-[200px] md:gap-4", n >= 4 ? "lg:grid-cols-4" : n === 3 ? "lg:grid-cols-3" : "lg:grid-cols-2")}>
                 {bento.map((c, i) => (
-                  <Reveal key={c.id} delay={260 + i * 70} className={cn(n === 6 ? BENTO[i] : "", n === 6 && i === 1 && "col-span-2")}>
+                  <Reveal key={c.id} delay={260 + i * 70} className={cn(n === 6 ? BENTO[i] : "")}>
                     <Tile card={c} onVideo={setActive} className="size-full" />
                   </Reveal>
                 ))}

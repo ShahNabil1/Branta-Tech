@@ -39,10 +39,10 @@ export function WorkMediaModal({ card, onClose }: { card: WorkCard | null; onClo
                 {card.client && <p className="text-small text-muted-foreground">{card.client}</p>}
               </div>
               <div className="flex items-center gap-3">
-                <Link to="/work/$slug" params={{ slug: card.slug }} onClick={onClose}
+                {card.slug && <Link to="/work/$slug" params={{ slug: card.slug }} onClick={onClose}
                   className="text-small group inline-flex min-h-11 items-center gap-2 font-medium text-foreground underline decoration-accent underline-offset-8 hover:text-accent">
                   View Case Study<span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
-                </Link>
+                </Link>}
                 <DialogPrimitive.Close aria-label="Close video"
                   className="inline-flex size-11 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-accent">
                   <X className="size-5" aria-hidden />
