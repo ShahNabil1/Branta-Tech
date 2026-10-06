@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { AdminButton, ConfirmButton, DataTable, EmptyState, ErrorNote, LoadingRow, Panel, Td, friendlyError } from "@/components/admin/cms";
 import { CMS_ROLES } from "@/lib/supabase/admin-access";
 import { loadAdminPricing, PRICING_KEY, type AdminPricing } from "@/lib/pricing/admin";
+import { loadAdminPhoto, PHOTO_KEY, type AdminPhoto } from "@/lib/pricing/photo-admin";
 import { cn } from "@/lib/utils";
 
 const adminRoute = getRouteApi("/control-centre/_admin");
@@ -19,17 +20,75 @@ export function useRefreshPricing() {
   return () => qc.invalidateQueries({ queryKey: PRICING_KEY });
 }
 
-const TABS = [
-  { to: "/control-centre/pricing", label: "Overview" },
-  { to: "/control-centre/pricing/rates", label: "Rate matrix" },
-  { to: "/control-centre/pricing/video-types", label: "Video types" },
-  { to: "/control-centre/pricing/ai-models", label: "AI models" },
-  { to: "/control-centre/pricing/production-tiers", label: "Tiers" },
-  { to: "/control-centre/pricing/addons", label: "Add-ons" },
-  { to: "/control-centre/pricing/simulator", label: "Simulator" },
-  { to: "/control-centre/pricing/settings", label: "Settings" },
-  { to: "/control-centre/pricing/quotations", label: "Quotations" },
+const TAB_GROUPS = [
+  { label: "AI Video", tabs: [
+    { to: "/control-centre/pricing/video-types", label: "Video types" },
+    { to: "/control-centre/pricing/ai-models", label: "AI models" },
+    { to: "/control-centre/pricing/rates", label: "Rate matrix" },
+    { to: "/control-centre/pricing/production-tiers", label: "Tiers" },
+    { to: "/control-centre/pricing/addons", label: "Video add-ons" },
+    { to: "/control-centre/pricing/minimums", label: "Minimum charges" },
+    { to: "/control-centre/pricing/proposals", label: "Proposed changes" },
+  ] },
+  { label: "AI Photography", tabs: [
+    { to: "/control-centre/pricing/photo", label: "Categories & rates" },
+    { to: "/control-centre/pricing/photo-packages", label: "Packages" },
+    { to: "/control-centre/pricing/photo-views", label: "Package views" },
+    { to: "/control-centre/pricing/photo-bulk", label: "Bulk discounts" },
+    { to: "/control-centre/pricing/photo-addons", label: "Photo add-ons" },
+    { to: "/control-centre/pricing/photo-settings", label: "Photo settings" },
+  ] },
+  { label: "Shared", tabs: [
+    { to: "/control-centre/pricing", label: "Overview" },
+    { to: "/control-centre/pricing/simulator", label: "Simulator" },
+    { to: "/control-centre/pricing/review", label: "Publication review" },
+    { to: "/control-centre/pricing/quotations", label: "Quotations" },
+    { to: "/control-centre/pricing/analytics", label: "Analytics" },
+    { to: "/control-centre/pricing/settings", label: "Settings" },
+  ] },
 ] as const;
+
+export function PricingNav() {
+  return (
+    <nav aria-label="Pricing sections" className="mb-8 grid gap-2 border-b border-border pb-3">
+      {TAB_GROUPS.map((g) => (
+        <div key={g.label} className="flex items-center gap-2">
+          <span className="text-caption w-24 shrink-0 text-muted-foreground">{g.label}</span>
+          <div className="-mx-1 flex gap-1 overflow-x-auto">
+            {g.tabs.map((t) => (
+              <Link key={t.to} to={t.to} activeOptions={{ exact: true }}
+                className="text-small whitespace-nowrap rounded-sm px-2.5 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                activeProps={{ className: "!bg-accent/10 !text-foreground font-medium" }}>{t.label}</Link>
+            ))}
+          </div>
+        </div>
+      ))}
+    </nav>
+  );
+}
+
+/** Shell for photography screens. */
+export function PhotoPage({ title, description, children }: { title: string; description?: string; children: (d: AdminPhoto, refresh: () => void) => ReactNode }) {
+  const { admin } = adminRoute.useRouteContext();
+  const allowed = admin.roles.some((r) => (CMS_ROLES as readonly string[]).includes(r));
+  const qc = useQueryClient();
+  const q = useQuery({ queryKey: PHOTO_KEY, queryFn: loadAdminPhoto });
+  const refresh = () => void qc.invalidateQueries({ queryKey: PHOTO_KEY });
+  return (
+    <div className="max-w-7xl">
+      <div className="mb-6">
+        <p className="text-eyebrow text-muted-foreground">Pricing · AI Photography</p>
+        <h1 className="text-h3 mt-2">{title}</h1>
+        {description && <p className="text-small mt-2 max-w-2xl text-muted-foreground">{description}</p>}
+      </div>
+      <PricingNav />
+      {!allowed ? <ErrorNote>Pricing is only available to full Control Centre admins.</ErrorNote>
+        : q.isLoading ? <LoadingRow />
+        : q.error ? <ErrorNote>{friendlyError(q.error)}</ErrorNote>
+        : q.data ? children(q.data, refresh) : null}
+    </div>
+  );
+}
 
 /** Page shell: CMS-role gate (UX only — RLS enforces), sub-nav, data loading. */
 export function PricingPage({ title, description, actions, children, wide }: {
@@ -49,13 +108,7 @@ export function PricingPage({ title, description, actions, children, wide }: {
         </div>
         {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
       </div>
-      <nav aria-label="Pricing sections" className="-mx-1 mb-8 flex gap-1 overflow-x-auto border-b border-border pb-px">
-        {TABS.map((t) => (
-          <Link key={t.to} to={t.to} activeOptions={{ exact: true }}
-            className="text-small whitespace-nowrap border-b-2 border-transparent px-3 py-2 text-muted-foreground hover:text-foreground"
-            activeProps={{ className: "!border-accent !text-foreground font-medium" }}>{t.label}</Link>
-        ))}
-      </nav>
+      <PricingNav />
       {!allowed ? <ErrorNote>Pricing is only available to full Control Centre admins.</ErrorNote>
         : q.isLoading ? <LoadingRow />
         : q.error ? <ErrorNote>{friendlyError(q.error)}</ErrorNote>

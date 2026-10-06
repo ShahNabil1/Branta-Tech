@@ -34,7 +34,7 @@ export async function downloadQuotePdf(d: PdfQuote) {
   };
   const p = d.production;
   const prod = [p.videoType && `Video type: ${p.videoType}`, p.model && `AI model: ${p.model}`, p.tier && `Production tier: ${p.tier}`, p.durationSeconds && `Duration: ${p.durationSeconds} seconds`, p.addons.length && `Add-ons: ${p.addons.join(", ")}`].filter(Boolean) as string[];
-  const n = Math.max(col("Prepared for", [d.customer.name, d.customer.company, d.customer.email].filter(Boolean) as string[], M), col("AI production specifications", prod.length ? prod : ["Custom production"], W / 2 + 6));
+  const n = Math.max(col("Prepared for", [d.customer.name, d.customer.company, d.customer.email].filter(Boolean) as string[], M), (d.photoSpecs ? col("Photography specifications", d.photoSpecs, W / 2 + 6) : col("AI production specifications", prod.length ? prod : ["Custom production"], W / 2 + 6)));
   y += 24 + n * 14;
 
   autoTable(doc, {

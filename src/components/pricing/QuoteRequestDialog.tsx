@@ -15,7 +15,15 @@ type Summary = { videoType: string; model: string; duration: number; tier: strin
 const field = "text-small h-11 w-full rounded-[6px] border border-border bg-[var(--white)] px-3 text-foreground outline-none transition-colors focus:border-foreground";
 const money = (minor: number, cur: string) => `${cur === "BDT" ? "৳" : `${cur} `}${(minor / 100).toLocaleString("en-IN")}`;
 
-export function QuoteRequestDialog({ open, onOpenChange, selection, summary }: { open: boolean; onOpenChange: (v: boolean) => void; selection: QuoteSelection | null; summary: Summary }) {
+export type PhotoSelection = {
+  mode: "individual" | "package"; categoryId?: string; packageId?: string; workflow: string; products: number;
+  imagesPerProduct?: number; viewIds?: string[]; background?: string; modelRequired?: boolean; specs?: string; addons?: { id: string }[];
+};
+
+export function QuoteRequestDialog({ open, onOpenChange, selection, summary, category = "video", photoSelection = null, summaryText }: {
+  open: boolean; onOpenChange: (v: boolean) => void; selection: QuoteSelection | null; summary: Summary;
+  category?: "video" | "photography"; photoSelection?: PhotoSelection | null; summaryText?: string;
+}) {
   const submit = useServerFn(submitQuoteRequest);
   const prefill = useServerFn(getQuotePrefill);
   const track = useServerFn(trackPricingEvent);
@@ -54,7 +62,7 @@ export function QuoteRequestDialog({ open, onOpenChange, selection, summary }: {
     const hp = (new FormData(e.currentTarget).get("hp_field") as string) ?? "";
     setBusy(true); setError(null); setErrs({});
     try {
-      const r = await submit({ data: { ...v, hp_field: hp, started_at: started.current, selection, chatToken: chatToken.current } });
+      const r = await submit({ data: { ...v, hp_field: hp, started_at: started.current, selection: category === "video" ? selection : null, category, photoSelection: category === "photography" ? photoSelection : null, chatToken: chatToken.current } });
       if (r.ok) setDone(r); else { setError(r.error); setErrs(r.fields ?? {}); }
     } catch { setError("We couldn't send your request. Please try again."); }
     setBusy(false);
@@ -79,9 +87,9 @@ export function QuoteRequestDialog({ open, onOpenChange, selection, summary }: {
             <DialogDescription className="text-body mt-3 text-muted-foreground">Our team will review your requirements and get back to you.</DialogDescription>
             <dl className="text-small mx-auto mt-6 grid max-w-sm gap-2 rounded-[6px] border border-border bg-[var(--white)] p-4 text-left">
               <Row k="Reference" val={done.reference} />
-              {done.videoType && <Row k="Video type" val={done.videoType} />}
+              {done.videoType && <Row k={category === "photography" ? "Photography" : "Video type"} val={done.videoType} />}
               {done.durationSeconds && <Row k="Duration" val={`${done.durationSeconds} sec`} />}
-              {done.model && <Row k="AI model" val={done.model} />}
+              {done.model && <Row k={category === "photography" ? "Image workflow" : "AI model"} val={done.model} />}
               {done.estimate && <Row k="Estimate" val={`${money(done.estimate.total, done.estimate.currency)} (to be confirmed)`} />}
               <Row k="Status" val={done.status === "new" ? "Received — awaiting review" : "Custom quote requested"} />
             </dl>
@@ -92,9 +100,9 @@ export function QuoteRequestDialog({ open, onOpenChange, selection, summary }: {
           </div>
         ) : (
           <form onSubmit={send} noValidate>
-            <DialogTitle className="text-h3 text-foreground">{selection ? "Request this quote" : "Request a custom quote"}</DialogTitle>
+            <DialogTitle className="text-h3 text-foreground">{selection || photoSelection ? "Request this quote" : "Request a custom quote"}</DialogTitle>
             <DialogDescription className="text-small mt-2 text-muted-foreground">
-              {summary ? `${summary.videoType} · ${summary.model} · ${summary.duration}s · ${summary.tier}${summary.addons.length ? ` · ${summary.addons.length} add-on${summary.addons.length > 1 ? "s" : ""}` : ""}` : "Tell us about your project and we'll prepare a quote."}
+              {summaryText ? summaryText : summary ? `${summary.videoType} · ${summary.model} · ${summary.duration}s · ${summary.tier}${summary.addons.length ? ` · ${summary.addons.length} add-on${summary.addons.length > 1 ? "s" : ""}` : ""}` : "Tell us about your project and we'll prepare a quote."}
             </DialogDescription>
             <div className="mt-6 grid gap-4">
               {F({k: "name",  label: "Full name",  req: true, auto: "name"})}

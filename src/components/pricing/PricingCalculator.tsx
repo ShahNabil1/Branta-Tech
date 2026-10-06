@@ -9,10 +9,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { trackPricingEvent } from "@/lib/quotes.functions";
 import { cn } from "@/lib/utils";
 
-const money = (minor: number, cur: string) => `${cur === "BDT" ? "৳" : `${cur} `}${(minor / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+export const money = (minor: number, cur: string) => `${cur === "BDT" ? "৳" : `${cur} `}${(minor / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 
 /** Smoothly tweens a number; jumps instantly under reduced motion. */
-function useTween(target: number) {
+export function useTween(target: number) {
   const [v, setV] = useState(target);
   const from = useRef(target);
   useEffect(() => {
@@ -52,7 +52,7 @@ function Unpriced() {
   );
 }
 
-function Step({ n, title, children }: { n: number; title: string; children: ReactNode }) {
+export function Step({ n, title, children }: { n: number; title: string; children: ReactNode }) {
   return (
     <fieldset className="border-t border-border py-8 first:border-t-0 first:pt-0">
       <legend className="contents">
@@ -66,7 +66,7 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
   );
 }
 
-function Choice({ selected, onClick, title, meta, desc }: { selected: boolean; onClick: () => void; title: string; meta?: string | undefined; desc?: string | undefined }) {
+export function Choice({ selected, onClick, title, meta, desc }: { selected: boolean; onClick: () => void; title: string; meta?: string | undefined; desc?: string | undefined }) {
   return (
     <button type="button" role="radio" aria-checked={selected} onClick={onClick}
       className={cn("relative flex min-h-16 w-full flex-col items-start rounded-[6px] border bg-[var(--white)] px-4 py-3 text-left transition-[border-color,box-shadow] duration-200",

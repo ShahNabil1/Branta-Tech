@@ -80,6 +80,7 @@ function QuoteView({ d, token, onDone }: { d: Extract<CustomerQuote, { ok: true 
       </header>
       <section className="grid gap-6 border-b border-border py-6 sm:grid-cols-2">
         <div><h2 className="text-eyebrow text-muted-foreground">PREPARED FOR</h2><p className="text-small mt-2 font-medium">{d.customer.name}</p>{d.customer.company && <p className="text-small text-muted-foreground">{d.customer.company}</p>}<p className="text-small text-muted-foreground">{d.customer.email}</p></div>
+        {d.photo && <div><h2 className="text-eyebrow text-muted-foreground">PHOTOGRAPHY</h2><p className="text-small mt-2">{d.photo.item}{d.photo.products ? ` · ${d.photo.products} product${d.photo.products > 1 ? "s" : ""} · ${d.photo.totalImages} images` : ""}{d.photo.workflow ? ` · ${d.photo.workflow}` : ""}</p>{d.photo.views.length > 0 && <p className="text-caption mt-1 text-muted-foreground">Views: {d.photo.views.join(", ")}</p>}{d.photo.addons.length > 0 && <p className="text-caption mt-1 text-muted-foreground">Includes: {d.photo.addons.join(", ")}</p>}</div>}
         {d.production.videoType && <div><h2 className="text-eyebrow text-muted-foreground">PRODUCTION</h2><p className="text-small mt-2">{d.production.videoType} · {d.production.model} · {d.production.durationSeconds}s · {d.production.tier}</p>{d.production.addons.length > 0 && <p className="text-caption mt-1 text-muted-foreground">Includes: {d.production.addons.join(", ")}</p>}</div>}
       </section>
       <section className="grid gap-6 border-b border-border py-6 sm:grid-cols-2">

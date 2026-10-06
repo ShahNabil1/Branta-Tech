@@ -76,7 +76,15 @@ import { Route as ControlCentreAdminPricingIndexRouteImport } from './routes/con
 import { Route as ControlCentreAdminPricingAddonsRouteImport } from './routes/control-centre._admin.pricing.addons'
 import { Route as ControlCentreAdminPricingAiModelsRouteImport } from './routes/control-centre._admin.pricing.ai-models'
 import { Route as ControlCentreAdminPricingAnalyticsRouteImport } from './routes/control-centre._admin.pricing.analytics'
+import { Route as ControlCentreAdminPricingMinimumsRouteImport } from './routes/control-centre._admin.pricing.minimums'
+import { Route as ControlCentreAdminPricingPhotoRouteImport } from './routes/control-centre._admin.pricing.photo'
+import { Route as ControlCentreAdminPricingPhotoAddonsRouteImport } from './routes/control-centre._admin.pricing.photo-addons'
+import { Route as ControlCentreAdminPricingPhotoBulkRouteImport } from './routes/control-centre._admin.pricing.photo-bulk'
+import { Route as ControlCentreAdminPricingPhotoPackagesRouteImport } from './routes/control-centre._admin.pricing.photo-packages'
+import { Route as ControlCentreAdminPricingPhotoSettingsRouteImport } from './routes/control-centre._admin.pricing.photo-settings'
+import { Route as ControlCentreAdminPricingPhotoViewsRouteImport } from './routes/control-centre._admin.pricing.photo-views'
 import { Route as ControlCentreAdminPricingProductionTiersRouteImport } from './routes/control-centre._admin.pricing.production-tiers'
+import { Route as ControlCentreAdminPricingProposalsRouteImport } from './routes/control-centre._admin.pricing.proposals'
 import { Route as ControlCentreAdminPricingRatesRouteImport } from './routes/control-centre._admin.pricing.rates'
 import { Route as ControlCentreAdminPricingReviewRouteImport } from './routes/control-centre._admin.pricing.review'
 import { Route as ControlCentreAdminPricingSettingsRouteImport } from './routes/control-centre._admin.pricing.settings'
@@ -461,10 +469,58 @@ const ControlCentreAdminPricingAnalyticsRoute =
     path: '/pricing/analytics',
     getParentRoute: () => ControlCentreAdminRoute,
   } as any)
+const ControlCentreAdminPricingMinimumsRoute =
+  ControlCentreAdminPricingMinimumsRouteImport.update({
+    id: '/pricing/minimums',
+    path: '/pricing/minimums',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminPricingPhotoRoute =
+  ControlCentreAdminPricingPhotoRouteImport.update({
+    id: '/pricing/photo',
+    path: '/pricing/photo',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminPricingPhotoAddonsRoute =
+  ControlCentreAdminPricingPhotoAddonsRouteImport.update({
+    id: '/pricing/photo-addons',
+    path: '/pricing/photo-addons',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminPricingPhotoBulkRoute =
+  ControlCentreAdminPricingPhotoBulkRouteImport.update({
+    id: '/pricing/photo-bulk',
+    path: '/pricing/photo-bulk',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminPricingPhotoPackagesRoute =
+  ControlCentreAdminPricingPhotoPackagesRouteImport.update({
+    id: '/pricing/photo-packages',
+    path: '/pricing/photo-packages',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminPricingPhotoSettingsRoute =
+  ControlCentreAdminPricingPhotoSettingsRouteImport.update({
+    id: '/pricing/photo-settings',
+    path: '/pricing/photo-settings',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminPricingPhotoViewsRoute =
+  ControlCentreAdminPricingPhotoViewsRouteImport.update({
+    id: '/pricing/photo-views',
+    path: '/pricing/photo-views',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
 const ControlCentreAdminPricingProductionTiersRoute =
   ControlCentreAdminPricingProductionTiersRouteImport.update({
     id: '/pricing/production-tiers',
     path: '/pricing/production-tiers',
+    getParentRoute: () => ControlCentreAdminRoute,
+  } as any)
+const ControlCentreAdminPricingProposalsRoute =
+  ControlCentreAdminPricingProposalsRouteImport.update({
+    id: '/pricing/proposals',
+    path: '/pricing/proposals',
     getParentRoute: () => ControlCentreAdminRoute,
   } as any)
 const ControlCentreAdminPricingRatesRoute =
@@ -666,7 +722,15 @@ export interface FileRoutesByFullPath {
   '/control-centre/pricing/addons': typeof ControlCentreAdminPricingAddonsRoute
   '/control-centre/pricing/ai-models': typeof ControlCentreAdminPricingAiModelsRoute
   '/control-centre/pricing/analytics': typeof ControlCentreAdminPricingAnalyticsRoute
+  '/control-centre/pricing/minimums': typeof ControlCentreAdminPricingMinimumsRoute
+  '/control-centre/pricing/photo': typeof ControlCentreAdminPricingPhotoRoute
+  '/control-centre/pricing/photo-addons': typeof ControlCentreAdminPricingPhotoAddonsRoute
+  '/control-centre/pricing/photo-bulk': typeof ControlCentreAdminPricingPhotoBulkRoute
+  '/control-centre/pricing/photo-packages': typeof ControlCentreAdminPricingPhotoPackagesRoute
+  '/control-centre/pricing/photo-settings': typeof ControlCentreAdminPricingPhotoSettingsRoute
+  '/control-centre/pricing/photo-views': typeof ControlCentreAdminPricingPhotoViewsRoute
   '/control-centre/pricing/production-tiers': typeof ControlCentreAdminPricingProductionTiersRoute
+  '/control-centre/pricing/proposals': typeof ControlCentreAdminPricingProposalsRoute
   '/control-centre/pricing/rates': typeof ControlCentreAdminPricingRatesRoute
   '/control-centre/pricing/review': typeof ControlCentreAdminPricingReviewRoute
   '/control-centre/pricing/settings': typeof ControlCentreAdminPricingSettingsRoute
@@ -755,7 +819,15 @@ export interface FileRoutesByTo {
   '/control-centre/pricing/addons': typeof ControlCentreAdminPricingAddonsRoute
   '/control-centre/pricing/ai-models': typeof ControlCentreAdminPricingAiModelsRoute
   '/control-centre/pricing/analytics': typeof ControlCentreAdminPricingAnalyticsRoute
+  '/control-centre/pricing/minimums': typeof ControlCentreAdminPricingMinimumsRoute
+  '/control-centre/pricing/photo': typeof ControlCentreAdminPricingPhotoRoute
+  '/control-centre/pricing/photo-addons': typeof ControlCentreAdminPricingPhotoAddonsRoute
+  '/control-centre/pricing/photo-bulk': typeof ControlCentreAdminPricingPhotoBulkRoute
+  '/control-centre/pricing/photo-packages': typeof ControlCentreAdminPricingPhotoPackagesRoute
+  '/control-centre/pricing/photo-settings': typeof ControlCentreAdminPricingPhotoSettingsRoute
+  '/control-centre/pricing/photo-views': typeof ControlCentreAdminPricingPhotoViewsRoute
   '/control-centre/pricing/production-tiers': typeof ControlCentreAdminPricingProductionTiersRoute
+  '/control-centre/pricing/proposals': typeof ControlCentreAdminPricingProposalsRoute
   '/control-centre/pricing/rates': typeof ControlCentreAdminPricingRatesRoute
   '/control-centre/pricing/review': typeof ControlCentreAdminPricingReviewRoute
   '/control-centre/pricing/settings': typeof ControlCentreAdminPricingSettingsRoute
@@ -849,7 +921,15 @@ export interface FileRoutesById {
   '/control-centre/_admin/pricing/addons': typeof ControlCentreAdminPricingAddonsRoute
   '/control-centre/_admin/pricing/ai-models': typeof ControlCentreAdminPricingAiModelsRoute
   '/control-centre/_admin/pricing/analytics': typeof ControlCentreAdminPricingAnalyticsRoute
+  '/control-centre/_admin/pricing/minimums': typeof ControlCentreAdminPricingMinimumsRoute
+  '/control-centre/_admin/pricing/photo': typeof ControlCentreAdminPricingPhotoRoute
+  '/control-centre/_admin/pricing/photo-addons': typeof ControlCentreAdminPricingPhotoAddonsRoute
+  '/control-centre/_admin/pricing/photo-bulk': typeof ControlCentreAdminPricingPhotoBulkRoute
+  '/control-centre/_admin/pricing/photo-packages': typeof ControlCentreAdminPricingPhotoPackagesRoute
+  '/control-centre/_admin/pricing/photo-settings': typeof ControlCentreAdminPricingPhotoSettingsRoute
+  '/control-centre/_admin/pricing/photo-views': typeof ControlCentreAdminPricingPhotoViewsRoute
   '/control-centre/_admin/pricing/production-tiers': typeof ControlCentreAdminPricingProductionTiersRoute
+  '/control-centre/_admin/pricing/proposals': typeof ControlCentreAdminPricingProposalsRoute
   '/control-centre/_admin/pricing/rates': typeof ControlCentreAdminPricingRatesRoute
   '/control-centre/_admin/pricing/review': typeof ControlCentreAdminPricingReviewRoute
   '/control-centre/_admin/pricing/settings': typeof ControlCentreAdminPricingSettingsRoute
@@ -943,7 +1023,15 @@ export interface FileRouteTypes {
     | '/control-centre/pricing/addons'
     | '/control-centre/pricing/ai-models'
     | '/control-centre/pricing/analytics'
+    | '/control-centre/pricing/minimums'
+    | '/control-centre/pricing/photo'
+    | '/control-centre/pricing/photo-addons'
+    | '/control-centre/pricing/photo-bulk'
+    | '/control-centre/pricing/photo-packages'
+    | '/control-centre/pricing/photo-settings'
+    | '/control-centre/pricing/photo-views'
     | '/control-centre/pricing/production-tiers'
+    | '/control-centre/pricing/proposals'
     | '/control-centre/pricing/rates'
     | '/control-centre/pricing/review'
     | '/control-centre/pricing/settings'
@@ -1032,7 +1120,15 @@ export interface FileRouteTypes {
     | '/control-centre/pricing/addons'
     | '/control-centre/pricing/ai-models'
     | '/control-centre/pricing/analytics'
+    | '/control-centre/pricing/minimums'
+    | '/control-centre/pricing/photo'
+    | '/control-centre/pricing/photo-addons'
+    | '/control-centre/pricing/photo-bulk'
+    | '/control-centre/pricing/photo-packages'
+    | '/control-centre/pricing/photo-settings'
+    | '/control-centre/pricing/photo-views'
     | '/control-centre/pricing/production-tiers'
+    | '/control-centre/pricing/proposals'
     | '/control-centre/pricing/rates'
     | '/control-centre/pricing/review'
     | '/control-centre/pricing/settings'
@@ -1125,7 +1221,15 @@ export interface FileRouteTypes {
     | '/control-centre/_admin/pricing/addons'
     | '/control-centre/_admin/pricing/ai-models'
     | '/control-centre/_admin/pricing/analytics'
+    | '/control-centre/_admin/pricing/minimums'
+    | '/control-centre/_admin/pricing/photo'
+    | '/control-centre/_admin/pricing/photo-addons'
+    | '/control-centre/_admin/pricing/photo-bulk'
+    | '/control-centre/_admin/pricing/photo-packages'
+    | '/control-centre/_admin/pricing/photo-settings'
+    | '/control-centre/_admin/pricing/photo-views'
     | '/control-centre/_admin/pricing/production-tiers'
+    | '/control-centre/_admin/pricing/proposals'
     | '/control-centre/_admin/pricing/rates'
     | '/control-centre/_admin/pricing/review'
     | '/control-centre/_admin/pricing/settings'
@@ -1661,11 +1765,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlCentreAdminPricingAnalyticsRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
+    '/control-centre/_admin/pricing/minimums': {
+      id: '/control-centre/_admin/pricing/minimums'
+      path: '/pricing/minimums'
+      fullPath: '/control-centre/pricing/minimums'
+      preLoaderRoute: typeof ControlCentreAdminPricingMinimumsRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/pricing/photo': {
+      id: '/control-centre/_admin/pricing/photo'
+      path: '/pricing/photo'
+      fullPath: '/control-centre/pricing/photo'
+      preLoaderRoute: typeof ControlCentreAdminPricingPhotoRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/pricing/photo-addons': {
+      id: '/control-centre/_admin/pricing/photo-addons'
+      path: '/pricing/photo-addons'
+      fullPath: '/control-centre/pricing/photo-addons'
+      preLoaderRoute: typeof ControlCentreAdminPricingPhotoAddonsRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/pricing/photo-bulk': {
+      id: '/control-centre/_admin/pricing/photo-bulk'
+      path: '/pricing/photo-bulk'
+      fullPath: '/control-centre/pricing/photo-bulk'
+      preLoaderRoute: typeof ControlCentreAdminPricingPhotoBulkRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/pricing/photo-packages': {
+      id: '/control-centre/_admin/pricing/photo-packages'
+      path: '/pricing/photo-packages'
+      fullPath: '/control-centre/pricing/photo-packages'
+      preLoaderRoute: typeof ControlCentreAdminPricingPhotoPackagesRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/pricing/photo-settings': {
+      id: '/control-centre/_admin/pricing/photo-settings'
+      path: '/pricing/photo-settings'
+      fullPath: '/control-centre/pricing/photo-settings'
+      preLoaderRoute: typeof ControlCentreAdminPricingPhotoSettingsRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/pricing/photo-views': {
+      id: '/control-centre/_admin/pricing/photo-views'
+      path: '/pricing/photo-views'
+      fullPath: '/control-centre/pricing/photo-views'
+      preLoaderRoute: typeof ControlCentreAdminPricingPhotoViewsRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
     '/control-centre/_admin/pricing/production-tiers': {
       id: '/control-centre/_admin/pricing/production-tiers'
       path: '/pricing/production-tiers'
       fullPath: '/control-centre/pricing/production-tiers'
       preLoaderRoute: typeof ControlCentreAdminPricingProductionTiersRouteImport
+      parentRoute: typeof ControlCentreAdminRoute
+    }
+    '/control-centre/_admin/pricing/proposals': {
+      id: '/control-centre/_admin/pricing/proposals'
+      path: '/pricing/proposals'
+      fullPath: '/control-centre/pricing/proposals'
+      preLoaderRoute: typeof ControlCentreAdminPricingProposalsRouteImport
       parentRoute: typeof ControlCentreAdminRoute
     }
     '/control-centre/_admin/pricing/rates': {
@@ -1869,7 +2029,15 @@ interface ControlCentreAdminRouteChildren {
   ControlCentreAdminPricingAddonsRoute: typeof ControlCentreAdminPricingAddonsRoute
   ControlCentreAdminPricingAiModelsRoute: typeof ControlCentreAdminPricingAiModelsRoute
   ControlCentreAdminPricingAnalyticsRoute: typeof ControlCentreAdminPricingAnalyticsRoute
+  ControlCentreAdminPricingMinimumsRoute: typeof ControlCentreAdminPricingMinimumsRoute
+  ControlCentreAdminPricingPhotoRoute: typeof ControlCentreAdminPricingPhotoRoute
+  ControlCentreAdminPricingPhotoAddonsRoute: typeof ControlCentreAdminPricingPhotoAddonsRoute
+  ControlCentreAdminPricingPhotoBulkRoute: typeof ControlCentreAdminPricingPhotoBulkRoute
+  ControlCentreAdminPricingPhotoPackagesRoute: typeof ControlCentreAdminPricingPhotoPackagesRoute
+  ControlCentreAdminPricingPhotoSettingsRoute: typeof ControlCentreAdminPricingPhotoSettingsRoute
+  ControlCentreAdminPricingPhotoViewsRoute: typeof ControlCentreAdminPricingPhotoViewsRoute
   ControlCentreAdminPricingProductionTiersRoute: typeof ControlCentreAdminPricingProductionTiersRoute
+  ControlCentreAdminPricingProposalsRoute: typeof ControlCentreAdminPricingProposalsRoute
   ControlCentreAdminPricingRatesRoute: typeof ControlCentreAdminPricingRatesRoute
   ControlCentreAdminPricingReviewRoute: typeof ControlCentreAdminPricingReviewRoute
   ControlCentreAdminPricingSettingsRoute: typeof ControlCentreAdminPricingSettingsRoute
@@ -1925,8 +2093,23 @@ const ControlCentreAdminRouteChildren: ControlCentreAdminRouteChildren = {
     ControlCentreAdminPricingAiModelsRoute,
   ControlCentreAdminPricingAnalyticsRoute:
     ControlCentreAdminPricingAnalyticsRoute,
+  ControlCentreAdminPricingMinimumsRoute:
+    ControlCentreAdminPricingMinimumsRoute,
+  ControlCentreAdminPricingPhotoRoute: ControlCentreAdminPricingPhotoRoute,
+  ControlCentreAdminPricingPhotoAddonsRoute:
+    ControlCentreAdminPricingPhotoAddonsRoute,
+  ControlCentreAdminPricingPhotoBulkRoute:
+    ControlCentreAdminPricingPhotoBulkRoute,
+  ControlCentreAdminPricingPhotoPackagesRoute:
+    ControlCentreAdminPricingPhotoPackagesRoute,
+  ControlCentreAdminPricingPhotoSettingsRoute:
+    ControlCentreAdminPricingPhotoSettingsRoute,
+  ControlCentreAdminPricingPhotoViewsRoute:
+    ControlCentreAdminPricingPhotoViewsRoute,
   ControlCentreAdminPricingProductionTiersRoute:
     ControlCentreAdminPricingProductionTiersRoute,
+  ControlCentreAdminPricingProposalsRoute:
+    ControlCentreAdminPricingProposalsRoute,
   ControlCentreAdminPricingRatesRoute: ControlCentreAdminPricingRatesRoute,
   ControlCentreAdminPricingReviewRoute: ControlCentreAdminPricingReviewRoute,
   ControlCentreAdminPricingSettingsRoute:

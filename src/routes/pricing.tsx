@@ -3,7 +3,10 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { SiteShell } from "@/components/layout/SiteShell";
 import { Eyebrow, Section } from "@/components/layout/primitives";
 import { buttonVariants } from "@/components/ui/brand-button";
+import { useState } from "react";
 import { PricingCalculator } from "@/components/pricing/PricingCalculator";
+import { PhotoCalculator } from "@/components/pricing/PhotoCalculator";
+import { publicPhotoPricingQuery } from "@/lib/pricing-photo.functions";
 import { PricingSection } from "@/components/home/HomeEngage";
 import { PortfolioCard } from "@/components/work/PortfolioCard";
 import { siteChromeQuery } from "@/lib/navigation";
@@ -13,14 +16,15 @@ import { canonical, pageMeta } from "@/lib/seo";
 import { useReveal } from "@/hooks/use-reveal";
 import { cn } from "@/lib/utils";
 
-const TITLE = "AI Video Production Pricing | Branta Tech";
-const DESC = "Configure your AI video — type, model, duration and production level — and get an instant estimate from Branta Tech, or ask us for a custom quote.";
+const TITLE = "AI Video & Product Photography Pricing | Branta Tech";
+const DESC = "Configure an AI video or an AI product photoshoot and get an instant estimate from Branta Tech, or ask us for a custom quote.";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({ links: canonical("/pricing"), meta: pageMeta({ title: TITLE, description: DESC }) }),
   loader: ({ context }) => Promise.all([
     context.queryClient.ensureQueryData(siteChromeQuery),
     context.queryClient.ensureQueryData(publicPricingQuery),
+    context.queryClient.ensureQueryData(publicPhotoPricingQuery),
     context.queryClient.ensureQueryData(pricingContentQuery),
     context.queryClient.ensureQueryData(homeClosingQuery),
   ]),
@@ -28,6 +32,11 @@ export const Route = createFileRoute("/pricing")({
   notFoundComponent: () => <p className="p-8">Not found.</p>,
   component: PricingPage,
 });
+
+const CATEGORIES = [
+  { id: "video" as const, title: "AI Video Production", body: "Commercials, motion graphics, AI UGC, product videos, OVC, TVC and cinematic production." },
+  { id: "photography" as const, title: "AI Product Photography", body: "E-commerce product photos, fashion, AI models, lifestyle visuals and campaign photography." },
+];
 
 function Reveal({ children, className }: { children: React.ReactNode; className?: string }) {
   const ref = useReveal<HTMLDivElement>();
@@ -38,15 +47,17 @@ function PricingPage() {
   const { data: pricing } = useSuspenseQuery(publicPricingQuery);
   const { data: content } = useSuspenseQuery(pricingContentQuery);
   const { data: home } = useSuspenseQuery(homeClosingQuery);
+  const { data: photo } = useSuspenseQuery(publicPhotoPricingQuery);
+  const [category, setCategory] = useState<"video" | "photography">("video");
   const scrollToCalc = () => document.getElementById("calculator")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 
   return (
     <SiteShell>
       <Section tone="dark" aria-labelledby="pricing-hero" className="relative isolate overflow-hidden">
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(50%_60%_at_85%_0%,color-mix(in_oklab,var(--accent)_18%,transparent),transparent_70%)]" />
-        <Eyebrow>AI VIDEO PRODUCTION PRICING</Eyebrow>
+        <Eyebrow>AI VIDEO & PHOTOGRAPHY PRICING</Eyebrow>
         <h1 id="pricing-hero" className="text-display-xl mt-6 max-w-[14ch] text-foreground">Create More.<br />Know Your Cost.</h1>
-        <p className="text-body-lg mt-8 max-w-xl text-muted-foreground">From quick motion ads to cinematic commercials, configure your production and receive an instant estimate.</p>
+        <p className="text-body-lg mt-8 max-w-xl text-muted-foreground">From motion ads and cinematic commercials to e-commerce and fashion product photos — configure your project and receive an instant estimate.</p>
         <div className="mt-10 flex flex-col gap-3 sm:flex-row">
           <button type="button" onClick={scrollToCalc} className={cn(buttonVariants({ variant: "primary", size: "lg" }), "group")}>
             Calculate Your Price<span aria-hidden className="ml-1 inline-block transition-transform group-hover:translate-y-0.5">↓</span>
@@ -60,10 +71,30 @@ function PricingPage() {
           <Eyebrow>PRICE CALCULATOR</Eyebrow>
           <h2 id="calc-title" className="text-h1 mt-4 text-foreground">Configure your production.</h2>
         </div>
-        <PricingCalculator data={pricing} />
+        <div role="tablist" aria-label="Pricing category" className="mb-10 grid gap-3 sm:grid-cols-2">
+          {CATEGORIES.map((c) => {
+            const on = category === c.id;
+            return (
+              <button key={c.id} type="button" role="tab" aria-selected={on} aria-controls="calc-panel" onClick={() => setCategory(c.id)}
+                className={cn("rounded-[8px] border p-5 text-left transition-[background-color,border-color,color] duration-300 md:p-6",
+                  on ? "dark border-accent bg-background text-foreground" : "border-border bg-[var(--white)] text-foreground hover:border-foreground/40")}>
+                <span className="flex items-center justify-between gap-3"><span className="text-h4 font-medium">{c.title}</span><span aria-hidden className={cn("size-2.5 rounded-full transition-colors", on ? "bg-accent" : "bg-border")} /></span>
+                <span className="text-small mt-2 block text-muted-foreground">{c.body}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div id="calc-panel" role="tabpanel" key={category} className="animate-in fade-in duration-300 motion-reduce:animate-none">
+          {category === "video" ? <PricingCalculator data={pricing} /> : <PhotoCalculator data={photo} disclaimer={pricing.disclaimer} />}
+        </div>
+        {content.notes && (
+          <ul className="mt-12 grid gap-4 border-t border-border pt-8 sm:grid-cols-2">
+            {content.notes.items.map((it, i) => <li key={i}><p className="text-small font-medium text-foreground">{it.title}</p><p className="text-caption mt-1 text-muted-foreground">{it.body}</p></li>)}
+          </ul>
+        )}
       </Section>
 
-      {pricing.active && pricing.config.videoTypes.length > 0 && (
+      {category === "video" && pricing.active && pricing.config.videoTypes.length > 0 && (
         <Section tone="white" aria-labelledby="cats-title">
           <Reveal>
             <Eyebrow>PRODUCTION CATEGORIES</Eyebrow>
