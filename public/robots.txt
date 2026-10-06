@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /control-centre
 Disallow: /client
+Disallow: /quote/
 
 Sitemap: https://brantatech.com/sitemap.xml

@@ -11,6 +11,7 @@ import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/control-centre/_admin")({
   ssr: false,
+  head: () => ({ meta: [{ title: "Control Centre | Branta Tech" }, { name: "robots", content: "noindex, nofollow" }] }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
     if (!data.user) throw redirect({ to: "/control-centre" });

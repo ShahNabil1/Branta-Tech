@@ -10,7 +10,7 @@ import { pageMeta, canonical } from "@/lib/seo";
 const DESC = "Thoughts on AI, creative production, digital products and automation from the Branta team.";
 
 export const Route = createFileRoute("/insights/")({
-  head: () => ({ links: canonical("/insights"), meta: pageMeta({ title: "Insights | Branta Tech", description: DESC }) }),
+  head: () => ({ links: canonical("/insights"), meta: pageMeta({ title: "Insights | Branta Tech", description: DESC, path: "/insights" }) }),
   loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(siteChromeQuery), context.queryClient.ensureQueryData(insightsQuery)]),
   errorComponent: () => <p className="p-8">Something went wrong loading Insights.</p>,
   notFoundComponent: () => <p className="p-8">Not found.</p>,

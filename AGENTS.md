@@ -32,3 +32,4 @@
 - Public content route rules (work, services, AI Studio, insights/company) live in src/routes/AGENTS.md.
 - Branta Assistant (chat) is deterministic (no LLM/external AI): guests reach chat tables only via src/lib/chat.functions.ts → chat.server.ts (service role, hashed session token, rate limits); staff use the browser client under private.is_chat_agent() RLS; visitors get content-free Realtime pings and refetch; lead capture (chatIdentify) must complete before doSend accepts messages; funnel counts in chat_funnel_events — never expose chat rows to anon.
 - Pricing engine, quotation and integration rules live in src/lib/pricing/AGENTS.md.
+- Public SEO uses src/lib/seo.ts for canonical/meta/schema helpers; the sitemap lists only published, indexable external-Supabase content and private routes remain noindex.

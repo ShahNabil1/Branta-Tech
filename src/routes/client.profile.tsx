@@ -9,7 +9,7 @@ import { Field, FormAlert, inputCls } from "@/components/forms/FormKit";
 import { buttonVariants } from "@/components/ui/brand-button";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/client/profile")({ component: Profile });
+export const Route = createFileRoute("/client/profile")({ head: () => ({ meta: [{ title: "Client profile | Branta Tech" }, { name: "robots", content: "noindex, nofollow" }] }), component: Profile });
 
 function Profile() {
   const { user } = Route.useRouteContext();

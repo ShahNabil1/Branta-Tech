@@ -7,7 +7,7 @@ import { Field, FormAlert, fieldCls, inputCls } from "@/components/forms/FormKit
 import { buttonVariants } from "@/components/ui/brand-button";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/careers/account/profile")({ component: Profile });
+export const Route = createFileRoute("/careers/account/profile")({ head: () => ({ meta: [{ title: "Applicant profile | Branta Careers" }, { name: "robots", content: "noindex, nofollow" }] }), component: Profile });
 
 // applicant_profiles is newer than the generated types; keep access in this one place.
 const db = supabase as unknown as { from: (t: string) => any };

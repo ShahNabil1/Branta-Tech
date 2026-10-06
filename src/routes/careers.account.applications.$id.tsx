@@ -11,7 +11,7 @@ import { DOC_KEYS, DOC_LABEL, extraText, readRecords, yearSpan } from "@/lib/app
 import { getMyResumeLink } from "@/lib/careers.functions";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/careers/account/applications/$id")({ component: Detail });
+export const Route = createFileRoute("/careers/account/applications/$id")({ head: () => ({ meta: [{ title: "Application details | Branta Careers" }, { name: "robots", content: "noindex, nofollow" }] }), component: Detail });
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (

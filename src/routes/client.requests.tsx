@@ -5,7 +5,7 @@ import { ClientHeader, Empty, Failed, Loading, Pill } from "@/components/client/
 import { myRequestsQuery, formatDay } from "@/lib/client-data";
 import { clientStatusLabel } from "@/lib/inquiry";
 
-export const Route = createFileRoute("/client/requests")({ component: Requests });
+export const Route = createFileRoute("/client/requests")({ head: () => ({ meta: [{ title: "My requests | Branta Tech" }, { name: "robots", content: "noindex, nofollow" }] }), component: Requests });
 
 function Requests() {
   const q = useQuery(myRequestsQuery);

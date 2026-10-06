@@ -21,7 +21,7 @@ export const Route = createFileRoute("/careers/")({
     return { seo: page.seo };
   },
   head: ({ loaderData }) => ({ links: canonical("/careers"),
-    meta: pageMeta({ title: loaderData?.seo.title || "Careers | Branta Tech", description: loaderData?.seo.description || DESC, image: loaderData?.seo.ogImage, noindex: loaderData?.seo.noindex }),
+    meta: pageMeta({ title: loaderData?.seo.title || "Careers | Branta Tech", description: loaderData?.seo.description || DESC, image: loaderData?.seo.ogImage, noindex: loaderData?.seo.noindex, path: "/careers" }),
   }),
   errorComponent: () => <p className="p-8">Something went wrong loading careers.</p>,
   notFoundComponent: () => <p className="p-8">Not found.</p>,

@@ -11,6 +11,7 @@ import { displayName } from "@/lib/client-session";
 import { canWithdraw, fetchMyApplications, fetchMyInterviews, fetchProfileCompleteness, INTERVIEW_STATUS_LABEL, fmtDate, fmtInterview, isUpcoming, statusLabel } from "@/lib/applicant-data";
 
 export const Route = createFileRoute("/careers/account/")({
+  head: () => ({ meta: [{ title: "Applicant overview | Branta Careers" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: AccountHome,
 });
 

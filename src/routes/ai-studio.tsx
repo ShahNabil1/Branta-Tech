@@ -1,4 +1,4 @@
-import { canonical } from "@/lib/seo";
+import { canonical, pageMeta } from "@/lib/seo";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { SiteShell } from "@/components/layout/SiteShell";
@@ -14,14 +14,7 @@ const DESC = "Visual experiments, prototypes and AI-native ideas from the Branta
 
 export const Route = createFileRoute("/ai-studio")({
   head: () => ({ links: canonical("/ai-studio"),
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESC },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESC },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
+    meta: pageMeta({ title: TITLE, description: DESC, path: "/ai-studio" }),
   }),
   loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(siteChromeQuery), context.queryClient.ensureQueryData(aiStudioQuery)]),
   errorComponent: () => <p className="p-8">Something went wrong loading AI Studio.</p>,

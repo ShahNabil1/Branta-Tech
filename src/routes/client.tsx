@@ -17,7 +17,7 @@ export const Route = createFileRoute("/client")({
     if (roles.includes("applicant") && !roles.includes("client")) throw redirect({ to: "/careers/account" });
     return { user: data.user };
   },
-  head: () => ({ meta: [{ title: "Client dashboard | Branta Tech" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Client dashboard | Branta Tech" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: ClientLayout,
 });
 

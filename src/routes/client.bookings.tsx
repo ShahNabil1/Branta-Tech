@@ -5,7 +5,7 @@ import { ClientHeader, Empty, Failed, Loading, Pill } from "@/components/client/
 import { myBookingsQuery, formatDay, formatWhen } from "@/lib/client-data";
 import { bookingStatusLabel } from "@/lib/booking";
 
-export const Route = createFileRoute("/client/bookings")({ component: Bookings });
+export const Route = createFileRoute("/client/bookings")({ head: () => ({ meta: [{ title: "My bookings | Branta Tech" }, { name: "robots", content: "noindex, nofollow" }] }), component: Bookings });
 
 function Bookings() {
   const q = useQuery(myBookingsQuery);
