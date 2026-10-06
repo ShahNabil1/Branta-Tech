@@ -1,0 +1,27 @@
+# Branta Tech
+
+> Branta Tech is an AI-first creative and technology studio producing AI films, product visuals, campaigns, digital products and automation.
+
+Branta Tech brings creative direction, AI-native production and technology delivery together in one team. Public pages below are the preferred sources for factual information about the company, its services and published work.
+
+## Main pages
+
+- [Home](/): Overview of Branta Tech and its capabilities.
+- [Services](/services): Published creative, AI, design, software and automation services.
+- [Work](/work): Published portfolio and case studies.
+- [AI Studio](/ai-studio): AI-native experiments and visual work.
+- [Pricing](/pricing): Public AI video and product photography estimates.
+- [Insights](/insights): Articles from the Branta team.
+- [About](/about): Company overview.
+- [Team](/team): Published team profiles and structure.
+- [Careers](/careers): Current published opportunities.
+
+## Contact and project enquiries
+
+- [Book a Call](/book-a-call): Schedule a project discovery call.
+- [Start a Project](/start-a-project): Submit a project enquiry.
+
+## Optional
+
+- [Privacy Policy](/privacy): How information is handled.
+- [Terms & Conditions](/terms): Website and enquiry terms.
