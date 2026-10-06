@@ -16,9 +16,7 @@ function groupCards(work: WorkShowcase, key: string): WorkCard[] {
   if (!work) return [];
   if (!key) return [];
   const g = (work.groups.find((x) => x.key === key)?.items ?? []).filter((c) => c.media);
-  if (g.length) return g;
-  const f = work.featured.filter((c) => c.media);
-  return f.length ? f : work.groups.flatMap((x) => x.items).filter((c) => c.media);
+  return g;
 }
 const toWorkMedia = (m: SlideMedia, alt: string) => ({ type: m.type, url: m.url, poster: m.poster || null, alt, orientation: "landscape" }) as WorkCard["media"];
 
@@ -115,7 +113,7 @@ function SlideBody({ s, work, live, open }: { s: HeroSlide; work: WorkShowcase; 
         </div>
         <div className="relative mx-auto aspect-square w-full max-w-[460px]">
           <div aria-hidden className="absolute inset-[8%] rounded-full bg-white/70 blur-3xl" />
-          <Thumb c={cards[0]} className="absolute inset-[6%] rounded-[36px] [mask-image:radial-gradient(75%_75%_at_50%_50%,#000_60%,transparent_100%)]" />
+          <Thumb c={cards[0]} className="absolute inset-[6%] rounded-[36px] bg-gradient-to-br from-[#FFE3D1] via-[#F6F3F8] to-[#E3E0F5] [mask-image:radial-gradient(75%_75%_at_50%_50%,#000_60%,transparent_100%)]" />
           {cards[0] && <div className="absolute bottom-[14%] -left-2 hidden items-center gap-2 rounded-xl bg-white/90 p-2 pr-4 shadow-lg backdrop-blur md:flex">
             <Thumb c={cards[1] ?? cards[0]} className="size-9 rounded-lg" /><div className="text-left"><p className="text-caption font-medium text-[#141414]">{cards[0].title}</p><p className="text-[0.65rem] text-[#7a726d]">{cards[0].category?.name}</p></div>
           </div>}
