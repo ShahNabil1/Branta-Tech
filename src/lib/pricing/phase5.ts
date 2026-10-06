@@ -132,6 +132,8 @@ export type PdfQuote = {
   reference: string; version: number; issuedAt: string; validUntil: string | null;
   customer: { name: string; company: string | null; email: string };
   production: { videoType: string | null; model: string | null; tier: string | null; durationSeconds: number | null; addons: string[] };
+  /** Photography specs (only for photography quotes); video fields are then empty. */
+  photoSpecs?: string[] | null;
   lines: { label: string; quantity: number; unit_minor: number; amount_minor: number }[];
   subtotal: number; discount: number; tax: { label: string; percentage: number; inclusive: boolean; amount: number } | null; total: number; currency: string;
   scope: string | null; deliverables: string | null; revisions: number | null; timeline: string | null; paymentTerms: string | null; notes: string | null;
@@ -142,18 +144,37 @@ type VersionRow = {
   subtotal_minor: number; discount_minor: number; tax_label: string; tax_percentage: number; tax_inclusive: boolean; tax_minor: number; total_minor: number; currency: string;
   scope: string | null; deliverables: string | null; revisions: number | null; delivery_timeline: string | null; payment_terms: string | null; customer_notes: string | null;
 };
-type SnapQuote = { videoType: { name: string }; model: { name: string }; tier: { name: string }; addonLines: { name: string }[] } | null | undefined;
+type SnapQuote = { videoType: { name: string }; model: { name: string }; tier: { name: string }; addonLines: { name: string }[] } | PhotoSnap | null | undefined;
+type PhotoSnap = { category: "photography"; item: { name: string }; mode: string; workflow: { name: string }; products: number; imagesPerProduct: number; totalImages: number; views: { name: string }[]; bulk: { percentage: number } | null; addonLines: { name: string }[] };
+
+/** Customer-facing photography spec lines from a saved snapshot (+ free-text specs). Only relevant fields. */
+export function photoSpecLines(snap: PhotoSnap | null | undefined, specs?: string | null): string[] {
+  const out: string[] = [];
+  if (snap) {
+    out.push(`${snap.mode === "package" ? "Package" : "Photography category"}: ${snap.item.name}`, `Image workflow: ${snap.workflow.name}`,
+      `Products: ${snap.products}`, `Images per product: ${snap.imagesPerProduct}`, `Total images: ${snap.totalImages}`);
+    if (snap.views.length) out.push(`Views: ${snap.views.map((v) => v.name).join(", ")}`);
+    if (snap.bulk) out.push(`Bulk discount: ${snap.bulk.percentage}%`);
+    if (snap.addonLines.length) out.push(`Extras: ${snap.addonLines.map((l) => l.name).join(", ")}`);
+  } else out.push("Custom photography");
+  if (specs) out.push(`Product specifications: ${specs}`);
+  return out;
+}
+const isPhotoSnap = (s: SnapQuote): s is PhotoSnap => !!s && (s as PhotoSnap).category === "photography";
 /**
  * Builds the PDF content strictly from a SAVED, non-draft version (its stored totals — never current rates).
  * Only customer-facing fields are copied; internal notes are not part of the input type.
  */
-export function pdfFromVersion(v: VersionRow, q: { public_reference: string; customer_name: string; company_name: string | null; customer_email: string; duration_seconds: number | null }, snap: SnapQuote, company: PdfQuote["company"]): PdfQuote {
+export function pdfFromVersion(v: VersionRow, q: { public_reference: string; customer_name: string; company_name: string | null; customer_email: string; duration_seconds: number | null; category?: string | null; photo_selection?: unknown }, snapIn: SnapQuote, company: PdfQuote["company"]): PdfQuote {
+  const photo = q.category === "photography" || isPhotoSnap(snapIn);
+  const snap = photo || isPhotoSnap(snapIn) ? null : snapIn;
   if (v.status === "draft") throw new Error("Drafts can't be exported. Issue the version first.");
   const lines = (Array.isArray(v.line_items) ? v.line_items : []) as { label: string; quantity: number; unit_minor: number }[];
   return {
     reference: q.public_reference, version: v.version, issuedAt: v.issued_at ?? v.created_at, validUntil: v.valid_until,
     customer: { name: q.customer_name, company: q.company_name, email: q.customer_email },
-    production: { videoType: snap?.videoType.name ?? null, model: snap?.model.name ?? null, tier: snap?.tier.name ?? null, durationSeconds: q.duration_seconds, addons: snap?.addonLines.map((l) => l.name) ?? [] },
+    production: { videoType: snap?.videoType.name ?? null, model: snap?.model.name ?? null, tier: snap?.tier.name ?? null, durationSeconds: photo ? null : q.duration_seconds, addons: snap?.addonLines.map((l) => l.name) ?? [] },
+    photoSpecs: photo ? photoSpecLines(isPhotoSnap(snapIn) ? snapIn : null, (q.photo_selection as { specs?: string } | null)?.specs ?? null) : null,
     lines: lines.map((l) => ({ label: String(l.label), quantity: Number(l.quantity), unit_minor: Number(l.unit_minor), amount_minor: Math.round(Number(l.unit_minor) * Number(l.quantity)) })),
     subtotal: Number(v.subtotal_minor), discount: Number(v.discount_minor),
     tax: Number(v.tax_percentage) > 0 ? { label: v.tax_label, percentage: Number(v.tax_percentage), inclusive: v.tax_inclusive, amount: Number(v.tax_minor) } : null,

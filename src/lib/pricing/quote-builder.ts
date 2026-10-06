@@ -1,3 +1,4 @@
+import type { PhotoQuote } from "./photo-engine";
 /**
  * Final-quote arithmetic (pure). Integer minor units throughout.
  * Order: line items → one discount (fixed or %) on the line subtotal → tax on the discounted amount.
@@ -48,6 +49,19 @@ export function linesFromEstimate(q: Quote | null): QuoteLineItem[] {
     ...q.addonLines.map((l) => ({ label: l.name + (l.chargeType === "per_scene" ? ` (${l.quantity} scenes)` : ""), quantity: 1, unit_minor: l.amount })),
   ];
   if (q.minimumAdjustment) out.push({ label: "Minimum project adjustment", quantity: 1, unit_minor: q.minimumAdjustment });
+  if (q.roundingAdjustment) out.push({ label: "Rounding", quantity: 1, unit_minor: q.roundingAdjustment });
+  return out;
+}
+
+/** Photography estimate → starting line items (package images are one line; never re-charged per image). */
+export function linesFromPhotoEstimate(q: PhotoQuote | null): QuoteLineItem[] {
+  if (!q) return [];
+  const out: QuoteLineItem[] = [q.mode === "package"
+    ? { label: `${q.item.name} package — ${q.imagesPerProduct} images per product`, quantity: q.products, unit_minor: q.unitPrice }
+    : { label: `${q.item.name} — ${q.imagesPerProduct} images × ${q.products} products`, quantity: q.totalImages, unit_minor: q.unitPrice }];
+  if (q.bulk) out.push({ label: `Bulk discount (${q.bulk.percentage}%)`, quantity: 1, unit_minor: -q.bulk.amount });
+  out.push(...q.addonLines.map((l) => ({ label: l.name, quantity: 1, unit_minor: l.amount })));
+  if (q.minimumAdjustment) out.push({ label: "Minimum order adjustment", quantity: 1, unit_minor: q.minimumAdjustment });
   if (q.roundingAdjustment) out.push({ label: "Rounding", quantity: 1, unit_minor: q.roundingAdjustment });
   return out;
 }

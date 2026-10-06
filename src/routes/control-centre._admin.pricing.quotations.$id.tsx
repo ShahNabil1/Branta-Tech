@@ -8,7 +8,9 @@ import { adminHead, must } from "@/lib/supabase/cms";
 import { AdminButton, CheckboxInput, ConfirmButton, EmptyState, ErrorNote, LoadingRow, Panel, SelectInput, TextArea, TextInput, formatDate, friendlyError } from "@/components/admin/cms";
 import { StatusChip } from "@/components/admin/pricing/QuoteBits";
 import { QUOTE_STATUSES, logQuoteActivity, money, quoteStatusLabel, type QuoteRow, type QuoteVersionRow } from "@/lib/pricing/quotes-admin";
-import { computeQuoteTotals, hashToken, linesFromEstimate, newAccessToken, QuoteBuildError, type DiscountType, type QuoteLineItem } from "@/lib/pricing/quote-builder";
+import type { PhotoQuote } from "@/lib/pricing/photo-engine";
+import { photoSpecLines } from "@/lib/pricing/phase5";
+import { computeQuoteTotals, hashToken, linesFromEstimate, linesFromPhotoEstimate, newAccessToken, QuoteBuildError, type DiscountType, type QuoteLineItem } from "@/lib/pricing/quote-builder";
 import type { Quote } from "@/lib/pricing/engine";
 import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
@@ -34,7 +36,9 @@ function Detail() {
   if (quote.isLoading) return <LoadingRow />;
   if (quote.error || !quote.data) return <ErrorNote>Quotation not found or you don't have access.</ErrorNote>;
   const q = quote.data;
-  const snap = q.original_pricing_snapshot as Snapshot;
+  const isPhoto = q.category === "photography";
+  // Photography snapshots have a different shape — video views receive null so they never misread them.
+  const snap = isPhoto ? null : (q.original_pricing_snapshot as Snapshot);
 
   async function setStatus(s: string) {
     const { error } = await supabase.from("pricing_quote_requests").update({ status: s, status_changed_at: new Date().toISOString() }).eq("id", q.id);
@@ -94,8 +98,8 @@ function Detail() {
           </nav>
           <div className="mb-6 xl:hidden">{tab === "Overview" && sidebar}</div>
           {tab === "Overview" && <Overview q={q} snap={snap} versions={versions.data ?? []} />}
-          {tab === "Production" && <Production q={q} snap={snap} />}
-          {tab === "Original estimate" && <Estimate snap={snap} q={q} />}
+          {tab === "Production" && (isPhoto ? <PhotoProduction q={q} /> : <Production q={q} snap={snap} />)}
+          {tab === "Original estimate" && (isPhoto ? <PhotoEstimate q={q} /> : <Estimate snap={snap} q={q} />)}
           {tab === "Final quote" && <Builder q={q} snap={snap} versions={versions.data ?? []} onChange={refresh} />}
           {tab === "Activity" && <Activity id={q.id} />}
           {tab === "Notes" && <Notes id={q.id} />}
@@ -140,6 +144,37 @@ function Production({ q, snap }: { q: QuoteRow; snap: Snapshot }) {
   );
 }
 
+type PhotoSnapshot = { quote?: PhotoQuote; settings?: { tax?: { enabled: boolean; label: string; percentage: number; inclusive: boolean } }; captured_at?: string } | null;
+const photoSnap = (q: QuoteRow) => (q.category === "photography" ? (q.original_pricing_snapshot as PhotoSnapshot) : null);
+
+function PhotoProduction({ q }: { q: QuoteRow }) {
+  const lines = photoSpecLines(photoSnap(q)?.quote as never, (q.photo_selection as { specs?: string } | null)?.specs ?? null);
+  return (
+    <Panel title="Photography details" description="As submitted. Names are frozen at submission time.">
+      <ul className="text-small grid gap-1.5">{lines.map((l) => <li key={l}>{l}</li>)}<li className="text-muted-foreground">Deadline: {q.requested_deadline ?? "—"}</li></ul>
+    </Panel>
+  );
+}
+
+function PhotoEstimate({ q }: { q: QuoteRow }) {
+  const snap = photoSnap(q), s = snap?.quote;
+  if (!s) return <EmptyState>No original estimate — photography pricing was off, a custom quote was needed, or no configuration was submitted.</EmptyState>;
+  const c = s.currency;
+  return (
+    <Panel title="Original estimate (immutable)" description={`Captured ${formatDate(snap?.captured_at)} · ${q.pricing_version ?? ""}`}>
+      <dl className="text-small grid gap-1.5 tabular-nums">
+        <KV k={s.mode === "package" ? `${s.item.name} × ${s.products} products` : `${money(s.unitPrice, c)} × ${s.totalImages} images`} v={money(s.baseAmount, c)} />
+        {s.bulk && <KV k={`Bulk discount ${s.bulk.percentage}%`} v={`− ${money(s.bulk.amount, c)}`} />}
+        {s.addonLines.map((l) => <KV key={l.addonId} k={`${l.name}${l.chargeType === "percentage" ? ` ${l.quantity}%` : l.quantity > 1 ? ` × ${l.quantity}` : ""}`} v={money(l.amount, c)} />)}
+        <KV k="Minimum adjustment" v={money(s.minimumAdjustment, c)} />
+        <KV k="Rounding" v={money(s.roundingAdjustment, c)} />
+        <KV k="Tax" v={s.tax ? `${money(s.tax.amount, c)} (${s.tax.percentage}%${s.tax.inclusive ? " incl." : ""})` : "Off"} />
+        <div className="mt-2 border-t border-border pt-2"><KV k="Submitted estimate" v={<strong>{money(s.total, c)}</strong>} /></div>
+      </dl>
+    </Panel>
+  );
+}
+
 function Estimate({ snap, q }: { snap: Snapshot; q: QuoteRow }) {
   const s = snap?.quote;
   if (!s) return <EmptyState>No original estimate — public pricing was off or no configuration was submitted.</EmptyState>;
@@ -177,9 +212,9 @@ function Builder({ q, snap, versions, onChange }: { q: QuoteRow; snap: Snapshot;
   async function createVersion() {
     const base = versions.find((v) => v.status !== "draft");
     const est = snap?.quote ?? null;
-    const tax = snap?.settings?.tax;
+    const tax = q.category === "photography" ? photoSnap(q)?.settings?.tax : snap?.settings?.tax;
     const row = base ? { ...toPayload(toDraft(base)) } : {
-      line_items: linesFromEstimate(est) as never, discount_type: "none", discount_value: 0,
+      line_items: (q.category === "photography" ? linesFromPhotoEstimate(photoSnap(q)?.quote ?? null) : linesFromEstimate(est)) as never, discount_type: "none", discount_value: 0,
       tax_label: tax?.label ?? "VAT", tax_percentage: tax?.enabled ? tax.percentage : 0, tax_inclusive: tax?.inclusive ?? false,
     };
     const totals = safeTotals(row as never);
@@ -193,7 +228,7 @@ function Builder({ q, snap, versions, onChange }: { q: QuoteRow; snap: Snapshot;
     try {
       const { data: rows } = await supabase.from("site_settings").select("setting_group,settings").in("setting_group", ["company", "contact"]);
       const get = (g: string) => (rows ?? []).find((r) => r.setting_group === g)?.settings as Record<string, string> | undefined;
-      await downloadQuotePdf(pdfFromVersion(v, q, snap?.quote ?? null, { name: get("company")?.["company_name"] || "Branta Tech", email: get("contact")?.["email"] || null, phone: get("contact")?.["phone"] || null }));
+      await downloadQuotePdf(pdfFromVersion(v, q, (q.category === "photography" ? photoSnap(q)?.quote : snap?.quote) ?? null, { name: get("company")?.["company_name"] || "Branta Tech", email: get("contact")?.["email"] || null, phone: get("contact")?.["phone"] || null }));
     } catch (e) { toast.error((e as Error).message || "Couldn't create the PDF"); }
   }
   async function rotate(v: QuoteVersionRow, revoke = false) {

@@ -205,7 +205,7 @@ function Sections({ pageId }: { pageId: string }) {
   );
 }
 
-const SECTION_TYPES = ["hero", "trust_proof", "capability_explorer", "work_showcase", "client_stories", "recognition", "services_snapshot", "pricing", "book_call_cta", "pricing_included", "pricing_faq", "client_logos", "studio_hero", "studio_entry", "text", "media", "cta", "services", "portfolio", "logos", "custom"].map((v) => ({ value: v, label: v }));
+const SECTION_TYPES = ["hero", "trust_proof", "capability_explorer", "work_showcase", "client_stories", "recognition", "services_snapshot", "pricing", "book_call_cta", "pricing_included", "pricing_faq", "pricing_notes", "client_logos", "studio_hero", "studio_entry", "text", "media", "cta", "services", "portfolio", "logos", "custom"].map((v) => ({ value: v, label: v }));
 
 function SectionForm({ section, onSaved }: { section: Section; onSaved: () => void }) {
   const init = {
@@ -276,7 +276,7 @@ function SectionForm({ section, onSaved }: { section: Section; onSaved: () => vo
       {["services_snapshot", "pricing", "book_call_cta"].includes(v.section_type) && <HomeEngageFields type={v.section_type} config={v.config} onChange={(c) => f.set("config", c)} />}
       {v.section_type === "client_logos" && <HomeClosingFields type={v.section_type} config={v.config} onChange={(c) => f.set("config", c)} />}
       {v.section_type === "work_showcase" && <WorkShowcaseFields config={v.config} onChange={(c) => f.set("config", c)} />}
-      {["pricing_included", "pricing_faq"].includes(v.section_type) && <PricingContentFields type={v.section_type} config={v.config} onChange={(c) => f.set("config", c)} />}
+      {["pricing_included", "pricing_faq", "pricing_notes"].includes(v.section_type) && <PricingContentFields type={v.section_type} config={v.config} onChange={(c) => f.set("config", c)} />}
       {v.section_type === "capability_explorer" && <CapabilityFields config={v.config} onChange={(c) => f.set("config", c)} />}
       <div className="md:col-span-2">
         <button type="button" className="text-caption text-muted-foreground underline underline-offset-4" onClick={() => setAdvanced((a) => !a)}>

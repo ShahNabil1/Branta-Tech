@@ -1812,6 +1812,234 @@ export type Database = {
           },
         ]
       }
+      pricing_photo_addons: {
+        Row: {
+          amount: number | null
+          charge_type: string
+          created_at: string
+          description: string | null
+          enabled: boolean
+          id: string
+          name: string
+          percentage: number | null
+          published: boolean
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          amount?: number | null
+          charge_type?: string
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          name: string
+          percentage?: number | null
+          published?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          amount?: number | null
+          charge_type?: string
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          name?: string
+          percentage?: number | null
+          published?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pricing_photo_bulk_tiers: {
+        Row: {
+          created_at: string
+          custom_quote: boolean
+          discount_percentage: number | null
+          id: string
+          max_products: number | null
+          min_products: number
+          published: boolean
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          custom_quote?: boolean
+          discount_percentage?: number | null
+          id?: string
+          max_products?: number | null
+          min_products: number
+          published?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          custom_quote?: boolean
+          discount_percentage?: number | null
+          id?: string
+          max_products?: number | null
+          min_products?: number
+          published?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pricing_photo_categories: {
+        Row: {
+          bulk_eligible: boolean
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          price_per_image: number | null
+          published: boolean
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          bulk_eligible?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          price_per_image?: number | null
+          published?: boolean
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          bulk_eligible?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          price_per_image?: number | null
+          published?: boolean
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pricing_photo_package_views: {
+        Row: {
+          package_id: string
+          position: number
+          view_id: string
+        }
+        Insert: {
+          package_id: string
+          position?: number
+          view_id: string
+        }
+        Update: {
+          package_id?: string
+          position?: number
+          view_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_photo_package_views_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_photo_packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_photo_package_views_view_id_fkey"
+            columns: ["view_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_photo_views"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_photo_packages: {
+        Row: {
+          bulk_eligible: boolean
+          created_at: string
+          description: string | null
+          example_image_url: string | null
+          id: string
+          image_count: number
+          name: string
+          price_per_product: number | null
+          published: boolean
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          bulk_eligible?: boolean
+          created_at?: string
+          description?: string | null
+          example_image_url?: string | null
+          id?: string
+          image_count: number
+          name: string
+          price_per_product?: number | null
+          published?: boolean
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          bulk_eligible?: boolean
+          created_at?: string
+          description?: string | null
+          example_image_url?: string | null
+          id?: string
+          image_count?: number
+          name?: string
+          price_per_product?: number | null
+          published?: boolean
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pricing_photo_views: {
+        Row: {
+          applies_to: string
+          created_at: string
+          id: string
+          name: string
+          published: boolean
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          applies_to?: string
+          created_at?: string
+          id?: string
+          name: string
+          published?: boolean
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          applies_to?: string
+          created_at?: string
+          id?: string
+          name?: string
+          published?: boolean
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pricing_production_tiers: {
         Row: {
           created_at: string
@@ -1923,6 +2151,7 @@ export type Database = {
           ai_model_id: string | null
           archived_at: string | null
           assigned_to: string | null
+          category: string
           chat_conversation_id: string | null
           company_name: string | null
           created_at: string
@@ -1940,6 +2169,7 @@ export type Database = {
           ip_hash: string | null
           lead_id: string | null
           original_pricing_snapshot: Json | null
+          photo_selection: Json | null
           pricing_version: string | null
           production_tier_id: string | null
           project_description: string | null
@@ -1956,6 +2186,7 @@ export type Database = {
           ai_model_id?: string | null
           archived_at?: string | null
           assigned_to?: string | null
+          category?: string
           chat_conversation_id?: string | null
           company_name?: string | null
           created_at?: string
@@ -1973,6 +2204,7 @@ export type Database = {
           ip_hash?: string | null
           lead_id?: string | null
           original_pricing_snapshot?: Json | null
+          photo_selection?: Json | null
           pricing_version?: string | null
           production_tier_id?: string | null
           project_description?: string | null
@@ -1989,6 +2221,7 @@ export type Database = {
           ai_model_id?: string | null
           archived_at?: string | null
           assigned_to?: string | null
+          category?: string
           chat_conversation_id?: string | null
           company_name?: string | null
           created_at?: string
@@ -2006,6 +2239,7 @@ export type Database = {
           ip_hash?: string | null
           lead_id?: string | null
           original_pricing_snapshot?: Json | null
+          photo_selection?: Json | null
           pricing_version?: string | null
           production_tier_id?: string | null
           project_description?: string | null
@@ -2228,6 +2462,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pricing_rate_proposals: {
+        Row: {
+          created_at: string
+          current_value: number | null
+          decided_at: string | null
+          decided_by: string | null
+          field: string
+          id: string
+          label: string
+          proposed_value: number
+          source: string | null
+          status: string
+          target_id: string
+          target_table: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_value?: number | null
+          decided_at?: string | null
+          decided_by?: string | null
+          field: string
+          id?: string
+          label: string
+          proposed_value: number
+          source?: string | null
+          status?: string
+          target_id: string
+          target_table: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_value?: number | null
+          decided_at?: string | null
+          decided_by?: string | null
+          field?: string
+          id?: string
+          label?: string
+          proposed_value?: number
+          source?: string | null
+          status?: string
+          target_id?: string
+          target_table?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       pricing_video_types: {
         Row: {
