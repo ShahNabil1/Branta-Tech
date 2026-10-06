@@ -1625,6 +1625,248 @@ export type Database = {
           },
         ]
       }
+      pricing_addon_video_types: {
+        Row: {
+          addon_id: string
+          video_type_id: string
+        }
+        Insert: {
+          addon_id: string
+          video_type_id: string
+        }
+        Update: {
+          addon_id?: string
+          video_type_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_addon_video_types_addon_id_fkey"
+            columns: ["addon_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_addons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_addon_video_types_video_type_id_fkey"
+            columns: ["video_type_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_video_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_addons: {
+        Row: {
+          amount: number | null
+          charge_type: string
+          created_at: string
+          description: string | null
+          enabled: boolean
+          id: string
+          name: string
+          percentage: number | null
+          published: boolean
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          amount?: number | null
+          charge_type: string
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          name: string
+          percentage?: number | null
+          published?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          amount?: number | null
+          charge_type?: string
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          name?: string
+          percentage?: number | null
+          published?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pricing_ai_models: {
+        Row: {
+          available: boolean
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          published: boolean
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          available?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          published?: boolean
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          available?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          published?: boolean
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pricing_model_rates: {
+        Row: {
+          ai_model_id: string
+          created_at: string
+          currency: string
+          enabled: boolean
+          id: string
+          selling_rate_per_second: number
+          updated_at: string
+          video_type_id: string
+        }
+        Insert: {
+          ai_model_id: string
+          created_at?: string
+          currency?: string
+          enabled?: boolean
+          id?: string
+          selling_rate_per_second: number
+          updated_at?: string
+          video_type_id: string
+        }
+        Update: {
+          ai_model_id?: string
+          created_at?: string
+          currency?: string
+          enabled?: boolean
+          id?: string
+          selling_rate_per_second?: number
+          updated_at?: string
+          video_type_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_model_rates_ai_model_id_fkey"
+            columns: ["ai_model_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_ai_models"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_model_rates_video_type_id_fkey"
+            columns: ["video_type_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_video_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_production_tiers: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          multiplier: number
+          name: string
+          published: boolean
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          multiplier?: number
+          name: string
+          published?: boolean
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          multiplier?: number
+          name?: string
+          published?: boolean
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pricing_video_types: {
+        Row: {
+          base_creative_fee: number
+          created_at: string
+          description: string | null
+          id: string
+          minimum_project_price: number
+          name: string
+          published: boolean
+          related_service_id: string | null
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          base_creative_fee?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          minimum_project_price?: number
+          name: string
+          published?: boolean
+          related_service_id?: string | null
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          base_creative_fee?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          minimum_project_price?: number
+          name?: string
+          published?: boolean
+          related_service_id?: string | null
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_video_types_related_service_id_fkey"
+            columns: ["related_service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
