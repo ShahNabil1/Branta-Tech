@@ -14,8 +14,9 @@ const logo = "/favicon.png";
 
 function groupCards(work: WorkShowcase, key: string): WorkCard[] {
   if (!work) return [];
-  const g = work.groups.find((x) => x.key === key)?.items ?? [];
-  return g.filter((c) => c.media);
+  if (!key) return [];
+  const g = (work.groups.find((x) => x.key === key)?.items ?? []).filter((c) => c.media);
+  return g.length ? g : work.featured.filter((c) => c.media);
 }
 const toWorkMedia = (m: SlideMedia, alt: string) => ({ type: m.type, url: m.url, poster: m.poster || null, alt, orientation: "landscape" }) as WorkCard["media"];
 
@@ -63,7 +64,7 @@ function SlideBody({ s, work, live, open }: { s: HeroSlide; work: WorkShowcase; 
       <div className="relative h-full min-h-[inherit]">
         <Media m={m} alt={s.title} live={live} onOpen={openMedia} className="absolute inset-0" />
         <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 grid gap-4 p-6 text-white md:p-12 [&_a]:pointer-events-auto">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 grid justify-items-start gap-4 p-6 text-white md:p-12 [&_a]:pointer-events-auto">
           <Badge s={s} light /><Title s={s} className="max-w-[16ch] text-white" />
           {s.body && <p className="text-body max-w-[46ch] text-white/80">{s.body}</p>}
           <div><Cta s={s} light /></div>
@@ -105,7 +106,7 @@ function SlideBody({ s, work, live, open }: { s: HeroSlide; work: WorkShowcase; 
             <span className="text-caption mx-auto rounded-full bg-black/[0.04] px-6 py-0.5 text-[#7a726d]">brantatech.com</span>
           </div>
           {m ? <Media m={m} alt={s.title} live={live} onOpen={openMedia} className="aspect-[16/7]" /> : (
-            <div className="grid aspect-[16/7] grid-cols-[1fr_2fr] gap-3 bg-[#FAFAF8] p-4">
+            <div className="grid h-[180px] grid-cols-[1fr_2fr] gap-3 bg-[#FAFAF8] p-4 md:h-[260px]">
               <div className="grid content-start gap-2">{[70, 50, 60, 40].map((w) => <span key={w} className="h-2.5 rounded-full bg-black/[0.06]" style={{ width: `${w}%` }} />)}</div>
               <div className="grid grid-cols-3 gap-3">{[0, 1, 2].map((i) => <span key={i} className={cn("rounded-xl", i === 1 ? "bg-accent/20" : "bg-black/[0.05]")} />)}</div>
             </div>
