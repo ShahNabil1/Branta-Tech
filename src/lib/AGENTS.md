@@ -1,0 +1,1 @@
+- Booking availability uses sales-only booking_availability_rules/exceptions plus site_settings "booking"; public slots are computed server-side against active bookings, and a database exclusion constraint is the final overlap guard.
