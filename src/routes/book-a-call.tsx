@@ -145,6 +145,7 @@ function BookCall() {
                       </li>)}
                     </ol>
                     <p className="text-caption mt-3 text-muted-foreground sm:hidden">Step {step + 1} of {STEPS.length} · {STEPS[step]}</p>
+                    {search.quote && <div className="mt-6"><FormAlert tone="info">This call will be linked to quotation {search.quote}.</FormAlert></div>}
                     {error && <div className="mt-6"><FormAlert>{error}</FormAlert></div>}
                     <div key={step} className="step-in mt-7 min-h-[420px]">
                       {step === 0 && <StepCategory groups={data.groups} value={groupId} onChange={(id) => { setGroupId(id); if (!data.groups.find((g) => g.id === id)?.services.some((x) => x.id === serviceId)) setServiceId(""); }} error={errs["group"]} />}
