@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronUp } from "lucide-react";
 import { buttonVariants } from "@/components/ui/brand-button";
 import { calculateQuote, PricingError, type PricingConfig, type Quote } from "@/lib/pricing/engine";
 import type { PublicPricing } from "@/lib/pricing.functions";

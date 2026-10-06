@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronUp } from "lucide-react";
 import { buttonVariants } from "@/components/ui/brand-button";
 import { PricingError } from "@/lib/pricing/engine";
 import { bulkTierFor, calculatePhotoQuote, type PhotoQuote } from "@/lib/pricing/photo-engine";
