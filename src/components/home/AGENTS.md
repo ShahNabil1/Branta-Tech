@@ -7,4 +7,4 @@
 - Homepage Work Showcase is the Home work_showcase page_section (config parsed by src/lib/work-showcase.ts: limits, speed, hover preview, group order/descriptions); rows come only from published projects — Featured from is_featured, category rows from portfolio_categories.homepage_group + show_on_homepage. Empty rows hide; no project selection in the section.
 - Client Stories (client_stories section + testimonials table, admin at /control-centre/website/testimonials): text row right→left, 9:16 video row left→right, portrait modal; hidden when no published testimonials.
 - Recognition (recognition section + site_recognitions table, admin at /control-centre/website/recognition): label defaults from type and must match the real relationship; hidden when none published.
-- Homepage hero is HeroSlider: Home hero page_section config slides[] (src/lib/hero-slides.ts), mini cards/fallback media from Work Showcase published groups; media via BrantaVideo + WorkMediaModal.
+- Homepage hero is EditorialHero (light, centered) fed by Work Showcase published projects; the old HomeHero CMS section is no longer rendered.

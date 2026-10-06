@@ -19,14 +19,6 @@
 }
 
 @font-face {
-  font-family: "Instrument Serif";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/instrument-serif.woff2") format("woff2");
-}
-
-@font-face {
   font-family: "Geist Mono";
   font-style: normal;
   font-weight: 400 500;
@@ -461,35 +453,4 @@
   font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.01em; padding-right: 0.06em;
   background: linear-gradient(100deg, #FF5A00 0%, #FF8A5B 30%, #F28BB0 65%, #A99BE0 100%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
-}
-
-/* Hero slider glossy surfaces. */
-.glossy-card {
-  background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.72));
-  border: 1px solid rgba(8,8,8,0.07);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 40px 90px -50px rgba(8,8,8,0.35);
-  backdrop-filter: blur(14px);
-}
-.brand-card {
-  background: radial-gradient(120% 90% at 15% 0%, #FFB27A 0%, #FF5D00 40%, #A83A00 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -20px 40px rgba(0,0,0,0.25), 0 40px 70px -30px rgba(168,58,0,0.6);
-}
-.brand-card::after {
-  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.35) 45%, transparent 60%);
-}
-
-.serif-display { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; letter-spacing: -0.01em; }
-.slide-bg-intro { background: linear-gradient(180deg, #F1F1EF, #E9E9E6); }
-.slide-bg-video { background:
-  radial-gradient(40% 55% at 0% 95%, color-mix(in oklab, #FF5A00 45%, transparent), transparent 70%),
-  radial-gradient(40% 55% at 100% 85%, color-mix(in oklab, #9E8CF0 45%, transparent), transparent 70%),
-  radial-gradient(60% 40% at 50% 0%, #FFF4EC, transparent 70%), #FBF8F6; }
-.slide-bg-product { background: radial-gradient(45% 60% at 70% 45%, #FFFFFF 0%, transparent 70%), linear-gradient(135deg, #EEF0F3, #E4E6EC); }
-.slide-bg-commercial { background: #FFFFFF; }
-.slide-bg-web { background: radial-gradient(70% 50% at 50% 0%, #FFFFFF, transparent), repeating-linear-gradient(115deg, rgba(8,8,8,0.025) 0 2px, transparent 2px 70px), #FAFAF9; }
-.slide-bg-brand { background: radial-gradient(55% 70% at 80% 60%, #F4C7B5 0%, transparent 70%), linear-gradient(135deg, #FBF3EE, #F6E3DA); }
-.metal-card {
-  background: linear-gradient(150deg, #F4F4F2 0%, #C9C9C6 40%, #EDEDEB 55%, #A9A9A6 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -10px 30px rgba(0,0,0,0.12), 0 50px 80px -40px rgba(60,30,20,0.55);
 }

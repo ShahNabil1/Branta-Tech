@@ -37,18 +37,8 @@ export const getHomeHero = createServerFn({ method: "GET" }).handler(async (): P
         if (!id || posterOk) return m;
         return { ...m, poster_url: (await vimeoThumb(id)) ?? "" };
       }));
+      return { ...data, config: cfg as typeof data.config };
     }
-    if (cfg && Array.isArray(cfg["slides"])) {
-      const { vimeoId } = await import("./hero");
-      const { vimeoThumb } = await import("./vimeo.server");
-      cfg["slides"] = await Promise.all((cfg["slides"] as Record<string, unknown>[]).map(async (s) => {
-        const m = s && typeof s === "object" ? (s["media"] as Record<string, unknown> | undefined) : undefined;
-        if (!m || m["type"] !== "vimeo" || (typeof m["poster"] === "string" && m["poster"])) return s;
-        const id = typeof m["url"] === "string" ? vimeoId(m["url"]) : null;
-        return id ? { ...s, media: { ...m, poster: (await vimeoThumb(id)) ?? "" } } : s;
-      }));
-    }
-    if (cfg) return { ...data, config: cfg as typeof data.config };
     return data;
   } catch {
     return null;

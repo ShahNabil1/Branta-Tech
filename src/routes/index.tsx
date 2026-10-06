@@ -2,8 +2,7 @@ import { absoluteUrl, canonical, jsonLd, pageMeta } from "@/lib/seo";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { SiteShell } from "@/components/layout/SiteShell";
-import { HeroSlider } from "@/components/home/HeroSlider";
-import { parseSlider } from "@/lib/hero-slides";
+import { EditorialHero } from "@/components/home/EditorialHero";
 import { CapabilityExplorer } from "@/components/home/CapabilityExplorer";
 import { siteChromeQuery } from "@/lib/navigation";
 import { homeHeroQuery } from "@/lib/home-hero.functions";
@@ -56,7 +55,6 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { data: hero } = useSuspenseQuery(homeHeroQuery);
   const { data: cap } = useSuspenseQuery(capabilityExplorerQuery);
   const { data: closing } = useSuspenseQuery(homeClosingQuery);
   const { data: work } = useSuspenseQuery(workShowcaseQuery);
@@ -65,7 +63,7 @@ function Index() {
   const explorer = capExplorerFrom(cap.section, cap.services);
   return (
     <SiteShell>
-      <HeroSlider slider={parseSlider(hero?.config, true)} work={work} />
+      <EditorialHero work={work} />
       {closing.trust && <TrustProof content={closing.trust} />}
       {explorer && <CapabilityExplorer content={explorer} />}
       {work && <WorkShowcase data={work} />}

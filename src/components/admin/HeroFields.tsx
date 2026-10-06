@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowDown, ArrowUp, Plus } from "lucide-react";
 import { AdminButton, TextInput, SelectInput, CheckboxInput, ConfirmButton, isSafeUrl, swapped } from "@/components/admin/cms";
-import { HeroSlidesEditor } from "@/components/admin/HeroSlidesEditor";
 import { UploadImageButton } from "@/components/admin/UploadImageButton";
 import { HERO_MEDIA_TYPES, HERO_ROLES, HERO_SIZES, mediaItemError, parseMediaItems, vimeoId, type HeroMediaItem } from "@/lib/hero";
 
@@ -61,8 +60,7 @@ export function HeroFields({ config, onChange }: { config: string; onChange: (js
 
   return (
     <div className="grid gap-4 rounded-sm border border-border p-4 md:col-span-2 md:grid-cols-2">
-      <HeroSlidesEditor obj={obj} write={write} />
-      <p className="text-eyebrow text-muted-foreground md:col-span-2">Legacy hero settings (not shown on the homepage)</p>
+      <p className="text-eyebrow text-muted-foreground md:col-span-2">Hero settings</p>
       <p className="text-caption text-muted-foreground md:col-span-2">
         The headline (Title) is split into lines of two words; a final full stop shows in orange.
       </p>
