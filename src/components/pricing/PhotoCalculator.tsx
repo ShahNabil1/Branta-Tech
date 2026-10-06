@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronUp } from "lucide-react";
 import { buttonVariants } from "@/components/ui/brand-button";
 import { PricingError } from "@/lib/pricing/engine";
 import { bulkTierFor, calculatePhotoQuote, type PhotoQuote } from "@/lib/pricing/photo-engine";
@@ -8,9 +7,10 @@ import type { PublicPhotoPricing } from "@/lib/pricing-photo.functions";
 import { QuoteRequestDialog, type PhotoSelection } from "./QuoteRequestDialog";
 import { Choice, money, Step, useTween } from "./PricingCalculator";
 import { cn } from "@/lib/utils";
+import { BreakdownLine, EstimateSummary } from "./EstimateSummary";
 import { BookCallLink, DEFAULT_DISCLAIMER, EstimatePreview, QUOTE_CTA } from "./EstimatePreview";
 
-const field = "text-small h-11 rounded-[6px] border border-border bg-[var(--white)] px-3 text-foreground outline-none focus:border-foreground";
+const field = "text-small h-11 rounded-[10px] border border-border bg-[var(--white)] px-3 text-foreground outline-none focus:border-foreground";
 
 export function PhotoCalculator({ data, disclaimer }: { data: PublicPhotoPricing; disclaimer: string }) {
   if (!data.active) return <EstimatePreview category="photography" disclaimer={disclaimer} />;
@@ -32,7 +32,6 @@ function Calc({ data, disclaimer }: { data: Extract<PublicPhotoPricing, { active
   const [modelRequired, setModelRequired] = useState(false);
   const [specs, setSpecs] = useState("");
   const [addons, setAddons] = useState<string[]>([]);
-  const [sheet, setSheet] = useState(false);
   const [open, setOpen] = useState(false);
 
   const views = config.views.filter((v) => v.applies_to === "all" || v.applies_to === kind);
@@ -51,12 +50,12 @@ function Calc({ data, disclaimer }: { data: Extract<PublicPhotoPricing, { active
   const nextTier = config.bulkTiers.find((t) => t.min_products > products && (t.discount_percentage ?? 0) > 0);
   const tier = bulkTierFor(config.bulkTiers, products);
 
-  const Line = ({ l, v }: { l: string; v: string }) => <div className="text-small flex justify-between gap-4 py-1"><span className="text-muted-foreground">{l}</span><span className="text-right tabular-nums text-foreground">{v}</span></div>;
+  const Line = BreakdownLine;
   const breakdown = q && (
-    <div className="pb-3">
+    <div>
       <Line l={q.mode === "package" ? `${q.item.name} · ${money(q.unitPrice, cur)} × ${q.products}` : `${q.item.name} · ${money(q.unitPrice, cur)} × ${q.totalImages} images`} v={money(q.baseAmount, cur)} />
       <Line l={`${q.totalImages} images total · ${q.workflow.name}`} v="" />
-      {q.bulk && <Line l={`Bulk discount (${q.bulk.percentage}%)`} v={`− ${money(q.bulk.amount, cur)}`} />}
+      {q.bulk && <Line l={`Bulk discount (${q.bulk.percentage}%)`} v={`− ${money(q.bulk.amount, cur)}`} tone="discount" />}
       {q.addonLines.map((l) => <Line key={l.addonId} l={l.name + (l.chargeType === "percentage" ? ` (${l.quantity}%)` : l.quantity > 1 ? ` × ${l.quantity}` : "")} v={money(l.amount, cur)} />)}
       {q.minimumAdjustment > 0 && <Line l="Minimum order adjustment" v={`+ ${money(q.minimumAdjustment, cur)}`} />}
       {q.roundingAdjustment > 0 && <Line l="Rounding" v={`+ ${money(q.roundingAdjustment, cur)}`} />}
@@ -74,8 +73,9 @@ function Calc({ data, disclaimer }: { data: Extract<PublicPhotoPricing, { active
   let n = 0;
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-12">
-      <div className="min-w-0 pb-24 lg:pb-0">
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1.85fr)_minmax(0,1fr)] lg:gap-8 xl:gap-10">
+      <div className="min-w-0 rounded-[20px] border border-border bg-[var(--white)] p-5 pb-24 sm:p-7 md:p-8 lg:pb-8">
+        <h3 className="text-h3 mb-8 text-foreground">Customize Your Product Photography</h3>
         <Step n={++n} title="How would you like to order?">
           <div role="radiogroup" aria-label="Order type" className="grid gap-3 sm:grid-cols-2">
             {config.packages.length > 0 && <Choice selected={mode === "package"} onClick={() => setMode("package")} title="Product photoshoot package" desc="A fixed set of views per product." />}
@@ -90,7 +90,7 @@ function Calc({ data, disclaimer }: { data: Extract<PublicPhotoPricing, { active
                 const on = pkg === p.id;
                 return (
                   <button key={p.id} type="button" role="radio" aria-checked={on} onClick={() => setPkg(p.id)}
-                    className={cn("flex flex-col overflow-hidden rounded-[6px] border bg-[var(--white)] text-left transition-[border-color,box-shadow] duration-200", on ? "border-accent shadow-[0_0_0_1px_var(--accent)]" : "border-border hover:border-foreground/40")}>
+                    className={cn("flex flex-col overflow-hidden rounded-[12px] border text-left transition-[border-color,box-shadow,background-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40", on ? "border-accent bg-accent/[0.04] shadow-[0_0_0_1px_var(--accent)]" : "border-border bg-[var(--white)] hover:border-foreground/30")}>
                     {examples[p.id] && <img src={examples[p.id]} alt={`${p.name} example`} loading="lazy" className="aspect-[4/3] w-full object-cover" />}
                     <span className="flex flex-1 flex-col p-4">
                       <span className="flex items-baseline justify-between gap-3"><span className="text-body font-medium text-foreground">{p.name}</span><span className="text-small tabular-nums text-foreground">{money(Math.round((p.price_per_product ?? 0) * 100), cur)}</span></span>
@@ -119,7 +119,7 @@ function Calc({ data, disclaimer }: { data: Extract<PublicPhotoPricing, { active
               <div className="flex flex-wrap gap-2">
                 {views.map((v) => { const on = viewIds.includes(v.id); return (
                   <button key={v.id} type="button" aria-pressed={on} onClick={() => setViewIds((x) => (on ? x.filter((i) => i !== v.id) : [...x, v.id]))}
-                    className={cn("text-small h-10 rounded-[6px] border px-3 transition-colors", on ? "border-accent bg-accent/10 text-foreground" : "border-border bg-[var(--white)] hover:border-foreground/40")}>{v.name}</button>); })}
+                    className={cn("text-small h-10 rounded-full border px-4 transition-colors", on ? "border-accent bg-accent/10 text-foreground" : "border-border bg-[var(--white)] hover:border-foreground/40")}>{v.name}</button>); })}
               </div>
               <label className="text-small mt-5 flex items-center gap-3 text-muted-foreground">Images per product
                 <input type="number" inputMode="numeric" min={1} max={s.max_images_per_product} value={images}
@@ -163,9 +163,9 @@ function Calc({ data, disclaimer }: { data: Extract<PublicPhotoPricing, { active
         </Step>
         {config.addons.length > 0 && (
           <Step n={++n} title="Optional extras.">
-            <ul className="divide-y divide-border rounded-[6px] border border-border bg-[var(--white)]">
+            <ul className="grid gap-3 sm:grid-cols-2">
               {config.addons.map((a) => (
-                <li key={a.id} className="px-4 py-3">
+                <li key={a.id} className={cn("rounded-[12px] border px-4 py-3 transition-colors", addons.includes(a.id) ? "border-accent bg-accent/[0.04]" : "border-border bg-[var(--white)] hover:border-foreground/30")}>
                   <label className="flex min-h-11 cursor-pointer items-center gap-3">
                     <input type="checkbox" checked={addons.includes(a.id)} className="size-5 accent-[var(--accent)]"
                       onChange={(e) => setAddons((x) => (e.target.checked ? [...x, a.id] : x.filter((i) => i !== a.id)))} />
@@ -181,32 +181,11 @@ function Calc({ data, disclaimer }: { data: Extract<PublicPhotoPricing, { active
 
       <QuoteRequestDialog open={open} onOpenChange={setOpen} selection={null} summary={null} category="photography" photoSelection={selection} summaryText={summaryText} />
 
-      <aside aria-label="Your estimate" className="hidden lg:block">
-        <div className="dark sticky top-24 rounded-[8px] border border-border bg-background p-6 text-foreground">
-          <p className="text-eyebrow text-muted-foreground">YOUR PHOTOSHOOT</p>
-          {q && <p className="text-small mt-3 text-foreground">{summaryText}</p>}
-          <p className="text-caption mt-6 text-muted-foreground">Your Estimated Project Cost</p>
-          {q ? <><p className="text-display mt-1 tabular-nums text-foreground" aria-live="polite">{money(shown, cur)}</p><p className="text-caption mt-2 text-muted-foreground">Based on your selections. Final pricing may vary depending on project requirements.</p></>
-            : <><p className="text-h4 mt-1 text-foreground" role="status">Custom Estimate Required</p><p className="text-small mt-2 text-muted-foreground">{"error" in result ? result.error : ""}</p></>}
-          <div className="mt-5">{breakdown}</div>
-          <div className="mt-5">{actions}</div>
-          <p className="text-caption mt-4 text-muted-foreground">{disclaimer || DEFAULT_DISCLAIMER}</p>
-        </div>
-      </aside>
-
-      <div className="dark fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background text-foreground lg:hidden">
-        {sheet && (
-          <div className="max-h-[60vh] overflow-y-auto border-b border-border px-[var(--gutter)] py-4">
-            {breakdown ?? <p className="text-small text-muted-foreground">{"error" in result ? result.error : ""}</p>}
-            <div className="mt-4">{actions}</div>
-            <p className="text-caption mt-3 text-muted-foreground">{disclaimer || DEFAULT_DISCLAIMER}</p>
-          </div>
-        )}
-        <button type="button" onClick={() => setSheet((v) => !v)} aria-expanded={sheet} className="flex w-full items-center justify-between gap-3 px-[var(--gutter)] py-3">
-          <span className="text-left"><span className="text-caption block text-muted-foreground">Your Estimated Project Cost</span><span className="text-h4 block tabular-nums">{q ? money(shown, cur) : "Custom estimate"}</span></span>
-          <span className="text-small flex items-center gap-1 text-muted-foreground">{sheet ? "Hide" : "Breakdown"}<ChevronUp className={cn("size-4 transition-transform", !sheet && "rotate-180")} /></span>
-        </button>
-      </div>
+      <EstimateSummary
+        thumb={q && q.mode === "package" ? examples[pkg] : null}
+        rows={q ? [["Service", q.mode === "package" ? "Photoshoot package" : q.item.name], [q.mode === "package" ? "Package" : "Images", q.mode === "package" ? q.item.name : `${q.totalImages} images`], ["Products", String(q.products)], ["Workflow", q.workflow.name], ...(q.addonLines.length ? [["Extras", q.addonLines.map((l) => l.name).join(", ")] as const] : [])] : [["Service", "AI Product Photography"], ["Products", String(products)]]}
+        total={q ? money(shown, cur) : null} error={"error" in result ? result.error : null}
+        breakdown={breakdown} actions={actions} disclaimer={disclaimer} />
     </div>
   );
 }
