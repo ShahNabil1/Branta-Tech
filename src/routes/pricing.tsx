@@ -217,11 +217,11 @@ function PricingPage() {
             </div>
             <div className="divide-y divide-border border-y border-border">
               {content.faq.items.map((f, i) => (
-                <details key={i} className="group py-5 [&::details-content]:transition-[block-size,content-visibility] [&::details-content]:duration-300 [&::details-content]:[transition-behavior:allow-discrete] [&::details-content]:block-size-0 open:[&::details-content]:block-size-auto">
+                <details key={i} className="group py-5">
                   <summary className="text-body flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-foreground [&::-webkit-details-marker]:hidden">
                     {f.title}<span aria-hidden className="grid size-7 shrink-0 place-items-center rounded-full bg-[var(--white)] text-accent transition-transform duration-300 group-open:rotate-45 motion-reduce:transition-none">+</span>
                   </summary>
-                  <p className="text-small mt-3 max-w-2xl whitespace-pre-line text-muted-foreground">{f.body}</p>
+                  <p className="text-small mt-3 max-w-2xl whitespace-pre-line text-muted-foreground group-open:animate-in group-open:fade-in group-open:slide-in-from-top-1 motion-reduce:animate-none">{f.body}</p>
                 </details>
               ))}
             </div>
