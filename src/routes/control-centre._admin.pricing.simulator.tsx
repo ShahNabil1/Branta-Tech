@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { adminHead } from "@/lib/supabase/cms";
 import { CheckboxInput, ErrorNote, Panel, SelectInput } from "@/components/admin/cms";
+import { PhotoSimulatorPanel } from "@/components/admin/pricing/PhotoAdminPanels";
 import { NumField, PricingPage } from "@/components/admin/pricing/PricingKit";
 import { calculateQuote, PricingError } from "@/lib/pricing/engine";
 import { bdtMinor, toEngineConfig, type AdminPricing } from "@/lib/pricing/admin";
@@ -10,7 +11,7 @@ export const Route = createFileRoute("/control-centre/_admin/pricing/simulator")
   head: () => adminHead("Pricing simulator"),
   component: () => (
     <PricingPage wide title="Pricing simulator" description="Internal preview using the same engine the server uses. Includes drafts. Nothing is saved and no quotation or booking is created.">
-      {(d) => <Simulator d={d} />}
+      {(d) => <div className="grid gap-6"><Simulator d={d} /><PhotoSimulatorPanel tax={d.settings.tax} /></div>}
     </PricingPage>
   ),
 });

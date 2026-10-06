@@ -49,8 +49,10 @@ const groups = [
     title: "Pricing",
     items: [
       { label: "Pricing Overview", icon: BadgeDollarSign, to: "/control-centre/pricing" as const },
-      { label: "Rate Matrix", icon: Grid3x3, to: "/control-centre/pricing/rates" as const },
       { label: "Simulator", icon: Calculator, to: "/control-centre/pricing/simulator" as const },
+      { label: "Video Rate Matrix", icon: Grid3x3, to: "/control-centre/pricing/rates" as const },
+      { label: "Photography Pricing", icon: Image, to: "/control-centre/pricing/photo" as const },
+      { label: "Proposed Changes", icon: ClipboardCheck, to: "/control-centre/pricing/proposals" as const },
       { label: "Publication Review", icon: ClipboardCheck, to: "/control-centre/pricing/review" as const },
     ],
   },

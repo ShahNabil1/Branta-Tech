@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle, Check } from "lucide-react";
 import { adminHead } from "@/lib/supabase/cms";
 import { DataTable, Panel, Td } from "@/components/admin/cms";
+import { PhotoReviewPanel } from "@/components/admin/pricing/PhotoAdminPanels";
 import { PricingPage } from "@/components/admin/pricing/PricingKit";
 import { bdt, CHARGE_TYPE_LABEL, publishReadiness, type AdminPricing } from "@/lib/pricing/admin";
 import { cn } from "@/lib/utils";
@@ -10,7 +11,7 @@ export const Route = createFileRoute("/control-centre/_admin/pricing/review")({
   head: () => adminHead("Pricing publication review"),
   component: () => (
     <PricingPage wide title="Publication review" description="Everything the public pricing page would show, in one place. Nothing here publishes automatically — publish items on their own screens, then enable public pricing in Settings once every check passes.">
-      {(d) => <Review d={d} />}
+      {(d) => <div className="grid gap-6"><Review d={d} /><PhotoReviewPanel /></div>}
     </PricingPage>
   ),
 });
