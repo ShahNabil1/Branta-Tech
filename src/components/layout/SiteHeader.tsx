@@ -1,4 +1,5 @@
 import logoLight from "@/assets/brand/branta-logo-light.png.asset.json";
+import logoDark from "@/assets/brand/branta-logo.png.asset.json";
 import { lazy, Suspense, useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Link, useHydrated, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
@@ -122,6 +123,7 @@ export function SiteHeader() {
   const headerRef = useRef<HTMLElement>(null);
   const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const home = pathname === "/";
   const isActive = usePathActive();
   const baseId = useId();
 
@@ -177,11 +179,11 @@ export function SiteHeader() {
     <header
       ref={headerRef}
       className={cn(
-        "dark sticky top-0 z-50 border-b border-border bg-background text-foreground",
+        home ? "sticky top-0 z-50 px-3 pt-3 text-foreground md:px-6" : "dark sticky top-0 z-50 border-b border-border bg-background text-foreground",
       )}
     >
-      <div className="mx-auto flex h-16 w-full max-w-[1600px] items-center gap-6 px-5 md:px-8 xl:h-[68px]">
-        <BrandLogo src={logo} />
+      <div className={cn("mx-auto flex w-full items-center gap-6", home ? "h-14 max-w-[1200px] rounded-full border border-border bg-card px-4 shadow-[0_8px_24px_-16px_rgba(8,8,8,0.3)] md:px-6" : "h-16 max-w-[1600px] px-5 md:px-8 xl:h-[68px]")}>
+        <BrandLogo src={home ? logoDark.url : logo} />
 
         {/* Desktop nav */}
         <nav aria-label="Main" className="hidden flex-1 justify-center lg:flex" onMouseLeave={hoverClose}>
@@ -263,7 +265,7 @@ export function SiteHeader() {
           aria-label={`${entry.label} menu`}
           onMouseEnter={keepOpen}
           onMouseLeave={hoverClose}
-          className={cn("absolute inset-x-0 top-full hidden border-b border-border bg-[var(--dark-alt)] motion-safe:animate-[nav-in_200ms_var(--ease-out-expo)]", open === entry.id && "lg:block")}
+          className={cn("dark absolute inset-x-0 top-full hidden text-foreground border-b border-border bg-[var(--dark-alt)] motion-safe:animate-[nav-in_200ms_var(--ease-out-expo)]", open === entry.id && "lg:block")}
         >
           {entry.kind === "mega" ? (
             <MegaPanel entry={entry} featured={entry.id === nav.find((n) => n.kind === "mega")?.id ? featured : null} onNavigate={() => setOpen(null)} />
