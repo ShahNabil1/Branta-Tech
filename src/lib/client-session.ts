@@ -21,6 +21,9 @@ export function useClientSession() {
     const storedSession = Object.keys(window.localStorage).some((key) => key.startsWith("sb-") && key.endsWith("-auth-token"));
     if (storedSession) start();
     else {
+      // No persisted auth token means the signed-out chrome can render immediately.
+      // Keep the Supabase client deferred until interaction for initial-load performance.
+      setState({ ready: true, user: null });
       window.addEventListener("pointerdown", start, { once: true, passive: true });
       window.addEventListener("keydown", start, { once: true });
     }
