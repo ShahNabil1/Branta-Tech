@@ -473,3 +473,15 @@ async function portfolio(c: Ctx, group: string | null, categoryId: string | null
     poster: p.cover_type === "image" && p.cover_url?.startsWith("https://") ? p.cover_url : p.cover_poster_url?.startsWith("https://") ? p.cover_poster_url : null,
   }));
 }
+
+/**
+ * Quote-request integration: returns ONLY the caller's own onboarding details, proven by
+ * their chat session token, plus the latest conversation id for linking. Null otherwise.
+ */
+export async function visitorForQuote(token: string | null) {
+  const c = await ctx();
+  const v = await findVisitor(c, token);
+  if (!v || !v.lead_completed_at) return null;
+  const { data: conv } = await c.sb.from("chat_conversations").select("id").eq("visitor_id", v.id).order("last_message_at", { ascending: false }).limit(1).maybeSingle();
+  return { name: v.name, whatsapp: v.whatsapp, email: v.email, conversationId: conv?.id ?? v.first_conversation_id ?? null };
+}
