@@ -68,11 +68,11 @@ function SlideBody({ s, work, live, open }: { s: HeroSlide; work: WorkShowcase; 
   if (s.layout === "intro") {
     const tones = ["from-[#3E4FA8] to-[#7C8BD8]", "from-[#F08A5D] to-[#F7B58F]", "from-[#6E9C8A] to-[#A9C9B5]"];
     return (
-      <div className="flex h-full flex-col items-center px-5 pt-12 pb-8 text-center md:px-12 md:pt-16">
+      <div className="flex h-full flex-col items-center justify-center px-5 py-8 text-center md:px-12">
         <Title s={s} className="serif-display max-w-[16ch] text-[clamp(2.1rem,4.6vw,3.8rem)] font-normal leading-[1.05] tracking-[-0.01em] text-[#141414]" />
         <Desc s={s} className="mt-4 max-w-[44ch]" />
         <div className="mt-6"><Cta s={s} /></div>
-        <div className="mt-10 grid w-full max-w-[860px] grid-cols-3 gap-2.5 md:gap-5">
+        <div className="mt-8 grid w-full max-w-[min(1000px,calc((100dvh-380px)*2.2))] grid-cols-3 gap-2.5 md:gap-5">
           {[0, 1, 2].map((k) => { const c = cards[k]; return (
             <button key={k} type="button" disabled={!c} onClick={() => c && open(c)} className={cn("group relative aspect-[4/4.6] cursor-pointer overflow-hidden rounded-xl bg-gradient-to-b text-center shadow-[0_14px_30px_-20px_rgba(8,8,8,0.5)] transition-transform duration-300 hover:-translate-y-1 md:rounded-2xl", tones[k])}>
               {c && <WorkMediaView media={c.media} title={c.title} alt="" playing={false} />}
@@ -95,7 +95,7 @@ function SlideBody({ s, work, live, open }: { s: HeroSlide; work: WorkShowcase; 
         <Title s={s} className="serif-display max-w-[18ch] text-[clamp(2.1rem,4.6vw,3.8rem)] font-normal leading-[1.05] tracking-[-0.01em] text-[#141414]" />
         <Desc s={s} className="mt-4 max-w-[46ch]" />
         <div className="mt-6"><Cta s={s} /></div>
-        {m && <div className="mt-10 w-full max-w-[920px] flex-1 overflow-hidden rounded-t-[18px] border border-b-0 border-white/80 bg-white p-1.5 pb-0 shadow-[0_-20px_60px_-30px_rgba(8,8,8,0.35)]">
+        {m && <div className="mt-10 w-full max-w-[min(1200px,calc((100dvh-360px)*1.78))] flex-1 overflow-hidden rounded-t-[18px] border border-b-0 border-white/80 bg-white p-1.5 pb-0 shadow-[0_-20px_60px_-30px_rgba(8,8,8,0.35)]">
           <Media m={m} alt={s.title} live={live} onOpen={openMedia} className="aspect-video rounded-t-[13px]" />
         </div>}
       </div>
@@ -111,7 +111,7 @@ function SlideBody({ s, work, live, open }: { s: HeroSlide; work: WorkShowcase; 
           <Desc s={s} className="max-w-[34ch]" />
           <div className="flex items-center gap-4"><Cta s={s} /><span className="text-caption text-[#7a726d]">Studio-grade · AI</span></div>
         </div>
-        <div className="relative mx-auto aspect-square w-full max-w-[460px]">
+        <div className="relative mx-auto aspect-square w-full max-w-[min(560px,calc(100dvh-220px))]">
           <div aria-hidden className="absolute inset-[8%] rounded-full bg-white/70 blur-3xl" />
           <Thumb c={cards[0]} className="absolute inset-[6%] rounded-[36px] bg-gradient-to-br from-[#FFE3D1] via-[#F6F3F8] to-[#E3E0F5] [mask-image:radial-gradient(75%_75%_at_50%_50%,#000_60%,transparent_100%)]" />
           {cards[0] && <div className="absolute bottom-[14%] -left-2 hidden items-center gap-2 rounded-xl bg-white/90 p-2 pr-4 shadow-lg backdrop-blur md:flex">
@@ -180,7 +180,7 @@ function SlideBody({ s, work, live, open }: { s: HeroSlide; work: WorkShowcase; 
           {s.cta_label && <SmartLink url={s.cta_url} className="text-small shrink-0 cursor-pointer rounded-full bg-[#8A3B1E] px-4 py-2 font-medium text-white transition-colors hover:bg-accent">{s.cta_label}</SmartLink>}
         </div>
       </div>
-      <div className="relative mx-auto h-[300px] w-[200px] md:h-[400px] md:w-[260px]">
+      <div className="relative mx-auto h-[300px] w-[200px] md:h-[min(520px,calc(100dvh-240px))] md:w-[min(340px,calc((100dvh-240px)*0.65))]">
         <div className="metal-card absolute inset-0 rotate-[8deg] rounded-[26px] p-6 transition-transform duration-700 hover:rotate-[4deg]">
           <div className="flex items-center justify-between"><img src={logo} alt="" className="size-8 rounded-full bg-[#141414] p-1" /><span className="text-[0.6rem] tracking-[0.3em] text-[#555]">BRANTA</span></div>
           <span className="absolute bottom-6 left-6 text-[0.7rem] font-medium tracking-[0.2em] text-[#444]">CREATE · AI · BUILD</span>
@@ -221,19 +221,19 @@ export function HeroSlider({ slider, work }: { slider: SliderConfig; work: WorkS
 
   return (
     <section ref={ref} aria-roledescription="carousel" aria-label="Branta highlights"
-      className="atmo-hero relative isolate overflow-hidden px-3 pt-8 pb-[var(--section-y)] md:px-6 md:pt-12"
+      className="atmo-hero relative isolate flex h-[calc(100dvh-68px)] min-h-[600px] flex-col overflow-hidden px-3 pt-3 pb-3 md:px-6 md:pt-4 md:pb-4"
       onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onTouchStart={() => setPaused(true)}
       onKeyDown={(e) => { if (e.key === "ArrowRight") go(1); if (e.key === "ArrowLeft") go(-1); }}>
-      <div className="relative mx-auto max-w-[1240px]">
+      <div className="relative mx-auto flex w-full max-w-[1600px] flex-1 flex-col min-h-0">
         {/* Neighbour peeks */}
         {n > 1 && <>
           <div aria-hidden className="glossy-card absolute inset-y-8 -left-[3.2%] hidden w-[3%] rounded-r-[28px] opacity-70 xl:block" />
           <div aria-hidden className="glossy-card absolute inset-y-8 -right-[3.2%] hidden w-[3%] rounded-l-[28px] opacity-70 xl:block" />
         </>}
-        <div className={cn("glossy-card relative min-h-[560px] overflow-hidden rounded-[28px] md:h-[660px] md:min-h-0 md:rounded-[40px]", `slide-bg-${s.layout}`)}>
+        <div className={cn("glossy-card relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden rounded-[28px] md:overflow-hidden md:rounded-[40px] [scrollbar-width:none]", `slide-bg-${s.layout}`)}>
           <AnimatePresence initial={false} custom={dir} mode="popLayout">
             <motion.div key={s.id + i} role="group" aria-roledescription="slide" aria-label={`${i + 1} of ${n}`}
-              custom={dir} className="relative h-full min-h-[inherit]"
+              custom={dir} className="relative h-full min-h-full"
               initial={reduced ? { opacity: 0 } : { opacity: 0, x: dir * 40 }} animate={{ opacity: 1, x: 0 }} exit={reduced ? { opacity: 0 } : { opacity: 0, x: dir * -40 }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               drag={n > 1 && !reduced ? "x" : false} dragConstraints={{ left: 0, right: 0 }} dragElastic={0.15}
@@ -244,7 +244,7 @@ export function HeroSlider({ slider, work }: { slider: SliderConfig; work: WorkS
         </div>
 
         {n > 1 && (
-          <div className="mt-6 flex items-center justify-center gap-4">
+          <div className="mt-3 flex shrink-0 items-center justify-center gap-4">
             <button type="button" aria-label="Previous slide" onClick={() => go(-1)} className="grid size-10 cursor-pointer place-items-center rounded-full border border-black/10 bg-white/80 text-[#080808] backdrop-blur-sm transition-colors hover:border-accent hover:text-accent"><ArrowLeft className="size-4" /></button>
             <div className="flex items-center gap-2">
               {slides.map((x, j) => (
