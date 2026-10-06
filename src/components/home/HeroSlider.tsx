@@ -16,7 +16,7 @@ function groupCards(work: WorkShowcase, key: string): WorkCard[] {
   if (!work) return [];
   if (!key) return [];
   const g = (work.groups.find((x) => x.key === key)?.items ?? []).filter((c) => c.media);
-  return g.length ? g : work.featured.filter((c) => c.media);
+  return g;
 }
 const toWorkMedia = (m: SlideMedia, alt: string) => ({ type: m.type, url: m.url, poster: m.poster || null, alt, orientation: "landscape" }) as WorkCard["media"];
 
@@ -53,104 +53,140 @@ function Media({ m, alt, live, onOpen, className }: { m: WorkCard["media"]; alt:
   );
 }
 
+function Thumb({ c, className }: { c: WorkCard | undefined; className?: string }) {
+  return <div className={cn("relative overflow-hidden bg-[#EFEFEC]", className)}>{c && <WorkMediaView media={c.media} title={c.title} alt="" playing={false} />}</div>;
+}
+const Desc = ({ s, className }: { s: HeroSlide; className?: string }) => (s.body ? <p className={cn("text-small md:text-body text-[#5d5753]", className)}>{s.body}</p> : null);
+
 function SlideBody({ s, work, live, open }: { s: HeroSlide; work: WorkShowcase; live: boolean; open: (c: WorkCard) => void }) {
   const cards = groupCards(work, s.work_group);
   const m = s.media ? toWorkMedia(s.media, s.title) : cards[0]?.media ?? null;
   const asCard = (): WorkCard => (s.media ? { id: s.id, slug: "", title: s.title.replace(/\n/g, " "), client: null, year: null, services: [], category: s.badge ? { slug: "", name: s.badge } : null, media: m } : cards[0]!);
   const openMedia = m && m.type !== "image" ? () => open(asCard()) : undefined;
 
-  if (s.layout === "video" && m)
+  /* 1 — centered serif + three equal destination-style cards */
+  if (s.layout === "intro") {
+    const tones = ["from-[#3E4FA8] to-[#7C8BD8]", "from-[#F08A5D] to-[#F7B58F]", "from-[#6E9C8A] to-[#A9C9B5]"];
     return (
-      <div className="relative h-full min-h-[inherit]">
-        <Media m={m} alt={s.title} live={live} onOpen={openMedia} className="absolute inset-0" />
-        <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 grid justify-items-start gap-4 p-6 text-white md:p-12 [&_a]:pointer-events-auto">
-          <Badge s={s} light /><Title s={s} className="max-w-[16ch] text-white" />
-          {s.body && <p className="text-body max-w-[46ch] text-white/80">{s.body}</p>}
-          <div><Cta s={s} light /></div>
+      <div className="flex h-full flex-col items-center px-5 pt-12 pb-8 text-center md:px-12 md:pt-16">
+        <Title s={s} className="serif-display max-w-[16ch] text-[clamp(2.1rem,4.6vw,3.8rem)] font-normal leading-[1.05] tracking-[-0.01em] text-[#141414]" />
+        <Desc s={s} className="mt-4 max-w-[44ch]" />
+        <div className="mt-6"><Cta s={s} /></div>
+        <div className="mt-10 grid w-full max-w-[860px] grid-cols-3 gap-2.5 md:gap-5">
+          {[0, 1, 2].map((k) => { const c = cards[k]; return (
+            <button key={k} type="button" disabled={!c} onClick={() => c && open(c)} className={cn("group relative aspect-[4/4.6] cursor-pointer overflow-hidden rounded-xl bg-gradient-to-b text-center shadow-[0_14px_30px_-20px_rgba(8,8,8,0.5)] transition-transform duration-300 hover:-translate-y-1 md:rounded-2xl", tones[k])}>
+              {c && <WorkMediaView media={c.media} title={c.title} alt="" playing={false} />}
+              <span className="absolute inset-x-0 top-0 grid justify-items-center gap-1.5 bg-gradient-to-b from-black/45 to-transparent px-2 pt-3 pb-8">
+                <span className="text-[0.6rem] rounded-full bg-accent px-2 py-0.5 font-medium text-white md:text-caption">{c?.category?.name ?? "Motion Ad"}</span>
+                <span className="serif-display line-clamp-2 text-[0.8rem] leading-tight text-white md:text-lg">{c?.title}</span>
+              </span>
+              <span className="text-[0.6rem] absolute bottom-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-2.5 py-1 font-medium text-[#141414] md:text-caption">View Project</span>
+            </button>
+          ); })}
         </div>
       </div>
     );
+  }
 
-  if (s.layout === "intro")
+  /* 2 — centered serif over orange/lavender glow + large media window bleeding off the bottom */
+  if (s.layout === "video")
     return (
-      <div className="flex h-full flex-col items-center px-5 py-12 text-center md:px-12 md:py-16">
-        <Badge s={s} /><Title s={s} className="mt-5 max-w-[18ch] text-[#080808]" />
-        {s.body && <p className="text-body mt-4 max-w-[52ch] text-[#55504c]">{s.body}</p>}
-        <div className="mt-7"><Cta s={s} /></div>
-        {cards.length > 0 && (
-          <div className="mt-10 grid w-full max-w-[880px] grid-cols-3 gap-2 md:gap-4">
-            {cards.slice(0, 3).map((c) => (
-              <button key={c.id} type="button" onClick={() => open(c)} className="group relative aspect-[4/5] cursor-pointer overflow-hidden rounded-2xl bg-[#EFEFEC] text-left shadow-[0_18px_40px_-24px_rgba(8,8,8,0.5)] transition-transform duration-300 hover:-translate-y-1 md:aspect-[4/3.4]">
-                <WorkMediaView media={c.media} title={c.title} playing={false} />
-                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2.5 pt-8 md:p-3.5">
-                  <span className="text-caption line-clamp-1 block font-medium text-white md:text-small">{c.title}</span>
-                  <span className="text-caption hidden text-white/75 md:block">View project →</span>
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
+      <div className="flex h-full flex-col items-center px-4 pt-12 text-center md:px-10 md:pt-16">
+        <Title s={s} className="serif-display max-w-[18ch] text-[clamp(2.1rem,4.6vw,3.8rem)] font-normal leading-[1.05] tracking-[-0.01em] text-[#141414]" />
+        <Desc s={s} className="mt-4 max-w-[46ch]" />
+        <div className="mt-6"><Cta s={s} /></div>
+        {m && <div className="mt-10 w-full max-w-[920px] flex-1 overflow-hidden rounded-t-[18px] border border-b-0 border-white/80 bg-white p-1.5 pb-0 shadow-[0_-20px_60px_-30px_rgba(8,8,8,0.35)]">
+          <Media m={m} alt={s.title} live={live} onOpen={openMedia} className="aspect-video rounded-t-[13px]" />
+        </div>}
       </div>
     );
 
-  if (s.layout === "web")
+  /* 3 — big bold left headline, glowing visual right with floating chips */
+  if (s.layout === "product")
     return (
-      <div className="flex h-full flex-col items-center px-5 pt-12 text-center md:px-12 md:pt-16">
-        <Badge s={s} /><Title s={s} className="mt-5 max-w-[18ch] text-[#080808]" />
-        {s.body && <p className="text-body mt-4 max-w-[52ch] text-[#55504c]">{s.body}</p>}
-        <div className="mt-7"><Cta s={s} /></div>
-        <div className="mt-10 w-full max-w-[900px] overflow-hidden rounded-t-2xl border border-b-0 border-black/10 bg-white shadow-[0_-10px_50px_-30px_rgba(8,8,8,0.45)]">
-          <div className="flex items-center gap-1.5 border-b border-black/5 px-4 py-2.5">
-            {[0, 1, 2].map((i) => <span key={i} aria-hidden className="size-2.5 rounded-full bg-black/10" />)}
-            <span className="text-caption mx-auto rounded-full bg-black/[0.04] px-6 py-0.5 text-[#7a726d]">brantatech.com</span>
-          </div>
-          {m ? <Media m={m} alt={s.title} live={live} onOpen={openMedia} className="aspect-[16/7]" /> : (
-            <div className="grid h-[180px] grid-cols-[1fr_2fr] gap-3 bg-[#FAFAF8] p-4 md:h-[260px]">
-              <div className="grid content-start gap-2">{[70, 50, 60, 40].map((w) => <span key={w} className="h-2.5 rounded-full bg-black/[0.06]" style={{ width: `${w}%` }} />)}</div>
-              <div className="grid grid-cols-3 gap-3">{[0, 1, 2].map((i) => <span key={i} className={cn("rounded-xl", i === 1 ? "bg-accent/20" : "bg-black/[0.05]")} />)}</div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-
-  if (s.layout === "brand")
-    return (
-      <div className="grid h-full items-center gap-10 px-6 py-12 md:grid-cols-[1.1fr_1fr] md:px-14">
+      <div className="grid h-full items-center gap-6 p-6 md:grid-cols-[1fr_1.1fr] md:p-14">
         <div className="grid justify-items-start gap-5">
-          <Badge s={s} /><Title s={s} className="text-[#080808]" />
-          {s.body && <p className="text-body max-w-[42ch] text-[#55504c]">{s.body}</p>}
-          <Cta s={s} />
+          {s.badge && <span className="text-caption inline-flex items-center gap-2 rounded-md border border-black/10 bg-white px-2 py-1 font-medium text-[#3a3330] shadow-sm"><img src={logo} alt="" className="size-4 rounded-sm" />{s.badge}</span>}
+          <Title s={s} className="text-[clamp(2.3rem,5vw,4.2rem)] font-bold leading-[1] tracking-[-0.04em] text-[#141414]" />
+          <Desc s={s} className="max-w-[34ch]" />
+          <div className="flex items-center gap-4"><Cta s={s} /><span className="text-caption text-[#7a726d]">Studio-grade · AI</span></div>
         </div>
-        <div className="relative mx-auto aspect-[1.586] w-full max-w-[420px] [perspective:1200px]">
-          <div className="brand-card absolute inset-0 flex rotate-[-8deg] flex-col justify-between rounded-[22px] p-6 text-white transition-transform duration-700 hover:rotate-[-3deg] hover:scale-[1.02] md:p-8">
-            <div className="flex items-center justify-between"><img src={logo} alt="" className="size-9 rounded-full bg-black/80 p-1.5" /><span className="text-caption tracking-[0.3em] text-white/80">BRANTA</span></div>
-            <div><p className="font-mono text-[clamp(0.9rem,2vw,1.15rem)] tracking-[0.22em] text-white/90">CREATE · AI · BUILD</p><p className="text-caption mt-2 text-white/70">The only card that works like Branta.</p></div>
-          </div>
+        <div className="relative mx-auto aspect-square w-full max-w-[460px]">
+          <div aria-hidden className="absolute inset-[8%] rounded-full bg-white/70 blur-3xl" />
+          <Thumb c={cards[0]} className="absolute inset-[6%] rounded-[36px] bg-gradient-to-br from-[#FFE3D1] via-[#F6F3F8] to-[#E3E0F5] [mask-image:radial-gradient(75%_75%_at_50%_50%,#000_60%,transparent_100%)]" />
+          {cards[0] && <div className="absolute bottom-[14%] -left-2 hidden items-center gap-2 rounded-xl bg-white/90 p-2 pr-4 shadow-lg backdrop-blur md:flex">
+            <Thumb c={cards[1] ?? cards[0]} className="size-9 rounded-lg" /><div className="text-left"><p className="text-caption font-medium text-[#141414]">{cards[0].title}</p><p className="text-[0.65rem] text-[#7a726d]">{cards[0].category?.name}</p></div>
+          </div>}
         </div>
       </div>
     );
 
-  // product / commercial: split
-  const cine = s.layout === "commercial";
-  return (
-    <div className={cn("grid h-full items-center gap-8 p-6 md:grid-cols-2 md:gap-12 md:p-12", cine && "md:grid-cols-[1fr_1.35fr]")}>
-      <div className="grid justify-items-start gap-5">
-        <Badge s={s} /><Title s={s} className="text-[#080808]" />
-        {s.body && <p className="text-body max-w-[42ch] text-[#55504c]">{s.body}</p>}
-        <Cta s={s} />
-      </div>
-      {m ? (
-        <div className="relative">
-          <Media m={m} alt={s.title} live={live} onOpen={openMedia} className={cn("rounded-[24px] shadow-[0_30px_60px_-30px_rgba(8,8,8,0.55)]", cine ? "aspect-video" : "aspect-[4/3.6]")} />
-          {!cine && cards[1]?.media && (
-            <div className="absolute -bottom-5 -left-5 hidden w-[38%] rotate-[-6deg] overflow-hidden rounded-2xl border-4 border-white shadow-xl md:block">
-              <div className="relative aspect-square"><WorkMediaView media={cards[1].media} title={cards[1].title} alt="" playing={false} /></div>
-            </div>
-          )}
+  /* 4 — white split: headline left, big rounded accent visual right with overlapping panels */
+  if (s.layout === "commercial")
+    return (
+      <div className="grid h-full items-center gap-8 p-6 md:grid-cols-2 md:p-14">
+        <div className="grid justify-items-start gap-5">
+          <Title s={s} className="text-[clamp(2.1rem,4.4vw,3.6rem)] font-bold leading-[1.04] tracking-[-0.035em] text-[#141414]" />
+          <Desc s={s} className="max-w-[40ch]" />
+          {s.cta_label && <SmartLink url={s.cta_url} className="text-small inline-flex cursor-pointer items-center gap-2 rounded-full bg-accent px-5 py-3 font-medium text-white transition-all hover:-translate-y-0.5 hover:bg-[#E95200]">{s.cta_label}<span className="grid size-5 place-items-center rounded-full bg-white/25"><ArrowRight className="size-3" /></span></SmartLink>}
         </div>
-      ) : <div aria-hidden className="hidden aspect-[4/3] rounded-[24px] bg-gradient-to-br from-[#FFE3D1] via-[#FBE4EE] to-[#E7E3FA] md:block" />}
+        <div className="relative pb-6 md:pr-6">
+          <div className="relative aspect-[4/3.3] overflow-hidden rounded-[22px] bg-[#1F1A17]">
+            {m ? <Media m={m} alt={s.title} live={live} onOpen={openMedia} className="absolute inset-0" /> : null}
+          </div>
+          {cards.slice(0, 2).map((c, k) => (
+            <button key={c.id} type="button" onClick={() => open(c)} className={cn("absolute hidden w-[46%] cursor-pointer items-center gap-2 rounded-xl border border-black/5 bg-white p-2 text-left shadow-[0_20px_40px_-20px_rgba(8,8,8,0.45)] transition-transform hover:-translate-y-0.5 sm:flex", k === 0 ? "-left-6 top-[42%]" : "-right-2 bottom-0")}>
+              <Thumb c={c} className="size-10 shrink-0 rounded-lg" />
+              <span className="min-w-0"><span className="text-caption block truncate font-medium text-[#141414]">{c.title}</span><span className="block truncate text-[0.65rem] text-accent">{c.category?.name ?? "AI Commercial"}</span></span>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+
+  /* 5 — centered product showcase with three layered device mockups and side cards */
+  if (s.layout === "web") {
+    const dev = (c: WorkCard | undefined, cls: string) => (
+      <div className={cn("overflow-hidden rounded-[22px] border-[5px] border-[#141414] bg-[#141414] shadow-[0_30px_50px_-25px_rgba(8,8,8,0.6)]", cls)}>
+        <div className="relative size-full overflow-hidden rounded-[17px] bg-white">{c ? <WorkMediaView media={c.media} title={c.title} alt="" playing={false} /> : <div className="grid h-full content-start gap-2 p-3">{[80, 55, 70, 40].map((w) => <span key={w} className="h-2 rounded-full bg-black/[0.07]" style={{ width: `${w}%` }} />)}<span className="mt-2 h-16 rounded-xl bg-accent/15" /></div>}</div>
+      </div>
+    );
+    return (
+      <div className="relative flex h-full flex-col items-center overflow-hidden px-5 pt-12 text-center md:px-12 md:pt-14">
+        {s.badge && <span className="text-caption inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-1 py-1 pr-3 font-medium text-[#3a3330]"><span className="rounded-full bg-accent px-2 py-0.5 text-white">New</span>{s.badge}</span>}
+        <Title s={s} className="mt-4 max-w-[20ch] text-[clamp(2rem,4.2vw,3.4rem)] font-bold leading-[1.05] tracking-[-0.035em] text-[#141414]" />
+        <Desc s={s} className="mt-3 max-w-[48ch]" />
+        <div className="mt-6 flex gap-2"><Cta s={s} /><SmartLink url="/contact" className="text-small inline-flex items-center rounded-full border border-black/10 bg-white px-5 py-3 font-medium text-[#141414] hover:border-accent hover:text-accent">Contact</SmartLink></div>
+        <div className="mt-10 flex items-end justify-center gap-3 md:gap-6">
+          {dev(cards[1], "hidden h-[220px] w-[120px] translate-y-6 rotate-[-4deg] sm:block md:h-[300px] md:w-[150px]")}
+          {dev(cards[0], "h-[260px] w-[140px] md:h-[350px] md:w-[175px]")}
+          {dev(cards[2], "hidden h-[220px] w-[120px] translate-y-6 rotate-[4deg] sm:block md:h-[300px] md:w-[150px]")}
+        </div>
+        <div aria-hidden className="pointer-events-none absolute left-6 top-24 hidden w-44 rotate-[-6deg] rounded-xl border border-black/5 bg-white p-3 text-left shadow-lg lg:block"><p className="text-caption font-medium text-[#141414]">Websites</p><p className="text-[0.65rem] text-[#7a726d]">Fast, SEO-ready, built to convert</p></div>
+        <div aria-hidden className="pointer-events-none absolute right-6 top-40 hidden w-44 rotate-[5deg] rounded-xl border border-black/5 bg-white p-3 text-left shadow-lg lg:block"><p className="text-caption font-medium text-[#141414]">Software & SaaS</p><p className="text-[0.65rem] text-[#7a726d]">Custom systems for your business</p></div>
+      </div>
+    );
+  }
+
+  /* 6 — editorial light headline left, tall glossy metal card right */
+  return (
+    <div className="relative grid h-full items-center gap-10 overflow-hidden p-6 md:grid-cols-[1.15fr_1fr] md:p-14">
+      <span aria-hidden className="pointer-events-none absolute -bottom-6 left-4 select-none text-[clamp(5rem,14vw,11rem)] font-semibold leading-none tracking-[-0.06em] text-[#141414]/[0.04]">branta</span>
+      <div className="relative grid justify-items-start gap-5">
+        <Title s={s} className="text-[clamp(2.1rem,4.6vw,3.8rem)] font-normal leading-[1.05] tracking-[-0.04em] text-[#3a2b24] [&]:font-light" />
+        <Desc s={s} className="max-w-[38ch]" />
+        <div className="flex w-full max-w-[380px] items-center gap-2 rounded-full border border-black/10 bg-white/80 p-1 pl-4 backdrop-blur">
+          <span className="text-small min-w-0 flex-1 truncate text-left text-[#9a908a]">Tell us about your project</span>
+          {s.cta_label && <SmartLink url={s.cta_url} className="text-small shrink-0 cursor-pointer rounded-full bg-[#8A3B1E] px-4 py-2 font-medium text-white transition-colors hover:bg-accent">{s.cta_label}</SmartLink>}
+        </div>
+      </div>
+      <div className="relative mx-auto h-[300px] w-[200px] md:h-[400px] md:w-[260px]">
+        <div className="metal-card absolute inset-0 rotate-[8deg] rounded-[26px] p-6 transition-transform duration-700 hover:rotate-[4deg]">
+          <div className="flex items-center justify-between"><img src={logo} alt="" className="size-8 rounded-full bg-[#141414] p-1" /><span className="text-[0.6rem] tracking-[0.3em] text-[#555]">BRANTA</span></div>
+          <span className="absolute bottom-6 left-6 text-[0.7rem] font-medium tracking-[0.2em] text-[#444]">CREATE · AI · BUILD</span>
+        </div>
+        <span className="text-caption absolute -left-16 bottom-16 hidden items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-[#3a2b24] shadow md:inline-flex"><span className="size-1.5 rounded-full bg-accent" />Creative · AI · Tech</span>
+      </div>
     </div>
   );
 }
@@ -182,7 +218,6 @@ export function HeroSlider({ slider, work }: { slider: SliderConfig; work: WorkS
 
   if (!n) return null;
   const s = slides[i]!;
-  const dark = s.layout === "video";
 
   return (
     <section ref={ref} aria-roledescription="carousel" aria-label="Branta highlights"
@@ -195,7 +230,7 @@ export function HeroSlider({ slider, work }: { slider: SliderConfig; work: WorkS
           <div aria-hidden className="glossy-card absolute inset-y-8 -left-[3.2%] hidden w-[3%] rounded-r-[28px] opacity-70 xl:block" />
           <div aria-hidden className="glossy-card absolute inset-y-8 -right-[3.2%] hidden w-[3%] rounded-l-[28px] opacity-70 xl:block" />
         </>}
-        <div className={cn("glossy-card relative min-h-[520px] overflow-hidden rounded-[28px] md:min-h-[640px] md:rounded-[40px]", dark && "bg-[#0B0B0B]")}>
+        <div className={cn("glossy-card relative min-h-[560px] overflow-hidden rounded-[28px] md:h-[660px] md:min-h-0 md:rounded-[40px]", `slide-bg-${s.layout}`)}>
           <AnimatePresence initial={false} custom={dir} mode="popLayout">
             <motion.div key={s.id + i} role="group" aria-roledescription="slide" aria-label={`${i + 1} of ${n}`}
               custom={dir} className="relative h-full min-h-[inherit]"
