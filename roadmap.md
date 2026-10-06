@@ -22,7 +22,7 @@
 
 # Mobile performance and Best Practices
 - [x] Audit the supplied PageSpeed report and reproduce mobile bottlenecks independently
-- [ ] Defer initial Vimeo and secondary hero media without layout shift
-- [ ] Remove global third-party connection work and self-host critical fonts
-- [ ] Reduce shared JavaScript, mobile rendering work and oversized image delivery
+- [x] Defer initial Vimeo and secondary hero media without layout shift
+- [x] Remove global third-party connection work and self-host critical fonts
+- [x] Reduce shared JavaScript, mobile rendering work and oversized image delivery
 - [ ] Verify tests, build, phone/desktop UX and repeated mobile Lighthouse results

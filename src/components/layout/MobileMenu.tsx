@@ -59,11 +59,11 @@ function MobileMenuPanel({ id, nav, logo, account, booking, active, renderLink, 
   const ease = [0.22, 1, 0.36, 1] as const;
   const item = {
     hidden: { opacity: 0, y: reduceMotion ? 0 : 14 },
-    visible: { opacity: 1, y: 0, transition: { duration: reduceMotion ? 0 : 0.38, ease } },
+    visible: { opacity: 1, y: 0, transition: { duration: reduceMotion ? 0 : 0.28, ease } },
   };
   const panel = {
     hidden: { opacity: 0, y: reduceMotion ? 0 : -18, scale: reduceMotion ? 1 : 0.992 },
-    visible: { opacity: 1, y: 0, scale: 1, transition: { duration, ease, when: "beforeChildren" as const, staggerChildren: reduceMotion ? 0 : 0.035, delayChildren: reduceMotion ? 0 : 0.08 } },
+    visible: { opacity: 1, y: 0, scale: 1, transition: { duration, ease, when: "beforeChildren" as const, staggerChildren: reduceMotion ? 0 : 0.02, delayChildren: reduceMotion ? 0 : 0.03 } },
     exit: { opacity: 0, y: reduceMotion ? 0 : -12, scale: reduceMotion ? 1 : 0.994, transition: { duration: reduceMotion ? 0 : 0.3, ease } },
   };
 
