@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2 } from "lucide-react";
-import logo from "@/assets/brand/branta-logo-light.png.asset.json";
+import { BRANTA_LIGHT_LOGO } from "@/lib/brand-media";
 import { buttonVariants } from "@/components/ui/brand-button";
 import { getCustomerQuote, respondToQuote, type CustomerQuote } from "@/lib/quotes.functions";
 import { cn } from "@/lib/utils";
@@ -29,7 +29,7 @@ function QuotePage() {
   return (
     <main className="min-h-screen bg-[var(--warm)] px-4 py-10 text-foreground sm:py-16">
       <div className="mx-auto max-w-3xl">
-        <img src={logo.url} alt="Branta Tech" className="h-7 w-auto" />
+        <img src={BRANTA_LIGHT_LOGO} alt="Branta Tech" className="h-7 w-auto" />
         {q.isLoading ? <p className="text-small mt-10 flex items-center gap-2 text-muted-foreground"><Loader2 className="size-4 animate-spin" /> Loading your quote…</p>
           : !q.data || !q.data.ok ? <Unavailable superseded={q.data?.ok === false && q.data.reason === "superseded"} />
           : <QuoteView d={q.data} token={token} onDone={() => void q.refetch()} />}

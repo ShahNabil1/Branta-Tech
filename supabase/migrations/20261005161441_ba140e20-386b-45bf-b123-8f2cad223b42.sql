@@ -25,8 +25,8 @@ create policy "CMS admins delete recognitions" on public.site_recognitions for d
 create trigger site_recognitions_updated_at before update on public.site_recognitions for each row execute function public.set_updated_at();
 
 insert into public.site_recognitions (type, organization, logo_url, sort_order, is_published) values
-  ('funding', 'Bangladesh Hi-Tech Park Authority', '/__l5e/assets-v1/b8e0f5af-9c8b-4cd8-9fe7-53ecc69c3343/bhtpa-logo.png', 10, true),
-  ('champion', 'Open Lab Bangladesh', '/__l5e/assets-v1/94e97320-3961-4e81-842f-fd405fa80f2d/open-lab-bangladesh-logo.png', 20, true);
+  ('funding', 'Bangladesh Hi-Tech Park Authority', '/media/branta/bhtpa-seed-logo.png', 10, true),
+  ('champion', 'Open Lab Bangladesh', '/media/branta/open-lab-bangladesh-logo.png', 20, true);
 
 insert into public.page_sections (page_id, section_type, eyebrow, title, body, cta_label, cta_url, sort_order, is_visible, config)
 select id, 'recognition', 'RECOGNITION', E'Backed.\nRecognized.\nTrusted.',

@@ -1,4 +1,4 @@
-import logoDark from "@/assets/brand/branta-logo.png.asset.json";
+import { BRANTA_DARK_LOGO } from "@/lib/brand-media";
 import { useState } from "react";
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
@@ -129,7 +129,7 @@ function NavList({ onNavigate, roles }: { onNavigate?: () => void; roles: string
 function Brand() {
   return (
     <div className="flex items-center gap-2 px-5 py-5">
-      <img src={logoDark.url} alt="Branta" width={1288} height={308} className="h-6 w-auto" />
+      <img src={BRANTA_DARK_LOGO} alt="Branta" width={1288} height={308} className="h-6 w-auto" />
       <span className="text-small font-semibold">Control Centre</span>
     </div>
   );

@@ -1,6 +1,6 @@
 import type { PdfQuote } from "./phase5";
 import { pdfMoney } from "./phase5";
-import logo from "@/assets/brand/branta-logo-light.png.asset.json";
+import { BRANTA_LIGHT_LOGO } from "@/lib/brand-media";
 
 /** Browser-only: renders a saved quotation version to a multi-page A4 PDF and downloads it. */
 export async function downloadQuotePdf(d: PdfQuote) {
@@ -11,7 +11,7 @@ export async function downloadQuotePdf(d: PdfQuote) {
   let y = M;
 
   try {
-    const img = await loadImage(logo.url);
+    const img = await loadImage(BRANTA_LIGHT_LOGO);
     const h = 24, w = (img.width / img.height) * h;
     doc.addImage(img, "PNG", M, y, w, h);
   } catch { doc.setFont("helvetica", "bold").setFontSize(16).setTextColor(...INK).text(d.company.name, M, y + 18); }

@@ -1,5 +1,6 @@
 /** Shared homepage media items stored in page_sections.config.media_items. Client-safe parsing. */
 import { vimeoId } from "@/lib/hero";
+import { resolveBrantaMedia } from "./brand-media";
 import { parsePriority, type VideoPriority } from "@/lib/video-priority";
 
 export type MediaType = "image" | "video" | "vimeo";
@@ -20,17 +21,18 @@ const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
 const obj = (v: unknown) => (v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : {});
 export const isHttps = (v: string) => /^https:\/\/\S+$/.test(v);
 export const isDirectVideo = (v: string) => isHttps(v) && /\.(mp4|webm)(\?|#|$)/i.test(v);
+export const isImageUrl = (v: string) => isHttps(v) || /^\/media\/branta\/[a-z0-9-]+\.(png|webp)([?#]|$)/i.test(v);
 
 export const newMediaItem = (aspect: Aspect = "16:9"): SectionMediaItem => ({
   id: Math.random().toString(36).slice(2, 10), type: "image", url: "", poster_url: "", alt: "", label: "", caption: "",
   enabled: true, sort_order: 0, autoplay: true, muted: true, loop: true, aspect, position: "center", priority: "auto", sound_control: true,
 });
 
-/** Usable publicly: https URL matching its type. */
+/** Public media uses HTTPS, with bundled image paths allowed for site artwork. */
 export function isRenderable(m: SectionMediaItem) {
   if (m.type === "vimeo") return !!vimeoId(m.url);
   if (m.type === "video") return isDirectVideo(m.url);
-  return isHttps(m.url);
+  return isImageUrl(m.url);
 }
 
 export function parseMediaItems(raw: unknown, publicOnly = false, fallbackAspect: Aspect = "16:9"): SectionMediaItem[] {
@@ -39,7 +41,7 @@ export function parseMediaItems(raw: unknown, publicOnly = false, fallbackAspect
     const o = obj(r);
     const type = (["image", "video", "vimeo"] as const).find((t) => t === o["type"]) ?? "image";
     return {
-      id: str(o["id"]) || `m${i}`, type, url: str(o["url"]), poster_url: str(o["poster_url"]), alt: str(o["alt"]).slice(0, 300),
+      id: str(o["id"]) || `m${i}`, type, url: resolveBrantaMedia(str(o["url"])), poster_url: resolveBrantaMedia(str(o["poster_url"])), alt: str(o["alt"]).slice(0, 300),
       label: str(o["label"]).slice(0, 80), caption: str(o["caption"]).slice(0, 200), enabled: o["enabled"] !== false,
       sort_order: Number.isFinite(Number(o["sort_order"])) ? Number(o["sort_order"]) : i,
       autoplay: o["autoplay"] !== false, muted: o["muted"] !== false, loop: o["loop"] !== false,
@@ -49,5 +51,5 @@ export function parseMediaItems(raw: unknown, publicOnly = false, fallbackAspect
     };
   }).sort((a, b) => a.sort_order - b.sort_order);
   if (!publicOnly) return all;
-  return all.filter((m) => m.enabled && isRenderable(m)).map((m) => ({ ...m, poster_url: isHttps(m.poster_url) ? m.poster_url : "", muted: m.autoplay ? true : m.muted }));
+  return all.filter((m) => m.enabled && isRenderable(m)).map((m) => ({ ...m, poster_url: isImageUrl(m.poster_url) ? m.poster_url : "", muted: m.autoplay ? true : m.muted }));
 }

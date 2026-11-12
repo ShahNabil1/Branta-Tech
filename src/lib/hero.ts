@@ -1,4 +1,5 @@
 /** Browser-safe hero types, defaults and config parsing (shared by site + Control Centre). */
+import { resolveBrantaMedia } from "./brand-media";
 
 export type HeroMediaRole = "film" | "fashion" | "product" | "campaign" | "ugc" | "web";
 export type HeroMediaType = "vimeo" | "image" | "video";
@@ -61,7 +62,7 @@ export function vimeoId(url: string) {
   return /vimeo\.com\/(?:.*\/)?(\d{6,})(?:[/?#]|$)/.exec(url.trim())?.[1] ?? null;
 }
 export const isVideoFile = (u: string) => /\.(mp4|webm|m4v|mov)(\?.*)?$/i.test(u);
-const isImageFile = (u: string) => /\.(jpe?g|png|webp|avif|gif)(\?.*)?$/i.test(u) || /vimeocdn\.com|\/storage\/v1\/object\/public\/|\/__l5e\/assets/i.test(u);
+const isImageFile = (u: string) => /\.(jpe?g|png|webp|avif|gif)([?#].*)?$/i.test(u) || /vimeocdn\.com|\/storage\/v1\/object\/public\//i.test(u);
 
 /** Admin validation for one item; null when valid or empty (empty items stay hidden). */
 export function mediaItemError(m: Pick<HeroMediaItem, "type" | "url" | "poster_url">): { url?: string; poster?: string } | null {
@@ -94,8 +95,8 @@ export function parseMediaItems(raw: unknown): HeroMediaItem[] {
       return {
         role: (str(x["role"]) || "product") as HeroMediaRole,
         type: (t === "vimeo" || t === "video" ? t : "image") as HeroMediaType,
-        url: str(x["url"]),
-        poster_url: str(x["poster_url"]),
+        url: resolveBrantaMedia(str(x["url"])),
+        poster_url: resolveBrantaMedia(str(x["poster_url"])),
         label: str(x["label"]),
         alt: str(x["alt"]),
         size_variant: (str(x["size_variant"]) || "small") as HeroMediaItem["size_variant"],

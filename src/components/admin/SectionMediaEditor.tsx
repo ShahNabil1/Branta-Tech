@@ -7,7 +7,7 @@ import { AdminButton, CheckboxInput, ConfirmButton, SelectInput, TextInput, frie
 import { SectionMedia } from "@/components/media/SectionMedia";
 import { PRIORITY_OPTIONS } from "@/components/media/BrantaVideo";
 import { vimeoId } from "@/lib/hero";
-import { ASPECTS, POSITIONS, isDirectVideo, isHttps, isRenderable, newMediaItem, type Aspect, type SectionMediaItem } from "@/lib/section-media";
+import { ASPECTS, POSITIONS, isDirectVideo, isImageUrl, isRenderable, newMediaItem, type Aspect, type SectionMediaItem } from "@/lib/section-media";
 
 const IMG: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/avif": "avif" };
 const VID: Record<string, string> = { "video/mp4": "mp4", "video/webm": "webm" };
@@ -89,7 +89,7 @@ export function SectionMediaEditor({ items, onChange, max = 12, defaultAspect = 
       {hint && <p className="text-caption text-muted-foreground">{hint}</p>}
       {items.length === 0 && <p className="text-small rounded-sm border border-dashed border-border p-4 text-muted-foreground">No media yet. Click "Add media".</p>}
       {items.map((m, i) => {
-        const urlErr = m.url && (m.type === "vimeo" ? !vimeoId(m.url) && "Not a recognised Vimeo link." : m.type === "video" ? !isDirectVideo(m.url) && "Use an https .mp4 or .webm link." : !isHttps(m.url) && "Use an https link.");
+        const urlErr = m.url && (m.type === "vimeo" ? !vimeoId(m.url) && "Not a recognised Vimeo link." : m.type === "video" ? !isDirectVideo(m.url) && "Use an https .mp4 or .webm link." : !isImageUrl(m.url) && "Use an HTTPS image or a bundled image path.");
         return (
           <div key={m.id} className="grid gap-3 rounded-sm border border-border p-3 md:grid-cols-[220px_1fr]">
             <div className="grid content-start gap-2">
@@ -120,7 +120,7 @@ export function SectionMediaEditor({ items, onChange, max = 12, defaultAspect = 
                 <LibraryPicker kind={m.type === "video" ? "video" : "image"} onPick={(url) => upd(i, { url })} />
               </div>}
               {m.type !== "image" && <>
-                <TextInput label="Poster / thumbnail URL" hint="Shown immediately and kept if the video can't play." value={m.poster_url} error={m.poster_url && !isHttps(m.poster_url) ? "Use an https link." : undefined} onChange={(e) => upd(i, { poster_url: e.target.value })} />
+                <TextInput label="Poster / thumbnail URL" hint="Shown immediately and kept if the video can't play." value={m.poster_url} error={m.poster_url && !isImageUrl(m.poster_url) ? "Use an HTTPS image or a bundled image path." : undefined} onChange={(e) => upd(i, { poster_url: e.target.value })} />
                 <div className="flex flex-wrap gap-2">
                   <UploadBtn kind="image" label="Upload poster" onDone={(poster_url) => upd(i, { poster_url })} />
                   <LibraryPicker kind="image" onPick={(poster_url) => upd(i, { poster_url })} />

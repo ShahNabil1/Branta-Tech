@@ -1,4 +1,4 @@
-import logoLight from "@/assets/brand/branta-logo-light.png.asset.json";
+import { BRANTA_LIGHT_LOGO, resolveBrantaMedia } from "@/lib/brand-media";
 import { lazy, Suspense, useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Link, useHydrated, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
@@ -93,7 +93,7 @@ function useBookingUrl(email: string | null) {
 export function BrandLogo({ src, onNavigate }: { src: string | null; onNavigate?: () => void }) {
   return (
     <Link to="/" onClick={onNavigate} aria-label="Branta Tech home" className="flex shrink-0 items-center gap-2 rounded-sm text-foreground">
-      <img src={src ?? logoLight.url} alt="Branta Tech" width={1288} height={308} className="h-7 w-auto" />
+      <img src={src ? resolveBrantaMedia(src) : BRANTA_LIGHT_LOGO} alt="Branta Tech" width={1288} height={308} className="h-7 w-auto" />
     </Link>
   );
 }

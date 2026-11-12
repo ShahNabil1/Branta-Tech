@@ -8,6 +8,7 @@ import { AdminButton, CheckboxInput, PageHeader, SelectInput, TextArea, TextInpu
 import { UploadImageButton } from "@/components/admin/UploadImageButton";
 import { SimpleCrud } from "@/components/admin/SimpleCrud";
 import { RECOGNITION_TYPES, defaultLabel, isLogoUrl } from "@/lib/recognition";
+import { resolveBrantaMedia } from "@/lib/brand-media";
 import type { Tables } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/control-centre/_admin/website/recognition")({
@@ -35,7 +36,7 @@ function RecognitionAdmin() {
         rows={q.data} loading={q.isLoading} error={q.error} empty="No recognitions yet." newLabel="Add recognition"
         renderRow={(r) => (
           <div className="flex items-center gap-3">
-            {r.logo_url ? <img src={r.logo_url} alt="" className="h-10 w-16 rounded-sm bg-background object-contain" /> : <span className="grid h-10 w-16 place-items-center rounded-sm bg-muted text-small">{r.organization.charAt(0)}</span>}
+            {r.logo_url ? <img src={resolveBrantaMedia(r.logo_url)} alt="" className="h-10 w-16 rounded-sm bg-background object-contain" /> : <span className="grid h-10 w-16 place-items-center rounded-sm bg-muted text-small">{r.organization.charAt(0)}</span>}
             <div className="min-w-0">
               <p className="text-small font-medium">{r.organization}</p>
               <p className="text-caption text-muted-foreground">{r.label || defaultLabel(r.type)} · {r.is_published ? "Published" : "Draft"}</p>
@@ -58,7 +59,7 @@ function RecognitionAdmin() {
 function Form({ r, onSaved, nextOrder }: { r: R | null; onSaved: () => void; nextOrder: number }) {
   const [v, setV] = useState({
     type: r?.type ?? "recognition", label: r?.label ?? "", organization: r?.organization ?? "", title: r?.title ?? "",
-    description: r?.description ?? "", year: r?.year ?? "", logo_url: r?.logo_url ?? "", external_url: r?.external_url ?? "",
+    description: r?.description ?? "", year: r?.year ?? "", logo_url: resolveBrantaMedia(r?.logo_url ?? ""), external_url: r?.external_url ?? "",
     sort_order: String(r?.sort_order ?? nextOrder), is_published: r?.is_published ?? false,
   });
   const [busy, setBusy] = useState(false);

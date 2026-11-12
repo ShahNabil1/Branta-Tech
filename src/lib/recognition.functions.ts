@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { queryOptions } from "@tanstack/react-query";
 import { defaultLabel, isLogoUrl } from "./recognition";
+import { resolveBrantaMedia } from "./brand-media";
 
 export type RecognitionItem = {
   id: string; type: string; label: string; title: string | null; organization: string;
@@ -26,7 +27,7 @@ export const getRecognition = createServerFn({ method: "GET" }).handler(async ()
       ctaLabel: sec.cta_label || "", ctaUrl: sec.cta_url || "/work",
       items: rows.map((r) => ({
         id: r.id, type: r.type, label: r.label?.trim() || defaultLabel(r.type), title: r.title, organization: r.organization,
-        description: r.description, year: r.year, logo: r.logo_url && isLogoUrl(r.logo_url) ? r.logo_url : null,
+        description: r.description, year: r.year, logo: r.logo_url && isLogoUrl(r.logo_url) ? resolveBrantaMedia(r.logo_url) : null,
         url: r.external_url && /^https:\/\//.test(r.external_url) ? r.external_url : null,
       })),
     };

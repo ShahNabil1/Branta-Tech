@@ -1,4 +1,5 @@
 /** Browser-safe Capability Explorer types + config parsing (shared by site + Control Centre). */
+import { resolveBrantaMedia } from "./brand-media";
 
 export type CapMediaType = "vimeo" | "image" | "video" | "workflow" | "none";
 export type CapMedia = { type: CapMediaType; url: string; poster_url: string; alt: string; autoplay: boolean; loop: boolean; muted: boolean };
@@ -58,8 +59,8 @@ export function parseCapConfig(raw: unknown): CapConfig {
         cta_url: str(x["cta_url"]),
         media: {
           type: CAP_MEDIA_TYPES.some((t) => t.value === type) ? type : "none",
-          url: str(m["url"]),
-          poster_url: str(m["poster_url"]),
+          url: resolveBrantaMedia(str(m["url"])),
+          poster_url: resolveBrantaMedia(str(m["poster_url"])),
           alt: str(m["alt"]),
           autoplay: m["autoplay"] !== false,
           loop: m["loop"] !== false,
